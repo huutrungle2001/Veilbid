@@ -13,3 +13,8 @@ Planned ownership:
 - `contracts/test-assets/`: faucet token and official ERC-7984 wrapper extension.
 - `test/`: unit, invariant, Nox runtime, and Sepolia suites.
 - `deploy/`, `verify/`, `deployments/`: canonical deployment workflow.
+
+`pnpm test` runs deterministic tests that do not invoke Nox primitives through
+the plain EVM configuration. `pnpm test:nox` is the separate real local Nox
+suite and requires its Docker-backed services; Sepolia remains the mandatory
+confidential-runtime evidence environment.

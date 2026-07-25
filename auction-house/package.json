@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "hardhat build",
-    "test": "hardhat test --no-compile",
-    "test:nox": "hardhat test"
+    "test": "hardhat test --config hardhat.unit.config.ts --no-compile",
+    "test:nox": "hardhat test --config hardhat.config.ts"
   },
   "devDependencies": {
     "@iexec-nox/handle": "0.1.0-beta.13",
