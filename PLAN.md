@@ -7,8 +7,8 @@
 
 - Current phase: Phase 4 — Build design
 - Status: In progress
-- Next action: Freeze the pinned implementation stack and preparation-only Safe
-  module design, then execute Gate E on Ethereum Sepolia.
+- Next action: Implement the preparation-only Safe module and funding consumer,
+  then execute Gate E with a new threshold-1 Safe on Ethereum Sepolia.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None

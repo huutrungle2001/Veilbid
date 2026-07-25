@@ -10,12 +10,24 @@
 - Confidential client: `@iexec-nox/handle`.
 - Contracts: Solidity 0.8.35, Hardhat 3, Node 24.
 - Confidential assets: official ERC-7984 wrapper.
-- Smart account: Safe v1.4.1-compatible deployment and restricted module.
+- Smart account: Safe v1.4.1 deployed through
+  `@safe-global/protocol-kit@8.0.4` and a VeilBid preparation-only module.
 - Automation: stateless Node finalizer.
 - Optional integration: MCP stdio, read-only by default.
 - Data model: chain events plus rebuildable local caches; no database.
 
-Pin exact versions after the feasibility scaffold installs successfully.
+Pinned implementation versions:
+
+- `@iexec-nox/nox-protocol-contracts@0.2.4`
+- `@iexec-nox/nox-confidential-contracts@0.2.2`
+- `@iexec-nox/handle@0.1.0-beta.13`
+- `@safe-global/protocol-kit@8.0.4`
+- `hardhat@3.11.1`
+- `solc@0.8.35`
+- `node@24.18.0`
+- `pnpm@10.33.0`
+
+Transitive versions remain frozen by `pnpm-lock.yaml`.
 
 ## 2. Release architecture depth
 

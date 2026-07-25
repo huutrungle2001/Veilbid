@@ -128,7 +128,7 @@ This is mandatory for the product but may run after Gates A–D:
 
 - Deploy a separate Sepolia Safe and restricted VeilBid module.
 - Owner prepares a budget/tender input handle against the module.
-- Module grants only the approved market/escrow access.
+- Module grants only the configured Safe and approved market access.
 - The module exposes no Safe execution function; preparing the handle alone
   cannot move funds.
 - A normal Safe transaction satisfying the configured threshold consumes the
@@ -137,6 +137,10 @@ This is mandatory for the product but may run after Gates A–D:
   one-time nonce; cross-action and replay attempts fail.
 - Revoking the module prevents new preparation without moving Safe balances or
   changing owners.
+
+The module may be registered in the Safe module registry solely as a revocable
+enablement signal, but it must not implement or call
+`execTransactionFromModule` or `execTransactionFromModuleReturnData`.
 
 If browser-based higher-threshold signing is not implemented, use a 1-of-1 demo
 Safe and document higher-threshold execution through Safe Wallet.
