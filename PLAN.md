@@ -6,15 +6,15 @@
 ## 1. Current status
 
 - Current phase: Phase 7 — Submission
-- Status: Waiting for approval
-- Next action: With user approval, make `huutrungle2001/Veilbid` public; then
-  attach the user's final demo video before publishing the X and DoraHacks
-  entries.
-- Current blocker: The GitHub repository is private, and the real-person video,
-  X post, and DoraHacks submission require user-controlled publication.
-- Awaiting approval from: Hữu Trung — public repository visibility and final
-  publication inputs.
-- Last updated: 2026-07-26T03:16:34+07:00
+- Status: In progress
+- Next action: Validate the final navigation, wallet selector, contrast,
+  documentation, and landing-page polish; deploy the verified commit to Vercel;
+  then return to publication approval.
+- Current blocker: None for the final web release. Repository visibility,
+  real-person video, X post, and DoraHacks publication remain user-controlled
+  follow-up actions.
+- Awaiting approval from: None for the final web release.
+- Last updated: 2026-07-26T03:28:48+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -48,7 +48,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Waiting for approval |
+| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | In progress |
 
 Only one phase may be `In progress`.
 
