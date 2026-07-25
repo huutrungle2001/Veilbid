@@ -67,6 +67,15 @@ function git(args) {
   return result.stdout.trim();
 }
 
+function gitSucceeds(args) {
+  return (
+    spawnSync("git", args, {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+    }).status === 0
+  );
+}
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
@@ -96,6 +105,29 @@ function assertSourceState(sourceCommit) {
     changes.every((line) => line.slice(3) === allowedPath),
     true,
     "WORKTREE_NOT_CLEAN",
+  );
+}
+
+function assertReleaseSourceCompatible(sourceCommit, currentCommit) {
+  assert.equal(
+    gitSucceeds(["merge-base", "--is-ancestor", sourceCommit, currentCommit]),
+    true,
+    "RELEASE_SOURCE_NOT_ANCESTOR",
+  );
+  assert.equal(
+    gitSucceeds([
+      "diff",
+      "--quiet",
+      sourceCommit,
+      currentCommit,
+      "--",
+      "auction-house/contracts",
+      "auction-house/hardhat.config.ts",
+      "auction-house/package.json",
+      "pnpm-lock.yaml",
+    ]),
+    true,
+    "RELEASE_SOURCE_DRIFT",
   );
 }
 
@@ -132,27 +164,41 @@ function newManifest(sourceCommit, deployer, safeSaltNonce) {
   };
 }
 
+async function retry(operation, code) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      return await operation();
+    } catch {
+      if (attempt === 4) throw new Error(code);
+      await new Promise((resolve) => setTimeout(resolve, 3_000));
+    }
+  }
+  throw new Error(code);
+}
+
 async function main() {
   const rpcUrl = requiredEnvironment("SEPOLIA_RPC_URL");
   const privateKey = privateKeyFromEnvironment();
   const deployer = privateKeyToAccount(privateKey);
-  const sourceCommit = git(["rev-parse", "HEAD"]);
-  assertSourceState(sourceCommit);
-  const safeSaltNonce = BigInt(`0x${sourceCommit}`).toString();
+  const currentCommit = git(["rev-parse", "HEAD"]);
+  assertSourceState(currentCommit);
 
   if (existsSync(deploymentPath)) {
     manifest = readJson(deploymentPath);
     assert.equal(manifest.kind, "release");
     assert.equal(manifest.verified, false);
-    assert.equal(manifest.sourceCommit, sourceCommit);
+    assertReleaseSourceCompatible(
+      manifest.sourceCommit,
+      currentCommit,
+    );
     assert.equal(
       getAddress(manifest.deployedBy),
       getAddress(deployer.address),
     );
-    assert.equal(manifest.safe.saltNonce, safeSaltNonce);
   } else {
+    const safeSaltNonce = BigInt(`0x${currentCommit}`).toString();
     manifest = newManifest(
-      sourceCommit,
+      currentCommit,
       deployer.address,
       safeSaltNonce,
     );
@@ -174,23 +220,36 @@ async function main() {
     chain: sepolia,
     transport,
   });
-  assert.equal(await publicClient.getChainId(), sepolia.id);
+  assert.equal(
+    await retry(
+      () => publicClient.getChainId(),
+      "SEPOLIA_CHAIN_ID_UNAVAILABLE",
+    ),
+    sepolia.id,
+  );
 
-  const predictedSafeKit = await Safe.init({
-    provider: rpcUrl,
-    signer: privateKey,
-    predictedSafe: {
-      safeAccountConfig: {
-        owners: [deployer.address],
-        threshold: 1,
-      },
-      safeDeploymentConfig: {
-        safeVersion: "1.4.1",
-        saltNonce: safeSaltNonce,
-      },
-    },
-  });
-  const predictedSafeAddress = await predictedSafeKit.getAddress();
+  const predictedSafeKit = await retry(
+    () =>
+      Safe.init({
+        provider: rpcUrl,
+        signer: privateKey,
+        predictedSafe: {
+          safeAccountConfig: {
+            owners: [deployer.address],
+            threshold: 1,
+          },
+          safeDeploymentConfig: {
+            safeVersion: "1.4.1",
+            saltNonce: manifest.safe.saltNonce,
+          },
+        },
+      }),
+    "SAFE_INITIALIZATION_FAILED",
+  );
+  const predictedSafeAddress = await retry(
+    () => predictedSafeKit.getAddress(),
+    "SAFE_ADDRESS_PREDICTION_FAILED",
+  );
 
   if (dryRun) {
     console.log(
@@ -198,7 +257,7 @@ async function main() {
         mode: "dry-run",
         network: manifest.network,
         chainId: manifest.chainId,
-        sourceCommit,
+        sourceCommit: manifest.sourceCommit,
         deployer: deployer.address,
         predictedSafe: predictedSafeAddress,
         operations: [
@@ -219,10 +278,14 @@ async function main() {
   saveManifest();
 
   async function confirmedReceipt(hash) {
-    const receipt = await publicClient.waitForTransactionReceipt({
-      hash,
-      confirmations: 2,
-    });
+    const receipt = await retry(
+      () =>
+        publicClient.waitForTransactionReceipt({
+          hash,
+          confirmations: 2,
+        }),
+      "TRANSACTION_RECEIPT_UNAVAILABLE",
+    );
     assert.equal(receipt.status, "success");
     return receipt;
   }
@@ -230,9 +293,13 @@ async function main() {
   async function deployContract(name, artifact, args = []) {
     const current = manifest.contracts[name];
     if (current?.address) {
-      const code = await publicClient.getCode({
-        address: current.address,
-      });
+      const code = await retry(
+        () =>
+          publicClient.getCode({
+            address: current.address,
+          }),
+        "DEPLOYED_CODE_UNAVAILABLE",
+      );
       assert.ok(code && code !== "0x");
       return getAddress(current.address);
     }
@@ -285,10 +352,19 @@ async function main() {
     abi: artifacts.VeilBidMarket.abi,
     client: publicClient,
   });
-  const receiptAddress = getAddress(await market.read.awardReceipt());
-  const receiptCode = await publicClient.getCode({
-    address: receiptAddress,
-  });
+  const receiptAddress = getAddress(
+    await retry(
+      () => market.read.awardReceipt(),
+      "RECEIPT_ADDRESS_UNAVAILABLE",
+    ),
+  );
+  const receiptCode = await retry(
+    () =>
+      publicClient.getCode({
+        address: receiptAddress,
+      }),
+    "RECEIPT_CODE_UNAVAILABLE",
+  );
   assert.ok(receiptCode && receiptCode !== "0x");
   const marketDeployment = manifest.contracts.VeilBidMarket;
   manifest.contracts.VeilBidAwardReceipt = {
@@ -305,11 +381,22 @@ async function main() {
       getAddress(existingSafe.address),
       getAddress(predictedSafeAddress),
     );
-    assert.equal(await predictedSafeKit.isSafeDeployed(), true);
+    assert.equal(
+      await retry(
+        () => predictedSafeKit.isSafeDeployed(),
+        "SAFE_DEPLOYMENT_CHECK_FAILED",
+      ),
+      true,
+    );
   } else {
     let safeDeploymentHash = existingSafe?.deploymentTransaction;
     if (!safeDeploymentHash) {
-      if (await predictedSafeKit.isSafeDeployed()) {
+      if (
+        await retry(
+          () => predictedSafeKit.isSafeDeployed(),
+          "SAFE_DEPLOYMENT_CHECK_FAILED",
+        )
+      ) {
         throw new Error("SAFE_DEPLOYMENT_TRANSACTION_MISSING");
       }
       const transaction =
@@ -327,7 +414,13 @@ async function main() {
     }
     const safeDeploymentReceipt =
       await confirmedReceipt(safeDeploymentHash);
-    assert.equal(await predictedSafeKit.isSafeDeployed(), true);
+    assert.equal(
+      await retry(
+        () => predictedSafeKit.isSafeDeployed(),
+        "SAFE_DEPLOYMENT_CHECK_FAILED",
+      ),
+      true,
+    );
     manifest.contracts.VeilBidDemoSafe = {
       address: getAddress(predictedSafeAddress),
       deploymentTransaction: safeDeploymentHash,
@@ -336,15 +429,30 @@ async function main() {
     saveManifest();
   }
 
-  const safeKit = await predictedSafeKit.connect({
-    safeAddress: predictedSafeAddress,
-  });
+  const safeKit = await retry(
+    () =>
+      predictedSafeKit.connect({
+        safeAddress: predictedSafeAddress,
+      }),
+    "SAFE_CONNECTION_FAILED",
+  );
   assert.equal(safeKit.getContractVersion(), "1.4.1");
   assert.deepEqual(
-    (await safeKit.getOwners()).map((owner) => getAddress(owner)),
+    (
+      await retry(
+        () => safeKit.getOwners(),
+        "SAFE_OWNERS_UNAVAILABLE",
+      )
+    ).map((owner) => getAddress(owner)),
     [getAddress(deployer.address)],
   );
-  assert.equal(await safeKit.getThreshold(), 1);
+  assert.equal(
+    await retry(
+      () => safeKit.getThreshold(),
+      "SAFE_THRESHOLD_UNAVAILABLE",
+    ),
+    1,
+  );
 
   stage = "MODULE_DEPLOYMENT";
   const moduleAddress = await deployContract(
@@ -366,7 +474,13 @@ async function main() {
   async function executeSafeTransaction(label, transaction) {
     let hash = manifest.configurationTransactions[label]?.transactionHash;
     if (!hash) {
-      const result = await safeKit.executeTransaction(transaction);
+      const result = await retry(
+        () =>
+          safeKit.executeTransaction(transaction, {
+            gasLimit: 500_000n,
+          }),
+        "SAFE_TRANSACTION_SUBMISSION_FAILED",
+      );
       hash = result.hash;
       manifest.configurationTransactions[label] = {
         transactionHash: hash,
@@ -391,16 +505,30 @@ async function main() {
   }
 
   stage = "MODULE_ENABLEMENT";
-  if (!(await safeKit.isModuleEnabled(moduleAddress))) {
+  if (
+    !(await retry(
+      () => safeKit.isModuleEnabled(moduleAddress),
+      "SAFE_MODULE_STATE_UNAVAILABLE",
+    ))
+  ) {
     await executeSafeTransaction(
       "enableModule",
       await safeKit.createEnableModuleTx(moduleAddress),
     );
   }
-  assert.equal(await safeKit.isModuleEnabled(moduleAddress), true);
+  assert.equal(
+    await retry(
+      () => safeKit.isModuleEnabled(moduleAddress),
+      "SAFE_MODULE_STATE_UNAVAILABLE",
+    ),
+    true,
+  );
 
   stage = "MARKET_CONFIGURATION";
-  const configuredMarket = await module.read.market();
+  const configuredMarket = await retry(
+    () => module.read.market(),
+    "MODULE_MARKET_UNAVAILABLE",
+  );
   if (configuredMarket === "0x0000000000000000000000000000000000000000") {
     await executeSafeCall(
       "configureMarket",
@@ -413,16 +541,25 @@ async function main() {
     );
   }
   assert.equal(
-    getAddress(await module.read.market()),
+    getAddress(
+      await retry(
+        () => module.read.market(),
+        "MODULE_MARKET_UNAVAILABLE",
+      ),
+    ),
     getAddress(marketAddress),
   );
 
   stage = "OPERATOR_AUTHORIZATION";
   if (
-    !(await wrapper.read.isOperator([
-      predictedSafeAddress,
-      marketAddress,
-    ]))
+    !(await retry(
+      () =>
+        wrapper.read.isOperator([
+          predictedSafeAddress,
+          marketAddress,
+        ]),
+      "WRAPPER_OPERATOR_STATE_UNAVAILABLE",
+    ))
   ) {
     await executeSafeCall(
       "authorizeMarket",
@@ -435,10 +572,14 @@ async function main() {
     );
   }
   assert.equal(
-    await wrapper.read.isOperator([
-      predictedSafeAddress,
-      marketAddress,
-    ]),
+    await retry(
+      () =>
+        wrapper.read.isOperator([
+          predictedSafeAddress,
+          marketAddress,
+        ]),
+      "WRAPPER_OPERATOR_STATE_UNAVAILABLE",
+    ),
     true,
   );
 
