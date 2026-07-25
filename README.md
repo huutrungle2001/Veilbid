@@ -108,6 +108,7 @@ pnpm test
 pnpm lint
 pnpm build
 pnpm test:production https://veilbid-three.vercel.app
+pnpm test:keyboard https://veilbid-three.vercel.app
 ```
 
 Write-enabled Sepolia commands require the documented local environment. Never

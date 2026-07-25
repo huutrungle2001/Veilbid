@@ -163,6 +163,7 @@ pnpm finalizer:health
 pnpm finalizer:dry
 pnpm verify:deployment:release
 pnpm test:production https://veilbid-three.vercel.app
+pnpm test:keyboard https://veilbid-three.vercel.app
 ```
 
 Write-enabled Sepolia suites are individually named in root `package.json` and

@@ -34,8 +34,8 @@
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PARTIAL — 12 tests cover planning, canonical rereads, sequential shared budget, stale races, sanitized failures, configuration, and health; verified release health/dry-run pass while relay-originated live close/finalize writes remain pending |
 | MCP read-only | Public queries, strict schemas, no signer/write/reveal | PASS — five stdio tools query finalized tender/readiness/settlement/receipt/ACL state; seven tests and static policy inspection exclude signer, writes, decryption, handles, and raw errors |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — deterministic rebuild/dedupe/guards and bounded finalized Sepolia RPC pagination pass; reorg rollback pending |
-| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 40 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, canonical release labeling, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
-| Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PARTIAL — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible form/control focus, reduced-motion handling, and live status regions; automated browser keyboard traversal remains pending |
+| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 43 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, canonical release labeling, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
+| Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PASS — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible focus, reduced-motion handling, and live regions; production Chrome verified forward/reverse traversal, Enter activation, persistent route state, and hash-target clearance below the sticky header |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
@@ -115,6 +115,7 @@ pnpm finalizer:dry
 pnpm test:ui
 pnpm verify:deployment:release
 pnpm test:production https://veilbid-three.vercel.app
+pnpm test:keyboard https://veilbid-three.vercel.app
 pnpm secret:scan
 pnpm evidence:validate
 ```
@@ -157,5 +158,6 @@ pnpm evidence:validate
 | 2026-07-26 | Full-history secret scan | `705e16b` | `evidence/local/secret-scan.json` | PASS — ignored environments remain untracked; no credential pattern or historical environment file found across 207 current files and 546 historical blobs |
 | 2026-07-26 | Canonical release gate | `0f8b9db` | `evidence/local/release-gate.json` | PASS — all workspace tests, typed lint, compile, Vite/vinext builds, binding/source/deployment checks, verified relay health/dry-run, secret scan, and evidence validation passed |
 | 2026-07-26 | Vercel production frontend | `b2f9842` | `evidence/sepolia/production-smoke.json` | PASS — deployment `dpl_3GjxxULLLtW3iWkLNkTNpM8xDHWP`, canonical URL, and all SPA routes returned 200; 1440×1000 and 390×844 browser smoke verified the shared navigation, active Tenders state, release tender #1, award, and receipt wallet-free |
+| 2026-07-26 | Production keyboard navigation | `f8f1967` | `evidence/sepolia/production-keyboard.json` | PASS — real Chrome Tab/Shift+Tab order, visible focus, skip link, Enter-activated Docs/Evidence routes, persistent header state, and sticky-header hash clearance verified without a wallet |
 | 2026-07-26 | Submission release gate | `0eb4287` | `evidence/local/submission-gate.json` | PASS — full tests/lint/build, bindings, live release source/deployment/Safe wiring, relay health/dry-run, full-history secret scan, evidence validation, and claim review passed |
 | 2026-07-26 | Clean-environment release CI | `5258186` | `evidence/local/release-ci.json` | PASS — fresh full-history checkout completed locked install, contract compile, workspace tests, typed lint, build, binding drift, history secret scan, and evidence validation |

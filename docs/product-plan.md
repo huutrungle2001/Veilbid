@@ -135,7 +135,7 @@ Disclosure policy:
 - [x] Wallet-free event-derived tender explorer.
 - [x] Award receipt and activity/recovery UI.
 - [x] Stateless finalizer with dry-run and bounded actions.
-- [ ] Responsive, keyboard-operable production frontend.
+- [x] Responsive, keyboard-operable production frontend.
 - [x] Buyer cancellation before the first bid.
 
 ### Should have
