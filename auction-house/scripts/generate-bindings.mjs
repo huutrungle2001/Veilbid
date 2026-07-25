@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdirSync,
   readFileSync,
   writeFileSync,
@@ -66,12 +67,35 @@ for (const contract of contracts) {
   });
 }
 
-const deployment = readJson(
-  resolve(auctionHouseRoot, "deployments/sepolia.test.json"),
+const deploymentDefinitions = [
+  {
+    input: "deployments/sepolia.test.json",
+    output: "addresses/sepolia.test.json",
+  },
+  {
+    input: "deployments/sepolia.release.json",
+    output: "addresses/sepolia.release.json",
+  },
+].filter(({ input }) =>
+  existsSync(resolve(auctionHouseRoot, input)),
 );
-const addressOutput = "addresses/sepolia.test.json";
-const addressContent = serialized(deployment);
-outputs.set(addressOutput, addressContent);
+
+const deployments = [];
+for (const definition of deploymentDefinitions) {
+  const deployment = readJson(
+    resolve(auctionHouseRoot, definition.input),
+  );
+  const addressContent = serialized(deployment);
+  outputs.set(definition.output, addressContent);
+  deployments.push({
+    network: deployment.network,
+    chainId: deployment.chainId,
+    kind: deployment.kind,
+    verified: deployment.verified,
+    addresses: definition.output,
+    sha256: digest(addressContent),
+  });
+}
 
 outputs.set(
   "manifest.json",
@@ -79,16 +103,7 @@ outputs.set(
     schemaVersion: 1,
     generator: "auction-house/scripts/generate-bindings.mjs",
     contracts: manifestContracts,
-    deployments: [
-      {
-        network: deployment.network,
-        chainId: deployment.chainId,
-        kind: deployment.kind,
-        verified: deployment.verified,
-        addresses: addressOutput,
-        sha256: digest(addressContent),
-      },
-    ],
+    deployments,
   }),
 );
 
