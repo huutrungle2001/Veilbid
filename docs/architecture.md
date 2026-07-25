@@ -40,6 +40,7 @@ flowchart LR
 Canonical tender and bid state:
 
 - Creates and funds tenders.
+- Stores the public one-to-eight-address approved-vendor set.
 - Imports encrypted vendor prices.
 - Maintains encrypted best price and winner ID.
 - Controls lifecycle and terminal-state guards.
@@ -93,6 +94,11 @@ Each stored bid has:
 - Public submission block/time.
 - Public lifecycle status.
 
+Only a buyer-approved vendor address may submit, and each approved address has
+one immutable bid slot. The allowlist is public and fixed at tender creation.
+This prevents outsiders from exhausting the bounded eight-bid capacity; vendor
+identity is not a privacy goal.
+
 Tender accumulator:
 
 - `encryptedBestPrice`: initialized to encrypted `ceiling + 1`.
@@ -103,6 +109,9 @@ Tender accumulator:
 - Ties keep the earlier valid bid.
 
 No contract function accepts a winner address as an independent decision input.
+Bid IDs are one-indexed so encrypted zero remains the unambiguous no-winner
+sentinel. The selected unsigned encrypted type and public ceiling bound must
+make `ceiling + 1` non-overflowing.
 
 ## 5. Two-phase finalization
 
@@ -117,7 +126,7 @@ sequenceDiagram
     M->>M: freeze accumulator and allow public winner-ID decryption
     F->>N: publicDecrypt(winnerIdHandle)
     N-->>F: winnerBidId + proof
-    F->>M: finalizeTender(tenderId, proof)
+    F->>M: finalizeTender(tenderId, winnerId, proof)
     M->>M: Nox.publicDecrypt and bind bidId to stored vendor
     M->>E: confidential payment + buyer remainder
     M-->>F: Awarded/Refunded event and receipt
@@ -125,6 +134,9 @@ sequenceDiagram
 
 Close and finalize are separate because public proof availability can lag the
 mined close transaction. Activity stores the recoverable public request state.
+A closed tender has no timeout-refund path: it remains `Closed` until the proof
+is available, preserving the result for valid vendors instead of allowing a
+buyer refund during a Nox outage.
 
 ## 6. Off-chain applications
 
@@ -186,7 +198,8 @@ There is no application database or authentication server.
 
 - RPC failure: preserve last finalized public checkpoint and show stale state.
 - Nox indexing delay: bounded retry with explicit pending/retry state.
-- Proof delay: persist closable proof request and resume without reclosing.
+- Proof delay: persist the close/proof request and resume without reclosing; the
+  escrow remains locked while Nox public decryption is unavailable.
 - Competing finalizer: reread status and simulate; treat stale race as benign.
 - Wallet disconnect/network change: clear revealed plaintext and writes.
 - Safe module revoked: public finalize/refund remains available; owner module

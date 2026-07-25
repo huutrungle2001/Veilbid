@@ -23,6 +23,7 @@
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | PENDING |
 | Proof recovery | Close survives reload/indexing delay and resumes | PENDING |
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PENDING |
+| Escrow solvency | Atomic escrow equals public ceiling | PENDING |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PENDING |
 | Reentrancy | Token/receipt callbacks cannot corrupt lifecycle | PENDING |
 | Selective ACL | Vendor/buyer/auditor allowed; unrelated account denied | PENDING |
@@ -47,17 +48,19 @@
 5. Zero bid does not win.
 6. Over-ceiling bid does not win.
 7. Ninth bid is rejected.
-8. Bid after deadline is rejected.
-9. Close before deadline is rejected.
-10. Anyone can close after deadline.
-11. Wrong proof/value/tender fails.
-12. Nonzero winner maps to the correct stored vendor.
-13. Zero winner refunds full budget.
-14. Winner payment plus buyer remainder equals budget.
-15. Second terminal action fails.
-16. Unauthorized viewer cannot decrypt.
-17. Buyer cancellation is allowed only under specified pre-bid conditions.
-18. Safe module cannot call an unapproved target/selector/token.
+8. Unapproved vendor and duplicate vendor bid are rejected.
+9. Bid after deadline is rejected.
+10. Close before deadline is rejected.
+11. Anyone can close after deadline.
+12. Wrong proof/value/tender fails.
+13. Nonzero winner maps to the correct stored vendor.
+14. Zero winner refunds the full public ceiling.
+15. Winner payment plus buyer remainder equals the public ceiling.
+16. A closed tender cannot be timeout-refunded while proof is unavailable.
+17. Second terminal action fails.
+18. Unauthorized viewer cannot decrypt.
+19. Buyer cancellation is allowed only under specified pre-bid conditions.
+20. Safe module cannot call an unapproved target/selector/token.
 
 ## 4. Property and invariant targets
 
@@ -110,4 +113,3 @@ npm run verify:deployment
 | Date | Environment | Commit | Evidence | Result |
 |---|---|---|---|---|
 |  |  |  |  |  |
-

@@ -14,7 +14,6 @@ paymentToken
 metadataHash
 publicCeiling
 bidDeadline
-finalizeDeadline
 status
 bidCount
 encryptedBudget
@@ -44,7 +43,6 @@ stateDiagram-v2
     Open --> Cancelled: buyer cancels before first bid
     Closed --> Awarded: valid winner proof + settlement
     Closed --> Refunded: proof establishes no valid bid
-    Open --> Refunded: refund after terminal timeout
     Cancelled --> [*]
     Awarded --> [*]
     Refunded --> [*]
@@ -60,9 +58,8 @@ No transition leaves a terminal state.
 - `createTenderAuthorized(...)`
 - `submitBid(tenderId, encryptedPrice, proof)`
 - `closeTender(tenderId)`
-- `finalizeTender(tenderId, winnerProof)`
+- `finalizeTender(tenderId, winnerBidId, winnerProof)`
 - `cancelTender(tenderId)`
-- `refundExpiredTender(tenderId)`
 - `grantBidViewer(tenderId, bidId, viewer)`
 - `grantTenderViewer(tenderId, viewer)`
 - `getTender(tenderId)`
@@ -84,9 +81,13 @@ Public validation:
 
 - Nonzero buyer/token and supported token.
 - Ceiling within demo bounds.
-- Bid deadline in future; finalize deadline after bid deadline.
-- Maximum eight bids.
-- One active bid per vendor unless replacement is explicitly designed.
+- Bid deadline is in the future.
+- One to eight unique, nonzero approved vendor addresses are fixed at creation.
+- Only an approved vendor can submit, exactly once; bids are immutable.
+- Escrow amount equals the public ceiling and is transferred atomically with
+  tender creation.
+- Ceiling fits the selected encrypted unsigned type and `ceiling + 1` cannot
+  overflow.
 - Only buyer can cancel before first bid.
 
 Encrypted validation:
@@ -129,14 +130,20 @@ Do not emit validity or comparison result.
 - Updates terminal status before external token callbacks.
 - Mints receipt only for `Awarded`.
 
+There is no timeout refund after close. A closed tender remains recoverable until
+the Nox public-decryption proof becomes available. This intentionally favors
+award fairness over fund liveness during a Nox outage.
+
 ## 7. Invariants
 
-- Sum of confidential winner payment and buyer refund equals escrowed budget.
+- Escrowed budget equals the public ceiling.
+- Sum of confidential winner payment and buyer refund equals the public ceiling.
 - At most one terminal settlement per tender.
 - Winner is always the owner of the proof-derived bid ID.
 - A zero/over-ceiling bid cannot be selected.
 - A valid lower bid replaces a higher bid.
 - Equal valid bids preserve deterministic first-submission priority.
+- Only approved vendors have bid slots, and each can submit at most once.
 - Public finalizers cannot cancel, change terms, or decrypt prices.
 - Module preparation alone cannot transfer Safe funds.
 - Contract source contains no plaintext bid mapping.
@@ -171,4 +178,3 @@ inspection. Logs and webhook payloads must not repeat complete proof bytes.
 Hackathon contracts should be non-upgradeable unless a concrete requirement
 justifies upgradeability. Ownership must not provide an arbitrary withdrawal or
 winner override. Admin capabilities and compromise impact must be documented.
-

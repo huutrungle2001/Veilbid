@@ -51,8 +51,10 @@ VeilBid combines:
 |---|---|
 | Tender ID, buyer, metadata URI/hash | Public |
 | Payment token and public ceiling | Public |
-| Bid and settlement deadlines | Public |
+| Approved vendor addresses | Public |
+| Bid deadline | Public |
 | Bidder addresses and bid count | Public |
+| Initial escrow amount | Equal to the public ceiling by construction |
 | Bid price and encrypted validity/candidate state | Confidential |
 | Encrypted best price and winner ID before close | Confidential |
 | Winning vendor after proof finalization | Public |
@@ -66,7 +68,8 @@ VeilBid combines:
 
 1. Connect on Sepolia and obtain/wrap test USDC.
 2. Create a tender with public ceiling and deadlines.
-3. Encrypt and escrow the budget.
+3. Encrypt the public ceiling as the budget amount and escrow exactly that
+   amount through ERC-7984.
 4. Monitor public bid activity without seeing unauthorized prices.
 5. Close or let a finalizer close after deadline.
 6. Verify the proof-derived winner and confidential settlement.
@@ -94,7 +97,8 @@ VeilBid combines:
 2. Close the tender and expose only the winner-ID handle for public decryption.
 3. Obtain the Nox public-decryption proof.
 4. Finalize the proof-derived winner and settlement.
-5. Refund a no-valid-bid or expired tender.
+5. Finalize a no-valid-bid tender as a full refund after the winner proof
+   establishes the zero sentinel.
 
 ## 7. MVP
 
@@ -103,7 +107,9 @@ VeilBid combines:
 - [ ] Faucet-backed Sepolia test USDC and official ERC-7984 wrapper.
 - [ ] EOA and Safe-owned tender funding.
 - [ ] One confidential price criterion and one payment token.
-- [ ] At most eight bids per tender for bounded demo/test behavior.
+- [ ] One to eight buyer-approved vendor addresses per tender, with one bid per
+  approved vendor.
+- [ ] Escrow exactly the public ceiling so every valid bid is fully funded.
 - [ ] Encrypted bid validation against zero and public ceiling.
 - [ ] Encrypted best-price and winner-ID accumulation.
 - [ ] Permissionless close and proof-based finalize/refund.
@@ -113,6 +119,7 @@ VeilBid combines:
 - [ ] Award receipt and activity/recovery UI.
 - [ ] Stateless finalizer with dry-run and bounded actions.
 - [ ] Responsive, keyboard-operable production frontend.
+- [ ] Buyer cancellation before the first bid.
 
 ### Should have
 
@@ -124,7 +131,6 @@ VeilBid combines:
 ### Could have
 
 - [ ] Vendor public bond.
-- [ ] Buyer cancellation before the first bid.
 - [ ] Multiple procurement categories or metadata templates.
 - [ ] Webhook notification from the finalizer.
 
@@ -150,7 +156,8 @@ handle and verified against the stored bid owner.
 
 | Feature | Completion condition |
 |---|---|
-| Tender creation | Real Sepolia event and funded confidential escrow |
+| Tender creation | Real Sepolia event and confidential ERC-7984 escrow equal to the public ceiling |
+| Vendor admission | Only an approved vendor can submit, at most once |
 | Vendor bid | External handle/proof imported and stored without plaintext |
 | Winner selection | Nox comparisons/select update encrypted price and ID |
 | Public result | On-chain proof verification derives winner ID |
@@ -160,7 +167,7 @@ handle and verified against the stored bid owner.
 | Safe custody | Safe owns funds; owner/module preparation cannot bypass threshold |
 | Selective audit | Explicit viewer can decrypt selected handle only |
 | Public UX | Lifecycle and proof evidence load without wallet |
-| Recovery | Proof/indexing delay survives reload and can be retried |
+| Recovery | A closed tender remains recoverable until proof finalization succeeds |
 
 ## 11. Four-minute demo
 
@@ -179,4 +186,3 @@ Use a pre-funded Safe and two prepared vendor wallets:
 - [ ] User approves this MVP and non-goals.
 - [ ] Mandatory feasibility gates pass.
 - [ ] Build Plan is approved.
-

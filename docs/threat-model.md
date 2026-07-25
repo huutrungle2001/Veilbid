@@ -26,6 +26,7 @@ VeilBid aims to:
 | Winning vendor after finalize | Public | Everyone |
 | ERC-7984 balances/payments | Handle public; value private | Holder and explicit viewers |
 | Tender metadata/ceiling/deadlines | Public | Everyone |
+| Approved vendor addresses | Public | Everyone |
 | Bidder addresses/timing/count | Public | Everyone |
 | Safe owners/threshold/module | Public | Everyone |
 | Revealed plaintext | Browser session | Authorizing wallet/browser |
@@ -78,7 +79,7 @@ same risk as that wallet.
 | Later vendor copies earlier price | Prices are encrypted handles | Timing and bidder identity remain public |
 | UI submits favored winner | Winner derived only from stored public-decryption proof | Nox/contract correctness is trusted |
 | Invalid zero/over-ceiling bid wins | Encrypted validity maps it to sentinel | Comparison implementation may contain bugs |
-| Buyer withholds close | Close/finalize/refund are permissionless | Proof service outage delays liveness |
+| Buyer withholds close | Close/finalize are permissionless | Proof service outage locks a closed escrow until recovery |
 | Double settlement/replay | Terminal state before external calls and proof binding | Unaudited contract bugs |
 | Malicious token callback | Canonical wrapper allowlist, guard, checks-effects-interactions | Wrapper/Nox compromise |
 | Finalizer logs confidential material | Sanitized schema excludes handles/proofs/plaintext/keys | Host compromise |
@@ -87,7 +88,7 @@ same risk as that wallet.
 | Buyer Safe module overreach | Fixed Safe, target, token, consumer, selector allowlists | Module bug or owner compromise |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
-| Bid spam | Eight-bid cap and optional bond | Public identities can rotate |
+| Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |
 | Tie manipulation | Deterministic first-valid-bid rule | Transaction ordering remains public |
 
 ## 5. Compromise impact
@@ -100,6 +101,8 @@ same risk as that wallet.
   any remaining privilege is documented before deploy.
 - Finalizer: attacker can spend finalizer gas and race public actions only.
 - Nox infrastructure: encrypted confidentiality/correctness may fail.
+- Nox public-decryption outage: a closed tender and its escrow remain locked
+  until proof service recovers; there is no buyer timeout escape after close.
 - Wrapper: collateral and reusable approvals may be at risk.
 - RPC: clients may see stale/misleading state; signing remains local.
 
@@ -120,4 +123,3 @@ same risk as that wallet.
 - Off-chain service delivery and legal disputes.
 - Sybil, collusion, bribery, or transaction-ordering elimination.
 - Formal security/economic audit.
-
