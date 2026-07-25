@@ -344,6 +344,7 @@ export function ExplorerView({
           role={activeRole}
           wallet={wallet}
           tenders={index.tenders}
+          bids={index.bids}
           onRefresh={onRetry}
         />
       ) : (

@@ -1,4 +1,5 @@
-import type { PublicTender } from "@veilbid/chain-bindings";
+import type { PublicBid, PublicTender } from "@veilbid/chain-bindings";
+import { DisclosurePanel } from "../disclosure/DisclosurePanel";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { BuyerTenderForm } from "./BuyerTenderForm";
 import { VendorBidForm } from "./VendorBidForm";
@@ -9,11 +10,13 @@ export function RoleWorkspace({
   role,
   wallet,
   tenders,
+  bids,
   onRefresh,
 }: {
   role: InteractiveRole;
   wallet: WalletController;
   tenders: readonly PublicTender[];
+  bids: readonly PublicBid[];
   onRefresh: () => void;
 }) {
   const buyer = role === "BUYER";
@@ -41,6 +44,13 @@ export function RoleWorkspace({
           onConfirmed={onRefresh}
         />
       )}
+      <DisclosurePanel
+        role={role}
+        wallet={wallet}
+        tenders={tenders}
+        bids={bids}
+        onConfirmed={onRefresh}
+      />
       <section className="journey-preview">
         <p className="eyebrow">TRANSACTION STAGES</p>
         <ol>
