@@ -277,6 +277,7 @@ export function ExplorerView({
   return (
     <>
       <header className="topbar">
+        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
         <a className="wordmark" href="/" aria-label="VeilBid home">
           VEILBID
         </a>
@@ -346,7 +347,7 @@ export function ExplorerView({
           onRefresh={onRetry}
         />
       ) : (
-        <main>
+        <main id="main-content">
           <section className="explorer-intro">
           <div>
             <p className="eyebrow">CONFIDENTIAL PROCUREMENT / LIVE TEST STATE</p>

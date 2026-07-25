@@ -136,7 +136,7 @@ export function ActivityWorkspace({
   }
 
   return (
-    <main className="role-workspace activity-workspace">
+    <main className="role-workspace activity-workspace" id="main-content">
       <section className="workspace-intro">
         <p className="eyebrow">ACTIVITY / PUBLIC PROOF RECOVERY</p>
         <h1>Resume, never restart.</h1>

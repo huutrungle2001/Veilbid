@@ -2,6 +2,7 @@ export function LandingPage() {
   return (
     <div className="marketing-page">
       <header className="topbar">
+        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
         <a className="wordmark" href="/" aria-label="VeilBid home">
           VEILBID
         </a>
@@ -16,7 +17,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="landing-main">
+      <main className="landing-main" id="main-content">
         <section className="landing-hero">
           <p className="eyebrow">CONFIDENTIAL PROCUREMENT / SAFE TREASURIES</p>
           <h1>

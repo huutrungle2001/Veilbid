@@ -16,6 +16,9 @@ describe("standalone public routes", () => {
     expect(
       screen.getByRole("link", { name: /open tender room/i }),
     ).toHaveAttribute("href", "/room");
+    expect(
+      screen.getByRole("link", { name: /skip to content/i }),
+    ).toHaveAttribute("href", "#main-content");
     expect(screen.queryByText(/Reading finalized Sepolia logs/i)).toBeNull();
   });
 

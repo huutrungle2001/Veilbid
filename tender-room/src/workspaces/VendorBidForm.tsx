@@ -131,7 +131,7 @@ export function VendorBidForm({
       )}
       {error && <p className="inline-error" role="alert">{error}</p>}
       {transactionHash && (
-        <p className="result-line">
+        <p className="result-line" aria-live="polite">
           Confirmed · {transactionHash.slice(0, 10)}…{transactionHash.slice(-8)}
         </p>
       )}

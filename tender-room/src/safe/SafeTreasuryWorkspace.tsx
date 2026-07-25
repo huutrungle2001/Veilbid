@@ -58,7 +58,7 @@ export function SafeTreasuryWorkspace({
   }
 
   return (
-    <main className="role-workspace safe-workspace">
+    <main className="role-workspace safe-workspace" id="main-content">
       <section className="workspace-intro">
         <p className="eyebrow">SAFE TREASURY / PREPARATION ONLY</p>
         <h1>Prepare. Then authorize.</h1>
@@ -118,10 +118,10 @@ export function SafeTreasuryWorkspace({
         >
           PREPARE INPUT ONLY →
         </button>
-        {stage && <p className="progress-line">{stage}</p>}
+        {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}
         {result && (
-          <p className="result-line">
+          <p className="result-line" aria-live="polite">
             Prepared {result.actionHash.slice(0, 12)}… · Safe transaction
             calldata generated in this session.
           </p>

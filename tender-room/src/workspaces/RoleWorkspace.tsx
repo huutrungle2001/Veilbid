@@ -18,7 +18,7 @@ export function RoleWorkspace({
 }) {
   const buyer = role === "BUYER";
   return (
-    <main className="role-workspace">
+    <main className="role-workspace" id="main-content">
       <section className="workspace-intro">
         <p className="eyebrow">{role} / SEPOLIA TEST WORKSPACE</p>
         <h1>

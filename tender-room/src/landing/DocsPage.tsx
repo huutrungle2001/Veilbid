@@ -2,6 +2,7 @@ export function DocsPage() {
   return (
     <div className="marketing-page docs-page">
       <header className="topbar">
+        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
         <a className="wordmark" href="/" aria-label="VeilBid home">VEILBID</a>
         <nav aria-label="Primary navigation">
           <a href="/room">TENDER ROOM</a>
@@ -10,7 +11,7 @@ export function DocsPage() {
         </nav>
         <div className="network-pill"><span aria-hidden="true" />SEPOLIA</div>
       </header>
-      <main className="docs-main">
+      <main className="docs-main" id="main-content">
         <aside className="docs-nav" aria-label="Documentation sections">
           <a href="#overview">OVERVIEW</a>
           <a href="#architecture">ARCHITECTURE</a>

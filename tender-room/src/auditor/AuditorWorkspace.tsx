@@ -95,7 +95,7 @@ export function AuditorWorkspace({
   }
 
   return (
-    <main className="role-workspace auditor-workspace">
+    <main className="role-workspace auditor-workspace" id="main-content">
       <section className="workspace-intro">
         <p className="eyebrow">AUDITOR / SELECTIVE DISCLOSURE</p>
         <h1>Reveal one granted bid.</h1>
@@ -138,9 +138,9 @@ export function AuditorWorkspace({
           </button>
         </div>
         {authorized === true && (
-          <p className="success-line">Authorized for this bid only.</p>
+          <p className="success-line" aria-live="polite">Authorized for this bid only.</p>
         )}
-        {stage && <p className="progress-line">{stage}</p>}
+        {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}
         {revealed && (
           <section className="reveal-result" aria-live="polite">

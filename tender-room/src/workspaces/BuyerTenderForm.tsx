@@ -133,7 +133,7 @@ export function BuyerTenderForm({
         </p>
       )}
       {error && <p className="inline-error" role="alert">{error}</p>}
-      {result && <p className="result-line">{result}</p>}
+      {result && <p className="result-line" aria-live="polite">{result}</p>}
       <button
         className="primary-button"
         type="submit"
