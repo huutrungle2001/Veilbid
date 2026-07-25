@@ -504,6 +504,53 @@ main {
   max-width: 560px;
 }
 
+.receipt-panel {
+  background: var(--color-veil-green);
+  border-bottom: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 1fr;
+  padding: 36px;
+}
+
+.receipt-panel h3 {
+  font-size: 2.4rem;
+  margin: 8px 0 12px;
+}
+
+.receipt-panel p {
+  line-height: 1.5;
+}
+
+.receipt-panel dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+
+.receipt-panel dl div {
+  border: 1px solid var(--color-ink-black);
+  padding: 14px;
+}
+
+.receipt-panel dt,
+.receipt-panel dd {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  margin: 0;
+}
+
+.receipt-panel dd {
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.receipt-panel .text-link {
+  color: var(--color-ink-black);
+  font-family: var(--font-mono);
+  grid-column: 1 / -1;
+}
+
 .badge-row {
   display: flex;
   flex-wrap: wrap;
@@ -1345,6 +1392,11 @@ footer p {
   .privacy-panel {
     grid-template-columns: 1fr;
     padding: 32px 20px;
+  }
+
+  .receipt-panel,
+  .receipt-panel dl {
+    grid-template-columns: 1fr;
   }
 
   .aperture {

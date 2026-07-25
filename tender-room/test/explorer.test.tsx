@@ -96,6 +96,34 @@ describe("Tender Room public explorer", () => {
     expect(screen.queryByText("37 vUSDC")).not.toBeInTheDocument();
   });
 
+  it("surfaces explicit non-transferable receipt evidence after award", () => {
+    const awarded = state();
+    const tender = awarded.data!.index.tenders[0];
+    awarded.data = {
+      ...awarded.data!,
+      index: {
+        ...awarded.data!.index,
+        tenders: [
+          {
+            ...tender,
+            status: "Awarded",
+            closeBlock: 96n,
+            winnerBidId: 1n,
+            winner: buyer,
+          },
+        ],
+      },
+    };
+    view(awarded);
+    expect(
+      screen.getByRole("region", { name: "Award receipt evidence" }),
+    ).toHaveTextContent("Receipt #1");
+    expect(screen.getByText("DISABLED")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /inspect on sepolia/i }),
+    ).toHaveAttribute("href", expect.stringContaining("sepolia.etherscan.io"));
+  });
+
   it("shows an explicit loading state without placeholder dossiers", () => {
     view(state({ status: "loading", data: null }));
     expect(

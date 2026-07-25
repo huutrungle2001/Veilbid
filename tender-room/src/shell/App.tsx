@@ -1,5 +1,6 @@
 import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
+import deployment from "@veilbid/chain-bindings/addresses/sepolia.test";
 import { useMemo } from "react";
 import { formatUnits } from "viem";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -137,6 +138,37 @@ function Lifecycle({ tender }: { tender: PublicTender }) {
   );
 }
 
+function AwardReceiptPanel({ tender }: { tender: PublicTender }) {
+  if (tender.status !== "Awarded" || !tender.winner) return null;
+  const receiptAddress = deployment.contracts.VeilBidAwardReceipt.address;
+  return (
+    <section className="receipt-panel" aria-label="Award receipt evidence">
+      <div>
+        <p className="eyebrow">NON-TRANSFERABLE AWARD RECEIPT</p>
+        <h3>Receipt #{tender.tenderId.toString()}</h3>
+        <p>
+          Minted atomically to the proof-derived winner. Approval, transfer,
+          and receiver-callback paths are disabled by the receipt contract.
+        </p>
+      </div>
+      <dl>
+        <div><dt>Owner</dt><dd title={tender.winner}>{shortAddress(tender.winner)}</dd></div>
+        <div><dt>Contract</dt><dd title={receiptAddress}>{shortAddress(receiptAddress)}</dd></div>
+        <div><dt>Finalization tx</dt><dd title={tender.updatedTransaction}>{shortAddress(tender.updatedTransaction)}</dd></div>
+        <div><dt>Transferability</dt><dd>DISABLED</dd></div>
+      </dl>
+      <a
+        className="text-link"
+        href={`https://sepolia.etherscan.io/token/${receiptAddress}?a=${tender.tenderId.toString()}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        INSPECT ON SEPOLIA ↗
+      </a>
+    </section>
+  );
+}
+
 function TenderDetail({
   tender,
   finalizedBlock,
@@ -218,6 +250,8 @@ function TenderDetail({
           </div>
         </div>
       </section>
+
+      <AwardReceiptPanel tender={tender} />
 
       <section className="evidence-panel">
         <p className="eyebrow">FINALIZED EVIDENCE</p>
