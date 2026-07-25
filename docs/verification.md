@@ -17,7 +17,7 @@
 
 | Area | Required test/evidence | Status |
 |---|---|---|
-| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PARTIAL — feasibility and Auction House compile; consumer artifact generation pending |
+| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PASS — Auction House ABIs and the explicitly unverified test address manifest are generated and drift-checked |
 | Persistent handle | Stored bid reused in later transaction with expected ACL | PASS — Sepolia blocks 11348541 and 11348543 |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PASS — six Sepolia cases and 2,000 model cases |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility and production market store encrypted prices/selection only |
@@ -26,7 +26,7 @@
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PASS — single and split custody paths verified in memory on Sepolia |
 | Escrow solvency | Proof-confirmed escrow equals public ceiling | PASS — exact funding and underfunded rejection verified on Sepolia |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
-| Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
+| Reentrancy | Token callbacks cannot corrupt lifecycle | PARTIAL — all lifecycle writes are guarded and terminal state precedes token calls; callback adversarial runtime test pending |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PASS — proof-derived Sepolia mint plus unit transfer/approval rejection; market uses non-callback mint |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PARTIAL — vendor-only Open ACL and post-close buyer grant pass; auditor/Safe grant matrix pending |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
@@ -36,8 +36,8 @@
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PENDING |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
-| Source verification | Creation/runtime match and constructor args | PENDING |
-| Deployment consistency | Read-only addresses/artifacts/code verification | PENDING |
+| Source verification | Creation/runtime match and constructor args | PARTIAL — E2E runtime matches compiled artifacts with immutable getters verified; explorer publication pending |
+| Deployment consistency | Read-only addresses/artifacts/code verification | PARTIAL — E2E test manifest passes receipts, runtime, wiring, Safe, and cleanup checks; release manifest pending |
 | Secret scan | Repository and evidence clean | PENDING |
 | Production smoke | Canonical URL and wallet-free reads | PENDING |
 
@@ -135,3 +135,5 @@ npm run verify:deployment
 | 2026-07-25 | Production market EOA lifecycle | `a7413b0` | `evidence/sepolia/market-eoa.json` | PASS — exact funding, admission/replay/deadline, scoped ACL, winner-only proof, confidential settlement, award receipt, and post-close buyer reveal verified |
 | 2026-07-25 | Production refund/cancellation lifecycle | `7aa859b` | `evidence/sepolia/market-refund.json` | PASS — encrypted invalid bid, proof-derived zero winner, full refund, cancellation boundaries, conservation, and replay guards verified |
 | 2026-07-25 | Production Safe lifecycle | `00a19a3` | `evidence/sepolia/market-safe.json` | PASS — full-term preparation binding, normal Safe create/fund/cancel, exact funding proof, replay rejection, preserved authority, and cleanup verified |
+| 2026-07-26 | Production properties/adversarial guards | `5eb30d8` | Auction House property/static tests | PASS — 10,000 bid sets, deterministic ties, lifecycle monotonicity, conservation, Nox operation order, admission bounds, reentrancy/CEI, and forbidden escape surfaces |
+| 2026-07-26 | E2E deployment consistency | `0f2b309` | `evidence/sepolia/deployment-consistency.test.json` | PASS — receipts, masked-immutable runtime bytecode, immutable wiring, Safe configuration, and cleanup state verified; manifest remains explicitly unverified |

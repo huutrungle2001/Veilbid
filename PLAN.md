@@ -7,12 +7,12 @@
 
 - Current phase: Phase 5 — Core development
 - Status: In progress
-- Next action: Add production property/invariant/adversarial coverage, then
-  generate and verify the first canonical chain-bindings snapshot.
+- Next action: Implement chain-bindings domain types, event codecs, readiness
+  rules, and rebuildable public index with deterministic tests.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T23:54:42+07:00
+- Last updated: 2026-07-26T00:02:13+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

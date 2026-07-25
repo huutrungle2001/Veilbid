@@ -81,7 +81,7 @@ use.
 - [x] Implement close/finalize/refund and replay protection.
 - [x] Implement confidential payout/refund.
 - [x] Implement selective ACL and award receipt.
-- [ ] Add unit, property, invariant, and adversarial tests.
+- [x] Add unit, property, invariant, and adversarial tests.
 
 Exit: Core protocol tests pass without plaintext shadow state.
 
