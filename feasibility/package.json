@@ -9,6 +9,7 @@
   "scripts": {
     "build": "hardhat build",
     "test": "hardhat test --no-compile",
+    "test:model": "node --test test/gate-b-model.test.mjs",
     "test:nox": "hardhat test",
     "preflight": "node scripts/preflight.mjs",
     "evidence:validate": "node scripts/validate-evidence.mjs"
