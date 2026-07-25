@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "suite": "production-frontend-smoke",
+  "recordedAt": "2026-07-25T19:31:40.306Z",
+  "publicIdentifiers": {
+    "sourceCommit": "83fb374edc1cc16fa525d9a137d16c7f03228abb",
+    "provider": "vercel",
+    "project": "veilbid",
+    "deploymentId": "dpl_CYwLk2y7fNeTfKfHiZ7Zv63vRZ1b",
+    "canonicalUrl": "https://veilbid-three.vercel.app",
+    "network": "ethereum-sepolia",
+    "chainId": 11155111,
+    "deploymentKind": "release",
+    "deploymentVerified": true,
+    "market": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
+    "tenderId": "1",
+    "observedBlock": "11349706"
+  },
+  "routeStatuses": {
+    "/": 200,
+    "/room": 200,
+    "/docs": 200
+  },
+  "visualChecks": {
+    "desktop": {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "sha256": "c39c4922e5b9d8c2cff493ba48f2c784dd5ecaae5d913f59a25038069a88e588"
+    },
+    "mobile": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "4a8fc6a3c42a1737ee5ef15e9ffae996455ec6598264074564dcf455f8f60633"
+    }
+  },
+  "assertions": {
+    "allRoutesReturned200": true,
+    "canonicalMarketBundled": true,
+    "desktopLandingRendered": true,
+    "mobileReleaseLabelRendered": true,
+    "walletFreeCanonicalTenderLoaded": true,
+    "awardedStateRendered": true,
+    "noPublicStateFailureRendered": true,
+    "desktopScreenshotCaptured": true,
+    "mobileScreenshotCaptured": true
+  },
+  "blockers": [],
+  "notes": [
+    "The production SPA loaded the canonical verified Sepolia release without a wallet.",
+    "Desktop and mobile screenshots are local smoke artifacts; only their public-safe viewport and digest metadata are committed.",
+    "No wallet secrets, RPC credentials, confidential values, handles, proofs, or signatures are recorded."
+  ]
+}

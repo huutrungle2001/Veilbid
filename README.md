@@ -1,8 +1,9 @@
 # VeilBid
 
-> Status: Canonical Ethereum Sepolia contracts are deployed and source/runtime
-> verified. The two-vendor release lifecycle and public frontend deployment are
-> the remaining release gates.
+> Status: Canonical Ethereum Sepolia contracts, two-vendor release lifecycle,
+> and Vercel frontend are deployed and verified.
+
+Live app: [veilbid-three.vercel.app](https://veilbid-three.vercel.app)
 
 VeilBid is a confidential reverse-procurement protocol for DAO and Safe
 treasuries. A buyer publishes a tender and public spending ceiling, vendors
@@ -16,7 +17,7 @@ ERC-7984.
 VeilBid lets a Safe treasury award and pay a competitive vendor without exposing
 the vendors' prices to competitors or public chain observers.
 
-## Planned end-to-end flow
+## End-to-end flow
 
 1. A buyer or Safe creates a tender and escrows confidential test cUSDC.
 2. Vendors encrypt prices with the Nox Handle SDK and submit handles plus proofs.
@@ -27,7 +28,7 @@ the vendors' prices to competitors or public chain observers.
    encrypted remainder.
 7. The buyer can selectively authorize an auditor to reveal individual bid terms.
 
-## Planned architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -45,7 +46,7 @@ flowchart LR
     Auditor["Selected auditor"] -.->|viewer ACL| Gateway
 ```
 
-The target architecture includes a responsive web client, Solidity protocol,
+The implementation includes a responsive web client, Solidity protocol,
 preparation-only Safe module, stateless finalizer, event-derived public index,
 selective audit, non-transferable award receipts, generated client artifacts,
 optional read-only MCP adapter, CI, and repeatable Sepolia verification. See
@@ -71,15 +72,19 @@ Planned public values:
 VeilBid does not promise bidder anonymity, hidden timing, service-delivery
 verification, zero collusion, or production-grade economic security.
 
-## Build entry point
+## Build and verify
 
-Before writing application code:
+```bash
+pnpm install --frozen-lockfile
+pnpm test
+pnpm lint
+pnpm build
+pnpm test:production https://veilbid-three.vercel.app
+```
 
-1. Read `AGENTS.md`.
-2. Review and approve `docs/product-plan.md`.
-3. Complete `docs/feasibility-plan.md`.
-4. Record results in `docs/verification.md`.
-5. Only proceed if all mandatory feasibility gates pass.
+Write-enabled Sepolia commands require the documented local environment. Never
+commit `.env.local`; see `docs/verification.md` for sanitized evidence and
+release-specific commands.
 
 ## Canonical documents
 

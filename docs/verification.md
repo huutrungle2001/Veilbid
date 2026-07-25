@@ -1,8 +1,7 @@
 # VeilBid Verification Plan and Evidence Ledger
 
-> Status: Feasibility Gates A–E, canonical Sepolia release verification, and
-> the two-vendor release lifecycle passed. Production frontend smoke remains
-> pending.
+> Status: Feasibility Gates A–E, canonical Sepolia release verification, the
+> two-vendor release lifecycle, and production frontend smoke passed.
 
 ## 1. Evidence rules
 
@@ -35,13 +34,13 @@
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PARTIAL — 12 tests cover planning, canonical rereads, sequential shared budget, stale races, sanitized failures, configuration, and health; verified release health/dry-run pass while relay-originated live close/finalize writes remain pending |
 | MCP read-only | Public queries, strict schemas, no signer/write/reveal | PASS — five stdio tools query finalized tender/readiness/settlement/receipt/ACL state; seven tests and static policy inspection exclude signer, writes, decryption, handles, and raw errors |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — deterministic rebuild/dedupe/guards and bounded finalized Sepolia RPC pagination pass; reorg rollback pending |
-| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 39 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
+| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 40 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, canonical release labeling, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PARTIAL — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible form/control focus, reduced-motion handling, and live status regions; automated browser keyboard traversal remains pending |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
 | Secret scan | Repository and evidence clean | PASS — 206 tracked files and 24 sanitized evidence files pass credential-pattern, forbidden-field, and local-environment tracking checks |
-| Production smoke | Canonical URL and wallet-free reads | PENDING |
+| Production smoke | Canonical URL and wallet-free reads | PASS — Vercel production routes return 200; desktop/mobile Chrome smoke loaded verified release tender #1, award, and receipt without a wallet |
 
 ## 3. Mandatory contract scenarios
 
@@ -114,6 +113,7 @@ npm run lint
 npm run build
 npm run finalizer:dry
 npm run test:ui
+npm run test:production -- https://veilbid-three.vercel.app
 npm run test:sepolia
 npm run test:safe:sepolia
 npm run verify:deployment
@@ -155,3 +155,4 @@ npm run verify:deployment
 | 2026-07-26 | Canonical release two-vendor lifecycle | `94bcfc8` | `evidence/sepolia/release-two-vendor.json` | PASS — Safe funding, two distinct encrypted bids, per-vendor ACL/decryption, proof-derived lower second winner, confidential settlement, receipt, replay rejection, threshold cross-bid grant, and preserved release state verified |
 | 2026-07-26 | Repository secret scan | `a7afecc` | `evidence/local/secret-scan.json` | PASS — tracked local environment excluded; no private-key assignment, seed/PEM material, provider token, or credential URL pattern found across 206 tracked files |
 | 2026-07-26 | Canonical release gate | `0f8b9db` | `evidence/local/release-gate.json` | PASS — all workspace tests, typed lint, compile, Vite/vinext builds, binding/source/deployment checks, verified relay health/dry-run, secret scan, and evidence validation passed |
+| 2026-07-26 | Vercel production frontend | `83fb374` | `evidence/sepolia/production-smoke.json` | PASS — canonical URL and all SPA routes returned 200; 1440×1000 and 390×844 browser smoke loaded verified release tender #1, award, and receipt wallet-free |

@@ -3,11 +3,12 @@
 ## 1. Submission checklist
 
 - [ ] Public independent GitHub repository.
-- [ ] Complete source code and MIT license.
+- [x] Complete source code and MIT license.
 - [ ] Judge-first README.
 - [ ] Setup, deployment, use, architecture, threat model, and verification docs.
 - [ ] Root evidence-based `feedback.md`.
-- [ ] Public frontend backed by Ethereum Sepolia.
+- [x] Public frontend backed by Ethereum Sepolia:
+  `https://veilbid-three.vercel.app`.
 - [ ] Demo video no longer than four minutes.
 - [ ] X post with description, video, repository, live app, and `@iEx_ec`.
 - [ ] DoraHacks VeilBid submission.
@@ -77,4 +78,3 @@ Never claim:
 - Guaranteed best vendor quality.
 - Collusion or MEV elimination.
 - Production audit or mainnet readiness.
-

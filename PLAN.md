@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Sepolia and product
+- Current phase: Phase 7 — Submission
 - Status: In progress
-- Next action: Deploy the release-gated frontend with Vercel CLI, then run
-  wallet-free desktop/mobile production smoke and record the canonical URL.
+- Next action: Replace the feedback placeholder, finalize judge-facing
+  documentation, and complete the final privacy/secret/claim review.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T02:26:08+07:00
+- Last updated: 2026-07-26T02:33:42+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,8 +45,8 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | In progress |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Todo |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
+| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | In progress |
 
 Only one phase may be `In progress`.
 
@@ -62,6 +62,7 @@ Only one phase may be `In progress`.
 | Feasibility gate | Approved | User | 2026-07-25 | Gates A–D passed; internal market custody selected and exact-funding proof added to the lifecycle. |
 | Build Plan | Approved | User | 2026-07-25 | User requested continued implementation after the Safe design passed its Sepolia authority gate. |
 | Frontend hosting | Vercel approved | User | 2026-07-26 | Future frontend deployments use the installed Vercel CLI; the earlier private preview is not the canonical release deployment. |
+| Frontend release | Verified | Agent | 2026-07-26 | Vercel production URL `https://veilbid-three.vercel.app` passed wallet-free desktop/mobile smoke against the canonical release. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
@@ -84,7 +85,7 @@ Only one phase may be `In progress`.
 - [x] Product Plan approved.
 - [x] All mandatory feasibility spikes pass with reproducible evidence.
 - [x] Core product works without mock data.
-- [ ] Contracts and web client are deployed.
+- [x] Contracts and web client are deployed.
 - [x] Ethereum Sepolia source/deployment mapping is verified.
 - [ ] `feedback.md` contains evidence-based feedback.
 - [ ] Demo video is no longer than four minutes.
