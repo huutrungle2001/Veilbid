@@ -479,6 +479,17 @@ contract VeilBidMarket is ReentrancyGuard {
         });
     }
 
+    function bidViewableBy(
+        uint256 tenderId,
+        uint256 bidId,
+        address account
+    ) external view returns (bool) {
+        _requireTender(tenderId);
+        Bid storage bid = _bids[tenderId][bidId];
+        if (bid.vendor == address(0)) revert BidDoesNotExist();
+        return Nox.isViewer(bid.encryptedPrice, account);
+    }
+
     function canClose(uint256 tenderId) external view returns (bool) {
         Tender storage tender = _requireTender(tenderId);
         return
