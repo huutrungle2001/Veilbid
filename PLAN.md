@@ -7,12 +7,12 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Build the stateless close/finalize relay with dry-run, once,
-  poll, health, race handling, and a bounded action budget.
+- Next action: Implement optional read-only MCP tools for public tender,
+  readiness, proof/receipt evidence, and ACL inspection.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T01:07:34+07:00
+- Last updated: 2026-07-26T01:18:25+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

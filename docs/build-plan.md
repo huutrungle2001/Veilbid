@@ -118,8 +118,8 @@ Exit: Fresh-wallet core journey is discoverable and responsive.
 ### Milestone 5 — Automation and integrations
 
 - [x] Implement event-derived tender index with finalized checkpoint.
-- [ ] Build stateless finalizer dry-run/once/poll/health.
-- [ ] Add race simulation and bounded action budget.
+- [x] Build stateless finalizer dry-run/once/poll/health.
+- [x] Add race simulation and bounded action budget.
 - [ ] Add optional read-only MCP tools.
 - [ ] Add optional strict-schema public-term draft assistant only if core release
   is already stable.
