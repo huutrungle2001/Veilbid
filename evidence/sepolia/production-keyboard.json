@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "suite": "production-keyboard-navigation",
+  "recordedAt": "2026-07-25T20:16:26.823Z",
+  "publicIdentifiers": {
+    "testCommit": "f8f196758277859a9df4077c46d38cd53c3307f7",
+    "deploymentSourceCommit": "b2f9842587c25dc67bf702698d5b51f80097166b",
+    "deploymentId": "dpl_3GjxxULLLtW3iWkLNkTNpM8xDHWP",
+    "canonicalUrl": "https://veilbid-three.vercel.app",
+    "browser": "Google Chrome 149.0.7827.200",
+    "viewport": "1280x900"
+  },
+  "observations": {
+    "expectedFocusOrder": [
+      "SKIP TO CONTENT",
+      "VEILBID",
+      "TENDERS",
+      "DOCS",
+      "EVIDENCE"
+    ],
+    "observedFocusOrder": [
+      "SKIP TO CONTENT",
+      "VEILBID",
+      "TENDERS",
+      "DOCS",
+      "EVIDENCE"
+    ],
+    "activeRouteSequence": [
+      "EVIDENCE",
+      "DOCS"
+    ]
+  },
+  "assertions": {
+    "primaryNavigationKeyboardReachable": true,
+    "everyFocusTargetVisible": true,
+    "everyFocusIndicatorVisible": true,
+    "skipLinkVisibleOnFocus": true,
+    "evidenceActivatedByKeyboard": true,
+    "evidenceTargetVisibleBelowStickyHeader": true,
+    "reverseTraversalReturnedToDocs": true,
+    "docsActivatedByKeyboard": true,
+    "headerPersistedAcrossRoutes": true
+  },
+  "blockers": [],
+  "notes": [
+    "A real headless Chrome session used only Tab, Shift+Tab, and Enter to traverse and activate the production navigation.",
+    "The smoke records public labels and route assertions only; it does not connect a wallet or access confidential state."
+  ]
+}
