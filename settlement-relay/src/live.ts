@@ -7,7 +7,7 @@ import {
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket" with {
   type: "json",
 };
-import deploymentJson from "@veilbid/chain-bindings/addresses/sepolia.test" with {
+import deploymentJson from "@veilbid/chain-bindings/addresses/sepolia.release" with {
   type: "json",
 };
 import {

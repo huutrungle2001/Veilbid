@@ -5,7 +5,7 @@ that rebuilds tender dossiers from finalized Ethereum Sepolia logs.
 
 It intentionally:
 
-- reads the generated `sepolia.test` address snapshot;
+- reads the generated, verified `sepolia.release` address snapshot;
 - starts at the recorded market deployment block and paginates bounded log
   ranges;
 - waits 12 blocks before indexing events;

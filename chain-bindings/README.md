@@ -8,6 +8,6 @@ Run `pnpm bindings:generate` at the repository root after compiling Auction
 House. `pnpm bindings:check` fails when committed JSON differs from the
 canonical artifacts or deployment manifest.
 
-The current `sepolia.test` address snapshot is deliberately marked
-`verified: false`: it is reusable E2E infrastructure, not the release
-deployment. Consumers must not relabel it as verified.
+Runtime consumers use the verified `sepolia.release` snapshot. The separate
+`sepolia.test` snapshot remains deliberately marked `verified: false` for
+reusable historical E2E checks and must not be relabeled as a release.

@@ -1,6 +1,6 @@
 import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
-import deployment from "@veilbid/chain-bindings/addresses/sepolia.test";
+import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import { useMemo } from "react";
 import { formatUnits } from "viem";
 import { useLocation, useSearchParams } from "react-router-dom";

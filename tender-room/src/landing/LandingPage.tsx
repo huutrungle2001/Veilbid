@@ -74,10 +74,10 @@ export function LandingPage() {
           <p className="eyebrow">CURRENT RELEASE TRUTH</p>
           <h2>Real Sepolia state. Explicit test boundaries.</h2>
           <p>
-            The connected deployment is reusable E2E infrastructure and is not
-            yet explorer-verified as the canonical release. VeilBid does not
-            claim anonymous bidders, hidden metadata, formal auditing, or
-            mainnet readiness.
+            The connected canonical release has exact source/runtime mappings
+            and a real two-vendor Safe lifecycle on Ethereum Sepolia. VeilBid
+            does not claim anonymous bidders, hidden metadata, formal auditing,
+            or mainnet readiness.
           </p>
           <a className="text-link" href="/docs#boundaries">SEE ALL BOUNDARIES →</a>
         </section>

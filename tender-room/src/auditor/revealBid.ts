@@ -1,6 +1,6 @@
 import { createViemHandleClient, type HandleClient } from "@iexec-nox/handle";
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
-import deployment from "@veilbid/chain-bindings/addresses/sepolia.test";
+import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
   createPublicClient,
   http,

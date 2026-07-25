@@ -3,7 +3,7 @@ import {
   decodeVeilBidPublicEvent,
   type PublicMarketIndex,
 } from "@veilbid/chain-bindings";
-import deployment from "@veilbid/chain-bindings/addresses/sepolia.test";
+import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
   createPublicClient,
   http,
@@ -21,7 +21,7 @@ interface DeploymentContract {
   deploymentBlock: string;
 }
 
-interface TestDeployment {
+interface Deployment {
   chainId: number;
   kind: string;
   verified: boolean;
@@ -30,7 +30,7 @@ interface TestDeployment {
   };
 }
 
-const testDeployment = deployment as TestDeployment;
+const releaseDeployment = deployment as Deployment;
 
 export interface LoadedPublicMarket {
   index: PublicMarketIndex;
@@ -44,7 +44,7 @@ export async function loadPublicMarket(
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ??
     defaultSepoliaRpcUrl,
 ): Promise<LoadedPublicMarket> {
-  if (testDeployment.chainId !== sepolia.id) {
+  if (releaseDeployment.chainId !== sepolia.id) {
     throw new Error("Generated deployment chain does not match Sepolia");
   }
   const client = createPublicClient({
@@ -57,15 +57,15 @@ export async function loadPublicMarket(
       ? latestBlock - confirmationDepth
       : 0n;
   const fromBlock = BigInt(
-    testDeployment.contracts.VeilBidMarket.deploymentBlock,
+    releaseDeployment.contracts.VeilBidMarket.deploymentBlock,
   );
   if (finalizedBlock < fromBlock) {
     return {
       index: buildPublicMarketIndex([]),
       finalizedBlock,
       latestBlock,
-      deploymentKind: testDeployment.kind,
-      deploymentVerified: testDeployment.verified,
+      deploymentKind: releaseDeployment.kind,
+      deploymentVerified: releaseDeployment.verified,
     };
   }
 
@@ -80,7 +80,7 @@ export async function loadPublicMarket(
         ? chunkStart + blockChunkSize - 1n
         : finalizedBlock;
     const logs = await client.getLogs({
-      address: testDeployment.contracts.VeilBidMarket.address,
+      address: releaseDeployment.contracts.VeilBidMarket.address,
       fromBlock: chunkStart,
       toBlock: chunkEnd,
     });
@@ -109,7 +109,7 @@ export async function loadPublicMarket(
     index: buildPublicMarketIndex(decoded),
     finalizedBlock,
     latestBlock,
-    deploymentKind: testDeployment.kind,
-    deploymentVerified: testDeployment.verified,
+    deploymentKind: releaseDeployment.kind,
+    deploymentVerified: releaseDeployment.verified,
   };
 }
