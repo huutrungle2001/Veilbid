@@ -103,6 +103,9 @@ importers:
 
   tender-room:
     dependencies:
+      '@iexec-nox/handle':
+        specifier: 0.1.0-beta.13
+        version: 0.1.0-beta.13(ethers@6.17.0)(graphql@16.14.2)(viem@2.47.6(typescript@5.9.3)(zod@3.25.76))
       '@veilbid/chain-bindings':
         specifier: workspace:*
         version: link:../chain-bindings
