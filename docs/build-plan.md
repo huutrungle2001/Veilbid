@@ -142,7 +142,7 @@ verification pass.
 
 ### Milestone 7 — Submission
 
-- [ ] Replace feedback placeholder with implementation evidence.
+- [x] Replace feedback placeholder with implementation evidence.
 - [ ] Finalize README, docs, threat model, and verification report.
 - [ ] Record a real-person demo under four minutes.
 - [ ] Publish public GitHub repository.

@@ -6,7 +6,7 @@
 - [x] Complete source code and MIT license.
 - [ ] Judge-first README.
 - [ ] Setup, deployment, use, architecture, threat model, and verification docs.
-- [ ] Root evidence-based `feedback.md`.
+- [x] Root evidence-based `feedback.md`.
 - [x] Public frontend backed by Ethereum Sepolia:
   `https://veilbid-three.vercel.app`.
 - [ ] Demo video no longer than four minutes.
