@@ -144,6 +144,18 @@ const mobile = browserCapture(
   { width: 390, height: 844 },
   "production-room-mobile.png",
 );
+const docsDesktop = browserCapture(
+  chrome,
+  "/docs",
+  { width: 1440, height: 1000 },
+  "production-docs-desktop.png",
+);
+const docsMobile = browserCapture(
+  chrome,
+  "/docs",
+  { width: 390, height: 844 },
+  "production-docs-mobile.png",
+);
 const canonicalMarket = deployment.contracts.VeilBidMarket.address;
 const observedBlock =
   mobile.dom.match(/Block ([0-9]+)/)?.[1] ?? "not-observed";
@@ -157,9 +169,22 @@ const assertions = {
     desktop.dom.includes("Lowest valid bid.") &&
     desktop.dom.includes("EXPLORE TENDERS"),
   sharedNavigationRendered:
-    ["TENDERS", "DOCS", "EVIDENCE"].every(
+    ["TENDERS", "DOCS"].every(
       (label) => desktop.dom.includes(label) && mobile.dom.includes(label),
     ),
+  evidenceRemovedFromPrimaryNavigation:
+    !desktop.dom.includes(">EVIDENCE</a>") &&
+    !mobile.dom.includes(">EVIDENCE</a>"),
+  walletControlRendered:
+    desktop.dom.includes("CONNECT WALLET") &&
+    mobile.dom.includes("CONNECT WALLET"),
+  docsGuideRendered:
+    docsDesktop.dom.includes("Use VeilBid from tender to settlement.") &&
+    docsDesktop.dom.includes("BUYER GUIDE") &&
+    docsMobile.dom.includes("TROUBLESHOOTING"),
+  docsSidebarRendered:
+    docsDesktop.dom.includes('class="docs-nav"') &&
+    docsMobile.dom.includes('class="docs-nav"'),
   mobileTenderNavigationActive:
     mobile.dom.includes('class="primary-nav-link active"') &&
     mobile.dom.includes('aria-current="page"') &&
@@ -178,6 +203,9 @@ const assertions = {
   ),
   desktopScreenshotCaptured: desktop.screenshot.sha256.length === 64,
   mobileScreenshotCaptured: mobile.screenshot.sha256.length === 64,
+  docsDesktopScreenshotCaptured:
+    docsDesktop.screenshot.sha256.length === 64,
+  docsMobileScreenshotCaptured: docsMobile.screenshot.sha256.length === 64,
 };
 const blockers = Object.entries(assertions)
   .filter(([, passed]) => !passed)
@@ -206,6 +234,8 @@ const evidence = {
   visualChecks: {
     desktop: desktop.screenshot,
     mobile: mobile.screenshot,
+    docsDesktop: docsDesktop.screenshot,
+    docsMobile: docsMobile.screenshot,
   },
   assertions,
   blockers,

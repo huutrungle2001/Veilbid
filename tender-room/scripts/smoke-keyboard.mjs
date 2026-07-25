@@ -154,6 +154,8 @@ async function waitFor(cdp, expression, label) {
 
 const keys = {
   Enter: { code: "Enter", keyCode: 13 },
+  Escape: { code: "Escape", keyCode: 27 },
+  Space: { code: "Space", key: " ", keyCode: 32 },
   Tab: { code: "Tab", keyCode: 9 },
 };
 
@@ -161,15 +163,15 @@ async function pressKey(cdp, key, modifiers = 0) {
   const definition = keys[key];
   await cdp.request("Input.dispatchKeyEvent", {
     code: definition.code,
-    key,
+    key: definition.key ?? key,
     modifiers,
     nativeVirtualKeyCode: definition.keyCode,
-    type: "rawKeyDown",
+    type: "keyDown",
     windowsVirtualKeyCode: definition.keyCode,
   });
   await cdp.request("Input.dispatchKeyEvent", {
     code: definition.code,
-    key,
+    key: definition.key ?? key,
     modifiers,
     nativeVirtualKeyCode: definition.keyCode,
     type: "keyUp",
@@ -252,38 +254,22 @@ try {
     forwardFocus.push(await activeElement(cdp));
   }
 
-  await pressKey(cdp, "Enter");
+  await pressKey(cdp, "Space");
   await waitFor(
     cdp,
-    `location.pathname === "/docs" &&
-      document.querySelector('[aria-current="page"]')?.textContent.trim() ===
-        "EVIDENCE"`,
-    "the Evidence route",
+    `document.querySelector(".wallet-trigger")?.getAttribute("aria-expanded") ===
+      "true"`,
+    `the wallet selector from ${JSON.stringify(forwardFocus.at(-1))}`,
   );
-  await waitFor(
-    cdp,
-    `(() => {
-      const headerRect = document.querySelector(".topbar").getBoundingClientRect();
-      const targetRect = document.getElementById("evidence").getBoundingClientRect();
-      return targetRect.top >= headerRect.bottom && targetRect.top < innerHeight;
-    })()`,
-    "the Evidence section below the sticky header",
-  );
-  const evidenceRoute = await cdp.evaluate(`(() => {
-    const header = document.querySelector(".topbar");
-    const target = document.getElementById("evidence");
-    const headerRect = header.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
+  const walletMenu = await cdp.evaluate(`(() => {
+    const trigger = document.querySelector(".wallet-trigger");
     return {
-      activeLabel:
-        document.querySelector('[aria-current="page"]')?.textContent.trim(),
-      hash: location.hash,
-      headerPersistent: header.dataset.keyboardSmoke === "persistent",
-      targetVisibleBelowHeader:
-        targetRect.top >= headerRect.bottom && targetRect.top < innerHeight,
+      expanded: trigger.getAttribute("aria-expanded"),
+      emptyMessage:
+        document.querySelector(".wallet-empty")?.textContent.trim(),
     };
   })()`);
-
+  await pressKey(cdp, "Escape");
   await pressKey(cdp, "Tab", 8);
   const reverseFocus = await activeElement(cdp);
   await pressKey(cdp, "Enter");
@@ -295,19 +281,104 @@ try {
         "DOCS"`,
     "the Docs route",
   );
-  const docsRoute = await cdp.evaluate(`(() => ({
-    activeLabel:
-      document.querySelector('[aria-current="page"]')?.textContent.trim(),
-    headerPersistent:
-      document.querySelector(".topbar").dataset.keyboardSmoke === "persistent",
-  }))()`);
+  await cdp.evaluate(`(() => {
+    document.getElementById("evidence").scrollIntoView();
+    return true;
+  })()`);
+  await delay(300);
+  const docsRoute = await cdp.evaluate(`(() => {
+    const header = document.querySelector(".topbar");
+    const sidebar = document.querySelector(".docs-nav");
+    const headerRect = header.getBoundingClientRect();
+    const sidebarRect = sidebar.getBoundingClientRect();
+    const parseColor = (value) => {
+      const parts = value.match(/[\\d.]+/g)?.map(Number) ?? [];
+      return {
+        red: parts[0] ?? 0,
+        green: parts[1] ?? 0,
+        blue: parts[2] ?? 0,
+        alpha: parts[3] ?? 1,
+      };
+    };
+    const luminance = ({ red, green, blue }) => {
+      const channels = [red, green, blue].map((channel) => {
+        const value = channel / 255;
+        return value <= 0.03928
+          ? value / 12.92
+          : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return (
+        channels[0] * 0.2126 +
+        channels[1] * 0.7152 +
+        channels[2] * 0.0722
+      );
+    };
+    const backgroundFor = (element) => {
+      let current = element;
+      while (current) {
+        const background = parseColor(getComputedStyle(current).backgroundColor);
+        if (background.alpha > 0) return background;
+        current = current.parentElement;
+      }
+      return { red: 255, green: 255, blue: 255, alpha: 1 };
+    };
+    const candidates = [...document.body.querySelectorAll("*")].filter(
+      (element) => {
+        const directText = [...element.childNodes].some(
+          (node) =>
+            node.nodeType === Node.TEXT_NODE &&
+            Boolean(node.textContent.trim()),
+        );
+        const style = getComputedStyle(element);
+        return (
+          directText &&
+          style.display !== "none" &&
+          style.visibility !== "hidden"
+        );
+      },
+    );
+    const contrastFailures = [];
+    for (const element of candidates) {
+      const style = getComputedStyle(element);
+      const foreground = parseColor(style.color);
+      const background = backgroundFor(element);
+      const lighter = Math.max(luminance(foreground), luminance(background));
+      const darker = Math.min(luminance(foreground), luminance(background));
+      const ratio = (lighter + 0.05) / (darker + 0.05);
+      const fontSize = Number.parseFloat(style.fontSize);
+      const fontWeight = Number.parseInt(style.fontWeight, 10) || 400;
+      const largeText =
+        fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700);
+      const minimum = largeText ? 3 : 4.5;
+      if (ratio + 0.01 < minimum) {
+        contrastFailures.push({
+          selector: element.className || element.tagName,
+          text: element.textContent.trim().replace(/\\s+/g, " ").slice(0, 80),
+          ratio: Number(ratio.toFixed(2)),
+          minimum,
+        });
+      }
+    }
+    return {
+      activeLabel:
+        document.querySelector('[aria-current="page"]')?.textContent.trim(),
+      headerPersistent: header.dataset.keyboardSmoke === "persistent",
+      sidebarPosition: getComputedStyle(sidebar).position,
+      sidebarVisible:
+        sidebarRect.top >= headerRect.bottom - 2 &&
+        sidebarRect.top < innerHeight &&
+        sidebarRect.bottom > headerRect.bottom,
+      contrastChecked: candidates.length,
+      contrastFailures,
+    };
+  })()`);
 
   const expectedFocusOrder = [
     "SKIP TO CONTENT",
     "VEILBID",
     "TENDERS",
     "DOCS",
-    "EVIDENCE",
+    "◇CONNECT WALLET",
   ];
   const observedFocusOrder = forwardFocus.map((entry) => entry.label);
   const assertions = {
@@ -319,15 +390,15 @@ try {
       (entry) => entry.focusIndicatorVisible,
     ),
     skipLinkVisibleOnFocus: forwardFocus[0]?.visible === true,
-    evidenceActivatedByKeyboard:
-      evidenceRoute.activeLabel === "EVIDENCE" &&
-      evidenceRoute.hash === "#evidence",
-    evidenceTargetVisibleBelowStickyHeader:
-      evidenceRoute.targetVisibleBelowHeader,
+    walletSelectorOpenedByKeyboard:
+      walletMenu.expanded === "true" &&
+      walletMenu.emptyMessage?.includes("No compatible browser wallet"),
     reverseTraversalReturnedToDocs: reverseFocus.label === "DOCS",
     docsActivatedByKeyboard: docsRoute.activeLabel === "DOCS",
-    headerPersistedAcrossRoutes:
-      evidenceRoute.headerPersistent && docsRoute.headerPersistent,
+    docsSidebarRemainsSticky:
+      docsRoute.sidebarPosition === "sticky" && docsRoute.sidebarVisible,
+    docsTextMeetsWcagContrast: docsRoute.contrastFailures.length === 0,
+    headerPersistedAcrossRoutes: docsRoute.headerPersistent,
   };
   const blockers = Object.entries(assertions)
     .filter(([, passed]) => !passed)
@@ -350,15 +421,16 @@ try {
     observations: {
       expectedFocusOrder,
       observedFocusOrder,
-      activeRouteSequence: [
-        evidenceRoute.activeLabel,
-        docsRoute.activeLabel,
-      ],
+      activeRouteSequence: [docsRoute.activeLabel],
+      docsContrast: {
+        checked: docsRoute.contrastChecked,
+        failures: docsRoute.contrastFailures,
+      },
     },
     assertions,
     blockers,
     notes: [
-      "A real headless Chrome session used only Tab, Shift+Tab, and Enter to traverse and activate the production navigation.",
+      "A real headless Chrome session used Tab, Shift+Tab, Enter, Space, and Escape to traverse the production navigation and wallet selector.",
       "The smoke records public labels and route assertions only; it does not connect a wallet or access confidential state.",
     ],
   };
