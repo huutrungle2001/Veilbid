@@ -8,7 +8,9 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "build": "pnpm --filter @veilbid/feasibility --filter @veilbid/auction-house build",
+    "build": "pnpm compile && pnpm bindings:check",
+    "bindings:check": "pnpm --filter @veilbid/auction-house bindings:check",
+    "bindings:generate": "pnpm --filter @veilbid/auction-house bindings:generate",
     "compile": "pnpm --filter @veilbid/feasibility --filter @veilbid/auction-house build",
     "test": "pnpm --filter @veilbid/feasibility --filter @veilbid/auction-house test",
     "test:contracts": "pnpm --filter @veilbid/auction-house test",

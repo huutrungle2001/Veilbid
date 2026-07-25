@@ -7,6 +7,8 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "bindings:check": "node scripts/generate-bindings.mjs --check",
+    "bindings:generate": "node scripts/generate-bindings.mjs",
     "build": "hardhat build",
     "test": "hardhat test --config hardhat.unit.config.ts --no-compile test/unit/*.test.ts test/property/*.test.mjs test/static/*.test.mjs",
     "test:nox": "hardhat test --config hardhat.config.ts",
