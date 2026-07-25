@@ -89,11 +89,29 @@ describe("Tender Room public explorer", () => {
     view(state());
     expect(screen.getByText("1 tenders")).toBeInTheDocument();
     expect(
+      screen.getByText(
+        "TEST-E2E DEPLOYMENT · NOT SOURCE/DEPLOYMENT VERIFIED",
+      ),
+    ).toBeInTheDocument();
+    expect(
       screen.getAllByText("Confidential procurement #1").length,
     ).toBeGreaterThan(0);
     expect(screen.getAllByText("100 vUSDC").length).toBeGreaterThan(0);
     expect(screen.getByText("◆ ENCRYPTED PRICE")).toBeInTheDocument();
     expect(screen.queryByText("37 vUSDC")).not.toBeInTheDocument();
+  });
+
+  it("labels the canonical release from live deployment metadata", () => {
+    const release = state();
+    release.data = {
+      ...release.data!,
+      deploymentKind: "release",
+      deploymentVerified: true,
+    };
+    view(release);
+    expect(
+      screen.getByText("RELEASE DEPLOYMENT · SOURCE/DEPLOYMENT VERIFIED"),
+    ).toBeInTheDocument();
   });
 
   it("surfaces explicit non-transferable receipt evidence after award", () => {

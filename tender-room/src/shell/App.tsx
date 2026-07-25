@@ -297,6 +297,9 @@ export function ExplorerView({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const index = state.data?.index ?? zeroIndex;
+  const deploymentKind = state.data?.deploymentKind ?? deployment.kind;
+  const deploymentVerified =
+    state.data?.deploymentVerified ?? deployment.verified;
   const selectedId = searchParams.get("tender");
   const selected = useMemo(
     () =>
@@ -398,7 +401,10 @@ export function ExplorerView({
               wallet. Prices and confidential balances are never indexed here.
             </p>
             <span className="deployment-label">
-              TEST-E2E DEPLOYMENT · NOT EXPLORER-VERIFIED
+              {deploymentKind.toUpperCase()} DEPLOYMENT ·{" "}
+              {deploymentVerified
+                ? "SOURCE/DEPLOYMENT VERIFIED"
+                : "NOT SOURCE/DEPLOYMENT VERIFIED"}
             </span>
           </div>
         </section>
