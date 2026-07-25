@@ -78,8 +78,8 @@ use.
 - [x] Implement test asset and official wrapper extension.
 - [x] Implement market/tender lifecycle.
 - [x] Implement encrypted bid validation and accumulator.
-- [ ] Implement close/finalize/refund and replay protection.
-- [ ] Implement confidential payout/refund.
+- [x] Implement close/finalize/refund and replay protection.
+- [x] Implement confidential payout/refund.
 - [x] Implement selective ACL and award receipt.
 - [ ] Add unit, property, invariant, and adversarial tests.
 
@@ -87,13 +87,13 @@ Exit: Core protocol tests pass without plaintext shadow state.
 
 ### Milestone 3 — Safe composability
 
-- [ ] Deploy a new local/Sepolia Safe for VeilBid.
+- [x] Deploy a new local/Sepolia Safe for VeilBid.
 - [x] Implement a preparation-only module with strict
   Safe/action/consumer/nonce binding and no Safe execution entry point.
-- [ ] Support owner handle preparation and threshold-authorized Safe funding.
+- [x] Support owner handle preparation and threshold-authorized Safe funding.
 - [ ] Support buyer cancellation/viewer operations where approved.
-- [ ] Test revoke/re-enable and permissionless terminal actions.
-- [ ] Document threshold-1 browser limitations.
+- [x] Test revoke/re-enable and permissionless terminal actions.
+- [x] Document threshold-1 browser limitations.
 
 Exit: Safe owns funds, module calls cannot execute from the Safe, and every
 funding/viewer write satisfies normal Safe threshold authority.

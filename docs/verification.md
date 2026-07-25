@@ -35,7 +35,7 @@
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PENDING |
-| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — one-vendor production award lifecycle passes; two-vendor and refund variants pending |
+| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
 | Source verification | Creation/runtime match and constructor args | PENDING |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PENDING |
 | Secret scan | Repository and evidence clean | PENDING |
@@ -133,3 +133,5 @@ npm run verify:deployment
 | 2026-07-25 | Gate E Safe deployment | `10e9b25` | `evidence/sepolia/gate-e-safe.json` | PASS — separate Safe v1.4.1 owner and threshold verified |
 | 2026-07-25 | Gate E Safe authority | `a3cc1db` | `evidence/sepolia/gate-e.json` | PASS — threshold funding, scoped preparation, negative bindings, replay guards, revoke/re-enable, preserved authority, and cleanup verified |
 | 2026-07-25 | Production market EOA lifecycle | `a7413b0` | `evidence/sepolia/market-eoa.json` | PASS — exact funding, admission/replay/deadline, scoped ACL, winner-only proof, confidential settlement, award receipt, and post-close buyer reveal verified |
+| 2026-07-25 | Production refund/cancellation lifecycle | `7aa859b` | `evidence/sepolia/market-refund.json` | PASS — encrypted invalid bid, proof-derived zero winner, full refund, cancellation boundaries, conservation, and replay guards verified |
+| 2026-07-25 | Production Safe lifecycle | `00a19a3` | `evidence/sepolia/market-safe.json` | PASS — full-term preparation binding, normal Safe create/fund/cancel, exact funding proof, replay rejection, preserved authority, and cleanup verified |

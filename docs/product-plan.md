@@ -122,21 +122,21 @@ Disclosure policy:
 ### Must have
 
 - [x] Faucet-backed Sepolia test USDC and official ERC-7984 wrapper.
-- [ ] EOA and Safe-owned tender funding.
+- [x] EOA and Safe-owned tender funding.
 - [x] One confidential price criterion and one payment token.
 - [x] One to eight buyer-approved vendor addresses per tender, with one bid per
   approved vendor.
 - [x] Escrow exactly the public ceiling so every valid bid is fully funded.
 - [x] Encrypted bid validation against zero and public ceiling.
 - [x] Encrypted best-price and winner-ID accumulation.
-- [ ] Permissionless close and proof-based finalize/refund.
+- [x] Permissionless close and proof-based finalize/refund.
 - [x] Confidential winner payment and buyer remainder.
 - [ ] Buyer/vendor authorized reveal and auditor ACL.
 - [ ] Wallet-free event-derived tender explorer.
 - [ ] Award receipt and activity/recovery UI.
 - [ ] Stateless finalizer with dry-run and bounded actions.
 - [ ] Responsive, keyboard-operable production frontend.
-- [ ] Buyer cancellation before the first bid.
+- [x] Buyer cancellation before the first bid.
 
 ### Should have
 
