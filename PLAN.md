@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 0 — Workspace and product-definition handoff
-- Status: Waiting for approval
-- Next action: User reviews the VeilBid Product Plan, architecture, and mandatory
-  feasibility gates.
-- Current blocker: No technical blocker has been measured; feasibility is not yet
-  proven.
-- Awaiting approval from: User
-- Last updated: 2026-07-25T20:52:24+07:00
+- Current phase: Phase 3 — Feasibility spikes
+- Status: Todo
+- Next action: Scaffold the isolated `feasibility/` workspace and execute Gate A
+  for persistent encrypted bid state.
+- Current blocker: No technical blocker has been measured; Gates A–D remain
+  unproven.
+- Awaiting approval from: None
+- Last updated: 2026-07-25T21:42:16+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -39,9 +39,9 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 
 | Phase | Work | Approval gate | Status |
 |---|---|---|---|
-| 0. Workspace handoff | Establish canonical documents, sources, and repository rules | User reviews handoff | Waiting for approval |
-| 1. Context and problem validation | Confirm competition facts, user pain, technical inputs, and product value | Decision-ready context | Todo |
-| 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Todo |
+| 0. Workspace handoff | Establish canonical documents, sources, and repository rules | User reviews handoff | Completed |
+| 1. Context and problem validation | Confirm competition facts, user pain, technical inputs, and product value | Decision-ready context | Completed |
+| 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Completed |
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Todo |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Todo |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Todo |
@@ -57,7 +57,7 @@ Only one phase may be `In progress`.
 | Multiple submissions | Approved | User | 2026-07-25 | Organizer permission was confirmed by the user. |
 | Product direction | Approved in principle | User | 2026-07-25 | VeilBid confidential procurement selected for detailed planning. |
 | Workspace creation | Approved | User | 2026-07-25 | Independent workspace and Git repository requested. |
-| Product Plan | Pending |  |  |  |
+| Product Plan | Approved | User | 2026-07-25 | Approved with fixed vendor admission, funded-ceiling escrow, preparation-only Safe module, post-close per-handle buyer ACL, no timeout refund after close, and a non-transferable winner receipt. |
 | Feasibility gate | Pending |  |  |  |
 | Build Plan | Pending |  |  |  |
 | Final submission | Pending |  |  |  |
@@ -78,7 +78,7 @@ Only one phase may be `In progress`.
 - [x] Architecture target covers all required production-grade trust boundaries,
   lifecycle services, recovery paths, and verification layers.
 - [x] Original source directory and source-priority policy exist.
-- [ ] Product Plan approved.
+- [x] Product Plan approved.
 - [ ] All mandatory feasibility spikes pass with reproducible evidence.
 - [ ] Core product works without mock data.
 - [ ] Contracts and web client are deployed.

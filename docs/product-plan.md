@@ -1,6 +1,7 @@
 # VeilBid Product Plan
 
-> Status: Draft for user approval.
+> Status: Approved by the user on 2026-07-25. Technical feasibility remains
+> unproven until the mandatory gates pass.
 
 ## 1. Product identity
 
@@ -198,6 +199,6 @@ Use a pre-funded Safe and two prepared vendor wallets:
 ## 12. Approval gate
 
 - [x] User selected VeilBid for detailed planning.
-- [ ] User approves this MVP and non-goals.
+- [x] User approves this MVP and non-goals.
 - [ ] Mandatory feasibility gates pass.
 - [ ] Build Plan is approved.

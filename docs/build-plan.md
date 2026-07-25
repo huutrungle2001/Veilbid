@@ -1,7 +1,7 @@
 # VeilBid Build Plan
 
-> Status: Draft. Development starts only after Product Plan approval and
-> mandatory feasibility gates.
+> Status: Draft pending feasibility results and final user approval. Production
+> development starts only after the mandatory feasibility gates.
 
 ## 1. Product profile
 
@@ -41,7 +41,7 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 
 - [x] Create independent canonical documentation.
 - [x] Capture original source inputs and source priority.
-- [ ] User approves Product Plan.
+- [x] User approves Product Plan.
 - [ ] Verify deadline, timezone, and official submission steps.
 
 ### Milestone 1 — Feasibility scaffold
