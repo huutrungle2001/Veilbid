@@ -104,13 +104,13 @@ equivalent production contracts and tests exist outside `feasibility/`.
 
 ### Milestone 4 — Web product
 
-- [ ] Build standalone landing and docs.
+- [x] Build standalone landing and docs.
 - [x] Implement wallet-free tender explorer and detail routes.
 - [x] Implement Buyer and Vendor flows.
 - [x] Implement Activity proof recovery.
 - [x] Implement Auditor viewer/reveal flow.
 - [x] Implement Safe Treasury workspace.
-- [ ] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged
+- [x] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged
   progress/result notifications.
 
 Exit: Fresh-wallet core journey is discoverable and responsive.
