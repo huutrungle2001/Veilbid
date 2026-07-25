@@ -168,4 +168,25 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByText(/does not confer token/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AUDITOR" })).toBeEnabled();
   });
+
+  it("opens the preparation-only Safe Treasury workspace", () => {
+    render(
+      <MemoryRouter>
+        <ExplorerView
+          state={state()}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="SAFE TREASURY"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Prepare. Then authorize." }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/cannot execute from the Safe/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "SAFE TREASURY" }),
+    ).toBeEnabled();
+  });
 });

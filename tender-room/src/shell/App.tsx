@@ -12,12 +12,18 @@ import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
 import { AuditorWorkspace } from "../auditor/AuditorWorkspace";
+import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import {
   RoleWorkspace,
   type InteractiveRole,
 } from "../workspaces/RoleWorkspace";
 
-type RoomRole = "PUBLIC" | InteractiveRole | "ACTIVITY" | "AUDITOR";
+type RoomRole =
+  | "PUBLIC"
+  | InteractiveRole
+  | "ACTIVITY"
+  | "AUDITOR"
+  | "SAFE TREASURY";
 
 const zeroIndex: PublicMarketIndex = {
   tenders: [],
@@ -291,7 +297,8 @@ export function ExplorerView({
               role === "BUYER" ||
               role === "VENDOR" ||
               role === "ACTIVITY" ||
-              role === "AUDITOR";
+              role === "AUDITOR" ||
+              role === "SAFE TREASURY";
             const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
             return (
               <button
@@ -327,6 +334,8 @@ export function ExplorerView({
           tenders={index.tenders}
           bids={index.bids}
         />
+      ) : activeRole === "SAFE TREASURY" && wallet ? (
+        <SafeTreasuryWorkspace wallet={wallet} />
       ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
         <RoleWorkspace
           role={activeRole}
@@ -449,7 +458,8 @@ export function App() {
     requestedRole === "BUYER" ||
     requestedRole === "VENDOR" ||
     requestedRole === "ACTIVITY" ||
-    requestedRole === "AUDITOR"
+    requestedRole === "AUDITOR" ||
+    requestedRole === "SAFE TREASURY"
       ? requestedRole
       : "PUBLIC";
   const setActiveRole = (role: RoomRole) => {
