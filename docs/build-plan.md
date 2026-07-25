@@ -132,7 +132,7 @@ Exit: Public lifecycle remains live without private authority.
   module.
 - [x] Synchronize canonical artifacts to client.
 - [x] Run two-vendor live lifecycle.
-- [ ] Run invalid bid, tie, no-valid-bid, cancel, timeout, replay, ACL, and Safe
+- [x] Run invalid bid, tie, no-valid-bid, cancel, timeout, replay, ACL, and Safe
   flows.
 - [x] Publish exact source mapping and verify runtime bytecode.
 - [ ] Deploy public frontend and smoke desktop/mobile.

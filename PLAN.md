@@ -7,13 +7,12 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Switch every runtime client to the verified canonical release
-  bindings, run the full release gate, then deploy the frontend with Vercel
-  CLI.
+- Next action: Deploy the release-gated frontend with Vercel CLI, then run
+  wallet-free desktop/mobile production smoke and record the canonical URL.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T02:24:00+07:00
+- Last updated: 2026-07-26T02:26:08+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -84,7 +83,7 @@ Only one phase may be `In progress`.
 - [x] Original source directory and source-priority policy exist.
 - [x] Product Plan approved.
 - [x] All mandatory feasibility spikes pass with reproducible evidence.
-- [ ] Core product works without mock data.
+- [x] Core product works without mock data.
 - [ ] Contracts and web client are deployed.
 - [x] Ethereum Sepolia source/deployment mapping is verified.
 - [ ] `feedback.md` contains evidence-based feedback.
