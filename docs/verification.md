@@ -20,8 +20,8 @@
 | Persistent handle | Stored bid reused in later transaction with expected ACL | BLOCKED — Docker/Sepolia configuration |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PARTIAL — 2,000 model cases pass; Nox runtime blocked |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
-| Close/proof | Winner ID public proof verifies and incorrect proofs fail | PENDING |
-| Proof recovery | Close survives reload/indexing delay and resumes | PENDING |
+| Close/proof | Winner ID public proof verifies and incorrect proofs fail | BLOCKED — Docker required |
+| Proof recovery | Close survives reload/indexing delay and resumes | BLOCKED — Docker required |
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PENDING |
 | Escrow solvency | Atomic escrow equals public ceiling | PENDING |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PENDING |
@@ -122,3 +122,4 @@ npm run verify:deployment
 |---|---|---|---|---|
 | 2026-07-25 | Local preflight / Gate A compile | pending | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |
 | 2026-07-25 | Gate B compile/model | pending | `evidence/local/gate-b.json` | PARTIAL — 2,000 model cases pass; encrypted runtime blocked on Docker |
+| 2026-07-25 | Gate C compile | pending | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |

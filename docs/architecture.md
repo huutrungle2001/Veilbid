@@ -134,7 +134,7 @@ sequenceDiagram
     M->>M: freeze accumulator and allow public winner-ID decryption
     F->>N: publicDecrypt(winnerIdHandle)
     N-->>F: winnerBidId + proof
-    F->>M: finalizeTender(tenderId, winnerId, proof)
+    F->>M: finalizeTender(tenderId, proof)
     M->>M: Nox.publicDecrypt and bind bidId to stored vendor
     M->>E: confidential payment + buyer remainder
     M-->>F: Awarded event + receipt, or Refunded event

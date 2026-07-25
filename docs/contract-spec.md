@@ -57,7 +57,7 @@ No transition leaves a terminal state.
 - `createTenderAuthorized(...)`
 - `submitBid(tenderId, encryptedPrice, proof)`
 - `closeTender(tenderId)`
-- `finalizeTender(tenderId, winnerBidId, winnerProof)`
+- `finalizeTender(tenderId, winnerProof)`
 - `cancelTender(tenderId)`
 - `grantBidViewer(tenderId, bidId, viewer)`
 - `getTender(tenderId)`

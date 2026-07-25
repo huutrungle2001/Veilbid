@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import { nox } from "@iexec-nox/nox-hardhat-plugin";
+import type { Handle } from "@iexec-nox/handle";
 
 type ArgminCase = {
   ceiling: bigint;
@@ -77,10 +78,10 @@ describe("Gate B: encrypted argmin and winner ID", () => {
         ]);
 
         const best = await nox.decrypt(
-          await spike.read.encryptedBestPriceHandle(),
+          (await spike.read.encryptedBestPriceHandle()) as Handle<"uint256">,
         );
         const winner = await nox.decrypt(
-          await spike.read.encryptedWinnerBidIdHandle(),
+          (await spike.read.encryptedWinnerBidIdHandle()) as Handle<"uint256">,
         );
 
         assert.equal(best.value, testCase.expectedBest);

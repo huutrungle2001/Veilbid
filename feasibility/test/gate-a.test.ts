@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import { nox } from "@iexec-nox/nox-hardhat-plugin";
+import type { Handle } from "@iexec-nox/handle";
 
 describe("Gate A: persistent encrypted bid state", () => {
   it(
@@ -25,7 +26,8 @@ describe("Gate A: persistent encrypted bid state", () => {
         hash: submitHash,
       });
 
-      const storedHandle = await spike.read.storedBidHandle();
+      const storedHandle =
+        (await spike.read.storedBidHandle()) as Handle<"uint256">;
       assert.notEqual(
         storedHandle,
         `0x${"0".repeat(64)}`,
@@ -66,7 +68,8 @@ describe("Gate A: persistent encrypted bid state", () => {
         "vendor viewer ACL must survive the later transaction",
       );
 
-      const comparisonHandle = await spike.read.comparisonResultHandle();
+      const comparisonHandle =
+        (await spike.read.comparisonResultHandle()) as Handle<"uint256">;
       const comparison = await nox.publicDecrypt(comparisonHandle);
       assert.equal(comparison.value, 1n);
     },
