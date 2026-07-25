@@ -91,7 +91,7 @@ Exit: Core protocol tests pass without plaintext shadow state.
 - [x] Implement a preparation-only module with strict
   Safe/action/consumer/nonce binding and no Safe execution entry point.
 - [x] Support owner handle preparation and threshold-authorized Safe funding.
-- [ ] Support buyer cancellation/viewer operations where approved.
+- [x] Support buyer cancellation/viewer operations where approved.
 - [x] Test revoke/re-enable and permissionless terminal actions.
 - [x] Document threshold-1 browser limitations.
 
@@ -117,7 +117,7 @@ Exit: Fresh-wallet core journey is discoverable and responsive.
 
 ### Milestone 5 — Automation and integrations
 
-- [ ] Implement event-derived tender index with finalized checkpoint.
+- [x] Implement event-derived tender index with finalized checkpoint.
 - [ ] Build stateless finalizer dry-run/once/poll/health.
 - [ ] Add race simulation and bounded action budget.
 - [ ] Add optional read-only MCP tools.

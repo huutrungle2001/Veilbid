@@ -28,11 +28,11 @@
 | Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PARTIAL — all lifecycle writes are guarded and terminal state precedes token calls; callback adversarial runtime test pending |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PASS — proof-derived Sepolia mint plus unit transfer/approval rejection; market uses non-callback mint |
-| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PARTIAL — vendor-only Open ACL and post-close buyer grant pass; auditor/Safe grant matrix pending |
+| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PASS — vendor-only Open ACL, post-close EOA buyer grant, and threshold-authorized Safe-to-viewer grant verified |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
-| Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
+| Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — deterministic finalized-log rebuild, dedupe, checkpoint, and invalid-order guards pass; RPC pagination/reorg rollback pending |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PENDING |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
@@ -137,3 +137,4 @@ npm run verify:deployment
 | 2026-07-25 | Production Safe lifecycle | `00a19a3` | `evidence/sepolia/market-safe.json` | PASS — full-term preparation binding, normal Safe create/fund/cancel, exact funding proof, replay rejection, preserved authority, and cleanup verified |
 | 2026-07-26 | Production properties/adversarial guards | `5eb30d8` | Auction House property/static tests | PASS — 10,000 bid sets, deterministic ties, lifecycle monotonicity, conservation, Nox operation order, admission bounds, reentrancy/CEI, and forbidden escape surfaces |
 | 2026-07-26 | E2E deployment consistency | `0f2b309` | `evidence/sepolia/deployment-consistency.test.json` | PASS — receipts, masked-immutable runtime bytecode, immutable wiring, Safe configuration, and cleanup state verified; manifest remains explicitly unverified |
+| 2026-07-26 | Production Safe viewer authority | `ca5bc69` | `evidence/sepolia/market-safe-viewer.json` | PASS — Safe-owned award, Open-state denial, proof-derived settlement, direct-owner denial, threshold viewer grant/decryption, preserved authority, and cleanup verified |

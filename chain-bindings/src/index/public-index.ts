@@ -71,6 +71,10 @@ function recordViewerGrant(
   });
 }
 
+/**
+ * Rebuilds public state from a caller-supplied finalized log window.
+ * RPC pagination, finality depth, and reorg rollback remain caller concerns.
+ */
 export function buildPublicMarketIndex(
   events: readonly VeilBidPublicEvent[],
 ): PublicMarketIndex {

@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 5 — Core development
+- Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Implement chain-bindings domain types, event codecs, readiness
-  rules, and rebuildable public index with deterministic tests.
+- Next action: Scaffold Tender Room and implement the wallet-free public tender
+  explorer against generated bindings and finalized Sepolia logs.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T00:02:13+07:00
+- Last updated: 2026-07-26T00:15:52+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -44,8 +44,8 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Completed |
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
-| 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | In progress |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Todo |
+| 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | In progress |
 | 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Todo |
 
 Only one phase may be `In progress`.
