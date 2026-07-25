@@ -19,6 +19,7 @@
     "preflight:release": "node --env-file-if-exists=../.env.local scripts/preflight-release.sepolia.mjs",
     "deploy:release": "node --env-file-if-exists=../.env.local scripts/deploy-release.sepolia.mjs",
     "publish:sources:release": "node scripts/publish-release-sources.sepolia.mjs",
+    "verify:deployment:release": "node --env-file-if-exists=../.env.local verify/release-deployment.sepolia.mjs",
     "verify:deployment:test": "node --env-file-if-exists=../.env.local verify/test-deployment.sepolia.mjs"
   },
   "devDependencies": {

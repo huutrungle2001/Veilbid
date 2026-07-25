@@ -42,6 +42,8 @@
     "publish:sources:release": "pnpm --filter @veilbid/auction-house publish:sources:release",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs",
+    "verify:deployment": "pnpm --filter @veilbid/auction-house verify:deployment:release",
+    "verify:deployment:release": "pnpm --filter @veilbid/auction-house verify:deployment:release",
     "verify:deployment:test": "pnpm --filter @veilbid/auction-house verify:deployment:test"
   }
 }
