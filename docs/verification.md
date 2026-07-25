@@ -18,7 +18,7 @@
 |---|---|---|
 | Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PENDING |
 | Persistent handle | Stored bid reused in later transaction with expected ACL | PASS — Sepolia blocks 11348541 and 11348543 |
-| Encrypted argmin | Valid/invalid/tie/permutation property tests | PARTIAL — 2,000 model cases pass; Sepolia runtime pending |
+| Encrypted argmin | Valid/invalid/tie/permutation property tests | PASS — six Sepolia cases and 2,000 model cases |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | READY — Sepolia runtime pending |
 | Proof recovery | Close survives reload/indexing delay and resumes | READY — Sepolia runtime pending |
@@ -125,3 +125,4 @@ npm run verify:deployment
 | 2026-07-25 | Gate C compile | `2411e5e` | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |
 | 2026-07-25 | Gate D compile/source inspection | `d9c97ce` | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |
 | 2026-07-25 | Gate A Ethereum Sepolia | pending | `evidence/sepolia/gate-a.json` | PASS — cross-block reuse, persistent ACL, vendor decrypt, and encrypted comparison verified |
+| 2026-07-25 | Gate B Ethereum Sepolia | pending | `evidence/sepolia/gate-b.json` | PASS — six representative encrypted cases and 2,000 deterministic model cases |
