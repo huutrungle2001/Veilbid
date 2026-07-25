@@ -1,6 +1,7 @@
 # Feasibility and Kill-Criteria Plan
 
-> Status: Mandatory pre-build gate. No result is currently claimed.
+> Status: Mandatory Sepolia-first pre-build gate. No unexecuted runtime result
+> is claimed.
 
 ## 1. Purpose
 
@@ -25,6 +26,16 @@ workspace. It contains no production deployment, generated consumer artifact,
 frontend, relay, MCP, or submission claim. Production workspaces remain absent
 until Gates A–D pass and the custody architecture is selected.
 
+The user approved a Sepolia-first strategy on 2026-07-25. Compile checks and
+deterministic models remain mandatory, while real Nox/ERC-7984 behavior must be
+proven on Ethereum Sepolia. The Docker-backed local Nox stack is an optional
+regression environment and its absence does not block Gates A–D.
+
+Every live run must use the SDK's pinned Ethereum Sepolia configuration and
+record sanitized transaction, block, deployment, and assertion identifiers.
+Never save confidential values, handles, proofs, signatures, RPC credentials,
+or private keys.
+
 ## 2. Gate A — persistent encrypted bid state
 
 Prove:
@@ -37,10 +48,10 @@ Prove:
 
 Pass evidence:
 
-- Local Nox runtime test.
 - Sepolia transaction pair separated by at least one block.
 - ACL inspection before and after.
 - Plaintext assertion redacted from saved evidence.
+- Optional local Nox regression when Docker is available.
 
 Kill condition:
 
@@ -49,7 +60,7 @@ Kill condition:
 
 ## 3. Gate B — encrypted argmin and winner ID
 
-Implement a minimal two-to-eight-bid accumulator:
+Implement and prove on Ethereum Sepolia a minimal two-to-eight-bid accumulator:
 
 ```text
 candidate = price if price > 0 else ceiling + 1
@@ -73,7 +84,7 @@ Kill condition:
 
 ## 4. Gate C — public winner proof and recovery
 
-Prove:
+Prove on Ethereum Sepolia:
 
 1. Close marks only the encrypted winner ID publicly decryptable.
 2. Handle SDK returns plaintext winner ID plus proof.
@@ -90,7 +101,7 @@ Kill condition:
 
 ## 5. Gate D — confidential escrow settlement
 
-Prove with official ERC-7984 wrapper:
+Prove on Ethereum Sepolia with the official ERC-7984 wrapper:
 
 1. Buyer escrows an encrypted budget.
 2. Market/escrow can consume the encrypted winning-price handle.
@@ -134,14 +145,14 @@ Safe and document higher-threshold execution through Safe Wallet.
 
 | Gate | Status | Evidence | Decision |
 |---|---|---|---|
-| A. Persistent bid | Blocked | `evidence/local/gate-a.json` | Contract and integration test compile; official local run requires Docker and live run requires Sepolia configuration. |
-| B. Encrypted argmin | Blocked | `evidence/local/gate-b.json` | Contract compiles and 2,000 deterministic model cases pass; encrypted runtime assertions require Docker. |
-| C. Public winner proof | Blocked | `evidence/local/gate-c.json` | Proof-only finalize and recovery tests compile; proof generation/verification requires Docker. |
-| D. Confidential settlement | Blocked | `evidence/local/gate-d.json` | Official wrapper, exact-funding proof gate, and both custody variants compile; balance, ACL, refund, and replay assertions require Docker. |
+| A. Persistent bid | In progress | `evidence/local/gate-a.json`; Sepolia evidence pending | Contract and test compile; wallet/RPC are ready for the mandatory Sepolia run. |
+| B. Encrypted argmin | Partial | `evidence/local/gate-b.json`; Sepolia evidence pending | Contract compiles and 2,000 deterministic model cases pass; encrypted Sepolia assertions remain. |
+| C. Public winner proof | Ready | `evidence/local/gate-c.json`; Sepolia evidence pending | Proof-only finalize and recovery tests compile; Sepolia proof assertions remain. |
+| D. Confidential settlement | Ready | `evidence/local/gate-d.json`; Sepolia evidence pending | Official wrapper, exact-funding proof gate, and both custody variants compile; Sepolia balance, ACL, refund, and replay assertions remain. |
 | E. Safe composability | Pending |  |  |
 
-Full application development starts only after A–D pass and the Safe design for
-E is approved.
+Full application development starts only after A–D pass on Sepolia and the Safe
+design for E is approved.
 
 ### Gate D funding observation
 
@@ -150,6 +161,6 @@ amount when a transfer cannot cover the requested amount; transaction success
 alone therefore does not prove that escrow equals the public ceiling. The Gate D
 spike derives an encrypted equality between the transferred amount and the
 public ceiling, marks only that boolean for public decryption, and requires its
-proof before exposing `funded` state or allowing settlement. The local Nox
-runtime must confirm this pattern before it is adopted in the production
-architecture.
+proof before exposing `funded` state or allowing settlement. The Ethereum
+Sepolia Nox runtime must confirm this pattern before it is adopted in the
+production architecture.

@@ -38,8 +38,8 @@ const evidence = {
   },
   assertions: {
     node24: process.versions.node.startsWith("24."),
-    dockerAvailable: commandVersion("docker") !== null,
-    liveConfigurationPresent:
+    localNoxAvailable: commandVersion("docker") !== null,
+    sepoliaConfigurationPresent:
       Boolean(process.env.SEPOLIA_RPC_URL) &&
       Boolean(process.env.SEPOLIA_PRIVATE_KEY),
   },
@@ -49,10 +49,7 @@ const evidence = {
 if (!evidence.assertions.node24) {
   evidence.blockers.push("NODE_24_REQUIRED");
 }
-if (!evidence.assertions.dockerAvailable) {
-  evidence.blockers.push("DOCKER_REQUIRED_FOR_LOCAL_NOX");
-}
-if (!evidence.assertions.liveConfigurationPresent) {
+if (!evidence.assertions.sepoliaConfigurationPresent) {
   evidence.blockers.push("SEPOLIA_CONFIGURATION_MISSING");
 }
 

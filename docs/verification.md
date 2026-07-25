@@ -9,22 +9,22 @@
 - Redact bid prices, confidential balances, outputs, refunds, handles, proofs,
   signatures, and keys from committed evidence.
 - Never mark an unexecuted test as pass.
-- Separate deterministic/local simulation from real Nox runtime and Sepolia
-  evidence.
+- Separate deterministic simulation and optional local regression from
+  mandatory real Nox runtime evidence on Sepolia.
 
 ## 2. Verification matrix
 
 | Area | Required test/evidence | Status |
 |---|---|---|
 | Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PENDING |
-| Persistent handle | Stored bid reused in later transaction with expected ACL | BLOCKED — Docker/Sepolia configuration |
-| Encrypted argmin | Valid/invalid/tie/permutation property tests | PARTIAL — 2,000 model cases pass; Nox runtime blocked |
+| Persistent handle | Stored bid reused in later transaction with expected ACL | IN PROGRESS — Sepolia run next |
+| Encrypted argmin | Valid/invalid/tie/permutation property tests | PARTIAL — 2,000 model cases pass; Sepolia runtime pending |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
-| Close/proof | Winner ID public proof verifies and incorrect proofs fail | BLOCKED — Docker required |
-| Proof recovery | Close survives reload/indexing delay and resumes | BLOCKED — Docker required |
-| Confidential escrow | Exact winner/remainder/full-refund deltas | BLOCKED — Gate D compiles; Docker required |
-| Escrow solvency | Proof-confirmed escrow equals public ceiling | BLOCKED — source behavior identified; runtime proof pending |
-| Replay | Duplicate close/finalize/refund cannot settle twice | BLOCKED — Gate C/D checks compile; Docker required |
+| Close/proof | Winner ID public proof verifies and incorrect proofs fail | READY — Sepolia runtime pending |
+| Proof recovery | Close survives reload/indexing delay and resumes | READY — Sepolia runtime pending |
+| Confidential escrow | Exact winner/remainder/full-refund deltas | READY — Gate D compiles; Sepolia runtime pending |
+| Escrow solvency | Proof-confirmed escrow equals public ceiling | READY — source behavior identified; Sepolia proof pending |
+| Replay | Duplicate close/finalize/refund cannot settle twice | READY — Gate C/D checks compile; Sepolia runtime pending |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |

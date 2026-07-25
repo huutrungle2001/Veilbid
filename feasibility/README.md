@@ -7,8 +7,10 @@ Requirements:
 
 - Node.js 24, pinned by the root `.nvmrc`.
 - pnpm 10.33.0 through Corepack.
-- Docker Engine with Compose support for the official Nox Hardhat plugin.
-- `SEPOLIA_RPC_URL` and `SEPOLIA_PRIVATE_KEY` only for explicit live runs.
+- `SEPOLIA_RPC_URL` and `SEPOLIA_PRIVATE_KEY` in ignored `.env.local` for live
+  feasibility runs.
+- Docker Engine with Compose support only for optional local Nox regression
+  runs.
 
 The workspace never substitutes a mock result when the Nox runtime, RPC, or
 credentials are unavailable. Evidence records only public identifiers,

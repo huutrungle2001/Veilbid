@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "gate": "PREFLIGHT",
-  "recordedAt": "2026-07-25T14:50:03.086Z",
+  "recordedAt": "2026-07-25T15:27:29.745Z",
   "environment": {
     "node": "v24.18.0",
     "pnpm": "10.33.0",
     "docker": null,
     "dockerCompose": null,
-    "sepoliaRpcConfigured": false,
-    "sepoliaPrivateKeyConfigured": false
+    "sepoliaRpcConfigured": true,
+    "sepoliaPrivateKeyConfigured": true
   },
   "packages": {
     "noxProtocolContracts": "0.2.4",
@@ -20,11 +20,8 @@
   },
   "assertions": {
     "node24": true,
-    "dockerAvailable": false,
-    "liveConfigurationPresent": false
+    "localNoxAvailable": false,
+    "sepoliaConfigurationPresent": true
   },
-  "blockers": [
-    "DOCKER_REQUIRED_FOR_LOCAL_NOX",
-    "SEPOLIA_CONFIGURATION_MISSING"
-  ]
+  "blockers": []
 }

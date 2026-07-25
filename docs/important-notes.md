@@ -28,6 +28,8 @@ Until verified from the official event page, plan to finish publication at least
 - Raw local chat context is not committed by default.
 - Safe and Nox are core, not optional labels.
 - Winner identity may be public after close; bid prices stay confidential.
+- Feasibility runtime evidence is Sepolia-first; Docker-backed local Nox is an
+  optional regression environment and is not a phase blocker.
 
 ## 4. Organizer-context notes requiring care
 
@@ -55,6 +57,8 @@ material submission facts through the official event page before publication.
 - Public-decryption finalization must be recoverable after indexing delay.
 - Never clear the lockfile merely to “get latest” during a release; pin and
   validate known-compatible versions.
+- The pinned Handle SDK source contains built-in Ethereum Sepolia configuration
+  for chain `11155111`, including the NoxCompute address, gateway, and subgraph.
 
 ## 6. Open questions
 
