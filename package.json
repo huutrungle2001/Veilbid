@@ -37,6 +37,7 @@
     "test:sepolia:market:refund": "pnpm --filter @veilbid/auction-house test:sepolia:refund",
     "test:sepolia:market:safe": "pnpm --filter @veilbid/auction-house test:sepolia:safe",
     "test:sepolia:market:safe-viewer": "pnpm --filter @veilbid/auction-house test:sepolia:safe-viewer",
+    "test:sepolia:release:two-vendor": "pnpm --filter @veilbid/auction-house test:sepolia:release:two-vendor",
     "preflight:release": "pnpm --filter @veilbid/auction-house preflight:release",
     "deploy:release": "pnpm --filter @veilbid/auction-house deploy:release",
     "publish:sources:release": "pnpm --filter @veilbid/auction-house publish:sources:release",
