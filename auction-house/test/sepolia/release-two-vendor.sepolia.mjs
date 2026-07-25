@@ -1,5 +1,10 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import Safe from "@safe-global/protocol-kit";
 import { createViemHandleClient } from "@iexec-nox/handle";
@@ -44,8 +49,9 @@ const budget = 100_000_000n;
 const firstPrice = 61_000_000n;
 const secondPrice = 37_000_000n;
 const zeroBytes32 = `0x${"0".repeat(64)}`;
+const disclosureOnly = process.argv.includes("--disclosure-only");
 
-const evidence = {
+let evidence = {
   schemaVersion: 1,
   suite: "release-two-vendor-lifecycle",
   recordedAt: new Date().toISOString(),
@@ -94,6 +100,20 @@ const evidence = {
     "The release module and Safe-to-Market operator authorization remain enabled after this lifecycle.",
   ],
 };
+if (disclosureOnly) {
+  if (!existsSync(outputPath)) {
+    throw new Error("DISCLOSURE_EVIDENCE_MISSING");
+  }
+  evidence = JSON.parse(readFileSync(outputPath, "utf8"));
+  evidence.blockers = [];
+  evidence.notes = evidence.notes.filter(
+    (note) =>
+      !note.startsWith("The live run stopped during"),
+  );
+  evidence.notes.push(
+    "The corrected bid-2 Safe disclosure checkpoint resumed without replaying the completed tender lifecycle.",
+  );
+}
 
 let stage = "CONFIGURATION";
 
@@ -358,6 +378,116 @@ async function main() {
         12,
       )
     ).value;
+  }
+
+  async function runSafeDisclosure(tenderId, targetBid) {
+    stage = "SAFE_DISCLOSURE";
+    await expectMarketRevert(owner, "grantBidViewer", [
+      tenderId,
+      2n,
+      owner.address,
+    ]);
+    evidence.assertions.directOwnerViewerGrantRejected = true;
+    const alreadyGranted = await retry(
+      () =>
+        market.read.bidViewableBy([
+          tenderId,
+          2n,
+          owner.address,
+        ]),
+      "GRANTED_VIEWER_ACL_UNAVAILABLE",
+    );
+    if (!alreadyGranted) {
+      await safeCall(
+        "safeGrantCrossBidViewer",
+        marketAddress,
+        encodeFunctionData({
+          abi: marketArtifact.abi,
+          functionName: "grantBidViewer",
+          args: [tenderId, 2n, owner.address],
+        }),
+      );
+    }
+    evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory =
+      (await retry(
+        () =>
+          market.read.bidViewableBy([
+            tenderId,
+            2n,
+            owner.address,
+          ]),
+        "GRANTED_VIEWER_ACL_UNAVAILABLE",
+      )) === true &&
+      (
+        await retry(
+          () =>
+            ownerHandles.decrypt(
+              targetBid.encryptedPriceHandle,
+            ),
+          "CROSS_BID_DECRYPT_TIMEOUT",
+          12,
+        )
+      ).value === secondPrice;
+    assert.equal(
+      evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory,
+      true,
+    );
+  }
+
+  async function verifyReleaseState() {
+    stage = "RELEASE_STATE";
+    evidence.assertions.releaseSafeStatePreserved =
+      (await retry(
+        () => safeKit.getThreshold(),
+        "FINAL_SAFE_THRESHOLD_UNAVAILABLE",
+      )) === thresholdBefore &&
+      JSON.stringify(
+        (
+          await retry(
+            () => safeKit.getOwners(),
+            "FINAL_SAFE_OWNERS_UNAVAILABLE",
+          )
+        ).map((address) => address.toLowerCase()),
+      ) ===
+        JSON.stringify(
+          ownersBefore.map((address) => address.toLowerCase()),
+        ) &&
+      (await retry(
+        () => safeKit.isModuleEnabled(moduleAddress),
+        "FINAL_SAFE_MODULE_STATE_UNAVAILABLE",
+      )) === true &&
+      (await retry(
+        () =>
+          wrapper.read.isOperator([
+            safeAddress,
+            marketAddress,
+          ]),
+        "FINAL_OPERATOR_STATE_UNAVAILABLE",
+      )) === true;
+    assert.equal(
+      evidence.assertions.releaseSafeStatePreserved,
+      true,
+    );
+  }
+
+  if (disclosureOnly) {
+    const tenderId = BigInt(evidence.publicIdentifiers.tenderId);
+    const targetBid = await retry(
+      () => market.read.getBid([tenderId, 2n]),
+      "SECOND_BID_UNAVAILABLE",
+    );
+    await runSafeDisclosure(tenderId, targetBid);
+    await verifyReleaseState();
+    saveEvidence();
+    console.log(
+      JSON.stringify({
+        evidence: "evidence/sepolia/release-two-vendor.json",
+        tenderId: evidence.publicIdentifiers.tenderId,
+        resumed: "safe-disclosure",
+        assertions: evidence.assertions,
+      }),
+    );
+    return;
   }
 
   stage = "SAFE_ASSET_SETUP";
@@ -725,76 +855,8 @@ async function main() {
   ]);
   evidence.assertions.replayRejected = true;
 
-  stage = "SAFE_DISCLOSURE";
-  await expectMarketRevert(owner, "grantBidViewer", [
-    tenderId,
-    1n,
-    secondVendor.address,
-  ]);
-  evidence.assertions.directOwnerViewerGrantRejected = true;
-  await safeCall(
-    "safeGrantCrossBidViewer",
-    marketAddress,
-    encodeFunctionData({
-      abi: marketArtifact.abi,
-      functionName: "grantBidViewer",
-      args: [tenderId, 1n, secondVendor.address],
-    }),
-  );
-  evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory =
-    (await retry(
-      () =>
-        market.read.bidViewableBy([
-          tenderId,
-          1n,
-          secondVendor.address,
-        ]),
-      "GRANTED_VIEWER_ACL_UNAVAILABLE",
-    )) === true &&
-    (
-      await retry(
-        () =>
-          secondVendorHandles.decrypt(
-            firstBid.encryptedPriceHandle,
-          ),
-        "CROSS_BID_DECRYPT_TIMEOUT",
-        12,
-      )
-    ).value === firstPrice;
-  assert.equal(
-    evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory,
-    true,
-  );
-
-  stage = "RELEASE_STATE";
-  evidence.assertions.releaseSafeStatePreserved =
-    (await retry(
-      () => safeKit.getThreshold(),
-      "FINAL_SAFE_THRESHOLD_UNAVAILABLE",
-    )) === thresholdBefore &&
-    JSON.stringify(
-      (
-        await retry(
-          () => safeKit.getOwners(),
-          "FINAL_SAFE_OWNERS_UNAVAILABLE",
-        )
-      ).map((address) => address.toLowerCase()),
-    ) ===
-      JSON.stringify(
-        ownersBefore.map((address) => address.toLowerCase()),
-      ) &&
-    (await retry(
-      () => safeKit.isModuleEnabled(moduleAddress),
-      "FINAL_SAFE_MODULE_STATE_UNAVAILABLE",
-    )) === true &&
-    (await retry(
-      () => wrapper.read.isOperator([safeAddress, marketAddress]),
-      "FINAL_OPERATOR_STATE_UNAVAILABLE",
-    )) === true;
-  assert.equal(
-    evidence.assertions.releaseSafeStatePreserved,
-    true,
-  );
+  await runSafeDisclosure(tenderId, secondBid);
+  await verifyReleaseState();
 
   saveEvidence();
   console.log(
