@@ -5,6 +5,7 @@ import { selectedProviderStorageKey } from "../src/wallet/eip6963";
 import { useWallet } from "../src/wallet/useWallet";
 
 const account = "0x1111111111111111111111111111111111111111";
+const secondAccount = "0x2222222222222222222222222222222222222222";
 
 class TestProvider {
   chainId = "0xaa36a7";
@@ -109,6 +110,20 @@ describe("provider-aware wallet session", () => {
     act(() => provider.emit("accountsChanged", []));
     expect(result.current.state.status).toBe("disconnected");
     expect(result.current.state.walletClient).toBeNull();
+    expect(result.current.state.sessionRevision).toBe(revision + 1);
+  });
+
+  it("revises the session when the connected account changes", async () => {
+    const provider = new TestProvider();
+    const { result } = renderHook(() => useWallet());
+
+    act(() => announce(provider));
+    await waitFor(() => expect(result.current.state.providers).toHaveLength(1));
+    await act(() => result.current.connect(result.current.state.providers[0]));
+    const revision = result.current.state.sessionRevision;
+
+    act(() => provider.emit("accountsChanged", [secondAccount]));
+    expect(result.current.state.account).toBe(secondAccount);
     expect(result.current.state.sessionRevision).toBe(revision + 1);
   });
 });

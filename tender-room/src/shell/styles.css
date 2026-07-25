@@ -829,6 +829,49 @@ main {
   padding: 16px;
 }
 
+.auditor-form {
+  max-width: 880px;
+}
+
+.auditor-form > label,
+.auditor-form > .form-actions,
+.auditor-form > .success-line,
+.auditor-form > .reveal-result {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.success-line {
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  margin: 0;
+  padding: 12px;
+}
+
+.reveal-result {
+  background: var(--color-ink-black);
+  color: var(--color-paper);
+  display: grid;
+  gap: 8px;
+  padding: 24px;
+}
+
+.reveal-result strong {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+}
+
+.reveal-result span {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
 .state-panel {
   align-items: center;
   border: 1px solid var(--color-ink-black);

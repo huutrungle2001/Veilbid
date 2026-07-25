@@ -149,4 +149,23 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByText(/public tender IDs/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
   });
+
+  it("opens the selective-disclosure Auditor workspace", () => {
+    render(
+      <MemoryRouter>
+        <ExplorerView
+          state={state()}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="AUDITOR"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Reveal one granted bid." }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/does not confer token/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "AUDITOR" })).toBeEnabled();
+  });
 });

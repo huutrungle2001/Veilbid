@@ -221,12 +221,15 @@ export function useWallet() {
       }
       const account = getAddress(values[0]);
       setState((current) =>
-        connectedState(
-          current,
-          detail,
-          account,
-          current.chainId ?? 0,
-        ),
+        ({
+          ...connectedState(
+            current,
+            detail,
+            account,
+            current.chainId ?? 0,
+          ),
+          sessionRevision: current.sessionRevision + 1,
+        }),
       );
     };
     const onChainChanged = (...parameters: unknown[]) => {
