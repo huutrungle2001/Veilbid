@@ -218,6 +218,7 @@ There is no application database or authentication server.
 ## 9. Planned repository structure
 
 ```text
+feasibility/       # pre-build spike workspace; never a runtime dependency
 tender-room/
 auction-house/
 settlement-relay/
@@ -229,5 +230,5 @@ docs/
 
 The names reflect VeilBid's procurement domain rather than generic application
 and package buckets. Dependency rules and internal layouts are canonical in
-`repository-layout.md`. Source directories are created only after the
-feasibility and build-design gates.
+`repository-layout.md`. Product Plan approval permits only `feasibility/`;
+production source directories wait for the feasibility and build-design gates.

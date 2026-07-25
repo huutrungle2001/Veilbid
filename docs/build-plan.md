@@ -46,7 +46,7 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 
 ### Milestone 1 — Feasibility scaffold
 
-- [ ] Initialize npm workspaces and supported runtime checks.
+- [ ] Initialize the root tooling and isolated `feasibility` workspace only.
 - [ ] Install pinned Nox/Hardhat/ethers dependencies.
 - [ ] Implement persistent-handle spike.
 - [ ] Implement encrypted argmin spike.
@@ -55,6 +55,10 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 - [ ] Record exact evidence and select architecture.
 
 Exit: Gates A–D pass.
+
+Production workspaces are not created during this milestone. Gate outputs record
+the versions and architecture that the later `auction-house` implementation must
+use.
 
 ### Milestone 2 — Core contracts
 

@@ -1,12 +1,17 @@
 # VeilBid Repository Layout
 
 > Status: Canonical planned source layout. Source workspaces do not exist until
-> the Product Plan and feasibility gate permit scaffolding.
+> their phase gate permits scaffolding.
 
 ## 1. Top-level structure
 
 ```text
 Veilbid/
+├── feasibility/
+│   ├── contracts/
+│   ├── test/
+│   ├── scripts/
+│   └── README.md
 ├── tender-room/
 │   ├── public/
 │   ├── src/
@@ -69,6 +74,17 @@ Veilbid/
 
 ## 2. Workspace responsibilities
 
+### `feasibility`
+
+The only pre-build source workspace. It owns minimal contracts, tests, and
+scripts for Feasibility Gates A–E. It may be created after Product Plan approval
+and before production workspaces exist.
+
+It is not a product runtime package, deployment authority, or source of
+canonical consumer artifacts. Reusable findings must be reimplemented or
+deliberately migrated into `auction-house` after the gates pass and the
+architecture is selected.
+
 ### `tender-room`
 
 The only browser product. It owns presentation, route state, injected-wallet
@@ -127,10 +143,10 @@ flowchart LR
     CB --> SR["settlement-relay"]
     CB --> OC["operator-console"]
 
-    EV["evidence"] -.->|validation output only| AH
-    EV -.-> TR
-    EV -.-> SR
-    EV -.-> OC
+    AH -.->|emit sanitized results| EV["evidence"]
+    TR -.->|emit sanitized results| EV
+    SR -.->|emit sanitized results| EV
+    OC -.->|emit sanitized results| EV
 ```
 
 Rules:
@@ -149,6 +165,7 @@ Rules:
 
 | Artifact | Canonical location |
 |---|---|
+| Pre-build spike source and tests | `feasibility/` |
 | Solidity source and tests | `auction-house/` |
 | Deployment addresses and transactions | `auction-house/deployments/` |
 | Consumer ABIs and addresses | `chain-bindings/generated/` |
@@ -161,7 +178,9 @@ Rules:
 
 ## 5. Root orchestration
 
-The root may use npm workspaces, but top-level folders retain their domain names:
+During feasibility, the root workspace list contains only `feasibility`.
+Production workspaces are added after the scaffolding gate and retain their
+domain names:
 
 ```json
 {
@@ -179,11 +198,18 @@ Root scripts orchestrate builds; they do not contain application logic.
 
 ## 6. Scaffolding gate
 
-Create these directories only after:
+Create `feasibility/` only after:
 
 1. Product Plan approval.
-2. Feasibility Gates A–D pass.
-3. Gate D decides whether custody is internal to the market or a separate
-   contract.
-4. Build Plan approval records exact package versions.
 
+Create `tender-room/`, `auction-house/`, `settlement-relay/`,
+`operator-console/`, and `chain-bindings/` only after:
+
+1. Feasibility Gates A–D pass.
+2. Gate D decides whether custody is internal to the market or a separate
+   contract.
+3. Build Plan approval records the tested package versions and selected
+   architecture.
+
+Gate E may continue in `feasibility/` while core production scaffolding begins,
+but the Safe-owned product path cannot be called complete until Gate E passes.

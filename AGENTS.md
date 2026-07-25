@@ -64,6 +64,8 @@ record the resolution in `docs/important-notes.md`.
 
 VeilBid uses procurement-specific top-level workspaces:
 
+- `feasibility/`: temporary pre-build contracts, tests, and scripts used only to
+  prove the mandatory Nox/ERC-7984 assumptions.
 - `tender-room/`: landing page and Buyer, Vendor, Public, and Auditor interface.
 - `auction-house/`: Solidity protocol, Hardhat tests, deployment, and source
   verification.
@@ -77,8 +79,9 @@ VeilBid uses procurement-specific top-level workspaces:
 - `docs/`: product, competition, threat model, original sources, and submission
   documentation.
 
-Do not create these source directories until the Product Plan and feasibility
-gate are approved.
+After Product Plan approval, `feasibility/` may be created for Gates A–E.
+Do not create the production source directories until Gates A–D pass, Gate D
+selects the custody architecture, and the Build Plan is approved.
 
 ## 5. Architecture invariants
 

@@ -18,6 +18,13 @@ Use the exact intended package versions:
 
 Change versions only through a recorded decision and regression run.
 
+## 1.1 Execution boundary
+
+After Product Plan approval, run these spikes in the isolated `feasibility/`
+workspace. It contains no production deployment, generated consumer artifact,
+frontend, relay, MCP, or submission claim. Production workspaces remain absent
+until Gates A–D pass and the custody architecture is selected.
+
 ## 2. Gate A — persistent encrypted bid state
 
 Prove:
