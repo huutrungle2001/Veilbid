@@ -11,6 +11,7 @@
     "build": "pnpm --filter @veilbid/feasibility build",
     "compile": "pnpm --filter @veilbid/feasibility build",
     "test": "pnpm --filter @veilbid/feasibility test",
+    "test:gate-e-static": "pnpm --filter @veilbid/feasibility test:gate-e-static",
     "test:model": "pnpm --filter @veilbid/feasibility test:model",
     "test:nox": "pnpm --filter @veilbid/feasibility test:nox",
     "test:sepolia:a": "pnpm --filter @veilbid/feasibility test:sepolia:a",

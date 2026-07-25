@@ -9,7 +9,7 @@
       "const": 1
     },
     "gate": {
-      "enum": ["PREFLIGHT", "A", "B", "C", "D"]
+      "enum": ["PREFLIGHT", "A", "B", "C", "D", "E"]
     },
     "recordedAt": {
       "type": "string",

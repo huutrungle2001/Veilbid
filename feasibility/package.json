@@ -9,6 +9,7 @@
   "scripts": {
     "build": "hardhat build",
     "test": "hardhat test --no-compile",
+    "test:gate-e-static": "node --test test/gate-e-static.test.mjs",
     "test:model": "node --test test/gate-b-model.test.mjs",
     "test:nox": "hardhat test",
     "test:sepolia:a": "node --env-file-if-exists=../.env.local live/gate-a.sepolia.mjs",
