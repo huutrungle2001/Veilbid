@@ -313,7 +313,7 @@ export function ExplorerView({
   );
 
   return (
-    <>
+    <div className="tender-layout">
       <div className="rolebar" aria-label="Tender workspaces">
         {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
           (role) => {
@@ -347,134 +347,136 @@ export function ExplorerView({
         )}
       </div>
 
-      {activeRole === "ACTIVITY" && wallet ? (
-        <ActivityWorkspace
-          wallet={wallet}
-          tenders={index.tenders}
-          onRefresh={onRetry}
-        />
-      ) : activeRole === "AUDITOR" && wallet ? (
-        <AuditorWorkspace
-          wallet={wallet}
-          tenders={index.tenders}
-          bids={index.bids}
-        />
-      ) : activeRole === "SAFE TREASURY" && wallet ? (
-        <SafeTreasuryWorkspace wallet={wallet} />
-      ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
-        <RoleWorkspace
-          role={activeRole}
-          wallet={wallet}
-          tenders={index.tenders}
-          bids={index.bids}
-          onRefresh={onRetry}
-        />
-      ) : (
-        <main id="main-content">
-          <section className="explorer-intro">
-          <div>
-            <p className="eyebrow">CONFIDENTIAL PROCUREMENT / LIVE TEST STATE</p>
-            <h1>
-              Public terms.
-              <br />
-              <em>Private bids.</em>
-            </h1>
-          </div>
-          <div className="intro-copy">
-            <p>
-              Browse finalized tender coordination without connecting a
-              wallet. Prices and confidential balances are never indexed here.
-            </p>
-            <span className="deployment-label">
-              {deploymentKind.toUpperCase()} DEPLOYMENT ·{" "}
-              {deploymentVerified
-                ? "SOURCE/DEPLOYMENT VERIFIED"
-                : "NOT SOURCE/DEPLOYMENT VERIFIED"}
-            </span>
-          </div>
-        </section>
+      <div className="tender-surface">
+        {activeRole === "ACTIVITY" && wallet ? (
+          <ActivityWorkspace
+            wallet={wallet}
+            tenders={index.tenders}
+            onRefresh={onRetry}
+          />
+        ) : activeRole === "AUDITOR" && wallet ? (
+          <AuditorWorkspace
+            wallet={wallet}
+            tenders={index.tenders}
+            bids={index.bids}
+          />
+        ) : activeRole === "SAFE TREASURY" && wallet ? (
+          <SafeTreasuryWorkspace wallet={wallet} />
+        ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
+          <RoleWorkspace
+            role={activeRole}
+            wallet={wallet}
+            tenders={index.tenders}
+            bids={index.bids}
+            onRefresh={onRetry}
+          />
+        ) : (
+          <main id="main-content">
+            <section className="explorer-intro">
+              <div>
+                <p className="eyebrow">CONFIDENTIAL PROCUREMENT / LIVE TEST STATE</p>
+                <h1>
+                  Public terms.
+                  <br />
+                  <em>Private bids.</em>
+                </h1>
+              </div>
+              <div className="intro-copy">
+                <p>
+                  Browse finalized tender coordination without connecting a
+                  wallet. Prices and confidential balances are never indexed here.
+                </p>
+                <span className="deployment-label">
+                  {deploymentKind.toUpperCase()} DEPLOYMENT ·{" "}
+                  {deploymentVerified
+                    ? "SOURCE/DEPLOYMENT VERIFIED"
+                    : "NOT SOURCE/DEPLOYMENT VERIFIED"}
+                </span>
+              </div>
+            </section>
 
-          {state.status === "loading" && (
-          <section className="state-panel" aria-live="polite">
-            <span className="loading-mark" aria-hidden="true" />
-            <div>
-              <h2>Reading finalized Sepolia logs</h2>
-              <p>No placeholder tenders are shown while public state loads.</p>
-            </div>
-          </section>
-        )}
-
-          {state.status === "error" && (
-          <section className="state-panel error" role="alert">
-            <span aria-hidden="true">!</span>
-            <div>
-              <h2>Public state unavailable</h2>
-              <p>{state.error}</p>
-              <button className="secondary-button" onClick={onRetry}>
-                RETRY SEPOLIA →
-              </button>
-            </div>
-          </section>
-        )}
-
-          {state.status === "ready" && index.tenders.length === 0 && (
-          <section className="state-panel">
-            <span aria-hidden="true">0</span>
-            <div>
-              <h2>No finalized tenders found</h2>
-              <p>The explorer is connected; no public tender events exist yet.</p>
-            </div>
-          </section>
-        )}
-
-          {state.status === "ready" && selected && state.data && (
-          <section className="explorer-grid" id="tenders">
-            <aside className="dossier-list" aria-label="Public tenders">
-              <header>
+            {state.status === "loading" && (
+              <section className="state-panel" aria-live="polite">
+                <span className="loading-mark" aria-hidden="true" />
                 <div>
-                  <p className="eyebrow">FINALIZED DOSSIERS</p>
-                  <h2>{index.tenders.length} tenders</h2>
+                  <h2>Reading finalized Sepolia logs</h2>
+                  <p>No placeholder tenders are shown while public state loads.</p>
                 </div>
-                <button
-                  className="icon-button"
-                  onClick={onRetry}
-                  aria-label="Refresh finalized Sepolia state"
-                >
-                  ↻
-                </button>
-              </header>
-              {index.tenders.map((tender) => (
-                <TenderCard
-                  key={tender.tenderId.toString()}
-                  tender={tender}
-                  selected={selected.tenderId === tender.tenderId}
-                  onSelect={() =>
-                    setSearchParams({ tender: tender.tenderId.toString() })
-                  }
-                />
-              ))}
-            </aside>
-            <TenderDetail
-              tender={selected}
-              finalizedBlock={state.data.finalizedBlock}
-            />
-          </section>
-          )}
-        </main>
-      )}
+              </section>
+            )}
 
-      <footer id="evidence">
-        <div>
-          <span className="wordmark inverted">VEILBID</span>
-          <p>Confidential procurement for Safe treasuries.</p>
-        </div>
-        <div className="footer-meta">
-          <span>ETHEREUM SEPOLIA</span>
-          <span>TEST ASSETS ONLY</span>
-          <span>UNAUDITED HACKATHON SOFTWARE</span>
-        </div>
-      </footer>
-    </>
+            {state.status === "error" && (
+              <section className="state-panel error" role="alert">
+                <span aria-hidden="true">!</span>
+                <div>
+                  <h2>Public state unavailable</h2>
+                  <p>{state.error}</p>
+                  <button className="secondary-button" onClick={onRetry}>
+                    RETRY SEPOLIA →
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {state.status === "ready" && index.tenders.length === 0 && (
+              <section className="state-panel">
+                <span aria-hidden="true">0</span>
+                <div>
+                  <h2>No finalized tenders found</h2>
+                  <p>The explorer is connected; no public tender events exist yet.</p>
+                </div>
+              </section>
+            )}
+
+            {state.status === "ready" && selected && state.data && (
+              <section className="explorer-grid" id="tenders">
+                <aside className="dossier-list" aria-label="Public tenders">
+                  <header>
+                    <div>
+                      <p className="eyebrow">FINALIZED DOSSIERS</p>
+                      <h2>{index.tenders.length} tenders</h2>
+                    </div>
+                    <button
+                      className="icon-button"
+                      onClick={onRetry}
+                      aria-label="Refresh finalized Sepolia state"
+                    >
+                      ↻
+                    </button>
+                  </header>
+                  {index.tenders.map((tender) => (
+                    <TenderCard
+                      key={tender.tenderId.toString()}
+                      tender={tender}
+                      selected={selected.tenderId === tender.tenderId}
+                      onSelect={() =>
+                        setSearchParams({ tender: tender.tenderId.toString() })
+                      }
+                    />
+                  ))}
+                </aside>
+                <TenderDetail
+                  tender={selected}
+                  finalizedBlock={state.data.finalizedBlock}
+                />
+              </section>
+            )}
+          </main>
+        )}
+
+        <footer id="evidence">
+          <div>
+            <span className="wordmark inverted">VEILBID</span>
+            <p>Confidential procurement for Safe treasuries.</p>
+          </div>
+          <div className="footer-meta">
+            <span>ETHEREUM SEPOLIA</span>
+            <span>TEST ASSETS ONLY</span>
+            <span>UNAUDITED HACKATHON SOFTWARE</span>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 }
 
