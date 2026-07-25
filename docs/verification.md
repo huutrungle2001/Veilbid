@@ -120,7 +120,7 @@ npm run verify:deployment
 
 | Date | Environment | Commit | Evidence | Result |
 |---|---|---|---|---|
-| 2026-07-25 | Local preflight / Gate A compile | pending | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |
-| 2026-07-25 | Gate B compile/model | pending | `evidence/local/gate-b.json` | PARTIAL — 2,000 model cases pass; encrypted runtime blocked on Docker |
-| 2026-07-25 | Gate C compile | pending | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |
-| 2026-07-25 | Gate D compile/source inspection | pending | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |
+| 2026-07-25 | Local preflight / Gate A compile | `7ae2c48` | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |
+| 2026-07-25 | Gate B compile/model | `92f8597` | `evidence/local/gate-b.json` | PARTIAL — 2,000 model cases pass; encrypted runtime blocked on Docker |
+| 2026-07-25 | Gate C compile | `2411e5e` | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |
+| 2026-07-25 | Gate D compile/source inspection | `d9c97ce` | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |
