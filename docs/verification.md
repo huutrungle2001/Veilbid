@@ -39,7 +39,7 @@
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
-| Secret scan | Repository and evidence clean | PASS — 206 tracked files and 24 sanitized evidence files pass credential-pattern, forbidden-field, and local-environment tracking checks |
+| Secret scan | Repository and evidence clean | PASS — 207 tracked files, 546 historical blobs, and 27 sanitized evidence files pass credential-pattern, forbidden-field, local-environment, and Git-history checks |
 | Production smoke | Canonical URL and wallet-free reads | PASS — Vercel production routes return 200; desktop/mobile Chrome smoke loaded verified release tender #1, award, and receipt without a wallet |
 
 ## 3. Mandatory contract scenarios
@@ -153,5 +153,6 @@ pnpm evidence:validate
 | 2026-07-26 | Canonical release deployment consistency | `edd3c52` | `evidence/sepolia/deployment-consistency.release.json` | PASS — constructor calldata, receipts, runtime bytecode, wiring, Safe/module/operator state, and source mappings verified before `verified=true` promotion |
 | 2026-07-26 | Canonical release two-vendor lifecycle | `94bcfc8` | `evidence/sepolia/release-two-vendor.json` | PASS — Safe funding, two distinct encrypted bids, per-vendor ACL/decryption, proof-derived lower second winner, confidential settlement, receipt, replay rejection, threshold cross-bid grant, and preserved release state verified |
 | 2026-07-26 | Repository secret scan | `a7afecc` | `evidence/local/secret-scan.json` | PASS — tracked local environment excluded; no private-key assignment, seed/PEM material, provider token, or credential URL pattern found across 206 tracked files |
+| 2026-07-26 | Full-history secret scan | `705e16b` | `evidence/local/secret-scan.json` | PASS — ignored environments remain untracked; no credential pattern or historical environment file found across 207 current files and 546 historical blobs |
 | 2026-07-26 | Canonical release gate | `0f8b9db` | `evidence/local/release-gate.json` | PASS — all workspace tests, typed lint, compile, Vite/vinext builds, binding/source/deployment checks, verified relay health/dry-run, secret scan, and evidence validation passed |
 | 2026-07-26 | Vercel production frontend | `83fb374` | `evidence/sepolia/production-smoke.json` | PASS — canonical URL and all SPA routes returned 200; 1440×1000 and 390×844 browser smoke loaded verified release tender #1, award, and receipt wallet-free |

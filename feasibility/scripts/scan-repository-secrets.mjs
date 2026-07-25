@@ -16,7 +16,7 @@ const patterns = [
   {
     code: "PRIVATE_KEY_ASSIGNMENT",
     expression:
-      /\b(?:SEPOLIA_(?:VENDOR_)?PRIVATE_KEY|FINALIZER_PRIVATE_KEY|PRIVATE_KEY)\s*[:=]\s*["']?0x?[0-9a-fA-F]{64}\b/,
+      /\b(?:SEPOLIA_(?:VENDOR_)?PRIVATE_KEY|FINALIZER_PRIVATE_KEY|PRIVATE_KEY)\s*[:=]\s*["']?(?:0x)?[0-9a-fA-F]{64}\b/,
   },
   {
     code: "SEED_ASSIGNMENT",
@@ -49,9 +49,11 @@ const evidence = {
   publicIdentifiers: {
     sourceCommit: null,
     trackedFilesInspected: 0,
+    historicalBlobsInspected: 0,
   },
   assertions: {
     localEnvironmentUntracked: false,
+    repositoryHistoryClean: false,
     noPrivateKeyAssignments: false,
     noSeedOrPemMaterial: false,
     noProviderTokens: false,
@@ -59,16 +61,33 @@ const evidence = {
   },
   violations: [],
   notes: [
-    "Only Git-tracked regular text files are inspected; ignored local environment files are checked for accidental tracking by path.",
+    "Git-tracked text files and historical Git blobs are inspected; ignored local environment files are checked for accidental tracking by path.",
     "Violation output contains rule codes and paths only, never matched secret-like values.",
   ],
 };
 
-function git(args) {
+function git(args, input) {
   return execFileSync("git", args, {
     cwd: repositoryRoot,
     encoding: "utf8",
+    input,
   });
+}
+
+function inspectSource(source, path, scope, seen) {
+  if (source.includes("\0")) return;
+  for (const pattern of patterns) {
+    if (pattern.expression.test(source)) {
+      const key = `${scope}:${pattern.code}:${path}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        evidence.violations.push({
+          code: pattern.code,
+          path: `${scope}:${path}`,
+        });
+      }
+    }
+  }
 }
 
 function saveEvidence() {
@@ -102,24 +121,60 @@ try {
     } catch {
       continue;
     }
-    if (source.includes("\0")) continue;
-    for (const pattern of patterns) {
-      if (pattern.expression.test(source)) {
-        const key = `${pattern.code}:${relativePath}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          evidence.violations.push({
-            code: pattern.code,
-            path: relativePath,
-          });
-        }
-      }
+    inspectSource(source, relativePath, "current", seen);
+  }
+
+  const historicalObjects = git(["rev-list", "--objects", "--all"])
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const separator = line.indexOf(" ");
+      return {
+        object: separator === -1 ? line : line.slice(0, separator),
+        path: separator === -1 ? "(unknown)" : line.slice(separator + 1),
+      };
+    });
+  const historicalEnvironmentPath = historicalObjects.find(({ path }) =>
+    /(?:^|\/)\.env(?:\.local|\.production|\.development)?$/.test(path),
+  );
+  if (historicalEnvironmentPath) {
+    evidence.violations.push({
+      code: "HISTORICAL_ENVIRONMENT_TRACKED",
+      path: `history:${historicalEnvironmentPath.path}`,
+    });
+  }
+
+  const objectPaths = new Map();
+  for (const entry of historicalObjects) {
+    if (!objectPaths.has(entry.object)) {
+      objectPaths.set(entry.object, entry.path);
     }
+  }
+  const objectIds = [...objectPaths.keys()];
+  const objectTypes = git(
+    ["cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)"],
+    `${objectIds.join("\n")}\n`,
+  )
+    .split("\n")
+    .filter(Boolean);
+  for (const line of objectTypes) {
+    const [object, type, sizeText] = line.split(" ");
+    if (type !== "blob" || Number(sizeText) > 2 * 1024 * 1024) continue;
+    const source = git(["cat-file", "blob", object]);
+    evidence.publicIdentifiers.historicalBlobsInspected += 1;
+    inspectSource(
+      source,
+      objectPaths.get(object) ?? "(unknown)",
+      "history",
+      seen,
+    );
   }
 
   const violationCodes = new Set(
     evidence.violations.map((violation) => violation.code),
   );
+  evidence.assertions.repositoryHistoryClean =
+    !evidence.violations.some(({ path }) => path?.startsWith("history:"));
   evidence.assertions.noPrivateKeyAssignments =
     !violationCodes.has("PRIVATE_KEY_ASSIGNMENT");
   evidence.assertions.noSeedOrPemMaterial =
