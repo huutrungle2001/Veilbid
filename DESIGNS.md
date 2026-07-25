@@ -233,6 +233,10 @@ The active role uses Veil Green with black text and a black border. Role changes
 must not imply wallet permission. Unauthorized roles remain browsable where
 public data exists, with writes hidden or disabled and explained.
 
+`PUBLIC` includes permissionless close/finalize readiness and actions; it is the
+Public Finalizer context from the Product Plan, not a separate privileged role.
+Recoverable proof operations also appear in Activity.
+
 ## 7. Core components
 
 ### Primary pill button
@@ -326,16 +330,23 @@ Full-width white panel with black border and 25px radius:
 - Connected signer.
 - Owners and threshold.
 - Module state.
-- Confidential budget handle/reveal state.
+- Public escrow ceiling plus confidential token balance/reveal state.
 - Token operator state.
 
 Copy must state: `THE SAFE OWNS THE FUNDS. THIS WALLET IS A SIGNER.`
 
 ### Lifecycle strip
 
-Horizontal sequence:
+On-chain status sequence:
 
-`OPEN → SEALED BIDS → CLOSED → PROOF READY → AWARDED / REFUNDED`
+`OPEN → CLOSED → AWARDED / REFUNDED`
+
+`CANCELLED` is a terminal branch from `OPEN` before the first bid.
+
+Derived readiness labels appear beneath the status rather than as contract
+states:
+
+`ACCEPTING SEALED BIDS`, `PROOF PENDING`, and `PROOF READY`.
 
 - Barlow Condensed 700 uppercase.
 - Current step: green.
@@ -351,6 +362,7 @@ Full-bleed black or black card:
 - Display serif: `AWARDED`.
 - Public winner identity.
 - Proof/transaction/receipt evidence.
+- Receipt owner equals the winning vendor and the receipt is non-transferable.
 - Winning price remains an encrypted badge unless the current viewer is
   authorized.
 - One optional green glow halo behind the award seal.
@@ -361,10 +373,10 @@ Flat white evidence panel:
 
 - Chain ID and block.
 - Contract and transaction.
-- Winner-ID handle fingerprint.
+- Winner-ID handle fingerprint, never the complete handle.
 - Proof status and verification result.
 - Receipt ID.
-- Expandable calldata/event sections.
+- Expandable, field-level sanitized calldata/event summaries.
 
 Never render complete proofs, signatures, keys, or confidential plaintext in
 copyable public evidence.

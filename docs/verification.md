@@ -25,7 +25,8 @@
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PENDING |
 | Escrow solvency | Atomic escrow equals public ceiling | PENDING |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PENDING |
-| Reentrancy | Token/receipt callbacks cannot corrupt lifecycle | PENDING |
+| Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
+| Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PENDING |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PENDING |
@@ -66,6 +67,8 @@
 22. Buyer cancellation is allowed only under specified pre-bid conditions.
 23. Safe preparation cannot execute or spend, and wrong action/consumer/nonce
     or replay fails.
+24. Award receipt is minted once to the stored winner, uses no receiver callback,
+    and cannot be transferred or approved.
 
 ## 4. Property and invariant targets
 

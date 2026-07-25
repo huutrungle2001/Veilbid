@@ -32,7 +32,7 @@
 | PRD-011 | Safe can own and authorize a procurement budget | Must | Restricted module and live Safe flow |
 | PRD-012 | Public tender explorer works wallet-free | Must | Event-derived lifecycle UI |
 | PRD-013 | Finalization survives indexing/proof delay | Must | Recoverable activity item and retry |
-| PRD-014 | Award receipt identifies public settlement | Should | ERC-721 metadata and ownership |
+| PRD-014 | Non-transferable award receipt identifies public settlement | Must | Winner ownership and disabled transfer/approval tests |
 | PRD-015 | Stateless finalizer automates eligible work | Should | Dry-run, health, bounded actions |
 | PRD-016 | MCP is read-only by default | Could | Explicit write opt-in and signer |
 | PRD-017 | Strategy assistant drafts terms only | Could | Strict schema, no signing/decryption |

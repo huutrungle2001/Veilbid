@@ -34,19 +34,21 @@ flowchart LR
     Vendor["Vendors"] --> Web
     Web -->|encrypt / private reveal| Gateway["iExec Nox services"]
     Web -->|signed calls| Market["Tender market"]
-    Safe["Safe treasury"] --> Module["Restricted Safe module"]
-    Module --> Market
+    SafeOwner["Safe owner"] -->|prepare handle only| Module["Restricted Safe module"]
+    Module -.->|prepared ACL| Market
+    Safe["Safe treasury"] -->|threshold-authorized transaction| Market
     Market <--> Compute["NoxCompute"]
     Market <--> Token["ERC-7984 cUSDC"]
     Finalizer["Stateless finalizer"] -->|close / proof / finalize| Market
-    Market --> Receipt["Award receipt NFT"]
+    Market --> Receipt["Non-transferable award receipt"]
     Auditor["Selected auditor"] -.->|viewer ACL| Gateway
 ```
 
 The target architecture includes a responsive web client, Solidity protocol,
-Safe module, stateless finalizer, event-derived public index, selective audit,
-award receipts, generated client artifacts, optional read-only MCP adapter, CI,
-and repeatable Sepolia verification. See `docs/architecture.md`.
+preparation-only Safe module, stateless finalizer, event-derived public index,
+selective audit, non-transferable award receipts, generated client artifacts,
+optional read-only MCP adapter, CI, and repeatable Sepolia verification. See
+`docs/architecture.md`.
 
 ## Privacy boundary
 

@@ -79,10 +79,12 @@ If cross-contract ACL adds unjustified risk, escrow remains internal to
 
 ### `VeilBidAwardReceipt`
 
-- ERC-721 settlement receipt.
+- Non-transferable ERC-721 settlement receipt.
 - Minted once per successfully awarded tender.
-- Records public tender ID, buyer, winner, token, timestamps, and settlement
-  transaction.
+- Minted with a non-callback mint to the stored winning vendor.
+- Records public tender ID, buyer, winner, token, and finalized block/time.
+- The settlement transaction hash is derived off-chain from the canonical mint
+  event; a contract cannot read its own transaction hash.
 - Never embeds bid values or private handles in user-facing metadata.
 
 ### Demo asset contracts
@@ -135,7 +137,7 @@ sequenceDiagram
     F->>M: finalizeTender(tenderId, winnerId, proof)
     M->>M: Nox.publicDecrypt and bind bidId to stored vendor
     M->>E: confidential payment + buyer remainder
-    M-->>F: Awarded/Refunded event and receipt
+    M-->>F: Awarded event + receipt, or Refunded event
 ```
 
 Close and finalize are separate because public proof availability can lag the

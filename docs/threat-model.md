@@ -92,6 +92,7 @@ same risk as that wallet.
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
 | Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |
 | Tie manipulation | Deterministic first-valid-bid rule | Transaction ordering remains public |
+| Receipt is transferred or presented as another vendor's award | Non-transferable receipt is minted once to the proof-derived winner | Wallet compromise can still control the winner address |
 
 ## 5. Compromise impact
 

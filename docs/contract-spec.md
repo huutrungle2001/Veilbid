@@ -9,7 +9,6 @@
 
 ```text
 buyer
-receiptOwner
 paymentToken
 metadataHash
 publicCeiling
@@ -145,7 +144,8 @@ Viewer grants:
 - Uses stored vendor only; ignores caller-supplied addresses.
 - Settles confidential winning price and remainder, or full refund for zero ID.
 - Updates terminal status before external token callbacks.
-- Mints receipt only for `Awarded`.
+- Mints one non-transferable receipt to the stored winning vendor only for
+  `Awarded`, using a non-callback mint.
 
 There is no timeout refund after close. A closed tender remains recoverable until
 the Nox public-decryption proof becomes available. This intentionally favors
@@ -164,6 +164,8 @@ award fairness over fund liveness during a Nox outage.
 - Public finalizers cannot cancel, change terms, or decrypt prices.
 - Module preparation alone cannot transfer Safe funds.
 - No module function can execute a transaction from the Safe.
+- Award receipt ownership always equals the stored winning vendor; transfers and
+  approvals are disabled.
 - Contract source contains no plaintext bid mapping.
 
 ## 8. Events
@@ -186,10 +188,11 @@ inspection. Logs and webhook payloads must not repeat complete proof bytes.
 ## 9. Reentrancy and external calls
 
 - Use checks-effects-interactions and reentrancy guards on lifecycle writes.
-- Update terminal state before ERC-7984 transfers or NFT callbacks.
+- Update terminal state before ERC-7984 transfers.
 - Canonical asset allowlist contains only reviewed wrappers.
-- Receipt minting must not allow an incompatible Safe receiver to block
-  settlement; use a verified EOA receipt owner or a non-callback mint pattern.
+- Receipt minting uses a non-callback mint so a contract vendor cannot block
+  settlement. Transfer and approval entry points revert because the receipt is
+  an immutable award record, not a tradable asset.
 
 ## 10. Upgrade and administration
 

@@ -60,7 +60,7 @@ VeilBid combines:
 | Winning vendor after proof finalization | Public |
 | Winning and losing prices | Confidential by default |
 | Payment/refund amount handles | Public handles; confidential values |
-| Events, status, receipt, transaction hashes | Public |
+| Events, status, non-transferable receipt, transaction hashes | Public |
 
 Disclosure policy:
 
@@ -102,7 +102,8 @@ Disclosure policy:
 2. Connect, enter a price, and review privacy/authorization.
 3. Encrypt against the market target and submit proof.
 4. Reveal only the vendor's own stored bid when needed.
-5. If selected, receive confidential payment and award receipt.
+5. If selected, receive confidential payment and a non-transferable award
+   receipt minted to the winning vendor address.
 
 ### Public finalizer
 
@@ -179,6 +180,7 @@ handle and verified against the stored bid owner.
 | Replay protection | Duplicate close/finalize/settle calls fail safely |
 | Safe custody | Module preparation cannot execute from the Safe; funding requires a threshold-authorized Safe transaction |
 | Selective audit | Grants follow the role, lifecycle, per-handle, and irreversibility rules above |
+| Award receipt | One non-transferable receipt is minted to the proof-derived winner |
 | Public UX | Lifecycle and proof evidence load without wallet |
 | Recovery | A closed tender remains recoverable until proof finalization succeeds |
 
@@ -191,7 +193,7 @@ Use a pre-funded Safe and two prepared vendor wallets:
 3. Submit one live encrypted bid; show another confirmed bid.
 4. Close and finalize the proof-derived winner.
 5. Reveal winner payment only to an authorized account.
-6. Show auditor ACL, receipt, Etherscan, and encrypted handles.
+6. Show auditor ACL, receipt, Etherscan, and sanitized handle fingerprints.
 
 ## 12. Approval gate
 
