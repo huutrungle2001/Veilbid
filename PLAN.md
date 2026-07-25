@@ -14,7 +14,7 @@
   X post, and DoraHacks submission require user-controlled publication.
 - Awaiting approval from: Hữu Trung — public repository visibility and final
   publication inputs.
-- Last updated: 2026-07-26T02:43:06+07:00
+- Last updated: 2026-07-26T02:55:44+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
