@@ -372,6 +372,48 @@ try {
       contrastFailures,
     };
   })()`);
+  await cdp.evaluate(`(() => {
+    document
+      .querySelector('[aria-label="Primary navigation"] a[href="/room"]')
+      .focus();
+    return true;
+  })()`);
+  await pressKey(cdp, "Enter");
+  await waitFor(
+    cdp,
+    `location.pathname === "/room" &&
+      Boolean(document.querySelector(".privacy-panel .privacy-badge:not(.encrypted)"))`,
+    "the live Tender view",
+  );
+  await cdp.evaluate(`(() => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    return true;
+  })()`);
+  await delay(300);
+  const tenderRoute = await cdp.evaluate(`(() => {
+    const header = document.querySelector(".topbar");
+    const rolebar = document.querySelector(".rolebar");
+    const surface = document.querySelector(".tender-surface");
+    const badge = document.querySelector(
+      ".privacy-panel .privacy-badge:not(.encrypted)",
+    );
+    const headerRect = header.getBoundingClientRect();
+    const rolebarRect = rolebar.getBoundingClientRect();
+    const surfaceRect = surface.getBoundingClientRect();
+    const badgeStyle = getComputedStyle(badge);
+    return {
+      activeLabel:
+        document.querySelector('[aria-current="page"]')?.textContent.trim(),
+      rolebarPosition: getComputedStyle(rolebar).position,
+      rolebarVisible:
+        rolebarRect.top >= headerRect.bottom - 2 &&
+        rolebarRect.top < innerHeight &&
+        rolebarRect.bottom > headerRect.bottom,
+      rolebarIsLeftOfContent: rolebarRect.right <= surfaceRect.left + 1,
+      publicMetadataColor: badgeStyle.color,
+      publicMetadataBackground: badgeStyle.backgroundColor,
+    };
+  })()`);
 
   const expectedFocusOrder = [
     "SKIP TO CONTENT",
@@ -398,6 +440,13 @@ try {
     docsSidebarRemainsSticky:
       docsRoute.sidebarPosition === "sticky" && docsRoute.sidebarVisible,
     docsTextMeetsWcagContrast: docsRoute.contrastFailures.length === 0,
+    tenderWorkspaceNavigationRemainsSticky:
+      tenderRoute.rolebarPosition === "sticky" &&
+      tenderRoute.rolebarVisible &&
+      tenderRoute.rolebarIsLeftOfContent,
+    publicMetadataBadgeHasExplicitContrast:
+      tenderRoute.publicMetadataColor === "rgb(0, 0, 0)" &&
+      tenderRoute.publicMetadataBackground === "rgb(255, 255, 255)",
     headerPersistedAcrossRoutes: docsRoute.headerPersistent,
   };
   const blockers = Object.entries(assertions)
@@ -421,7 +470,7 @@ try {
     observations: {
       expectedFocusOrder,
       observedFocusOrder,
-      activeRouteSequence: [docsRoute.activeLabel],
+      activeRouteSequence: [docsRoute.activeLabel, tenderRoute.activeLabel],
       docsContrast: {
         checked: docsRoute.contrastChecked,
         failures: docsRoute.contrastFailures,
