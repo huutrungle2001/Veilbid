@@ -1,7 +1,7 @@
 # VeilBid Build Plan
 
-> Status: Draft pending feasibility results and final user approval. Production
-> development starts only after the mandatory feasibility gates.
+> Status: In review after approved feasibility results. Production workspaces
+> start only after this plan and the Safe design are frozen.
 
 ## 1. Product profile
 

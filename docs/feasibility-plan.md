@@ -1,7 +1,7 @@
 # Feasibility and Kill-Criteria Plan
 
-> Status: Mandatory Sepolia-first pre-build gate. No unexecuted runtime result
-> is claimed.
+> Status: Approved. Gates A–D passed on Ethereum Sepolia; Gate E continues as
+> the Safe composability gate.
 
 ## 1. Purpose
 
