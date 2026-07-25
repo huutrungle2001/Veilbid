@@ -32,12 +32,24 @@ const noWrite = process.argv.includes("--no-write");
 const minimumDeployerBalance = 20_000_000_000_000_000n;
 const minimumVendorBalance = 1_000_000_000_000_000n;
 
-const artifactPaths = [
-  "artifacts/contracts/test-assets/VeilBidTestAssets.sol/VeilBidTestUSDC.json",
-  "artifacts/contracts/test-assets/VeilBidTestAssets.sol/VeilBidConfidentialUSDC.json",
-  "artifacts/contracts/market/VeilBidMarket.sol/VeilBidMarket.json",
-  "artifacts/contracts/receipt/VeilBidAwardReceipt.sol/VeilBidAwardReceipt.json",
-  "artifacts/contracts/safe/VeilBidSafePreparationModule.sol/VeilBidSafePreparationModule.json",
+const artifactDefinitions = [
+  {
+    path: "artifacts/contracts/test-assets/VeilBidTestAssets.sol/VeilBidTestUSDC.json",
+  },
+  {
+    path: "artifacts/contracts/test-assets/VeilBidTestAssets.sol/VeilBidConfidentialUSDC.json",
+  },
+  {
+    path: "artifacts/contracts/market/VeilBidMarket.sol/VeilBidMarket.json",
+  },
+  {
+    path: "artifacts/contracts/receipt/VeilBidAwardReceipt.sol/VeilBidAwardReceipt.json",
+    buildFrom:
+      "artifacts/contracts/market/VeilBidMarket.sol/VeilBidMarket.json",
+  },
+  {
+    path: "artifacts/contracts/safe/VeilBidSafePreparationModule.sol/VeilBidSafePreparationModule.json",
+  },
 ];
 
 const evidence = {
@@ -155,21 +167,36 @@ async function main() {
   assert.equal(evidence.assertions.environmentFileUntracked, true);
 
   stage = "ARTIFACTS";
-  for (const relativePath of artifactPaths) {
-    const artifact = readJson(resolve(auctionHouseRoot, relativePath));
+  for (const definition of artifactDefinitions) {
+    const artifact = readJson(
+      resolve(auctionHouseRoot, definition.path),
+    );
+    const buildArtifact = definition.buildFrom
+      ? readJson(resolve(auctionHouseRoot, definition.buildFrom))
+      : artifact;
     assert.ok(artifact.contractName);
-    assert.ok(/^0x[0-9a-f]+$/i.test(artifact.bytecode));
-    assert.ok(artifact.bytecode.length > 2);
     const buildInputPath = resolve(
       auctionHouseRoot,
-      `artifacts/build-info/${artifact.buildInfoId}.json`,
+      `artifacts/build-info/${buildArtifact.buildInfoId}.json`,
     );
     const buildInput = readFileSync(buildInputPath, "utf8");
+    const buildOutput = readJson(
+      resolve(
+        auctionHouseRoot,
+        `artifacts/build-info/${buildArtifact.buildInfoId}.output.json`,
+      ),
+    );
+    const creationCode =
+      buildOutput.output.contracts[`project/${artifact.sourceName}`][
+        artifact.contractName
+      ].evm.bytecode.object;
+    assert.ok(/^[0-9a-f]+$/i.test(creationCode));
+    assert.ok(creationCode.length > 0);
     const contractIdentifier =
       `${artifact.sourceName}:${artifact.contractName}`;
     evidence.publicIdentifiers.artifactCreationCodeHashes[
       contractIdentifier
-    ] = keccak256(artifact.bytecode);
+    ] = keccak256(`0x${creationCode}`);
     evidence.publicIdentifiers.buildInputHashes[contractIdentifier] =
       sha256(buildInput);
   }
