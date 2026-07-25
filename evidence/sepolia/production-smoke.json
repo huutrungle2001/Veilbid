@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "suite": "production-frontend-smoke",
-  "recordedAt": "2026-07-25T20:09:48.211Z",
+  "recordedAt": "2026-07-25T20:31:08.441Z",
   "publicIdentifiers": {
-    "sourceCommit": "b2f9842587c25dc67bf702698d5b51f80097166b",
+    "sourceCommit": "c481c8ab5d7bb97aa81f91f445fd8e85ec792e22",
     "provider": "vercel",
     "project": "veilbid",
-    "deploymentId": "dpl_3GjxxULLLtW3iWkLNkTNpM8xDHWP",
+    "deploymentId": "dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "network": "ethereum-sepolia",
     "chainId": 11155111,
@@ -14,7 +14,7 @@
     "deploymentVerified": true,
     "market": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
     "tenderId": "1",
-    "observedBlock": "11349891"
+    "observedBlock": "11349993"
   },
   "routeStatuses": {
     "/": 200,
@@ -27,14 +27,28 @@
         "width": 1440,
         "height": 1000
       },
-      "sha256": "54091b6a94e4253b8a637a5239dc06957af58c4bae9b502b3c29ef6802c6c63c"
+      "sha256": "179edbfbeba372f42dc1f7f94fdaabcee248417720c470f0da8d44f25383fcc8"
     },
     "mobile": {
       "viewport": {
         "width": 390,
         "height": 844
       },
-      "sha256": "d8666be96bbdf1b476322fe30f2c842bdc0ec23670e9ec7891aad6847f8c2616"
+      "sha256": "87badb25ffaa05ed3f54db45fdd9c3f9ecad5a2e683fdcadbccd17dbbbb4e700"
+    },
+    "docsDesktop": {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "sha256": "dd5830fb1e936ac1faec5d5efe2faadea6b89c0e4cda33d8aaab8259d1288c01"
+    },
+    "docsMobile": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "5b5deb8e53b60705745e494dda87ef161b5793b8cf0031c1ed594eaee9192927"
     }
   },
   "assertions": {
@@ -42,13 +56,19 @@
     "canonicalMarketBundled": true,
     "desktopLandingRendered": true,
     "sharedNavigationRendered": true,
+    "evidenceRemovedFromPrimaryNavigation": true,
+    "walletControlRendered": true,
+    "docsGuideRendered": true,
+    "docsSidebarRendered": true,
     "mobileTenderNavigationActive": true,
     "mobileReleaseLabelRendered": true,
     "walletFreeCanonicalTenderLoaded": true,
     "awardedStateRendered": true,
     "noPublicStateFailureRendered": true,
     "desktopScreenshotCaptured": true,
-    "mobileScreenshotCaptured": true
+    "mobileScreenshotCaptured": true,
+    "docsDesktopScreenshotCaptured": true,
+    "docsMobileScreenshotCaptured": true
   },
   "blockers": [],
   "notes": [

@@ -6,15 +6,15 @@
 ## 1. Current status
 
 - Current phase: Phase 7 — Submission
-- Status: In progress
-- Next action: Validate the final navigation, wallet selector, contrast,
-  documentation, and landing-page polish; deploy the verified commit to Vercel;
-  then return to publication approval.
-- Current blocker: None for the final web release. Repository visibility,
-  real-person video, X post, and DoraHacks publication remain user-controlled
-  follow-up actions.
-- Awaiting approval from: None for the final web release.
-- Last updated: 2026-07-26T03:28:48+07:00
+- Status: Waiting for approval
+- Next action: With user approval, make `huutrungle2001/Veilbid` public; then
+  attach the user's final demo video before publishing the X and DoraHacks
+  entries.
+- Current blocker: The final web release is complete. Repository visibility,
+  real-person video, X post, and DoraHacks publication remain user-controlled.
+- Awaiting approval from: Hữu Trung — public repository visibility and final
+  publication inputs.
+- Last updated: 2026-07-26T03:31:20+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -48,7 +48,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | In progress |
+| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
 
@@ -65,6 +65,7 @@ Only one phase may be `In progress`.
 | Build Plan | Approved | User | 2026-07-25 | User requested continued implementation after the Safe design passed its Sepolia authority gate. |
 | Frontend hosting | Vercel approved | User | 2026-07-26 | Future frontend deployments use the installed Vercel CLI; the earlier private preview is not the canonical release deployment. |
 | Frontend release | Verified | Agent | 2026-07-26 | Vercel production URL `https://veilbid-three.vercel.app` passed wallet-free desktop/mobile smoke plus real-browser forward/reverse keyboard traversal, including persistent navigation and active route state, against the canonical release. |
+| Final web polish | Verified | Agent | 2026-07-26 | Production deployment `dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz` added explicit multi-wallet selection, unified Docs navigation, sticky documentation sections, expanded usage guidance, responsive landing content, and a zero-failure 176-element Docs contrast audit. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "suite": "production-keyboard-navigation",
-  "recordedAt": "2026-07-25T20:16:26.823Z",
+  "recordedAt": "2026-07-25T20:31:13.786Z",
   "publicIdentifiers": {
-    "testCommit": "f8f196758277859a9df4077c46d38cd53c3307f7",
-    "deploymentSourceCommit": "b2f9842587c25dc67bf702698d5b51f80097166b",
-    "deploymentId": "dpl_3GjxxULLLtW3iWkLNkTNpM8xDHWP",
+    "testCommit": "c481c8ab5d7bb97aa81f91f445fd8e85ec792e22",
+    "deploymentSourceCommit": "c481c8ab5d7bb97aa81f91f445fd8e85ec792e22",
+    "deploymentId": "dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "browser": "Google Chrome 149.0.7827.200",
     "viewport": "1280x900"
@@ -16,34 +16,38 @@
       "VEILBID",
       "TENDERS",
       "DOCS",
-      "EVIDENCE"
+      "◇CONNECT WALLET"
     ],
     "observedFocusOrder": [
       "SKIP TO CONTENT",
       "VEILBID",
       "TENDERS",
       "DOCS",
-      "EVIDENCE"
+      "◇CONNECT WALLET"
     ],
     "activeRouteSequence": [
-      "EVIDENCE",
       "DOCS"
-    ]
+    ],
+    "docsContrast": {
+      "checked": 176,
+      "failures": []
+    }
   },
   "assertions": {
     "primaryNavigationKeyboardReachable": true,
     "everyFocusTargetVisible": true,
     "everyFocusIndicatorVisible": true,
     "skipLinkVisibleOnFocus": true,
-    "evidenceActivatedByKeyboard": true,
-    "evidenceTargetVisibleBelowStickyHeader": true,
+    "walletSelectorOpenedByKeyboard": true,
     "reverseTraversalReturnedToDocs": true,
     "docsActivatedByKeyboard": true,
+    "docsSidebarRemainsSticky": true,
+    "docsTextMeetsWcagContrast": true,
     "headerPersistedAcrossRoutes": true
   },
   "blockers": [],
   "notes": [
-    "A real headless Chrome session used only Tab, Shift+Tab, and Enter to traverse and activate the production navigation.",
+    "A real headless Chrome session used Tab, Shift+Tab, Enter, Space, and Escape to traverse the production navigation and wallet selector.",
     "The smoke records public labels and route assertions only; it does not connect a wallet or access confidential state."
   ]
 }
