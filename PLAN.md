@@ -7,12 +7,12 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Implement the Auditor per-bid viewer/reveal workspace with
-  wallet-session plaintext clearing and explicit disclosure boundaries.
+- Next action: Implement the Safe Treasury workspace for preparation-only
+  inputs and threshold-authorized transaction guidance.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T01:25:45+07:00
+- Last updated: 2026-07-26T01:30:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
