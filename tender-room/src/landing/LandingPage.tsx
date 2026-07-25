@@ -1,22 +1,6 @@
 export function LandingPage() {
   return (
     <div className="marketing-page">
-      <header className="topbar">
-        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
-        <a className="wordmark" href="/" aria-label="VeilBid home">
-          VEILBID
-        </a>
-        <nav aria-label="Primary navigation">
-          <a href="/room">TENDER ROOM</a>
-          <a href="/docs">DOCS</a>
-          <a href="/docs#evidence">EVIDENCE</a>
-        </nav>
-        <div className="network-pill">
-          <span aria-hidden="true" />
-          SEPOLIA
-        </div>
-      </header>
-
       <main className="landing-main" id="main-content">
         <section className="landing-hero">
           <p className="eyebrow">CONFIDENTIAL PROCUREMENT / SAFE TREASURIES</p>
@@ -33,7 +17,7 @@ export function LandingPage() {
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="/room">
-                OPEN TENDER ROOM →
+                EXPLORE TENDERS →
               </a>
               <a className="secondary-button" href="/docs">
                 READ THE PROTOCOL

@@ -1,16 +1,6 @@
 export function DocsPage() {
   return (
     <div className="marketing-page docs-page">
-      <header className="topbar">
-        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
-        <a className="wordmark" href="/" aria-label="VeilBid home">VEILBID</a>
-        <nav aria-label="Primary navigation">
-          <a href="/room">TENDER ROOM</a>
-          <a href="#architecture">ARCHITECTURE</a>
-          <a href="#boundaries">BOUNDARIES</a>
-        </nav>
-        <div className="network-pill"><span aria-hidden="true" />SEPOLIA</div>
-      </header>
       <main className="docs-main" id="main-content">
         <aside className="docs-nav" aria-label="Documentation sections">
           <a href="#overview">OVERVIEW</a>
@@ -35,7 +25,7 @@ export function DocsPage() {
             <p className="eyebrow">ARCHITECTURE</p>
             <h2>Four boundaries, one settlement path.</h2>
             <dl className="docs-definition-grid">
-              <div><dt>Tender Room</dt><dd>Wallet-free public index plus Buyer, Vendor, Activity, Auditor, and Safe workspaces.</dd></div>
+              <div><dt>Tenders</dt><dd>Wallet-free public index plus Buyer, Vendor, Activity, Auditor, and Safe workspaces.</dd></div>
               <div><dt>Auction House</dt><dd>Non-upgradeable market, ERC-7984 demo assets, receipt, and preparation-only Safe module.</dd></div>
               <div><dt>Settlement Relay</dt><dd>Stateless permissionless close/finalize automation with bounded sequential actions.</dd></div>
               <div><dt>Operator Console</dt><dd>Five strict-schema MCP stdio tools with no signer, write, or private-decryption surface.</dd></div>

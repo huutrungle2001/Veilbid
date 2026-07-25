@@ -81,17 +81,43 @@ textarea:focus-visible {
   text-decoration: none;
 }
 
+.wordmark.active {
+  text-decoration: underline;
+  text-decoration-color: var(--color-veil-green);
+  text-decoration-thickness: 4px;
+  text-underline-offset: 8px;
+}
+
 .topbar nav {
   display: flex;
-  gap: 32px;
+  gap: 8px;
 }
 
 .topbar nav a {
+  border: 1px solid transparent;
+  border-radius: 100px;
   color: var(--color-ink-black);
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.12em;
+  opacity: 0.58;
+  padding: 9px 15px;
   text-decoration: none;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    opacity 140ms ease;
+}
+
+.topbar nav a:hover {
+  opacity: 1;
+}
+
+.topbar nav a.active,
+.topbar nav a[aria-current="page"] {
+  background: var(--color-veil-green);
+  border-color: var(--color-ink-black);
+  opacity: 1;
 }
 
 .network-pill {
@@ -1175,7 +1201,7 @@ footer p {
 .docs-content > section {
   border-bottom: 1px solid var(--color-ink-black);
   padding: 48px 0;
-  scroll-margin-top: 24px;
+  scroll-margin-top: 96px;
 }
 
 .docs-content > section:first-child {
@@ -1243,11 +1269,39 @@ footer p {
 
 @media (max-width: 900px) {
   .topbar {
+    gap: 12px 20px;
     grid-template-columns: 1fr auto;
+    padding-bottom: 0;
+    padding-top: 12px;
   }
 
   .topbar nav {
+    border-top: 1px solid var(--color-ink-black);
+    display: flex;
+    gap: 6px;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+    width: 100%;
+  }
+
+  .topbar .network-pill {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .topbar nav::-webkit-scrollbar {
     display: none;
+  }
+
+  .topbar nav a {
+    flex: 1;
+    max-width: 180px;
+    min-width: max-content;
+    text-align: center;
   }
 
   .explorer-intro,
@@ -1313,6 +1367,10 @@ footer p {
     overflow-x: auto;
     padding: 16px 20px;
     position: static;
+  }
+
+  .docs-content > section {
+    scroll-margin-top: 136px;
   }
 }
 

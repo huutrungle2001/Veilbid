@@ -78,7 +78,7 @@ function view(
   wallet?: WalletController,
 ) {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={["/room"]}>
       <ExplorerView state={marketState} onRetry={onRetry} wallet={wallet} />
     </MemoryRouter>,
   );
@@ -179,7 +179,7 @@ describe("Tender Room public explorer", () => {
 
   it("opens Activity recovery without requiring a connected account", () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
           state={state()}
           onRetry={vi.fn()}
@@ -198,7 +198,7 @@ describe("Tender Room public explorer", () => {
 
   it("opens the selective-disclosure Auditor workspace", () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
           state={state()}
           onRetry={vi.fn()}
@@ -217,7 +217,7 @@ describe("Tender Room public explorer", () => {
 
   it("opens the preparation-only Safe Treasury workspace", () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
           state={state()}
           onRetry={vi.fn()}

@@ -16,6 +16,7 @@ import { AuditorWorkspace } from "../auditor/AuditorWorkspace";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
+import { PrimaryNavigation } from "./PrimaryNavigation";
 import {
   RoleWorkspace,
   type InteractiveRole,
@@ -313,23 +314,7 @@ export function ExplorerView({
 
   return (
     <>
-      <header className="topbar">
-        <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
-        <a className="wordmark" href="/" aria-label="VeilBid home">
-          VEILBID
-        </a>
-        <nav aria-label="Primary navigation">
-          <a href="/room#tenders">TENDERS</a>
-          <a href="/docs#evidence">EVIDENCE</a>
-          <a href="/docs">DOCS</a>
-        </nav>
-        <div className="network-pill">
-          <span aria-hidden="true" />
-          SEPOLIA
-        </div>
-      </header>
-
-      <div className="rolebar" aria-label="Tender Room roles">
+      <div className="rolebar" aria-label="Tender workspaces">
         {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
           (role) => {
             const interactive =
@@ -528,11 +513,20 @@ export function App() {
   const legacyRoomLink =
     new URLSearchParams(location.search).has("role") ||
     new URLSearchParams(location.search).has("tender");
-  if (location.pathname === "/docs") return <DocsPage />;
-  if (location.pathname === "/room" || legacyRoomLink) {
-    return <TenderRoomApp />;
-  }
-  return <LandingPage />;
+  const page =
+    location.pathname === "/docs" ? (
+      <DocsPage />
+    ) : location.pathname === "/room" || legacyRoomLink ? (
+      <TenderRoomApp />
+    ) : (
+      <LandingPage />
+    );
+  return (
+    <>
+      <PrimaryNavigation />
+      {page}
+    </>
+  );
 }
 
 export type { LoadedPublicMarket };
