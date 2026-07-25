@@ -109,7 +109,7 @@ equivalent production contracts and tests exist outside `feasibility/`.
 - [x] Implement Buyer and Vendor flows.
 - [x] Implement Activity proof recovery.
 - [x] Implement Auditor viewer/reveal flow.
-- [ ] Implement Safe Treasury workspace.
+- [x] Implement Safe Treasury workspace.
 - [ ] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged
   progress/result notifications.
 
