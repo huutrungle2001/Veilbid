@@ -55,7 +55,7 @@ VeilBid combines:
 | Approved vendor addresses | Public |
 | Bid deadline | Public |
 | Bidder addresses and bid count | Public |
-| Initial escrow amount | Equal to the public ceiling by construction |
+| Initial escrow amount | Confirmed equal to the public ceiling before opening |
 | Bid price and encrypted validity/candidate state | Confidential |
 | Encrypted best price and winner ID before close | Confidential |
 | Winning vendor after proof finalization | Public |
@@ -79,13 +79,14 @@ Disclosure policy:
 ### Buyer EOA
 
 1. Connect on Sepolia and obtain/wrap test USDC.
-2. Create a tender with public ceiling and deadlines.
-3. Encrypt the public ceiling as the budget amount and escrow exactly that
-   amount through ERC-7984.
-4. Monitor public bid activity without seeing unauthorized prices.
-5. Close or let a finalizer close after deadline.
-6. Verify the proof-derived winner and confidential settlement.
-7. Reveal authorized data or grant an auditor.
+2. Create a `FundingPending` tender with public ceiling and deadlines.
+3. Attempt to escrow the public ceiling through ERC-7984.
+4. Generate and submit the public funding-equality proof; only an exactly
+   funded tender becomes `Open`.
+5. Monitor public bid activity without seeing unauthorized prices.
+6. Close or let a finalizer close after deadline.
+7. Verify the proof-derived winner and confidential settlement.
+8. Reveal authorized data or grant an auditor.
 
 ### Safe buyer
 
@@ -95,7 +96,8 @@ Disclosure policy:
    module.
 4. Execute tender creation/funding as a normal Safe transaction satisfying the
    configured owner threshold.
-5. Settle/refund to the Safe; the browser owner does not become custodian.
+5. Confirm the public exact-funding proof before the tender opens.
+6. Settle/refund to the Safe; the browser owner does not become custodian.
 
 ### Vendor
 
@@ -171,7 +173,7 @@ handle and verified against the stored bid owner.
 
 | Feature | Completion condition |
 |---|---|
-| Tender creation | Real Sepolia event and confidential ERC-7984 escrow equal to the public ceiling |
+| Tender creation | Real Sepolia event; exact-funding proof moves the tender from `FundingPending` to `Open` |
 | Vendor admission | Only an approved vendor can submit, at most once |
 | Vendor bid | External handle/proof imported and stored without plaintext |
 | Winner selection | Nox comparisons/select update encrypted price and ID |

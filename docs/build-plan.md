@@ -30,7 +30,8 @@ VeilBid reaches its required architecture depth only when the release contains:
 - Event-derived public explorer.
 - Receipt/evidence layer.
 - Generated ABI/address synchronization.
-- Unit, invariant, local Nox, live Sepolia, UI, and deployment verification.
+- Unit, invariant, deterministic model, live Sepolia, UI, deployment
+  verification, and optional local Nox regression.
 - Accurate threat model, feedback, docs, and submission materials.
 
 Agent/MCP features do not compensate for a missing core protocol flow.
@@ -46,13 +47,13 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 
 ### Milestone 1 — Feasibility scaffold
 
-- [ ] Initialize the root tooling and isolated `feasibility` workspace only.
-- [ ] Install pinned Nox/Hardhat/ethers dependencies.
-- [ ] Implement persistent-handle spike.
-- [ ] Implement encrypted argmin spike.
-- [ ] Implement public winner proof/recovery spike.
-- [ ] Implement single/split escrow settlement spikes.
-- [ ] Record exact evidence and select architecture.
+- [x] Initialize the root tooling and isolated `feasibility` workspace only.
+- [x] Install pinned Nox/Hardhat dependencies.
+- [x] Implement and verify persistent-handle spike on Sepolia.
+- [x] Implement and verify encrypted argmin spike on Sepolia.
+- [x] Implement and verify public winner proof/recovery spike on Sepolia.
+- [x] Implement and verify single/split escrow settlement spikes on Sepolia.
+- [x] Record sanitized evidence and select internal market custody.
 
 Exit: Gates A–D pass.
 
@@ -111,7 +112,8 @@ Exit: Public lifecycle remains live without private authority.
 
 ### Milestone 6 — Sepolia deployment and verification
 
-- [ ] Deploy test token, wrapper, market/escrow, receipt, Safe, and module.
+- [ ] Deploy test token, wrapper, internal-custody market, receipt, Safe, and
+  module.
 - [ ] Synchronize canonical artifacts to client.
 - [ ] Run two-vendor live lifecycle.
 - [ ] Run invalid bid, tie, no-valid-bid, cancel, timeout, replay, ACL, and Safe
@@ -155,7 +157,8 @@ npm run verify:deployment
 ## 5. Scope-control rules
 
 - Stop full build if a mandatory feasibility kill condition occurs.
-- Prefer a single market/escrow contract if split ACL is unreliable.
+- Use the selected internal-custody market; do not reintroduce split escrow
+  without new evidence that justifies its additional ACL/call surface.
 - Do not add multi-criteria scoring until price-only settlement is verified.
 - Do not add AI or MCP writes before the live core lifecycle passes.
 - Do not add a backend/database to solve event-index or proof-recovery problems.

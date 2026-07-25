@@ -339,14 +339,16 @@ Copy must state: `THE SAFE OWNS THE FUNDS. THIS WALLET IS A SIGNER.`
 
 On-chain status sequence:
 
-`OPEN → CLOSED → AWARDED / REFUNDED`
+`FUNDING PENDING → OPEN → CLOSED → AWARDED / REFUNDED`
 
-`CANCELLED` is a terminal branch from `OPEN` before the first bid.
+`CANCELLED` is a terminal branch from failed funding confirmation or from
+`OPEN` before the first bid.
 
 Derived readiness labels appear beneath the status rather than as contract
 states:
 
-`ACCEPTING SEALED BIDS`, `PROOF PENDING`, and `PROOF READY`.
+`VERIFYING ESCROW`, `ACCEPTING SEALED BIDS`, `PROOF PENDING`, and
+`PROOF READY`.
 
 - Barlow Condensed 700 uppercase.
 - Current step: green.

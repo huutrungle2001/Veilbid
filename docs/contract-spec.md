@@ -16,6 +16,7 @@ bidDeadline
 status
 bidCount
 encryptedBudget
+encryptedFundingCheck
 encryptedBestPrice
 encryptedWinnerBidId
 closeBlock
@@ -37,7 +38,9 @@ status
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Open: create + fund
+    [*] --> FundingPending: create + escrow attempt
+    FundingPending --> Open: proof confirms exact ceiling
+    FundingPending --> Cancelled: proof confirms underfunding
     Open --> Closed: close after bid deadline
     Open --> Cancelled: buyer cancels before first bid
     Closed --> Awarded: valid winner proof + settlement
@@ -55,6 +58,7 @@ No transition leaves a terminal state.
 
 - `createTender(...)`
 - `createTenderAuthorized(...)`
+- `confirmTenderFunding(tenderId, fundingProof)`
 - `submitBid(tenderId, encryptedPrice, proof)`
 - `closeTender(tenderId)`
 - `finalizeTender(tenderId, winnerProof)`
@@ -87,8 +91,12 @@ Public validation:
 - Bid deadline is in the future.
 - One to eight unique, nonzero approved vendor addresses are fixed at creation.
 - Only an approved vendor can submit, exactly once; bids are immutable.
-- Escrow amount equals the public ceiling and is transferred atomically with
-  tender creation.
+- The escrow transfer attempt is atomic with tender creation, but the tender
+  remains `FundingPending`.
+- Only a proof-derived true equality between the actual encrypted transfer and
+  the public ceiling can move the tender to `Open`.
+- A proof-derived false equality moves the unfunded tender to `Cancelled`; no
+  bid can be submitted while funding is pending.
 - Ceiling fits the selected encrypted unsigned type and `ceiling + 1` cannot
   overflow.
 - Only buyer can cancel before first bid.

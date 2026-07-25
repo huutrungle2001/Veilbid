@@ -1,6 +1,7 @@
 # VeilBid Verification Plan and Evidence Ledger
 
-> Status: No implementation test has run. Every result starts as `PENDING`.
+> Status: Feasibility Gates A–D passed on Ethereum Sepolia. Production
+> implementation and release verification remain pending.
 
 ## 1. Evidence rules
 
@@ -22,9 +23,9 @@
 | No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | PASS — correct, tampered, and wrong-tender proof paths verified on Sepolia |
 | Proof recovery | Close survives reload/indexing delay and resumes | PASS — Sepolia close resumed from a new contract client |
-| Confidential escrow | Exact winner/remainder/full-refund deltas | READY — Gate D compiles; Sepolia runtime pending |
-| Escrow solvency | Proof-confirmed escrow equals public ceiling | READY — source behavior identified; Sepolia proof pending |
-| Replay | Duplicate close/finalize/refund cannot settle twice | PARTIAL — finalize replay rejected on Sepolia; settlement/refund pending Gate D |
+| Confidential escrow | Exact winner/remainder/full-refund deltas | PASS — single and split custody paths verified in memory on Sepolia |
+| Escrow solvency | Proof-confirmed escrow equals public ceiling | PASS — exact funding and underfunded rejection verified on Sepolia |
+| Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
@@ -126,4 +127,5 @@ npm run verify:deployment
 | 2026-07-25 | Gate D compile/source inspection | `d9c97ce` | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |
 | 2026-07-25 | Gate A Ethereum Sepolia | `229afee` | `evidence/sepolia/gate-a.json` | PASS — cross-block reuse, persistent ACL, vendor decrypt, and encrypted comparison verified |
 | 2026-07-25 | Gate B Ethereum Sepolia | `4f32508` | `evidence/sepolia/gate-b.json` | PASS — six representative encrypted cases and 2,000 deterministic model cases |
-| 2026-07-25 | Gate C Ethereum Sepolia | pending | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
+| 2026-07-25 | Gate C Ethereum Sepolia | `1b27797` | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
+| 2026-07-25 | Gate D Ethereum Sepolia | pending | `evidence/sepolia/gate-d.json` | PASS — official wrapper, exact funding, underfund rejection, settlement/refund, cross-contract ACL, conservation, and replay verified |

@@ -80,6 +80,7 @@ same risk as that wallet.
 | Later vendor copies earlier price | Prices are encrypted handles | Timing and bidder identity remain public |
 | UI submits favored winner | Winner derived only from stored public-decryption proof | Nox/contract correctness is trusted |
 | Invalid zero/over-ceiling bid wins | Encrypted validity maps it to sentinel | Comparison implementation may contain bugs |
+| Underfunded transfer appears funded | Tender remains `FundingPending` until a public proof confirms encrypted transferred amount equals the public ceiling | Proof-service outage delays opening |
 | Buyer withholds close | Close/finalize are permissionless | Proof service outage locks a closed escrow until recovery |
 | Double settlement/replay | Terminal state before external calls and proof binding | Unaudited contract bugs |
 | Malicious token callback | Canonical wrapper allowlist, guard, checks-effects-interactions | Wrapper/Nox compromise |

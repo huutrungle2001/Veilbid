@@ -39,7 +39,10 @@ flowchart LR
 
 Canonical tender and bid state:
 
-- Creates and funds tenders.
+- Creates tenders in `FundingPending` and holds their ERC-7984 escrow balances
+  internally.
+- Opens a tender only after a public proof confirms that the actual encrypted
+  transfer equals the public ceiling.
 - Stores the public one-to-eight-address approved-vendor set.
 - Imports encrypted vendor prices.
 - Maintains encrypted best price and winner ID.
@@ -49,18 +52,16 @@ Canonical tender and bid state:
 - Coordinates confidential payout/refund.
 - Grants scoped buyer/vendor/auditor ACL.
 
-### `VeilBidEscrow`
+### Custody decision
 
-Preferred only if Feasibility Gate D validates the split safely:
+Feasibility Gate D passed both custody variants on Sepolia. The production
+baseline uses internal custody in `VeilBidMarket`; there is no separate
+`VeilBidEscrow` contract.
 
-- Holds ERC-7984 budget balances.
-- Accepts calls only from the canonical market.
-- Pays the proof-derived winner using encrypted price.
-- Returns encrypted remainder or full refund.
-- Exposes no administrative withdrawal.
-
-If cross-contract ACL adds unjustified risk, escrow remains internal to
-`VeilBidMarket`. Architectural depth must not override correctness.
+The split variant required an additional transient ACL handoff and correctly
+failed when that grant was omitted. It provided no measured security or
+maintainability benefit in the spike, so its extra call and ACL failure surface
+is not accepted for the MVP.
 
 ### `VeilBidSafeModule`
 
@@ -70,7 +71,7 @@ If cross-contract ACL adds unjustified risk, escrow remains internal to
 - Imports owner-created external handles bound to the Safe, chain, module,
   intended market action, consumer, and one-time nonce.
 - Grants persistent access only to the configured Safe and the one approved
-  market/escrow consumer.
+  market consumer.
 - Cannot call `execTransactionFromModule`, transfer tokens, or call arbitrary
   targets.
 - A normal Safe transaction satisfying the current threshold must consume the
@@ -128,7 +129,7 @@ sequenceDiagram
     participant F as Finalizer
     participant M as VeilBidMarket
     participant N as Nox services
-    participant E as ERC-7984 escrow
+    participant E as ERC-7984 token
 
     F->>M: closeTender(tenderId)
     M->>M: freeze accumulator and allow public winner-ID decryption

@@ -148,7 +148,7 @@ Safe and document higher-threshold execution through Safe Wallet.
 | A. Persistent bid | Pass | `evidence/sepolia/gate-a.json` | Sepolia transactions in blocks 11348541 and 11348543 prove later-block reuse, persistent contract/vendor ACL, vendor decryption, and encrypted comparison. |
 | B. Encrypted argmin | Pass | `evidence/sepolia/gate-b.json` | Six Sepolia cases and 2,000 deterministic model cases prove valid minimum, invalid exclusion, earlier-tie priority, no-valid behavior, and permutation invariance. |
 | C. Public winner proof | Pass | `evidence/sepolia/gate-c.json` | Sepolia proves winner-only public decryption, proof verification, tamper/tender binding, reload recovery, correct stored winner, and replay rejection. |
-| D. Confidential settlement | Ready | `evidence/local/gate-d.json`; Sepolia evidence pending | Official wrapper, exact-funding proof gate, and both custody variants compile; Sepolia balance, ACL, refund, and replay assertions remain. |
+| D. Confidential settlement | Pass | `evidence/sepolia/gate-d.json` | Sepolia proves official-wrapper funding, exact-funding proof, underfund rejection, both custody variants, confidential conservation, full refund, transient ACL, and replay guards. Internal market custody is selected. |
 | E. Safe composability | Pending |  |  |
 
 Full application development starts only after A–D pass on Sepolia and the Safe
@@ -161,6 +161,6 @@ amount when a transfer cannot cover the requested amount; transaction success
 alone therefore does not prove that escrow equals the public ceiling. The Gate D
 spike derives an encrypted equality between the transferred amount and the
 public ceiling, marks only that boolean for public decryption, and requires its
-proof before exposing `funded` state or allowing settlement. The Ethereum
-Sepolia Nox runtime must confirm this pattern before it is adopted in the
-production architecture.
+proof before exposing `funded` state or allowing settlement. Ethereum Sepolia
+confirmed this pattern. The production lifecycle therefore remains
+`FundingPending` until this public boolean proof opens or cancels the tender.
