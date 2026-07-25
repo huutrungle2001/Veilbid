@@ -105,7 +105,7 @@ equivalent production contracts and tests exist outside `feasibility/`.
 ### Milestone 4 — Web product
 
 - [ ] Build standalone landing and docs.
-- [ ] Implement wallet-free tender explorer and detail routes.
+- [x] Implement wallet-free tender explorer and detail routes.
 - [ ] Implement Buyer and Vendor flows.
 - [ ] Implement Activity proof recovery.
 - [ ] Implement Auditor viewer/reveal flow.
