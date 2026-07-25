@@ -519,6 +519,167 @@ main {
   overflow-wrap: anywhere;
 }
 
+.role-workspace {
+  display: grid;
+  gap: 48px;
+}
+
+.workspace-intro {
+  border-bottom: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 7fr 5fr;
+  padding-bottom: 48px;
+}
+
+.workspace-intro .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.workspace-intro h1 {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 8vw, 7rem);
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 0.86;
+  margin: 0;
+}
+
+.workspace-intro > p:last-child {
+  align-self: end;
+  border-left: 1px solid var(--color-ink-black);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  margin: 0;
+  padding-left: 32px;
+}
+
+.wallet-panel {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+.wallet-panel > div,
+.wallet-panel > div > div {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.wallet-panel > div > div {
+  align-items: start;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wallet-panel strong,
+.wallet-panel span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.wallet-panel.warning {
+  background: var(--color-veil-green);
+}
+
+.wallet-connect {
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 48px;
+  grid-template-columns: 1fr 1fr;
+  padding: 32px;
+}
+
+.wallet-connect h2 {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin: 0 0 16px;
+}
+
+.wallet-connect p {
+  line-height: 1.45;
+}
+
+.provider-list {
+  display: grid;
+  gap: 8px;
+}
+
+.provider-button {
+  align-items: center;
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 12px 16px;
+}
+
+.provider-button:hover {
+  background: var(--color-veil-green);
+}
+
+.inline-error {
+  border-left: 4px solid var(--color-ink-black);
+  padding-left: 12px;
+}
+
+.journey-preview {
+  border-top: 1px solid var(--color-ink-black);
+  padding-top: 32px;
+}
+
+.journey-preview ol {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journey-preview li {
+  border: 1px solid var(--color-ink-black);
+  border-right: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  gap: 28px;
+  min-height: 150px;
+  padding: 18px;
+}
+
+.journey-preview li:last-child {
+  border-right: 1px solid var(--color-ink-black);
+}
+
+.journey-preview li span {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  border-radius: 100%;
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.workspace-notice {
+  background: var(--color-ink-black);
+  color: var(--color-paper-white);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  margin: 0;
+  padding: 16px;
+}
+
 .state-panel {
   align-items: center;
   border: 1px solid var(--color-ink-black);
@@ -614,7 +775,9 @@ footer p {
   }
 
   .explorer-intro,
-  .explorer-grid {
+  .explorer-grid,
+  .workspace-intro,
+  .wallet-connect {
     grid-template-columns: 1fr;
   }
 
@@ -622,6 +785,26 @@ footer p {
     border-left: 0;
     border-top: 1px solid var(--color-ink-black);
     padding: 24px 0 0;
+  }
+
+  .workspace-intro > p:last-child {
+    border-left: 0;
+    border-top: 1px solid var(--color-ink-black);
+    padding: 24px 0 0;
+  }
+
+  .journey-preview ol {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-preview li {
+    border-bottom: 0;
+    border-right: 1px solid var(--color-ink-black);
+    min-height: 100px;
+  }
+
+  .journey-preview li:last-child {
+    border-bottom: 1px solid var(--color-ink-black);
   }
 
   .dossier-list {
@@ -644,6 +827,21 @@ footer p {
 
   .explorer-intro h1 {
     font-size: clamp(3.5rem, 19vw, 5rem);
+  }
+
+  .workspace-intro h1 {
+    font-size: clamp(3.5rem, 18vw, 5rem);
+  }
+
+  .wallet-panel {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .wallet-connect {
+    gap: 24px;
+    padding: 24px 20px;
   }
 
   .dossier-list {

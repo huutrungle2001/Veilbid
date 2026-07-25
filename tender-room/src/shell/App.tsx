@@ -1,6 +1,6 @@
 import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useSearchParams } from "react-router-dom";
 import type { LoadedPublicMarket } from "../public-market/loadPublicMarket";
@@ -8,6 +8,14 @@ import {
   type PublicMarketState,
   usePublicMarket,
 } from "../public-market/usePublicMarket";
+import { useWallet } from "../wallet/useWallet";
+import type { WalletController } from "../wallet/WalletPanel";
+import {
+  RoleWorkspace,
+  type InteractiveRole,
+} from "../workspaces/RoleWorkspace";
+
+type RoomRole = "PUBLIC" | InteractiveRole;
 
 const zeroIndex: PublicMarketIndex = {
   tenders: [],
@@ -233,9 +241,15 @@ function TenderDetail({
 export function ExplorerView({
   state,
   onRetry,
+  activeRole = "PUBLIC",
+  onRoleChange,
+  wallet,
 }: {
   state: PublicMarketState;
   onRetry: () => void;
+  activeRole?: RoomRole;
+  onRoleChange?: (role: RoomRole) => void;
+  wallet?: WalletController;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const index = state.data?.index ?? zeroIndex;
@@ -269,26 +283,37 @@ export function ExplorerView({
 
       <div className="rolebar" aria-label="Tender Room roles">
         {["PUBLIC", "BUYER", "VENDOR", "AUDITOR", "SAFE TREASURY"].map(
-          (role) => (
-            <button
-              key={role}
-              className={role === "PUBLIC" ? "active" : ""}
-              aria-pressed={role === "PUBLIC"}
-              disabled={role !== "PUBLIC"}
-              title={
-                role === "PUBLIC"
-                  ? "Wallet-free public explorer"
-                  : "Role workspace is not enabled in this release slice"
-              }
-            >
-              {role}
-            </button>
-          ),
+          (role) => {
+            const interactive =
+              role === "PUBLIC" || role === "BUYER" || role === "VENDOR";
+            const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
+            return (
+              <button
+                key={role}
+                className={role === activeRole ? "active" : ""}
+                aria-pressed={role === activeRole}
+                disabled={!enabled}
+                onClick={() =>
+                  enabled && onRoleChange?.(role as RoomRole)
+                }
+                title={
+                  enabled
+                    ? `${role} workspace`
+                    : "Role workspace is not enabled in this release slice"
+                }
+              >
+                {role}
+              </button>
+            );
+          },
         )}
       </div>
 
-      <main>
-        <section className="explorer-intro">
+      {activeRole !== "PUBLIC" && wallet ? (
+        <RoleWorkspace role={activeRole} wallet={wallet} />
+      ) : (
+        <main>
+          <section className="explorer-intro">
           <div>
             <p className="eyebrow">CONFIDENTIAL PROCUREMENT / LIVE TEST STATE</p>
             <h1>
@@ -308,7 +333,7 @@ export function ExplorerView({
           </div>
         </section>
 
-        {state.status === "loading" && (
+          {state.status === "loading" && (
           <section className="state-panel" aria-live="polite">
             <span className="loading-mark" aria-hidden="true" />
             <div>
@@ -318,7 +343,7 @@ export function ExplorerView({
           </section>
         )}
 
-        {state.status === "error" && (
+          {state.status === "error" && (
           <section className="state-panel error" role="alert">
             <span aria-hidden="true">!</span>
             <div>
@@ -331,7 +356,7 @@ export function ExplorerView({
           </section>
         )}
 
-        {state.status === "ready" && index.tenders.length === 0 && (
+          {state.status === "ready" && index.tenders.length === 0 && (
           <section className="state-panel">
             <span aria-hidden="true">0</span>
             <div>
@@ -341,7 +366,7 @@ export function ExplorerView({
           </section>
         )}
 
-        {state.status === "ready" && selected && state.data && (
+          {state.status === "ready" && selected && state.data && (
           <section className="explorer-grid" id="tenders">
             <aside className="dossier-list" aria-label="Public tenders">
               <header>
@@ -373,8 +398,9 @@ export function ExplorerView({
               finalizedBlock={state.data.finalizedBlock}
             />
           </section>
-        )}
-      </main>
+          )}
+        </main>
+      )}
 
       <footer id="evidence">
         <div>
@@ -393,7 +419,17 @@ export function ExplorerView({
 
 export function App() {
   const { state, refresh } = usePublicMarket();
-  return <ExplorerView state={state} onRetry={() => void refresh()} />;
+  const wallet = useWallet();
+  const [activeRole, setActiveRole] = useState<RoomRole>("PUBLIC");
+  return (
+    <ExplorerView
+      state={state}
+      onRetry={() => void refresh()}
+      activeRole={activeRole}
+      onRoleChange={setActiveRole}
+      wallet={wallet}
+    />
+  );
 }
 
 export type { LoadedPublicMarket };
