@@ -155,7 +155,15 @@ const assertions = {
   ),
   desktopLandingRendered:
     desktop.dom.includes("Lowest valid bid.") &&
-    desktop.dom.includes("OPEN TENDER ROOM"),
+    desktop.dom.includes("EXPLORE TENDERS"),
+  sharedNavigationRendered:
+    ["TENDERS", "DOCS", "EVIDENCE"].every(
+      (label) => desktop.dom.includes(label) && mobile.dom.includes(label),
+    ),
+  mobileTenderNavigationActive:
+    mobile.dom.includes('class="primary-nav-link active"') &&
+    mobile.dom.includes('aria-current="page"') &&
+    mobile.dom.includes(">TENDERS</a>"),
   mobileReleaseLabelRendered: mobile.dom.includes(
     "RELEASE DEPLOYMENT · SOURCE/DEPLOYMENT VERIFIED",
   ),
