@@ -39,6 +39,7 @@
     "test:sepolia:market:safe-viewer": "pnpm --filter @veilbid/auction-house test:sepolia:safe-viewer",
     "preflight:release": "pnpm --filter @veilbid/auction-house preflight:release",
     "deploy:release": "pnpm --filter @veilbid/auction-house deploy:release",
+    "publish:sources:release": "pnpm --filter @veilbid/auction-house publish:sources:release",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs",
     "verify:deployment:test": "pnpm --filter @veilbid/auction-house verify:deployment:test"
