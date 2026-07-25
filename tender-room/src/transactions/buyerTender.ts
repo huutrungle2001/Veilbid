@@ -19,7 +19,12 @@ import {
   type WalletClient,
 } from "viem";
 import { sepolia } from "viem/chains";
+import {
+  removeRecoveryRecord,
+  saveRecoveryRecord,
+} from "../activity/recoveryStore";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
+import { waitForPublicDecryption } from "./publicDecryption";
 
 const marketAbi = marketAbiJson as Abi;
 const tokenAbi = tokenAbiJson as Abi;
@@ -96,24 +101,6 @@ export function parseBuyerTender(
     bidDeadline: BigInt(Math.floor(deadlineMilliseconds / 1_000)),
     approvedVendors,
   };
-}
-
-async function waitForPublicDecryption(
-  handleClient: Awaited<ReturnType<typeof createViemHandleClient>>,
-  handle: Hex,
-) {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 12; attempt += 1) {
-    try {
-      return await handleClient.publicDecrypt(handle);
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 5_000));
-    }
-  }
-  throw lastError instanceof Error
-    ? lastError
-    : new Error("Funding proof is not available yet.");
 }
 
 export async function createBuyerTender({
@@ -223,7 +210,11 @@ export async function createBuyerTender({
   }
   const tenderId = (createdLog.args as { tenderId?: unknown }).tenderId;
   if (typeof tenderId !== "bigint") throw new Error("Tender ID is malformed.");
-  sessionStorage.setItem("veilbid:pending-funding-tender", tenderId.toString());
+  saveRecoveryRecord({
+    kind: "funding",
+    tenderId,
+    triggerTransactionHash: createReceipt.transactionHash,
+  });
 
   onStage("funding-proof");
   const tender = await publicClient.readContract({
@@ -245,9 +236,6 @@ export async function createBuyerTender({
     handleClient,
     fundingCheckHandle as Hex,
   );
-  if (funding.value !== true) {
-    throw new Error("Exact-funding proof evaluated false.");
-  }
   onStage("confirm-funding");
   const confirmation = await transact(
     marketAddress,
@@ -255,7 +243,10 @@ export async function createBuyerTender({
     "confirmTenderFunding",
     [tenderId, funding.decryptionProof],
   );
-  sessionStorage.removeItem("veilbid:pending-funding-tender");
+  removeRecoveryRecord("funding", tenderId);
+  if (funding.value !== true) {
+    throw new Error("Exact-funding proof evaluated false; tender was cancelled.");
+  }
   onStage("confirmed");
   return {
     tenderId,
