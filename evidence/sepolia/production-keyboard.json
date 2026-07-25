@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "suite": "production-keyboard-navigation",
-  "recordedAt": "2026-07-25T20:31:13.786Z",
+  "recordedAt": "2026-07-25T20:45:19.636Z",
   "publicIdentifiers": {
-    "testCommit": "c481c8ab5d7bb97aa81f91f445fd8e85ec792e22",
-    "deploymentSourceCommit": "c481c8ab5d7bb97aa81f91f445fd8e85ec792e22",
-    "deploymentId": "dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz",
+    "testCommit": "eec14677a92b826ab97419c496554e2c0d1527ad",
+    "deploymentSourceCommit": "eec14677a92b826ab97419c496554e2c0d1527ad",
+    "deploymentId": "dpl_DbuNsxKGhJ96Yc3ER1J1nyZRyLHo",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "browser": "Google Chrome 149.0.7827.200",
     "viewport": "1280x900"
@@ -26,7 +26,8 @@
       "◇CONNECT WALLET"
     ],
     "activeRouteSequence": [
-      "DOCS"
+      "DOCS",
+      "TENDERS"
     ],
     "docsContrast": {
       "checked": 176,
@@ -43,6 +44,8 @@
     "docsActivatedByKeyboard": true,
     "docsSidebarRemainsSticky": true,
     "docsTextMeetsWcagContrast": true,
+    "tenderWorkspaceNavigationRemainsSticky": true,
+    "publicMetadataBadgeHasExplicitContrast": true,
     "headerPersistedAcrossRoutes": true
   },
   "blockers": [],
