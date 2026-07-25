@@ -17,7 +17,7 @@
 | Area | Required test/evidence | Status |
 |---|---|---|
 | Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PENDING |
-| Persistent handle | Stored bid reused in later transaction with expected ACL | PENDING |
+| Persistent handle | Stored bid reused in later transaction with expected ACL | BLOCKED — Docker/Sepolia configuration |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PENDING |
 | No plaintext shadow | Source/storage inspection | PENDING |
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | PENDING |
@@ -120,4 +120,4 @@ npm run verify:deployment
 
 | Date | Environment | Commit | Evidence | Result |
 |---|---|---|---|---|
-|  |  |  |  |  |
+| 2026-07-25 | Local preflight / Gate A compile | pending | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |

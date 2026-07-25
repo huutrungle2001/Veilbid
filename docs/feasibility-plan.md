@@ -134,7 +134,7 @@ Safe and document higher-threshold execution through Safe Wallet.
 
 | Gate | Status | Evidence | Decision |
 |---|---|---|---|
-| A. Persistent bid | Pending |  |  |
+| A. Persistent bid | Blocked | `evidence/local/gate-a.json` | Contract and integration test compile; official local run requires Docker and live run requires Sepolia configuration. |
 | B. Encrypted argmin | Pending |  |  |
 | C. Public winner proof | Pending |  |  |
 | D. Confidential settlement | Pending |  |  |
