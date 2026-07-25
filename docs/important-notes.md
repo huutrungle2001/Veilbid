@@ -30,6 +30,9 @@ Until verified from the official event page, plan to finish publication at least
 - Winner identity may be public after close; bid prices stay confidential.
 - Feasibility runtime evidence is Sepolia-first; Docker-backed local Nox is an
   optional regression environment and is not a phase blocker.
+- Future public frontend deployments use Vercel through the installed CLI. The
+  earlier private preview is non-canonical and does not satisfy the release
+  deployment gate.
 
 ## 4. Organizer-context notes requiring care
 

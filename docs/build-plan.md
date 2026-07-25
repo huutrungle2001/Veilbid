@@ -107,7 +107,7 @@ equivalent production contracts and tests exist outside `feasibility/`.
 - [ ] Build standalone landing and docs.
 - [x] Implement wallet-free tender explorer and detail routes.
 - [x] Implement Buyer and Vendor flows.
-- [ ] Implement Activity proof recovery.
+- [x] Implement Activity proof recovery.
 - [ ] Implement Auditor viewer/reveal flow.
 - [ ] Implement Safe Treasury workspace.
 - [ ] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged

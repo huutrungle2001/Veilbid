@@ -7,12 +7,12 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Implement Activity recovery for interrupted funding/public-proof
-  stages, then add the stateless close/finalize relay.
+- Next action: Build the stateless close/finalize relay with dry-run, once,
+  poll, health, race handling, and a bounded action budget.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T00:52:12+07:00
+- Last updated: 2026-07-26T01:07:34+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -61,6 +61,7 @@ Only one phase may be `In progress`.
 | Sepolia-first feasibility | Approved | User | 2026-07-25 | Mandatory runtime evidence moves to Ethereum Sepolia; local Docker/Nox becomes optional regression coverage. |
 | Feasibility gate | Approved | User | 2026-07-25 | Gates A–D passed; internal market custody selected and exact-funding proof added to the lifecycle. |
 | Build Plan | Approved | User | 2026-07-25 | User requested continued implementation after the Safe design passed its Sepolia authority gate. |
+| Frontend hosting | Vercel approved | User | 2026-07-26 | Future frontend deployments use the installed Vercel CLI; the earlier private preview is not the canonical release deployment. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
