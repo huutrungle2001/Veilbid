@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "hardhat build",
-    "test": "hardhat test --config hardhat.unit.config.ts --no-compile test/unit/*.test.ts test/static/*.test.mjs",
+    "test": "hardhat test --config hardhat.unit.config.ts --no-compile test/unit/*.test.ts test/property/*.test.mjs test/static/*.test.mjs",
     "test:nox": "hardhat test --config hardhat.config.ts",
     "test:sepolia:eoa": "node --env-file-if-exists=../.env.local test/sepolia/market-eoa.sepolia.mjs",
     "test:sepolia:refund": "node --env-file-if-exists=../.env.local test/sepolia/market-refund.sepolia.mjs",

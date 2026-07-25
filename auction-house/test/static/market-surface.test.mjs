@@ -51,6 +51,39 @@ describe("VeilBidMarket production surface", () => {
     );
   });
 
+  it("matches the reviewed encrypted argmin operation order", () => {
+    const submitStart = source.indexOf("function submitBid");
+    const closeStart = source.indexOf("function closeTender");
+    const submit = source.slice(submitStart, closeStart);
+    const operations = [
+      "Nox.gt(",
+      "Nox.select(isPositive",
+      "Nox.le(",
+      "Nox.select(isWithinCeiling",
+      "Nox.lt(candidate, tender.encryptedBestPrice)",
+      "tender.encryptedBestPrice = Nox.select(",
+      "tender.encryptedWinnerBidId = Nox.select(",
+    ];
+    let previous = -1;
+    for (const operation of operations) {
+      const current = submit.indexOf(operation);
+      assert.ok(current > previous, operation);
+      previous = current;
+    }
+    assert.equal(
+      submit.includes("Nox.le(candidate, tender.encryptedBestPrice)"),
+      false,
+      "strict less-than is required to preserve the earliest tie",
+    );
+  });
+
+  it("bounds admission to eight unique one-shot vendor slots", () => {
+    assert.match(source, /uint256 public constant MAX_BIDS = 8;/);
+    assert.match(source, /approvedVendors\.length > MAX_BIDS/);
+    assert.match(source, /isApprovedVendor\[tenderId\]\[vendor\]/);
+    assert.match(source, /hasSubmittedBid\[tenderId\]\[msg\.sender\]/);
+  });
+
   it("exposes no administrator, arbitrary withdrawal, or Safe execution path", () => {
     const forbidden = new Set([
       "admin",
@@ -73,5 +106,58 @@ describe("VeilBidMarket production surface", () => {
       deployedBytes <= 24_576,
       `runtime bytecode is ${deployedBytes} bytes`,
     );
+  });
+
+  it("guards every lifecycle write against reentrancy", () => {
+    for (const name of [
+      "createTender",
+      "createTenderAuthorized",
+      "confirmTenderFunding",
+      "submitBid",
+      "closeTender",
+      "finalizeTender",
+      "cancelTender",
+      "grantBidViewer",
+    ]) {
+      assert.match(
+        source,
+        new RegExp(
+          `function\\s+${name}\\s*\\([\\s\\S]*?\\)\\s+external[\\s\\S]*?nonReentrant`,
+        ),
+        name,
+      );
+    }
+  });
+
+  it("commits terminal state before confidential token interactions", () => {
+    const finalizeStart = source.indexOf("function finalizeTender");
+    const cancelStart = source.indexOf("function cancelTender");
+    const viewerStart = source.indexOf("function grantBidViewer");
+    const finalize = source.slice(finalizeStart, cancelStart);
+    const cancel = source.slice(cancelStart, viewerStart);
+
+    assert.ok(
+      finalize.indexOf("TenderStatus.Refunded") <
+        finalize.indexOf("paymentToken.confidentialTransfer"),
+    );
+    assert.ok(
+      finalize.indexOf("TenderStatus.Awarded") <
+        finalize.lastIndexOf("paymentToken.confidentialTransfer"),
+    );
+    assert.ok(
+      cancel.indexOf("TenderStatus.Cancelled") <
+        cancel.indexOf("paymentToken.confidentialTransfer"),
+    );
+  });
+
+  it("contains no timeout, winner override, or emergency withdrawal escape", () => {
+    for (const fragment of [
+      "emergencyWithdraw",
+      "forceWinner",
+      "overrideWinner",
+      "timeoutRefund",
+    ]) {
+      assert.equal(source.includes(fragment), false, fragment);
+    }
   });
 });
