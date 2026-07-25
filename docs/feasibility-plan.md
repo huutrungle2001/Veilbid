@@ -147,7 +147,7 @@ Safe and document higher-threshold execution through Safe Wallet.
 |---|---|---|---|
 | A. Persistent bid | Pass | `evidence/sepolia/gate-a.json` | Sepolia transactions in blocks 11348541 and 11348543 prove later-block reuse, persistent contract/vendor ACL, vendor decryption, and encrypted comparison. |
 | B. Encrypted argmin | Pass | `evidence/sepolia/gate-b.json` | Six Sepolia cases and 2,000 deterministic model cases prove valid minimum, invalid exclusion, earlier-tie priority, no-valid behavior, and permutation invariance. |
-| C. Public winner proof | Ready | `evidence/local/gate-c.json`; Sepolia evidence pending | Proof-only finalize and recovery tests compile; Sepolia proof assertions remain. |
+| C. Public winner proof | Pass | `evidence/sepolia/gate-c.json` | Sepolia proves winner-only public decryption, proof verification, tamper/tender binding, reload recovery, correct stored winner, and replay rejection. |
 | D. Confidential settlement | Ready | `evidence/local/gate-d.json`; Sepolia evidence pending | Official wrapper, exact-funding proof gate, and both custody variants compile; Sepolia balance, ACL, refund, and replay assertions remain. |
 | E. Safe composability | Pending |  |  |
 

@@ -15,6 +15,7 @@
     "test:nox": "pnpm --filter @veilbid/feasibility test:nox",
     "test:sepolia:a": "pnpm --filter @veilbid/feasibility test:sepolia:a",
     "test:sepolia:b": "pnpm --filter @veilbid/feasibility test:sepolia:b",
+    "test:sepolia:c": "pnpm --filter @veilbid/feasibility test:sepolia:c",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs"
   }

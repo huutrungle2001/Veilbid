@@ -7,12 +7,12 @@
 
 - Current phase: Phase 3 — Feasibility spikes
 - Status: In progress
-- Next action: Run Gate C public-winner proof, tamper, tender-binding, replay,
-  and reload-recovery assertions on Ethereum Sepolia.
+- Next action: Run Gate D exact-funding, confidential settlement/refund,
+  cross-contract ACL, and replay assertions on Ethereum Sepolia.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T22:42:42+07:00
+- Last updated: 2026-07-25T22:47:27+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

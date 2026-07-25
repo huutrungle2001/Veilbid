@@ -13,6 +13,7 @@
     "test:nox": "hardhat test",
     "test:sepolia:a": "node --env-file-if-exists=../.env.local live/gate-a.sepolia.mjs",
     "test:sepolia:b": "node --env-file-if-exists=../.env.local live/gate-b.sepolia.mjs",
+    "test:sepolia:c": "node --env-file-if-exists=../.env.local live/gate-c.sepolia.mjs",
     "preflight": "node scripts/preflight.mjs",
     "evidence:validate": "node scripts/validate-evidence.mjs"
   },
