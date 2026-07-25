@@ -478,9 +478,8 @@ export function ExplorerView({
   );
 }
 
-function TenderRoomApp() {
+function TenderRoomApp({ wallet }: { wallet: WalletController }) {
   const { state, refresh } = usePublicMarket();
-  const wallet = useWallet();
   const [roomParams, setRoomParams] = useSearchParams();
   const requestedRole = roomParams.get("role")?.toUpperCase();
   const activeRole: RoomRole =
@@ -510,6 +509,7 @@ function TenderRoomApp() {
 
 export function App() {
   const location = useLocation();
+  const wallet = useWallet();
   const legacyRoomLink =
     new URLSearchParams(location.search).has("role") ||
     new URLSearchParams(location.search).has("tender");
@@ -517,13 +517,13 @@ export function App() {
     location.pathname === "/docs" ? (
       <DocsPage />
     ) : location.pathname === "/room" || legacyRoomLink ? (
-      <TenderRoomApp />
+      <TenderRoomApp wallet={wallet} />
     ) : (
       <LandingPage />
     );
   return (
     <>
-      <PrimaryNavigation />
+      <PrimaryNavigation wallet={wallet} />
       {page}
     </>
   );

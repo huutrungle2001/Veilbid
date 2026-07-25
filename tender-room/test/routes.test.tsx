@@ -1,14 +1,52 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
+import type { EIP1193Provider } from "viem";
 import { App } from "../src/shell/App";
 import { PrimaryNavigation } from "../src/shell/PrimaryNavigation";
+import type { WalletController } from "../src/wallet/WalletPanel";
+
+const disconnectedWallet = {
+  state: {
+    status: "disconnected",
+    providers: [],
+    selectedProvider: null,
+    account: null,
+    chainId: null,
+    walletClient: null,
+    error: null,
+    sessionRevision: 0,
+  },
+  connect: async () => undefined,
+  switchToSepolia: async () => undefined,
+  disconnect: () => undefined,
+} as unknown as WalletController;
+
+function announceWallet(uuid: string, name: string) {
+  window.dispatchEvent(
+    new CustomEvent("eip6963:announceProvider", {
+      detail: {
+        info: {
+          uuid,
+          name,
+          icon: "",
+          rdns: `${uuid}.wallet`,
+        },
+        provider: {
+          request: async () => [],
+        } as unknown as EIP1193Provider,
+      },
+    }),
+  );
+}
 
 afterEach(cleanup);
 
@@ -36,7 +74,8 @@ describe("standalone public routes", () => {
       within(navigation)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["TENDERS", "DOCS", "EVIDENCE"]);
+    ).toEqual(["TENDERS", "DOCS"]);
+    expect(screen.getByRole("button", { name: "CONNECT WALLET" })).toBeVisible();
     expect(
       screen.getByRole("link", { name: "VeilBid home" }),
     ).toHaveAttribute("aria-current", "page");
@@ -50,10 +89,10 @@ describe("standalone public routes", () => {
     );
     expect(
       screen.getByRole("heading", {
-        name: /How VeilBid keeps procurement prices sealed/i,
+        name: /Use VeilBid from tender to settlement/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/does not verify service quality/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not verify delivered service quality/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /inspect public state/i }),
     ).toHaveAttribute("href", "/room");
@@ -66,7 +105,7 @@ describe("standalone public routes", () => {
     );
   });
 
-  it("keeps the shared navigation stable and highlights evidence", () => {
+  it("keeps Docs active for every documentation section", () => {
     render(
       <MemoryRouter initialEntries={["/docs#evidence"]}>
         <App />
@@ -79,13 +118,13 @@ describe("standalone public routes", () => {
       within(navigation)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["TENDERS", "DOCS", "EVIDENCE"]);
-    expect(
-      within(navigation).getByRole("link", { name: "EVIDENCE" }),
-    ).toHaveAttribute("aria-current", "page");
+    ).toEqual(["TENDERS", "DOCS"]);
     expect(
       within(navigation).getByRole("link", { name: "DOCS" }),
-    ).not.toHaveAttribute("aria-current");
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      within(navigation).queryByRole("link", { name: "EVIDENCE" }),
+    ).toBeNull();
   });
 
   it("preserves one header instance while navigating between public pages", () => {
@@ -105,24 +144,42 @@ describe("standalone public routes", () => {
       within(header as HTMLElement).getByRole("link", { name: "DOCS" }),
     ).toHaveAttribute("aria-current", "page");
 
-    fireEvent.click(
-      within(header as HTMLElement).getByRole("link", { name: "EVIDENCE" }),
-    );
+    fireEvent.click(within(header as HTMLElement).getByRole("link", {
+      name: "VeilBid home",
+    }));
     expect(container.querySelector(".topbar")).toBe(header);
     expect(
-      within(header as HTMLElement).getByRole("link", { name: "EVIDENCE" }),
+      within(header as HTMLElement).getByRole("link", { name: "VeilBid home" }),
     ).toHaveAttribute("aria-current", "page");
   });
 
   it("marks Tenders active on the canonical tender route", () => {
     render(
       <MemoryRouter initialEntries={["/room"]}>
-        <PrimaryNavigation />
+        <PrimaryNavigation wallet={disconnectedWallet} />
       </MemoryRouter>,
     );
     expect(screen.getByRole("link", { name: "TENDERS" })).toHaveAttribute(
       "aria-current",
       "page",
     );
+  });
+
+  it("lists every detected EIP-6963 wallet in the header selector", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    act(() => {
+      announceWallet("alpha", "Alpha Wallet");
+      announceWallet("beta", "Beta Wallet");
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "CONNECT WALLET" })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "CONNECT WALLET" }));
+    expect(screen.getByRole("button", { name: /Alpha Wallet/ })).toBeVisible();
+    expect(screen.getByRole("button", { name: /Beta Wallet/ })).toBeVisible();
   });
 });
