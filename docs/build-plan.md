@@ -71,13 +71,15 @@ Exit: Core protocol tests pass without plaintext shadow state.
 ### Milestone 3 — Safe composability
 
 - [ ] Deploy a new local/Sepolia Safe for VeilBid.
-- [ ] Implement strict token/target/selector/consumer allowlists.
-- [ ] Support owner handle preparation and Safe-authorized funding.
+- [ ] Implement a preparation-only module with strict
+  Safe/action/consumer/nonce binding and no Safe execution entry point.
+- [ ] Support owner handle preparation and threshold-authorized Safe funding.
 - [ ] Support buyer cancellation/viewer operations where approved.
 - [ ] Test revoke/re-enable and permissionless terminal actions.
 - [ ] Document threshold-1 browser limitations.
 
-Exit: Safe owns funds and no module call bypasses Safe authority.
+Exit: Safe owns funds, module calls cannot execute from the Safe, and every
+funding/viewer write satisfies normal Safe threshold authority.
 
 ### Milestone 4 — Web product
 

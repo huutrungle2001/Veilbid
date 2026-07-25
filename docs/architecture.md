@@ -65,10 +65,16 @@ If cross-contract ACL adds unjustified risk, escrow remains internal to
 ### `VeilBidSafeModule`
 
 - Bound to one configured Safe.
-- Allowlists market, escrow, token wrapper, NoxCompute, and selectors.
-- Imports owner-created external handles.
-- Grants persistent access only to the intended approved consumer and Safe.
-- Routes reviewed Safe operations; cannot call arbitrary targets.
+- Acts only as a preparation boundary; it is not a Safe transaction executor.
+- Accepts preparation calls only from a current owner of the configured Safe.
+- Imports owner-created external handles bound to the Safe, chain, module,
+  intended market action, consumer, and one-time nonce.
+- Grants persistent access only to the configured Safe and the one approved
+  market/escrow consumer.
+- Cannot call `execTransactionFromModule`, transfer tokens, or call arbitrary
+  targets.
+- A normal Safe transaction satisfying the current threshold must consume the
+  prepared input and create/fund the tender.
 - Does not alter Safe owners, threshold, fallback handler, or guard.
 
 ### `VeilBidAwardReceipt`
@@ -203,7 +209,8 @@ There is no application database or authentication server.
 - Competing finalizer: reread status and simulate; treat stale race as benign.
 - Wallet disconnect/network change: clear revealed plaintext and writes.
 - Safe module revoked: public finalize/refund remains available; owner module
-  actions pause.
+  preparation pauses, while previously prepared inputs cannot move funds
+  without a threshold-authorized Safe transaction.
 - Assistant/MCP failure: never gates protocol settlement.
 
 ## 9. Planned repository structure

@@ -61,7 +61,6 @@ No transition leaves a terminal state.
 - `finalizeTender(tenderId, winnerBidId, winnerProof)`
 - `cancelTender(tenderId)`
 - `grantBidViewer(tenderId, bidId, viewer)`
-- `grantTenderViewer(tenderId, viewer)`
 - `getTender(tenderId)`
 - `getBid(tenderId, bidId)`
 - `canClose(tenderId)`
@@ -70,10 +69,15 @@ No transition leaves a terminal state.
 
 ### Safe module
 
-- `prepareInput(encryptedInput, proof, consumer)`
-- `prepareInputs(encryptedInputs, proofs, consumers)`
-- reviewed wrappers for create/fund/cancel/viewer actions
-- no arbitrary `execute(address,bytes)`
+- `prepareInput(encryptedInput, proof, consumer, actionHash, nonce)`
+- `prepareInputs(encryptedInputs, proofs, consumers, actionHash, nonce)`
+- no Safe execution function and no arbitrary `execute(address,bytes)`
+
+Preparation requires a current owner of the configured Safe, an allowlisted
+consumer, the intended action hash, and an unused nonce. Preparation alone
+cannot call the Safe or transfer tokens. The prepared input is consumed once by
+the intended market action inside a normal threshold-authorized Safe
+transaction.
 
 ## 4. Validation
 
@@ -101,7 +105,8 @@ Encrypted validation:
 For each bid:
 
 1. Import price with target-bound proof.
-2. Persist market, vendor, and approved buyer ACL as specified.
+2. Persist computation access for the market and viewer access for the vendor;
+   do not automatically grant the buyer viewer access while `Open`.
 3. Build encrypted public handles for zero, ceiling, sentinel, and bid ID.
 4. Use nested `Nox.select` to map invalid price to sentinel.
 5. Compare candidate with current encrypted best price.
@@ -109,6 +114,18 @@ For each bid:
 7. Persist accumulator ACL for later transactions.
 
 Do not emit validity or comparison result.
+
+Viewer grants:
+
+- Always target one stored bid handle; there is no tender-wide grant.
+- The bid vendor may grant a nonzero viewer access to its own bid at any time.
+- The tender buyer may grant a nonzero viewer only after the tender leaves
+  `Open`.
+- A Safe buyer must authorize the grant through a normal threshold-approved Safe
+  transaction.
+- The function cannot grant access to accumulator, budget, payment, or refund
+  handles.
+- Grants are irreversible for the current handle and emit `ViewerGranted`.
 
 ## 6. Close and finalize
 
@@ -146,6 +163,7 @@ award fairness over fund liveness during a Nox outage.
 - Only approved vendors have bid slots, and each can submit at most once.
 - Public finalizers cannot cancel, change terms, or decrypt prices.
 - Module preparation alone cannot transfer Safe funds.
+- No module function can execute a transaction from the Safe.
 - Contract source contains no plaintext bid mapping.
 
 ## 8. Events

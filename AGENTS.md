@@ -91,8 +91,9 @@ gate are approved.
   ceiling, deadlines, status, winner, transaction hashes, and receipt IDs.
 - The winning vendor may become public; losing and winning bid values must not
   become public by default.
-- A Safe module may prepare handles, but only a Safe-authorized transaction can
-  move Safe-owned funds.
+- A Safe module may prepare handles, but it exposes no Safe execution function;
+  only a normal transaction satisfying the Safe threshold can move Safe-owned
+  funds.
 - Public decryption is limited to handles deliberately marked for it, such as
   the encrypted winner ID. Every proof is verified on-chain and replay-protected.
 - Finalizers and MCP clients cannot decrypt vendor bids unless separately

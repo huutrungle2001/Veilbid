@@ -26,9 +26,9 @@
 | Escrow solvency | Atomic escrow equals public ceiling | PENDING |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PENDING |
 | Reentrancy | Token/receipt callbacks cannot corrupt lifecycle | PENDING |
-| Selective ACL | Vendor/buyer/auditor allowed; unrelated account denied | PENDING |
-| Safe authority | Preparation cannot spend; Safe authorization can | PENDING |
-| Module controls | Target/token/selector restrictions and revoke/re-enable | PENDING |
+| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
+| Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PENDING |
+| Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PENDING |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
@@ -58,9 +58,14 @@
 15. Winner payment plus buyer remainder equals the public ceiling.
 16. A closed tender cannot be timeout-refunded while proof is unavailable.
 17. Second terminal action fails.
-18. Unauthorized viewer cannot decrypt.
-19. Buyer cancellation is allowed only under specified pre-bid conditions.
-20. Safe module cannot call an unapproved target/selector/token.
+18. Vendor can view its own bid; unrelated accounts and the open-tender buyer
+    cannot.
+19. Vendor grants affect only its selected bid handle.
+20. Buyer grants are rejected while open and accepted per handle after close.
+21. A Safe viewer grant requires normal threshold authorization.
+22. Buyer cancellation is allowed only under specified pre-bid conditions.
+23. Safe preparation cannot execute or spend, and wrong action/consumer/nonce
+    or replay fails.
 
 ## 4. Property and invariant targets
 

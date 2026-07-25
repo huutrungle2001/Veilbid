@@ -111,10 +111,14 @@ This is mandatory for the product but may run after Gates A–D:
 - Deploy a separate Sepolia Safe and restricted VeilBid module.
 - Owner prepares a budget/tender input handle against the module.
 - Module grants only the approved market/escrow access.
-- Preparing the handle alone cannot move funds.
-- Safe-authorized execution funds a tender.
-- Revoking the module prevents owner-controlled module actions without moving
-  Safe balances or changing owners.
+- The module exposes no Safe execution function; preparing the handle alone
+  cannot move funds.
+- A normal Safe transaction satisfying the configured threshold consumes the
+  prepared input and funds a tender.
+- Prepared inputs are bound to the Safe, chain, action, approved consumer, and a
+  one-time nonce; cross-action and replay attempts fail.
+- Revoking the module prevents new preparation without moving Safe balances or
+  changing owners.
 
 If browser-based higher-threshold signing is not implemented, use a 1-of-1 demo
 Safe and document higher-threshold execution through Safe Wallet.
@@ -131,4 +135,3 @@ Safe and document higher-threshold execution through Safe Wallet.
 
 Full application development starts only after A–D pass and the Safe design for
 E is approved.
-

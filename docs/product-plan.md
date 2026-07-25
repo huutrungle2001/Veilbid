@@ -62,6 +62,17 @@ VeilBid combines:
 | Payment/refund amount handles | Public handles; confidential values |
 | Events, status, receipt, transaction hashes | Public |
 
+Disclosure policy:
+
+- A vendor receives viewer access to its own stored bid handle.
+- The buyer is not an automatic viewer of vendor bid prices while the tender is
+  `Open`.
+- After close, the buyer may grant viewer access one bid handle at a time to
+  itself or an auditor.
+- A vendor may grant a viewer access to its own bid at any time.
+- Viewer grants are per-handle and irreversible for that handle. There is no
+  tender-wide or future-bid grant in the MVP.
+
 ## 6. Core user journeys
 
 ### Buyer EOA
@@ -79,8 +90,10 @@ VeilBid combines:
 
 1. Connect a configured Safe owner.
 2. Inspect owners, threshold, module, operator, and confidential balance.
-3. Prepare the budget handle through a restricted module.
-4. Execute tender creation/funding through Safe authority.
+3. Prepare a target-bound budget handle through the restricted preparation-only
+   module.
+4. Execute tender creation/funding as a normal Safe transaction satisfying the
+   configured owner threshold.
 5. Settle/refund to the Safe; the browser owner does not become custodian.
 
 ### Vendor
@@ -164,8 +177,8 @@ handle and verified against the stored bid owner.
 | Settlement | Authorized confidential deltas match winning price and remainder |
 | No valid bid | Full confidential refund and terminal status |
 | Replay protection | Duplicate close/finalize/settle calls fail safely |
-| Safe custody | Safe owns funds; owner/module preparation cannot bypass threshold |
-| Selective audit | Explicit viewer can decrypt selected handle only |
+| Safe custody | Module preparation cannot execute from the Safe; funding requires a threshold-authorized Safe transaction |
+| Selective audit | Grants follow the role, lifecycle, per-handle, and irreversibility rules above |
 | Public UX | Lifecycle and proof evidence load without wallet |
 | Recovery | A closed tender remains recoverable until proof finalization succeeds |
 

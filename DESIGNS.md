@@ -378,6 +378,11 @@ Shows:
 - Proposed auditor address.
 - Exact permission: `VIEW ONLY`.
 - Explicit exclusions: `NO SPEND / NO SAFE SIGN / NO OPERATOR`.
+- Granting role and lifecycle eligibility.
+- Permanent warning: `ACCESS CANNOT BE REVOKED FOR THIS HANDLE`.
+
+The UI never offers a tender-wide grant. Buyer grants are disabled while the
+tender is `Open`; a vendor may grant access only to its own bid.
 
 ### Progress notice
 

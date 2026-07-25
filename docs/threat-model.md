@@ -19,7 +19,7 @@ VeilBid aims to:
 
 | Asset/data | Visibility | Authorized controller/viewer |
 |---|---|---|
-| Vendor price | Encrypted handle public; value private | Vendor, approved buyer/contract, explicit viewers |
+| Vendor price | Encrypted handle public; value private | Vendor, market computation, explicit per-handle viewers |
 | Best price | Encrypted | Market and intended settlement contracts |
 | Winner bid ID before close | Encrypted | Market |
 | Winner bid ID after close | Publicly decryptable | Everyone after valid proof |
@@ -56,9 +56,10 @@ assets.
 
 ### Safe module
 
-The module is trusted only for its reviewed allowlist. Compromise or an overly
-broad selector/target policy could spend Safe assets. The Safe itself remains the
-authority; input preparation alone must not move funds.
+The module is a preparation-only boundary and has no Safe execution function. A
+compromise can prepare or leak incorrectly scoped handles, but cannot move Safe
+assets without a normal transaction satisfying the Safe threshold. The Safe
+remains the spending authority.
 
 ### RPC and finalizer
 
@@ -83,9 +84,10 @@ same risk as that wallet.
 | Double settlement/replay | Terminal state before external calls and proof binding | Unaudited contract bugs |
 | Malicious token callback | Canonical wrapper allowlist, guard, checks-effects-interactions | Wrapper/Nox compromise |
 | Finalizer logs confidential material | Sanitized schema excludes handles/proofs/plaintext/keys | Host compromise |
-| ACL grant leaks a bid | Explicit per-handle viewer grant and confirmation | Grants may be irreversible for the current handle |
+| Buyer inspects bids before close | Buyer is not an automatic bid viewer while `Open` | Vendor can voluntarily disclose its own bid |
+| ACL grant leaks a bid | Role- and lifecycle-gated per-handle grant with confirmation | Grants are irreversible for the current handle |
 | Indexing delay appears as failure | Bounded retry and recoverable pending state | Extended service outage |
-| Buyer Safe module overreach | Fixed Safe, target, token, consumer, selector allowlists | Module bug or owner compromise |
+| Buyer Safe module overreach | Preparation-only API, fixed Safe/consumer/action binding, one-time nonce, and no Safe execution call | Handle ACL leakage or owner compromise |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
 | Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |
@@ -94,9 +96,11 @@ same risk as that wallet.
 ## 5. Compromise impact
 
 - Vendor wallet: attacker can submit/reveal as that vendor and spend its assets.
-- Buyer wallet: attacker can create/cancel where allowed and reveal buyer-viewable
-  bids; cannot override proof-derived winner.
-- Safe owner: impact depends on threshold and module permissions.
+- Buyer wallet: attacker can create/cancel where allowed and grant post-close
+  access to individual bids; cannot inspect bids through buyer authority while
+  `Open` or override the proof-derived winner.
+- Safe owner: one compromised owner can prepare inputs but cannot move Safe
+  assets unless the Safe threshold is also satisfied.
 - Market owner/admin: must not have arbitrary withdrawal or winner override;
   any remaining privilege is documented before deploy.
 - Finalizer: attacker can spend finalizer gas and race public actions only.
