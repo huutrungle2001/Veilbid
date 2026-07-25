@@ -772,6 +772,63 @@ main {
   opacity: 0.45;
 }
 
+.activity-section {
+  border-top: 1px solid var(--color-ink-black);
+  padding-top: 28px;
+}
+
+.activity-section > header {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.activity-section h2 {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.activity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.activity-card {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+.activity-card h3 {
+  font-size: 1.8rem;
+  margin: 0 0 8px;
+}
+
+.activity-card span {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.empty-activity {
+  border: 1px dashed var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  margin: 0;
+  padding: 24px;
+}
+
+.activity-progress,
+.activity-error {
+  border: 1px solid var(--color-ink-black);
+  margin: 0;
+  padding: 16px;
+}
+
 .state-panel {
   align-items: center;
   border: 1px solid var(--color-ink-black);
@@ -939,6 +996,12 @@ footer p {
   .write-form {
     grid-template-columns: 1fr;
     padding: 24px 20px;
+  }
+
+  .activity-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 20px;
   }
 
   .dossier-list {

@@ -8,6 +8,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PublicMarketState } from "../src/public-market/usePublicMarket";
 import { ExplorerView } from "../src/shell/App";
+import type { WalletController } from "../src/wallet/WalletPanel";
 
 const buyer = "0x1111111111111111111111111111111111111111";
 const transactionHash = `0x${"22".repeat(32)}` as const;
@@ -55,10 +56,30 @@ function state(
   };
 }
 
-function view(marketState: PublicMarketState, onRetry = vi.fn()) {
+const disconnectedWallet = {
+  state: {
+    status: "disconnected",
+    providers: [],
+    selectedProvider: null,
+    account: null,
+    chainId: null,
+    walletClient: null,
+    error: null,
+    sessionRevision: 0,
+  },
+  connect: vi.fn(),
+  switchToSepolia: vi.fn(),
+  disconnect: vi.fn(),
+} as unknown as WalletController;
+
+function view(
+  marketState: PublicMarketState,
+  onRetry = vi.fn(),
+  wallet?: WalletController,
+) {
   return render(
     <MemoryRouter>
-      <ExplorerView state={marketState} onRetry={onRetry} />
+      <ExplorerView state={marketState} onRetry={onRetry} wallet={wallet} />
     </MemoryRouter>,
   );
 }
@@ -108,5 +129,24 @@ describe("Tender Room public explorer", () => {
     expect(
       screen.getByRole("button", { name: "SAFE TREASURY" }),
     ).toBeDisabled();
+  });
+
+  it("opens Activity recovery without requiring a connected account", () => {
+    render(
+      <MemoryRouter>
+        <ExplorerView
+          state={state()}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="ACTIVITY"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Resume, never restart." }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/public tender IDs/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
   });
 });

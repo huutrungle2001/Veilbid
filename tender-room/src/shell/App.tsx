@@ -1,6 +1,6 @@
 import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { formatUnits } from "viem";
 import { useSearchParams } from "react-router-dom";
 import type { LoadedPublicMarket } from "../public-market/loadPublicMarket";
@@ -10,12 +10,13 @@ import {
 } from "../public-market/usePublicMarket";
 import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
+import { ActivityWorkspace } from "../activity/ActivityWorkspace";
 import {
   RoleWorkspace,
   type InteractiveRole,
 } from "../workspaces/RoleWorkspace";
 
-type RoomRole = "PUBLIC" | InteractiveRole;
+type RoomRole = "PUBLIC" | InteractiveRole | "ACTIVITY";
 
 const zeroIndex: PublicMarketIndex = {
   tenders: [],
@@ -282,10 +283,13 @@ export function ExplorerView({
       </header>
 
       <div className="rolebar" aria-label="Tender Room roles">
-        {["PUBLIC", "BUYER", "VENDOR", "AUDITOR", "SAFE TREASURY"].map(
+        {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
           (role) => {
             const interactive =
-              role === "PUBLIC" || role === "BUYER" || role === "VENDOR";
+              role === "PUBLIC" ||
+              role === "BUYER" ||
+              role === "VENDOR" ||
+              role === "ACTIVITY";
             const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
             return (
               <button
@@ -309,7 +313,13 @@ export function ExplorerView({
         )}
       </div>
 
-      {activeRole !== "PUBLIC" && wallet ? (
+      {activeRole === "ACTIVITY" && wallet ? (
+        <ActivityWorkspace
+          wallet={wallet}
+          tenders={index.tenders}
+          onRefresh={onRetry}
+        />
+      ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
         <RoleWorkspace
           role={activeRole}
           wallet={wallet}
@@ -425,7 +435,20 @@ export function ExplorerView({
 export function App() {
   const { state, refresh } = usePublicMarket();
   const wallet = useWallet();
-  const [activeRole, setActiveRole] = useState<RoomRole>("PUBLIC");
+  const [roomParams, setRoomParams] = useSearchParams();
+  const requestedRole = roomParams.get("role")?.toUpperCase();
+  const activeRole: RoomRole =
+    requestedRole === "BUYER" ||
+    requestedRole === "VENDOR" ||
+    requestedRole === "ACTIVITY"
+      ? requestedRole
+      : "PUBLIC";
+  const setActiveRole = (role: RoomRole) => {
+    const next = new URLSearchParams(roomParams);
+    if (role === "PUBLIC") next.delete("role");
+    else next.set("role", role.toLowerCase());
+    setRoomParams(next);
+  };
   return (
     <ExplorerView
       state={state}
