@@ -28,6 +28,7 @@
     "test:model": "pnpm --filter @veilbid/feasibility test:model",
     "test:nox": "pnpm --filter @veilbid/feasibility test:nox",
     "test:ui": "pnpm --filter @veilbid/tender-room test",
+    "test:production": "node tender-room/scripts/smoke-production.mjs",
     "test:sepolia:a": "pnpm --filter @veilbid/feasibility test:sepolia:a",
     "test:sepolia:b": "pnpm --filter @veilbid/feasibility test:sepolia:b",
     "test:sepolia:c": "pnpm --filter @veilbid/feasibility test:sepolia:c",
