@@ -2,7 +2,7 @@
 
 ## 1. Competition requirements
 
-| ID | Requirement | Mandatory | Planned evidence |
+| ID | Requirement | Mandatory | Release evidence |
 |---|---|---:|---|
 | CMP-001 | Functional front end | Yes | Public responsive web application |
 | CMP-002 | End-to-end without mock core data | Yes | Real Sepolia tender lifecycle |

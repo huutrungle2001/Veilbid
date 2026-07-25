@@ -1,7 +1,8 @@
 # VeilBid Threat Model
 
-> Scope: planned Ethereum Sepolia hackathon deployment. Update with exact
-> addresses and implemented behavior before release.
+> Scope: canonical, verified Ethereum Sepolia hackathon release recorded in
+> `auction-house/deployments/sepolia.release.json`. This remains unaudited,
+> testnet-only software.
 
 ## 1. Security objectives
 

@@ -1,7 +1,6 @@
 # VeilBid Repository Layout
 
-> Status: Canonical planned source layout. Source workspaces do not exist until
-> their phase gate permits scaffolding.
+> Status: Implemented canonical source layout.
 
 ## 1. Top-level structure
 
@@ -13,52 +12,46 @@ Veilbid/
 │   ├── scripts/
 │   └── README.md
 ├── tender-room/
-│   ├── public/
+│   ├── scripts/
 │   ├── src/
-│   │   ├── buyer/
-│   │   ├── vendor/
+│   │   ├── transactions/
 │   │   ├── public-market/
 │   │   ├── auditor/
-│   │   ├── safe-treasury/
+│   │   ├── safe/
 │   │   ├── activity/
+│   │   ├── wallet/
+│   │   ├── workspaces/
 │   │   └── shell/
-│   └── tests/
+│   └── test/
 ├── auction-house/
 │   ├── contracts/
 │   │   ├── market/
-│   │   ├── custody/
 │   │   ├── safe/
 │   │   ├── receipt/
 │   │   └── test-assets/
 │   ├── test/
 │   │   ├── unit/
-│   │   ├── invariant/
-│   │   ├── nox-runtime/
+│   │   ├── property/
+│   │   ├── static/
 │   │   └── sepolia/
-│   ├── deploy/
+│   ├── scripts/
 │   ├── verify/
 │   └── deployments/
 ├── settlement-relay/
-│   └── src/
-│       ├── discovery/
-│       ├── decisions/
-│       ├── proofs/
-│       ├── transactions/
-│       └── health/
+│   ├── src/
+│   └── test/
 ├── operator-console/
-│   └── src/
-│       ├── mcp/
-│       ├── commands/
-│       ├── policies/
-│       └── signer/
+│   ├── src/
+│   │   └── mcp/
+│   └── test/
 ├── chain-bindings/
 │   ├── generated/
-│   └── src/
-│       ├── addresses/
+│   ├── src/
 │       ├── events/
 │       ├── index/
 │       ├── readiness/
 │       └── domain/
+│   └── test/
 ├── evidence/
 │   ├── schemas/
 │   ├── local/
@@ -76,9 +69,8 @@ Veilbid/
 
 ### `feasibility`
 
-The only pre-build source workspace. It owns minimal contracts, tests, and
-scripts for Feasibility Gates A–E. It may be created after Product Plan approval
-and before production workspaces exist.
+The retained pre-build source workspace. It owns the minimal contracts, tests,
+and scripts that produced Feasibility Gates A–E.
 
 It is not a product runtime package, deployment authority, or source of
 canonical consumer artifacts. Reusable findings must be reimplemented or
@@ -112,9 +104,8 @@ It contains no private reveal path and no database.
 
 ### `operator-console`
 
-Local CLI and MCP integration. Public tools are enabled by default. Decryption
-and writes require an explicit signer plus opt-in policy. Signer code is isolated
-under `src/signer/` so secret-bearing paths are easy to audit.
+Local CLI and MCP integration. Exactly five public read tools are implemented.
+There is no signer, write, or decryption path.
 
 ### `chain-bindings`
 
@@ -172,19 +163,19 @@ Rules:
 | Public lifecycle indexing | `chain-bindings/src/index/` |
 | Browser session plaintext | `tender-room` memory only |
 | Finalizer checkpoint | Local ignored relay runtime file |
-| MCP signer | Environment-only configuration |
+| MCP implementation | `operator-console/`; read-only with no signer |
 | Public verification artifacts | `evidence/` |
 | Product/security/submission truth | `docs/` and root judge files |
 
 ## 5. Root orchestration
 
-During feasibility, the root workspace list contains only `feasibility`.
-Production workspaces are added after the scaffolding gate and retain their
-domain names:
+The root workspace list contains the retained feasibility package and all
+production packages:
 
 ```json
 {
   "workspaces": [
+    "feasibility",
     "tender-room",
     "auction-house",
     "settlement-relay",
@@ -196,20 +187,8 @@ domain names:
 
 Root scripts orchestrate builds; they do not contain application logic.
 
-## 6. Scaffolding gate
+## 6. Scaffolding gate record
 
-Create `feasibility/` only after:
-
-1. Product Plan approval.
-
-Create `tender-room/`, `auction-house/`, `settlement-relay/`,
-`operator-console/`, and `chain-bindings/` only after:
-
-1. Feasibility Gates A–D pass.
-2. Gate D decides whether custody is internal to the market or a separate
-   contract.
-3. Build Plan approval records the tested package versions and selected
-   architecture.
-
-Gate E may continue in `feasibility/` while core production scaffolding begins,
-but the Safe-owned product path cannot be called complete until Gate E passes.
+Production workspaces were created only after Gates A–D passed, Gate D selected
+internal market custody, and the Build Plan was approved. The Safe-owned release
+path was not marked complete until Gate E passed on Sepolia.

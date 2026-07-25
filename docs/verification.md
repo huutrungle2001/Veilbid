@@ -105,18 +105,17 @@ Do not include bid values, balance values, handles, proofs, signatures, or keys.
 
 ## 6. Release commands
 
-Populate exact commands after scaffolding. The release gate will include:
-
 ```bash
-npm test
-npm run lint
-npm run build
-npm run finalizer:dry
-npm run test:ui
-npm run test:production -- https://veilbid-three.vercel.app
-npm run test:sepolia
-npm run test:safe:sepolia
-npm run verify:deployment
+pnpm test
+pnpm lint
+pnpm build
+pnpm finalizer:health
+pnpm finalizer:dry
+pnpm test:ui
+pnpm verify:deployment:release
+pnpm test:production https://veilbid-three.vercel.app
+pnpm secret:scan
+pnpm evidence:validate
 ```
 
 ## 7. Evidence ledger

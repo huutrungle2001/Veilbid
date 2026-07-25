@@ -1,6 +1,7 @@
 # VeilBid Architecture
 
-> Status: Proposed architecture. Deployment addresses do not exist yet.
+> Status: Implemented release architecture. Canonical Ethereum Sepolia
+> addresses are recorded in `auction-house/deployments/sepolia.release.json`.
 
 ## 1. Architecture goals
 
@@ -24,11 +25,10 @@ flowchart LR
     Safe["Safe treasury"] --> Module["Restricted VeilBid module"]
     Module --> Chain
 
-    Finalizer["Stateless finalizer"] -->|close / finalize / refund| Chain
+    Finalizer["Stateless finalizer"] -->|close / finalize| Chain
     Finalizer -->|public winner proof only| NoxServices
 
-    MCP["MCP adapter<br/>read-only default"] --> Chain
-    MCP -.->|explicit opt-in| Wallet
+    MCP["MCP adapter<br/>read-only only"] --> Chain
 
     Agent["Draft assistant"] -.->|public terms only| Web
 ```
@@ -164,9 +164,10 @@ buyer refund during a Nox outage.
 
 ### Finalizer
 
-- Stateless process with rebuildable local checkpoint.
+- Stateless process that rebuilds the finalized public index each cycle.
 - Reads public events/status only.
-- Calls only permissionless close/finalize/refund functions.
+- Calls only permissionless close/finalize functions; a proof-derived zero
+  winner produces the market's refund outcome.
 - Simulates immediately before each write.
 - Sequential writes and shared bounded action budget.
 - Dry-run, one-shot, polling, structured logs, and health endpoint.
@@ -174,20 +175,20 @@ buyer refund during a Nox outage.
 
 ### MCP
 
-Planned public tools:
+Implemented public tools:
 
-- List/get tenders.
-- Explain lifecycle/readiness.
-- Inspect public proof and receipt evidence.
-- Draft public tender parameters.
-- Inspect viewer ACL for a supplied handle.
+- `list_tenders`
+- `get_tender`
+- `explain_tender_readiness`
+- `inspect_settlement_evidence`
+- `inspect_bid_viewer`
 
-Writes and private reveal are disabled by default and require an explicit signer
-and opt-in environment flag.
+The MCP server has no signer, write, private-reveal, or raw-handle response
+surface.
 
 ### Strategy assistant
 
-Optional and non-authoritative:
+Optional, non-authoritative, and not implemented in this release:
 
 - Receives user-entered public tender intent only.
 - Returns strict-schema draft metadata, ceiling, and deadlines.
@@ -221,7 +222,7 @@ There is no application database or authentication server.
   without a threshold-authorized Safe transaction.
 - Assistant/MCP failure: never gates protocol settlement.
 
-## 9. Planned repository structure
+## 9. Implemented repository structure
 
 ```text
 feasibility/       # pre-build spike workspace; never a runtime dependency
@@ -236,6 +237,4 @@ docs/
 
 The names reflect VeilBid's procurement domain rather than generic application
 and package buckets. Dependency rules and internal layouts are canonical in
-`repository-layout.md`. The feasibility and build-design gates passed on
-2026-07-25, so production source directories may now be created according to
-this map.
+`repository-layout.md`.

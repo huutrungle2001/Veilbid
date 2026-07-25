@@ -5,14 +5,14 @@ for VeilBid. Feasibility contracts are not imported into this workspace;
 production behavior is implemented and tested here from the approved
 specification.
 
-Planned ownership:
+Workspace ownership:
 
 - `contracts/market/`: confidential tender lifecycle and internal custody.
 - `contracts/safe/`: preparation-only Safe integration.
 - `contracts/receipt/`: non-transferable award receipt.
 - `contracts/test-assets/`: faucet token and official ERC-7984 wrapper extension.
 - `test/`: unit, invariant, Nox runtime, and Sepolia suites.
-- `deploy/`, `verify/`, `deployments/`: canonical deployment workflow.
+- `scripts/`, `verify/`, `deployments/`: canonical deployment workflow.
 
 `pnpm test` runs deterministic tests that do not invoke Nox primitives through
 the plain EVM configuration. `pnpm test:nox` is the separate real local Nox

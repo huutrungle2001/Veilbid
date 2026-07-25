@@ -1,7 +1,7 @@
 # VeilBid Research Plan
 
-> Status: Initial research complete for workspace handoff; official source and
-> technical validation remain open.
+> Status: Nox/Safe technical validation is complete. The official August 1
+> deadline date is confirmed; the exact DoraHacks cutoff time remains open.
 
 ## 1. Objectives
 
@@ -44,16 +44,16 @@ Every finding must include a source or be labelled as inference.
 |---|---|---|---|---|
 | RES-001 | Challenge prioritizes privacy integrated into real open-source infrastructure | Captured requirement | `original/user-provided-challenge-brief.md` | Medium |
 | RES-002 | Creativity and end-to-end each carry 3/14 stars | Captured requirement | `judging-criteria.md` | Medium |
-| RES-003 | Nox 0.2.4 package source exposes comparisons, `select`, ACL, and public-decryption proof verification | Package-source fact | `@iexec-nox/nox-protocol-contracts@0.2.4` | High; revalidate after VeilBid install |
-| RES-004 | Safe ownership, restricted-module authorization, and proof recovery require independent empirical validation | Technical inference | `feasibility-plan.md` | Pending |
+| RES-003 | Nox 0.2.4 package source exposes comparisons, `select`, ACL, and public-decryption proof verification | Package-source fact | `@iexec-nox/nox-protocol-contracts@0.2.4` | High; installed and verified on Sepolia |
+| RES-004 | Safe ownership, restricted-module authorization, and proof recovery work in the selected architecture | VeilBid empirical result | `verification.md` | High for the recorded Sepolia release |
+| RES-007 | Official iExec announcement states that submissions close August 1, 2026 | Organizer announcement | iExec LinkedIn announcement in `important-notes.md` | High for date; exact cutoff time not stated |
 | RES-005 | Transcript reports an existing ShadowSafe Payroll submission | User-provided transcript | `original/discord-context-extract.md` | Medium |
 | RES-006 | User confirmed multiple independent submissions are permitted | User confirmation | `important-notes.md` | Medium until organizer evidence stored |
 
 ## 5. Required remaining research
 
-- Capture the official event page and deadline timezone.
-- Verify current official package/network documentation.
-- Inspect Safe module best practices and exact deployed version.
+- Capture the exact DoraHacks cutoff time; its public page currently presents a
+  WAF challenge to this environment.
 - Record gas/runtime behavior for up to eight encrypted bids.
 - Validate the buyer, vendor, public-finalizer, and auditor journeys with target
   users or realistic walkthroughs.

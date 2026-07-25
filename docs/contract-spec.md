@@ -52,7 +52,7 @@ stateDiagram-v2
 
 No transition leaves a terminal state.
 
-## 3. Proposed external functions
+## 3. Implemented external functions
 
 ### Market
 
@@ -73,7 +73,9 @@ No transition leaves a terminal state.
 ### Safe module
 
 - `prepareInput(encryptedInput, proof, consumer, actionHash, nonce)`
-- `prepareInputs(encryptedInputs, proofs, consumers, actionHash, nonce)`
+- `consumePreparedInput(actionHash, nonce)`
+- `configureMarket(market)`
+- `computeActionHash(...)`
 - no Safe execution function and no arbitrary `execute(address,bytes)`
 
 Preparation requires a current owner of the configured Safe, an allowlisted
@@ -190,8 +192,9 @@ Events expose public coordination only:
 - `ViewerGranted`
 - `AwardReceiptMinted`
 
-Events may include encrypted handle fingerprints only when useful for proof
-inspection. Logs and webhook payloads must not repeat complete proof bytes.
+Events do not include encrypted handles, proofs, bid prices, or confidential
+balance/payment values. Automation logs and evidence must preserve the same
+boundary.
 
 ## 9. Reentrancy and external calls
 

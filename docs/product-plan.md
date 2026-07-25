@@ -1,7 +1,7 @@
 # VeilBid Product Plan
 
-> Status: Approved by the user on 2026-07-25. Feasibility Gates A–E passed and
-> production implementation is in progress.
+> Status: Approved by the user on 2026-07-25. Feasibility Gates A–E and the
+> canonical Sepolia release are complete; submission preparation is in progress.
 
 ## 1. Product identity
 
@@ -196,7 +196,8 @@ Use a pre-funded Safe and two prepared vendor wallets:
 3. Submit one live encrypted bid; show another confirmed bid.
 4. Close and finalize the proof-derived winner.
 5. Reveal winner payment only to an authorized account.
-6. Show auditor ACL, receipt, Etherscan, and sanitized handle fingerprints.
+6. Show auditor ACL, receipt, source/runtime mapping, and sanitized lifecycle
+   evidence.
 
 ## 12. Approval gate
 

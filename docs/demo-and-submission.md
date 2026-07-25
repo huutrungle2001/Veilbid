@@ -4,8 +4,8 @@
 
 - [ ] Public independent GitHub repository.
 - [x] Complete source code and MIT license.
-- [ ] Judge-first README.
-- [ ] Setup, deployment, use, architecture, threat model, and verification docs.
+- [x] Judge-first README.
+- [x] Setup, deployment, use, architecture, threat model, and verification docs.
 - [x] Root evidence-based `feedback.md`.
 - [x] Public frontend backed by Ethereum Sepolia:
   `https://veilbid-three.vercel.app`.
@@ -78,3 +78,49 @@ Never claim:
 - Guaranteed best vendor quality.
 - Collusion or MEV elimination.
 - Production audit or mainnet readiness.
+
+## 5. Prepared X post
+
+Replace the video placeholder only after checking that the final recording is
+four minutes or shorter:
+
+> VeilBid brings confidential reverse procurement to Safe treasuries.
+>
+> Vendors submit encrypted prices, iExec Nox computes the lowest valid bid, and
+> only the proof-derived winner becomes public. ERC-7984 keeps settlement
+> confidential, while scoped ACLs support selective audit.
+>
+> Live: https://veilbid-three.vercel.app
+>
+> Code: https://github.com/huutrungle2001/Veilbid
+>
+> Demo: [DEMO_VIDEO_URL]
+>
+> Built for the WTF Hackathon with @iEx_ec Nox on Ethereum Sepolia.
+
+## 6. Prepared DoraHacks entry
+
+- **Name:** VeilBid
+- **Tagline:** Confidential procurement for Safe treasuries.
+- **Repository:** `https://github.com/huutrungle2001/Veilbid`
+- **Live app:** `https://veilbid-three.vercel.app`
+- **Network:** Ethereum Sepolia
+- **Demo:** `[DEMO_VIDEO_URL]`
+
+Suggested description:
+
+> Public procurement leaks commercial pricing before bidding closes. VeilBid
+> lets a Safe treasury publish transparent tender rules and escrow confidential
+> ERC-7984 test funds while approved vendors submit encrypted prices. iExec Nox
+> validates bids and maintains the encrypted lowest-price/winner accumulator.
+> After the deadline, only the winner ID is deliberately publicly decrypted and
+> verified on-chain; the winning payment and buyer remainder stay confidential.
+> A preparation-only Safe module cannot execute treasury transactions, scoped
+> viewer ACLs enable selective audit, and a non-transferable receipt records the
+> public award. The repository includes canonical Sepolia contracts, a
+> wallet-free and role-based web app, a stateless finalizer, read-only MCP tools,
+> source/runtime verification, and sanitized two-vendor lifecycle evidence.
+
+Before submission, confirm that the GitHub repository is public, the video URL
+works in a signed-out browser, the X post is public and tags `@iEx_ec`, and the
+DoraHacks page links the same canonical app and repository.

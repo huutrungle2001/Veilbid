@@ -1,7 +1,7 @@
 # VeilBid Build Plan
 
-> Status: Approved on 2026-07-25. Production implementation is in progress
-> after all feasibility gates and the Safe design passed.
+> Status: Approved on 2026-07-25. Release implementation and verification are
+> complete; submission preparation is in progress.
 
 ## 1. Product profile
 
@@ -150,25 +150,23 @@ verification pass.
 - [ ] Submit the independent VeilBid project on DoraHacks.
 - [ ] Complete final privacy/secret/claim review.
 
-## 4. Planned commands
-
-Names are reserved and become real only after workspace scaffolding:
+## 4. Commands
 
 ```bash
-npm install
-npm run compile
-npm test
-npm run test:nox
-npm run test:sepolia
-npm run test:safe:sepolia
-npm run finalizer:dry
-npm run test:mcp
-npm run test:unit
-npm run test:ui
-npm run lint
-npm run build
-npm run verify:deployment
+pnpm install --frozen-lockfile
+pnpm compile
+pnpm test
+pnpm lint
+pnpm build
+pnpm bindings:check
+pnpm finalizer:health
+pnpm finalizer:dry
+pnpm verify:deployment:release
+pnpm test:production https://veilbid-three.vercel.app
 ```
+
+Write-enabled Sepolia suites are individually named in root `package.json` and
+require ignored local test-wallet configuration.
 
 ## 5. Scope-control rules
 

@@ -17,6 +17,32 @@ ERC-7984.
 VeilBid lets a Safe treasury award and pay a competitive vendor without exposing
 the vendors' prices to competitors or public chain observers.
 
+## Judge path
+
+1. Open the [live Tender Room](https://veilbid-three.vercel.app/room) without a
+   wallet and inspect finalized tender #1.
+2. Confirm the public winner and non-transferable receipt while bid prices stay
+   absent from the public index.
+3. Review the sanitized
+   [two-vendor lifecycle](evidence/sepolia/release-two-vendor.json) and
+   [production smoke](evidence/sepolia/production-smoke.json).
+4. Review source/runtime and wiring checks in
+   [deployment consistency](evidence/sepolia/deployment-consistency.release.json).
+
+## Canonical Sepolia deployment
+
+| Component | Address |
+|---|---|
+| VeilBid Market | `0x69f20485f388DCc2Cf9c513859C97de2419b6F16` |
+| Confidential vUSDC | `0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E` |
+| Test USDC | `0x45410b5e86e419615bB98fed1835B19Da371c3C2` |
+| Award Receipt | `0x85EACFF4fE159A0463223625Ce830457f5664661` |
+| Demo Safe 1.4.1 | `0x6Cf73078c21dded41f02FdEF54E532Ce7b356817` |
+| Safe Preparation Module | `0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7` |
+
+The canonical machine-readable manifest is
+[`auction-house/deployments/sepolia.release.json`](auction-house/deployments/sepolia.release.json).
+
 ## End-to-end flow
 
 1. A buyer or Safe creates a tender and escrows confidential test cUSDC.
@@ -54,14 +80,14 @@ optional read-only MCP adapter, CI, and repeatable Sepolia verification. See
 
 ## Privacy boundary
 
-Planned confidential values:
+Confidential values:
 
 - Vendor bid prices.
 - Encrypted best-price accumulator.
 - Confidential buyer escrow and winner payment handles.
 - Bid values revealed only to authorized buyer/vendor/auditor accounts.
 
-Planned public values:
+Public values:
 
 - Tender description and identifier.
 - Buyer and bidder addresses.

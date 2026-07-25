@@ -10,12 +10,16 @@
 | SRC-002 | Discord organizer/support context | User-provided transcript extract | 7 until independently verified | `docs/original/discord-context-extract.md` |
 | SRC-003 | iExec Nox documentation/packages | Sponsor technical source | 4 | URLs in source documents |
 | SRC-004 | User confirmation that multiple submissions are allowed | User decision/report | 7 | Conversation on 2026-07-25 |
+| SRC-005 | iExec WTF Hackathon announcement | Official organizer announcement | 3 | `https://www.linkedin.com/company/iex.ec/` announcement indexed 2026-07-25 |
+| SRC-006 | WTF Hackathon DoraHacks page | Official rules/event page | 1 | `https://dorahacks.io/hackathon/wtf-hackathon/` |
 
 ## 2. Deadline
 
-Working deadline: `2026-08-02 04:59`, timezone not independently verified.
-Until verified from the official event page, plan to finish publication at least
-24 hours earlier.
+Official iExec announcements confirm that submissions close on August 1, 2026.
+The DoraHacks page is protected by a WAF challenge in the current environment,
+so its exact cutoff time is not independently readable. Retain the conservative
+working cutoff `2026-08-02 04:59 Asia/Ho_Chi_Minh` and finish publication at
+least 24 hours earlier.
 
 ## 3. Confirmed working decisions
 
