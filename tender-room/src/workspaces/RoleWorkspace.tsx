@@ -1,5 +1,6 @@
 import type { PublicTender } from "@veilbid/chain-bindings";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
+import { BuyerTenderForm } from "./BuyerTenderForm";
 import { VendorBidForm } from "./VendorBidForm";
 
 export type InteractiveRole = "BUYER" | "VENDOR";
@@ -30,6 +31,9 @@ export function RoleWorkspace({
         </p>
       </section>
       <WalletPanel wallet={wallet} />
+      {buyer && (
+        <BuyerTenderForm wallet={wallet} onConfirmed={onRefresh} />
+      )}
       {!buyer && (
         <VendorBidForm
           wallet={wallet}
@@ -62,12 +66,6 @@ export function RoleWorkspace({
             </li>
           ))}
         </ol>
-        {buyer && (
-          <p className="workspace-notice">
-            The staged Buyer write form is enabled in the next verified slice.
-            This panel does not submit partial or mock transactions.
-          </p>
-        )}
       </section>
     </main>
   );
