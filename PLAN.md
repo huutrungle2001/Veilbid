@@ -7,12 +7,13 @@
 
 - Current phase: Phase 3 — Feasibility spikes
 - Status: In progress
-- Next action: Implement Gate A and run it with the official local Nox stack,
-  then repeat the persistent-handle transaction pair on Ethereum Sepolia.
+- Next action: Run Gates A–D in order with the official local Nox stack, resolve
+  any runtime failures, then repeat the required Gate A transaction pair and
+  lifecycle assertions on Ethereum Sepolia.
 - Current blocker: Docker is not installed for the official local Nox Hardhat
   plugin, and `SEPOLIA_RPC_URL`/`SEPOLIA_PRIVATE_KEY` are not configured.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T21:50:28+07:00
+- Last updated: 2026-07-25T22:07:20+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -71,6 +72,7 @@ Only one phase may be `In progress`.
 | RSK-003 | Safe owner input proofs require a restricted module pattern | High | Engineering | Open |
 | RSK-004 | Cross-contract ERC-7984 settlement adds ACL complexity | High | Engineering | Open |
 | RSK-005 | Scope cannot reach release quality before the submission deadline | High | Product | Open |
+| RSK-006 | ERC-7984 underfunding returns encrypted zero, so transaction success cannot establish publicly funded state | High | Engineering | Mitigation spike compiled; runtime proof pending |
 
 ## 6. Completion checklist
 

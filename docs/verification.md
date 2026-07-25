@@ -22,9 +22,9 @@
 | No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | BLOCKED — Docker required |
 | Proof recovery | Close survives reload/indexing delay and resumes | BLOCKED — Docker required |
-| Confidential escrow | Exact winner/remainder/full-refund deltas | PENDING |
-| Escrow solvency | Atomic escrow equals public ceiling | PENDING |
-| Replay | Duplicate close/finalize/refund cannot settle twice | PENDING |
+| Confidential escrow | Exact winner/remainder/full-refund deltas | BLOCKED — Gate D compiles; Docker required |
+| Escrow solvency | Proof-confirmed escrow equals public ceiling | BLOCKED — source behavior identified; runtime proof pending |
+| Replay | Duplicate close/finalize/refund cannot settle twice | BLOCKED — Gate C/D checks compile; Docker required |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
@@ -123,3 +123,4 @@ npm run verify:deployment
 | 2026-07-25 | Local preflight / Gate A compile | pending | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |
 | 2026-07-25 | Gate B compile/model | pending | `evidence/local/gate-b.json` | PARTIAL — 2,000 model cases pass; encrypted runtime blocked on Docker |
 | 2026-07-25 | Gate C compile | pending | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |
+| 2026-07-25 | Gate D compile/source inspection | pending | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |

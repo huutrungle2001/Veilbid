@@ -137,8 +137,19 @@ Safe and document higher-threshold execution through Safe Wallet.
 | A. Persistent bid | Blocked | `evidence/local/gate-a.json` | Contract and integration test compile; official local run requires Docker and live run requires Sepolia configuration. |
 | B. Encrypted argmin | Blocked | `evidence/local/gate-b.json` | Contract compiles and 2,000 deterministic model cases pass; encrypted runtime assertions require Docker. |
 | C. Public winner proof | Blocked | `evidence/local/gate-c.json` | Proof-only finalize and recovery tests compile; proof generation/verification requires Docker. |
-| D. Confidential settlement | Pending |  |  |
+| D. Confidential settlement | Blocked | `evidence/local/gate-d.json` | Official wrapper, exact-funding proof gate, and both custody variants compile; balance, ACL, refund, and replay assertions require Docker. |
 | E. Safe composability | Pending |  |  |
 
 Full application development starts only after A–D pass and the Safe design for
 E is approved.
+
+### Gate D funding observation
+
+The official ERC-7984 implementation returns an encrypted zero transferred
+amount when a transfer cannot cover the requested amount; transaction success
+alone therefore does not prove that escrow equals the public ceiling. The Gate D
+spike derives an encrypted equality between the transferred amount and the
+public ceiling, marks only that boolean for public decryption, and requires its
+proof before exposing `funded` state or allowing settlement. The local Nox
+runtime must confirm this pattern before it is adopted in the production
+architecture.
