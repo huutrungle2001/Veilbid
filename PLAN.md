@@ -14,7 +14,7 @@
   X post, and DoraHacks submission require user-controlled publication.
 - Awaiting approval from: Hữu Trung — public repository visibility and final
   publication inputs.
-- Last updated: 2026-07-26T02:55:44+07:00
+- Last updated: 2026-07-26T03:09:57+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -64,7 +64,7 @@ Only one phase may be `In progress`.
 | Feasibility gate | Approved | User | 2026-07-25 | Gates A–D passed; internal market custody selected and exact-funding proof added to the lifecycle. |
 | Build Plan | Approved | User | 2026-07-25 | User requested continued implementation after the Safe design passed its Sepolia authority gate. |
 | Frontend hosting | Vercel approved | User | 2026-07-26 | Future frontend deployments use the installed Vercel CLI; the earlier private preview is not the canonical release deployment. |
-| Frontend release | Verified | Agent | 2026-07-26 | Vercel production URL `https://veilbid-three.vercel.app` passed wallet-free desktop/mobile smoke against the canonical release. |
+| Frontend release | Verified | Agent | 2026-07-26 | Vercel production URL `https://veilbid-three.vercel.app` passed wallet-free desktop/mobile smoke, including the persistent shared navigation and active route state, against the canonical release. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
