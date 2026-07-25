@@ -6,13 +6,15 @@
 ## 1. Current status
 
 - Current phase: Phase 7 — Submission
-- Status: In progress
-- Next action: Redeploy the current release source to Vercel and repeat
-  production smoke before requesting approval for public repository visibility.
-- Current blocker: None. Docker-backed local Nox is an optional regression
-  environment under the approved Sepolia-first strategy.
-- Awaiting approval from: None
-- Last updated: 2026-07-26T02:40:55+07:00
+- Status: Waiting for approval
+- Next action: With user approval, make `huutrungle2001/Veilbid` public; then
+  attach the user's final demo video before publishing the X and DoraHacks
+  entries.
+- Current blocker: The GitHub repository is private, and the real-person video,
+  X post, and DoraHacks submission require user-controlled publication.
+- Awaiting approval from: Hữu Trung — public repository visibility and final
+  publication inputs.
+- Last updated: 2026-07-26T02:43:06+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -46,7 +48,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | In progress |
+| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
 

@@ -36,7 +36,8 @@ least 24 hours earlier.
   optional regression environment and is not a phase blocker.
 - Public frontend deployments use Vercel through the installed CLI. The
   canonical production URL is `https://veilbid-three.vercel.app`; deployment
-  `dpl_CYwLk2y7fNeTfKfHiZ7Zv63vRZ1b` passed release smoke.
+  `dpl_4qcLU34eQY84CZMhukgd2GY1HJ8s` from source `26a48c8` passed release
+  smoke.
 
 ## 4. Organizer-context notes requiring care
 
