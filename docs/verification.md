@@ -39,7 +39,8 @@
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
-| Secret scan | Repository and evidence clean | PASS — 208 tracked files, 556 historical blobs, and 28 sanitized evidence files pass credential-pattern, forbidden-field, local-environment, and Git-history checks |
+| Secret scan | Repository and evidence clean | PASS — current tracked files, full Git history, and sanitized evidence pass credential-pattern, forbidden-field, local-environment, and history checks; exact counts are recorded in evidence |
+| Clean release CI | Fresh checkout compile/test/lint/build/security gates | PASS — GitHub Actions run `30172407364` completed every release check on Ubuntu with pinned Node 24.18.0 and pnpm 10.33.0 |
 | Production smoke | Canonical URL and wallet-free reads | PASS — Vercel production routes return 200; desktop/mobile Chrome smoke loaded verified release tender #1, award, and receipt without a wallet |
 
 ## 3. Mandatory contract scenarios
@@ -157,3 +158,4 @@ pnpm evidence:validate
 | 2026-07-26 | Canonical release gate | `0f8b9db` | `evidence/local/release-gate.json` | PASS — all workspace tests, typed lint, compile, Vite/vinext builds, binding/source/deployment checks, verified relay health/dry-run, secret scan, and evidence validation passed |
 | 2026-07-26 | Vercel production frontend | `26a48c8` | `evidence/sepolia/production-smoke.json` | PASS — deployment `dpl_4qcLU34eQY84CZMhukgd2GY1HJ8s`, canonical URL, and all SPA routes returned 200; 1440×1000 and 390×844 browser smoke loaded verified release tender #1, award, and receipt wallet-free |
 | 2026-07-26 | Submission release gate | `0eb4287` | `evidence/local/submission-gate.json` | PASS — full tests/lint/build, bindings, live release source/deployment/Safe wiring, relay health/dry-run, full-history secret scan, evidence validation, and claim review passed |
+| 2026-07-26 | Clean-environment release CI | `5258186` | `evidence/local/release-ci.json` | PASS — fresh full-history checkout completed locked install, contract compile, workspace tests, typed lint, build, binding drift, history secret scan, and evidence validation |

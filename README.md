@@ -1,5 +1,7 @@
 # VeilBid
 
+[![Release CI](https://github.com/huutrungle2001/Veilbid/actions/workflows/release-ci.yml/badge.svg)](https://github.com/huutrungle2001/Veilbid/actions/workflows/release-ci.yml)
+
 > Status: Canonical Ethereum Sepolia contracts, two-vendor release lifecycle,
 > and Vercel frontend are deployed and verified.
 
