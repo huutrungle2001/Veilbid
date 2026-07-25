@@ -6,13 +6,13 @@
 ## 1. Current status
 
 - Current phase: Phase 3 — Feasibility spikes
-- Status: Todo
-- Next action: Scaffold the isolated `feasibility/` workspace and execute Gate A
-  for persistent encrypted bid state.
-- Current blocker: No technical blocker has been measured; Gates A–D remain
-  unproven.
+- Status: In progress
+- Next action: Implement Gate A and run it with the official local Nox stack,
+  then repeat the persistent-handle transaction pair on Ethereum Sepolia.
+- Current blocker: Docker is not installed for the official local Nox Hardhat
+  plugin, and `SEPOLIA_RPC_URL`/`SEPOLIA_PRIVATE_KEY` are not configured.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T21:42:16+07:00
+- Last updated: 2026-07-25T21:50:28+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -42,7 +42,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 0. Workspace handoff | Establish canonical documents, sources, and repository rules | User reviews handoff | Completed |
 | 1. Context and problem validation | Confirm competition facts, user pain, technical inputs, and product value | Decision-ready context | Completed |
 | 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Completed |
-| 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Todo |
+| 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | In progress |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Todo |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Todo |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Todo |

@@ -1,0 +1,5 @@
+packages:
+  - feasibility
+
+onlyBuiltDependencies:
+  - esbuild
