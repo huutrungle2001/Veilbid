@@ -1,7 +1,8 @@
 # VeilBid Verification Plan and Evidence Ledger
 
-> Status: Feasibility Gates A–E passed on Ethereum Sepolia. Production
-> implementation and release verification remain pending.
+> Status: Feasibility Gates A–E and the canonical Sepolia release deployment
+> verification passed. Two-vendor release lifecycle and production frontend
+> smoke remain pending.
 
 ## 1. Evidence rules
 
@@ -17,7 +18,7 @@
 
 | Area | Required test/evidence | Status |
 |---|---|---|
-| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PASS — Auction House ABIs and the explicitly unverified test address manifest are generated and drift-checked |
+| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PASS — Auction House ABIs, the explicitly unverified test manifest, and the verified canonical release manifest are generated and drift-checked |
 | Persistent handle | Stored bid reused in later transaction with expected ACL | PASS — Sepolia blocks 11348541 and 11348543 |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PASS — six Sepolia cases and 2,000 model cases |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility and production market store encrypted prices/selection only |
@@ -37,8 +38,8 @@
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 39 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PARTIAL — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible form/control focus, reduced-motion handling, and live status regions; automated browser keyboard traversal remains pending |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
-| Source verification | Creation/runtime match and constructor args | PARTIAL — E2E runtime matches compiled artifacts with immutable getters verified; explorer publication pending |
-| Deployment consistency | Read-only addresses/artifacts/code verification | PARTIAL — E2E test manifest passes receipts, runtime, wiring, Safe, and cleanup checks; release manifest pending |
+| Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
+| Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
 | Secret scan | Repository and evidence clean | PENDING |
 | Production smoke | Canonical URL and wallet-free reads | PENDING |
 
@@ -149,3 +150,5 @@ npm run verify:deployment
 | 2026-07-26 | Tender Room landing/docs and accessibility | `d44330d` | 35 Tender Room tests, Vite build, 1440×1000 and 390×844 local smoke | PASS — standalone no-RPC landing/docs routes, explicit non-claims, Vercel SPA build contract, skip navigation, visible focus, mobile layouts, and staged live regions verified |
 | 2026-07-26 | Selective disclosure and receipt UI | `c9bb374` | 39 Tender Room tests and Vite build | PARTIAL — Vendor/EOA Buyer per-bid grant/reveal controls enforce public role filters, simulate before writes, clear plaintext by session, and surface non-transferable award evidence; fresh-wallet live disclosure remains pending |
 | 2026-07-26 | Canonical release preflight | `4a7d1e6` | `evidence/sepolia/release-preflight.json` | PASS — clean synchronized source, untracked environment, exact embedded receipt build input, distinct actors, Sepolia chain, compiled artifacts, and gas-balance thresholds verified without chain writes |
+| 2026-07-26 | Canonical release source publication | `1c0d990` | `evidence/sepolia/source-publication.release.json` | PASS — exact Sourcify top-level creation/runtime mappings and embedded receipt runtime/parent creation mapping verified from pinned Standard JSON inputs |
+| 2026-07-26 | Canonical release deployment consistency | `edd3c52` | `evidence/sepolia/deployment-consistency.release.json` | PASS — constructor calldata, receipts, runtime bytecode, wiring, Safe/module/operator state, and source mappings verified before `verified=true` promotion |

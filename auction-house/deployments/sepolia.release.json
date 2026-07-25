@@ -4,7 +4,7 @@
   "chainId": 11155111,
   "kind": "release",
   "deploymentState": "configured",
-  "verified": false,
+  "verified": true,
   "sourceCommit": "a9243fe0e73e48de2d8f834dd1bf0ba407f27c80",
   "deployedBy": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
   "safe": {
@@ -64,14 +64,18 @@
   },
   "sourceVerification": {
     "provider": "sourcify-v2",
-    "status": "pending",
-    "checkedAt": null
+    "status": "verified",
+    "checkedAt": "2026-07-25T19:10:52.318Z",
+    "evidence": "evidence/sepolia/deployment-consistency.release.json"
   },
   "blockers": [],
-  "evidence": [],
+  "evidence": [
+    "evidence/sepolia/source-publication.release.json",
+    "evidence/sepolia/deployment-consistency.release.json"
+  ],
   "notes": [
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",
     "The threshold-1 Safe is the documented browser-demo configuration; all Safe-owned spending still requires a normal Safe transaction.",
-    "Source verification remains pending until exact Sourcify mappings and runtime bytecode checks pass."
+    "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion."
   ]
 }

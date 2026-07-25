@@ -1,7 +1,8 @@
 # VeilBid
 
-> Status: Pre-build architecture and feasibility phase. No contract or live
-> deployment claim is made yet.
+> Status: Canonical Ethereum Sepolia contracts are deployed and source/runtime
+> verified. The two-vendor release lifecycle and public frontend deployment are
+> the remaining release gates.
 
 VeilBid is a confidential reverse-procurement protocol for DAO and Safe
 treasuries. A buyer publishes a tender and public spending ceiling, vendors

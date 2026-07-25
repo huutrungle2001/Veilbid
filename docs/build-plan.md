@@ -128,13 +128,13 @@ Exit: Public lifecycle remains live without private authority.
 
 ### Milestone 6 — Sepolia deployment and verification
 
-- [ ] Deploy test token, wrapper, internal-custody market, receipt, Safe, and
+- [x] Deploy test token, wrapper, internal-custody market, receipt, Safe, and
   module.
 - [ ] Synchronize canonical artifacts to client.
 - [ ] Run two-vendor live lifecycle.
 - [ ] Run invalid bid, tie, no-valid-bid, cancel, timeout, replay, ACL, and Safe
   flows.
-- [ ] Publish exact source mapping and verify runtime bytecode.
+- [x] Publish exact source mapping and verify runtime bytecode.
 - [ ] Deploy public frontend and smoke desktop/mobile.
 
 Exit: `npm test`, `npm run lint`, `npm run build`, live E2E, and deployment

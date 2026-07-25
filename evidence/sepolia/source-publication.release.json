@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "suite": "release-source-publication",
+  "recordedAt": "2026-07-25T19:09:13.555Z",
+  "environment": {
+    "network": "ethereum-sepolia",
+    "chainId": 11155111,
+    "provider": "sourcify-v2"
+  },
+  "publicIdentifiers": {
+    "contracts": {
+      "VeilBidTestUSDC": {
+        "address": "0x45410b5e86e419615bB98fed1835B19Da371c3C2",
+        "contractIdentifier": "project/contracts/test-assets/VeilBidTestAssets.sol:VeilBidTestUSDC",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "bf48ef92140a940eeb352aa710f5c52cbb66a3d86582137d7b6b440eec28375f",
+        "verificationId": null,
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x45410b5e86e419615bB98fed1835B19Da371c3C2"
+      },
+      "VeilBidConfidentialUSDC": {
+        "address": "0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E",
+        "contractIdentifier": "project/contracts/test-assets/VeilBidTestAssets.sol:VeilBidConfidentialUSDC",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "bf48ef92140a940eeb352aa710f5c52cbb66a3d86582137d7b6b440eec28375f",
+        "verificationId": "2aac7216-be67-4ce9-891b-25acba35c139",
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E"
+      },
+      "VeilBidMarket": {
+        "address": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
+        "contractIdentifier": "project/contracts/market/VeilBidMarket.sol:VeilBidMarket",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "29a16e5a5caff3b6a6194be72a7d4888a86608ebf5c5337b33ae2d3f95949425",
+        "verificationId": null,
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x69f20485f388DCc2Cf9c513859C97de2419b6F16"
+      },
+      "VeilBidAwardReceipt": {
+        "address": "0x85EACFF4fE159A0463223625Ce830457f5664661",
+        "contractIdentifier": "project/contracts/receipt/VeilBidAwardReceipt.sol:VeilBidAwardReceipt",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "29a16e5a5caff3b6a6194be72a7d4888a86608ebf5c5337b33ae2d3f95949425",
+        "verificationId": null,
+        "creationMatch": null,
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x85EACFF4fE159A0463223625Ce830457f5664661"
+      },
+      "VeilBidSafePreparationModule": {
+        "address": "0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7",
+        "contractIdentifier": "project/contracts/safe/VeilBidSafePreparationModule.sol:VeilBidSafePreparationModule",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "a3aa026652a796634978a51a0f9b5754efc84c1964b336a52f0b3ed47c4338dd",
+        "verificationId": null,
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7"
+      }
+    }
+  },
+  "assertions": {
+    "releaseManifestLoaded": true,
+    "allSourcesPublished": true,
+    "allTopLevelCreationMatchesExact": true,
+    "embeddedReceiptSourceMapped": true,
+    "allRuntimeMatchesExact": true
+  },
+  "blockers": [],
+  "notes": [
+    "Exact Hardhat standard JSON compiler inputs were submitted to Sourcify API v2.",
+    "The award receipt is created inside the market constructor, so its source mapping requires exact runtime plus the exact parent market creation transaction rather than a separate top-level creation match.",
+    "RPC credentials, private keys, signatures, confidential handles, and proofs are not used or recorded by this workflow."
+  ]
+}
