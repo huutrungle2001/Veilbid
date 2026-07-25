@@ -11,7 +11,8 @@
     "test": "hardhat test --config hardhat.unit.config.ts --no-compile test/unit/*.test.ts test/static/*.test.mjs",
     "test:nox": "hardhat test --config hardhat.config.ts",
     "test:sepolia:eoa": "node --env-file-if-exists=../.env.local test/sepolia/market-eoa.sepolia.mjs",
-    "test:sepolia:refund": "node --env-file-if-exists=../.env.local test/sepolia/market-refund.sepolia.mjs"
+    "test:sepolia:refund": "node --env-file-if-exists=../.env.local test/sepolia/market-refund.sepolia.mjs",
+    "test:sepolia:safe": "node --env-file-if-exists=../.env.local test/sepolia/market-safe.sepolia.mjs"
   },
   "devDependencies": {
     "@iexec-nox/handle": "0.1.0-beta.13",
