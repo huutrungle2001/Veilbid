@@ -1,7 +1,7 @@
 # VeilBid Product Plan
 
-> Status: Approved by the user on 2026-07-25. Technical feasibility remains
-> unproven until the mandatory gates pass.
+> Status: Approved by the user on 2026-07-25. Feasibility Gates A–E passed and
+> production implementation is in progress.
 
 ## 1. Product identity
 
@@ -121,16 +121,16 @@ Disclosure policy:
 
 ### Must have
 
-- [ ] Faucet-backed Sepolia test USDC and official ERC-7984 wrapper.
+- [x] Faucet-backed Sepolia test USDC and official ERC-7984 wrapper.
 - [ ] EOA and Safe-owned tender funding.
-- [ ] One confidential price criterion and one payment token.
-- [ ] One to eight buyer-approved vendor addresses per tender, with one bid per
+- [x] One confidential price criterion and one payment token.
+- [x] One to eight buyer-approved vendor addresses per tender, with one bid per
   approved vendor.
-- [ ] Escrow exactly the public ceiling so every valid bid is fully funded.
-- [ ] Encrypted bid validation against zero and public ceiling.
-- [ ] Encrypted best-price and winner-ID accumulation.
+- [x] Escrow exactly the public ceiling so every valid bid is fully funded.
+- [x] Encrypted bid validation against zero and public ceiling.
+- [x] Encrypted best-price and winner-ID accumulation.
 - [ ] Permissionless close and proof-based finalize/refund.
-- [ ] Confidential winner payment and buyer remainder.
+- [x] Confidential winner payment and buyer remainder.
 - [ ] Buyer/vendor authorized reveal and auditor ACL.
 - [ ] Wallet-free event-derived tender explorer.
 - [ ] Award receipt and activity/recovery UI.
@@ -202,5 +202,5 @@ Use a pre-funded Safe and two prepared vendor wallets:
 
 - [x] User selected VeilBid for detailed planning.
 - [x] User approves this MVP and non-goals.
-- [ ] Mandatory feasibility gates pass.
-- [ ] Build Plan is approved.
+- [x] Mandatory feasibility gates pass.
+- [x] Build Plan is approved.

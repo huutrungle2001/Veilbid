@@ -1,7 +1,7 @@
 # Contract Specification
 
-> Status: Pre-implementation specification; interfaces may change through a
-> recorded architecture decision.
+> Status: Production implementation baseline; release-facing interface changes
+> require a recorded architecture decision and regression evidence.
 
 ## 1. Domain types
 

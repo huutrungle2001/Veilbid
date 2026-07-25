@@ -75,12 +75,12 @@ use.
 
 ### Milestone 2 — Core contracts
 
-- [ ] Implement test asset and official wrapper extension.
-- [ ] Implement market/tender lifecycle.
-- [ ] Implement encrypted bid validation and accumulator.
+- [x] Implement test asset and official wrapper extension.
+- [x] Implement market/tender lifecycle.
+- [x] Implement encrypted bid validation and accumulator.
 - [ ] Implement close/finalize/refund and replay protection.
 - [ ] Implement confidential payout/refund.
-- [ ] Implement selective ACL and award receipt.
+- [x] Implement selective ACL and award receipt.
 - [ ] Add unit, property, invariant, and adversarial tests.
 
 Exit: Core protocol tests pass without plaintext shadow state.
@@ -88,7 +88,7 @@ Exit: Core protocol tests pass without plaintext shadow state.
 ### Milestone 3 — Safe composability
 
 - [ ] Deploy a new local/Sepolia Safe for VeilBid.
-- [ ] Implement a preparation-only module with strict
+- [x] Implement a preparation-only module with strict
   Safe/action/consumer/nonce binding and no Safe execution entry point.
 - [ ] Support owner handle preparation and threshold-authorized Safe funding.
 - [ ] Support buyer cancellation/viewer operations where approved.

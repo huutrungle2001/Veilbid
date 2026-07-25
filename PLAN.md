@@ -7,12 +7,12 @@
 
 - Current phase: Phase 5 — Core development
 - Status: In progress
-- Next action: Scaffold the production workspaces and implement the
-  internal-custody market lifecycle from the approved contract specification.
+- Next action: Verify production no-valid-bid/cancellation paths and the
+  Safe-authorized tender lifecycle on Sepolia.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T23:22:08+07:00
+- Last updated: 2026-07-25T23:41:40+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

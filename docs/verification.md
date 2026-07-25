@@ -17,25 +17,25 @@
 
 | Area | Required test/evidence | Status |
 |---|---|---|
-| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PENDING |
+| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PARTIAL — feasibility and Auction House compile; consumer artifact generation pending |
 | Persistent handle | Stored bid reused in later transaction with expected ACL | PASS — Sepolia blocks 11348541 and 11348543 |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PASS — six Sepolia cases and 2,000 model cases |
-| No plaintext shadow | Source/storage inspection | PASS — feasibility accumulator stores encrypted prices/selection only |
+| No plaintext shadow | Source/storage inspection | PASS — feasibility and production market store encrypted prices/selection only |
 | Close/proof | Winner ID public proof verifies and incorrect proofs fail | PASS — correct, tampered, and wrong-tender proof paths verified on Sepolia |
 | Proof recovery | Close survives reload/indexing delay and resumes | PASS — Sepolia close resumed from a new contract client |
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PASS — single and split custody paths verified in memory on Sepolia |
 | Escrow solvency | Proof-confirmed escrow equals public ceiling | PASS — exact funding and underfunded rejection verified on Sepolia |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
-| Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
-| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
+| Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PASS — proof-derived Sepolia mint plus unit transfer/approval rejection; market uses non-callback mint |
+| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PARTIAL — vendor-only Open ACL and post-close buyer grant pass; auditor/Safe grant matrix pending |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PENDING |
-| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PENDING |
+| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — one-vendor production award lifecycle passes; two-vendor and refund variants pending |
 | Source verification | Creation/runtime match and constructor args | PENDING |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PENDING |
 | Secret scan | Repository and evidence clean | PENDING |
@@ -132,3 +132,4 @@ npm run verify:deployment
 | 2026-07-25 | Gate E compile/static inspection | `7df3ff7` | `evidence/local/gate-e.json` | PASS — module and consumer compile; module ABI has no Safe execution surface |
 | 2026-07-25 | Gate E Safe deployment | `10e9b25` | `evidence/sepolia/gate-e-safe.json` | PASS — separate Safe v1.4.1 owner and threshold verified |
 | 2026-07-25 | Gate E Safe authority | `a3cc1db` | `evidence/sepolia/gate-e.json` | PASS — threshold funding, scoped preparation, negative bindings, replay guards, revoke/re-enable, preserved authority, and cleanup verified |
+| 2026-07-25 | Production market EOA lifecycle | `a7413b0` | `evidence/sepolia/market-eoa.json` | PASS — exact funding, admission/replay/deadline, scoped ACL, winner-only proof, confidential settlement, award receipt, and post-close buyer reveal verified |
