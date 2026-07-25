@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "hardhat build",
-    "test": "hardhat test --no-compile",
+    "test": "node --test test/gate-b-model.test.mjs test/gate-e-static.test.mjs",
     "test:gate-e-static": "node --test test/gate-e-static.test.mjs",
     "test:model": "node --test test/gate-b-model.test.mjs",
     "test:nox": "hardhat test",
