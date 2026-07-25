@@ -131,9 +131,9 @@ Disclosure policy:
 - [x] Encrypted best-price and winner-ID accumulation.
 - [x] Permissionless close and proof-based finalize/refund.
 - [x] Confidential winner payment and buyer remainder.
-- [ ] Buyer/vendor authorized reveal and auditor ACL.
+- [x] Buyer/vendor authorized reveal and auditor ACL.
 - [x] Wallet-free event-derived tender explorer.
-- [ ] Award receipt and activity/recovery UI.
+- [x] Award receipt and activity/recovery UI.
 - [x] Stateless finalizer with dry-run and bounded actions.
 - [ ] Responsive, keyboard-operable production frontend.
 - [x] Buyer cancellation before the first bid.

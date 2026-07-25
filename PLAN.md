@@ -7,12 +7,13 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Complete Buyer/Vendor per-bid grant and authorized reveal UI,
-  then surface explicit public award-receipt evidence.
+- Next action: Execute the canonical Sepolia release deployment/source mapping
+  workflow and a two-vendor live lifecycle before deploying the frontend with
+  Vercel CLI.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T01:41:52+07:00
+- Last updated: 2026-07-26T01:47:25+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
