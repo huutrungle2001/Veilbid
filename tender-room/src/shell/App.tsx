@@ -2,7 +2,7 @@ import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
 import { useMemo } from "react";
 import { formatUnits } from "viem";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import type { LoadedPublicMarket } from "../public-market/loadPublicMarket";
 import {
   type PublicMarketState,
@@ -13,6 +13,8 @@ import type { WalletController } from "../wallet/WalletPanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
 import { AuditorWorkspace } from "../auditor/AuditorWorkspace";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
+import { DocsPage } from "../landing/DocsPage";
+import { LandingPage } from "../landing/LandingPage";
 import {
   RoleWorkspace,
   type InteractiveRole,
@@ -279,8 +281,8 @@ export function ExplorerView({
           VEILBID
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#tenders">TENDERS</a>
-          <a href="#evidence">EVIDENCE</a>
+          <a href="/room#tenders">TENDERS</a>
+          <a href="/docs#evidence">EVIDENCE</a>
           <a href="/docs">DOCS</a>
         </nav>
         <div className="network-pill">
@@ -449,7 +451,7 @@ export function ExplorerView({
   );
 }
 
-export function App() {
+function TenderRoomApp() {
   const { state, refresh } = usePublicMarket();
   const wallet = useWallet();
   const [roomParams, setRoomParams] = useSearchParams();
@@ -477,6 +479,18 @@ export function App() {
       wallet={wallet}
     />
   );
+}
+
+export function App() {
+  const location = useLocation();
+  const legacyRoomLink =
+    new URLSearchParams(location.search).has("role") ||
+    new URLSearchParams(location.search).has("tender");
+  if (location.pathname === "/docs") return <DocsPage />;
+  if (location.pathname === "/room" || legacyRoomLink) {
+    return <TenderRoomApp />;
+  }
+  return <LandingPage />;
 }
 
 export type { LoadedPublicMarket };
