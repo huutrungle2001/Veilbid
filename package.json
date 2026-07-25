@@ -21,6 +21,7 @@
     "test:sepolia:d": "pnpm --filter @veilbid/feasibility test:sepolia:d",
     "test:sepolia:e:safe": "pnpm --filter @veilbid/feasibility test:sepolia:e:safe",
     "test:sepolia:e:authority": "pnpm --filter @veilbid/feasibility test:sepolia:e:authority",
+    "test:sepolia:market:eoa": "pnpm --filter @veilbid/auction-house test:sepolia:eoa",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs"
   }

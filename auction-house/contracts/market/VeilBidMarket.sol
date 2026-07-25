@@ -490,6 +490,24 @@ contract VeilBidMarket is ReentrancyGuard {
         return Nox.isViewer(bid.encryptedPrice, account);
     }
 
+    function winnerIdIsPubliclyDecryptable(
+        uint256 tenderId
+    ) external view returns (bool) {
+        return
+            Nox.isPubliclyDecryptable(
+                _requireTender(tenderId).encryptedWinnerBidId
+            );
+    }
+
+    function bestPriceIsPubliclyDecryptable(
+        uint256 tenderId
+    ) external view returns (bool) {
+        return
+            Nox.isPubliclyDecryptable(
+                _requireTender(tenderId).encryptedBestPrice
+            );
+    }
+
     function canClose(uint256 tenderId) external view returns (bool) {
         Tender storage tender = _requireTender(tenderId);
         return
