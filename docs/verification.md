@@ -128,4 +128,4 @@ npm run verify:deployment
 | 2026-07-25 | Gate A Ethereum Sepolia | `229afee` | `evidence/sepolia/gate-a.json` | PASS — cross-block reuse, persistent ACL, vendor decrypt, and encrypted comparison verified |
 | 2026-07-25 | Gate B Ethereum Sepolia | `4f32508` | `evidence/sepolia/gate-b.json` | PASS — six representative encrypted cases and 2,000 deterministic model cases |
 | 2026-07-25 | Gate C Ethereum Sepolia | `1b27797` | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
-| 2026-07-25 | Gate D Ethereum Sepolia | pending | `evidence/sepolia/gate-d.json` | PASS — official wrapper, exact funding, underfund rejection, settlement/refund, cross-contract ACL, conservation, and replay verified |
+| 2026-07-25 | Gate D Ethereum Sepolia | `576ee7a` | `evidence/sepolia/gate-d.json` | PASS — official wrapper, exact funding, underfund rejection, settlement/refund, cross-contract ACL, conservation, and replay verified |
