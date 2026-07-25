@@ -1,5 +1,10 @@
 packages:
   - feasibility
+  - tender-room
+  - auction-house
+  - settlement-relay
+  - operator-console
+  - chain-bindings
 
 onlyBuiltDependencies:
   - esbuild
