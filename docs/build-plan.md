@@ -120,7 +120,7 @@ Exit: Fresh-wallet core journey is discoverable and responsive.
 - [x] Implement event-derived tender index with finalized checkpoint.
 - [x] Build stateless finalizer dry-run/once/poll/health.
 - [x] Add race simulation and bounded action budget.
-- [ ] Add optional read-only MCP tools.
+- [x] Add optional read-only MCP tools.
 - [ ] Add optional strict-schema public-term draft assistant only if core release
   is already stable.
 

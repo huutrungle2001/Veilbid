@@ -142,7 +142,7 @@ Disclosure policy:
 
 - [ ] Batch Safe input/viewer preparation.
 - [ ] Public finalizer health surfaced in the UI.
-- [ ] Read-only MCP tools for tender and proof inspection.
+- [x] Read-only MCP tools for tender and proof inspection.
 - [ ] Strict-schema Strategy Assistant for public tender drafting.
 
 ### Could have
