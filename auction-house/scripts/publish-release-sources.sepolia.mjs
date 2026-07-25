@@ -65,12 +65,14 @@ const evidence = {
   assertions: {
     releaseManifestLoaded: false,
     allSourcesPublished: false,
-    allCreationMatchesExact: false,
+    allTopLevelCreationMatchesExact: false,
+    embeddedReceiptSourceMapped: false,
     allRuntimeMatchesExact: false,
   },
   blockers: [],
   notes: [
     "Exact Hardhat standard JSON compiler inputs were submitted to Sourcify API v2.",
+    "The award receipt is created inside the market constructor, so its source mapping requires exact runtime plus the exact parent market creation transaction rather than a separate top-level creation match.",
     "RPC credentials, private keys, signatures, confidential handles, and proofs are not used or recorded by this workflow.",
   ],
 };
@@ -204,7 +206,11 @@ async function main() {
       deployed.address,
     );
     let verificationId = null;
-    if (!contract && !checkOnly) {
+    const exactEnough =
+      contract?.runtimeMatch === "exact_match" &&
+      (definition.name === "VeilBidAwardReceipt" ||
+        contract?.creationMatch === "exact_match");
+    if (!exactEnough && !checkOnly) {
       const result = await publish({
         address: deployed.address,
         buildInfo,
@@ -238,14 +244,37 @@ async function main() {
   evidence.assertions.allSourcesPublished =
     published.length === sourceDefinitions.length &&
     published.every((contract) => contract.runtimeMatch !== null);
-  evidence.assertions.allCreationMatchesExact = published.every(
-    (contract) => contract.creationMatch === "exact_match",
-  );
+  evidence.assertions.allTopLevelCreationMatchesExact =
+    sourceDefinitions
+      .filter(
+        (definition) =>
+          definition.name !== "VeilBidAwardReceipt",
+      )
+      .every(
+        (definition) =>
+          evidence.publicIdentifiers.contracts[definition.name]
+            .creationMatch === "exact_match",
+      );
+  evidence.assertions.embeddedReceiptSourceMapped =
+    evidence.publicIdentifiers.contracts.VeilBidAwardReceipt
+      .runtimeMatch === "exact_match" &&
+    deployment.contracts.VeilBidAwardReceipt
+      .deploymentTransaction ===
+      deployment.contracts.VeilBidMarket.deploymentTransaction &&
+    deployment.contracts.VeilBidAwardReceipt.deploymentBlock ===
+      deployment.contracts.VeilBidMarket.deploymentBlock;
   evidence.assertions.allRuntimeMatchesExact = published.every(
     (contract) => contract.runtimeMatch === "exact_match",
   );
   assert.equal(evidence.assertions.allSourcesPublished, true);
-  assert.equal(evidence.assertions.allCreationMatchesExact, true);
+  assert.equal(
+    evidence.assertions.allTopLevelCreationMatchesExact,
+    true,
+  );
+  assert.equal(
+    evidence.assertions.embeddedReceiptSourceMapped,
+    true,
+  );
   assert.equal(evidence.assertions.allRuntimeMatchesExact, true);
   saveEvidence();
   console.log(
