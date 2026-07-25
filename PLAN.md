@@ -7,12 +7,12 @@
 
 - Current phase: Phase 7 — Submission
 - Status: In progress
-- Next action: Replace the feedback placeholder, finalize judge-facing
-  documentation, and complete the final privacy/secret/claim review.
+- Next action: Redeploy the current release source to Vercel and repeat
+  production smoke before requesting approval for public repository visibility.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T02:33:42+07:00
+- Last updated: 2026-07-26T02:40:55+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -87,6 +87,6 @@ Only one phase may be `In progress`.
 - [x] Core product works without mock data.
 - [x] Contracts and web client are deployed.
 - [x] Ethereum Sepolia source/deployment mapping is verified.
-- [ ] `feedback.md` contains evidence-based feedback.
+- [x] `feedback.md` contains evidence-based feedback.
 - [ ] Demo video is no longer than four minutes.
 - [ ] Public GitHub, X post, and DoraHacks submission are complete.

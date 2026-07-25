@@ -12,7 +12,7 @@
 - [ ] Demo video no longer than four minutes.
 - [ ] X post with description, video, repository, live app, and `@iEx_ec`.
 - [ ] DoraHacks VeilBid submission.
-- [ ] Final secret/privacy/claim review.
+- [x] Final secret/privacy/claim review.
 
 ## 2. Target video script
 
