@@ -22,6 +22,7 @@
     "test:sepolia:e:safe": "pnpm --filter @veilbid/feasibility test:sepolia:e:safe",
     "test:sepolia:e:authority": "pnpm --filter @veilbid/feasibility test:sepolia:e:authority",
     "test:sepolia:market:eoa": "pnpm --filter @veilbid/auction-house test:sepolia:eoa",
+    "test:sepolia:market:refund": "pnpm --filter @veilbid/auction-house test:sepolia:refund",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs"
   }
