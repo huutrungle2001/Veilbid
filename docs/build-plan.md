@@ -6,7 +6,7 @@
 ## 1. Product profile
 
 - Client: React, Vite, React Router, responsive CSS.
-- Wallet/contracts: ethers v6 and explicit EIP-6963 provider selection.
+- Wallet/contracts: viem 2.47.6 and explicit EIP-6963 provider selection.
 - Confidential client: `@iexec-nox/handle`.
 - Contracts: Solidity 0.8.35, Hardhat 3, Node 24.
 - Confidential assets: official ERC-7984 wrapper.
@@ -106,7 +106,7 @@ equivalent production contracts and tests exist outside `feasibility/`.
 
 - [ ] Build standalone landing and docs.
 - [x] Implement wallet-free tender explorer and detail routes.
-- [ ] Implement Buyer and Vendor flows.
+- [x] Implement Buyer and Vendor flows.
 - [ ] Implement Activity proof recovery.
 - [ ] Implement Auditor viewer/reveal flow.
 - [ ] Implement Safe Treasury workspace.

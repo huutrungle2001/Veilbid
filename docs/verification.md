@@ -33,7 +33,7 @@
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — deterministic rebuild/dedupe/guards and bounded finalized Sepolia RPC pagination pass; reorg rollback pending |
-| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — wallet-free finalized-log explorer, URL-selected dossier, loading/empty/failure states, and no-fallback guard pass; wallet and write flows pending |
+| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 18 tests cover wallet discovery/reconnect/network clearing, Buyer/Vendor validation, URL-selected public dossiers, loading/failure states, and no-fallback guards; interrupted proof resume and live browser writes pending |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PARTIAL — live 1440×1000 and 390×844 visual smoke plus semantic controls pass; full keyboard/dialog audit pending |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
 | Source verification | Creation/runtime match and constructor args | PARTIAL — E2E runtime matches compiled artifacts with immutable getters verified; explorer publication pending |
@@ -139,3 +139,4 @@ npm run verify:deployment
 | 2026-07-26 | E2E deployment consistency | `0f2b309` | `evidence/sepolia/deployment-consistency.test.json` | PASS — receipts, masked-immutable runtime bytecode, immutable wiring, Safe configuration, and cleanup state verified; manifest remains explicitly unverified |
 | 2026-07-26 | Production Safe viewer authority | `ca5bc69` | `evidence/sepolia/market-safe-viewer.json` | PASS — Safe-owned award, Open-state denial, proof-derived settlement, direct-owner denial, threshold viewer grant/decryption, preserved authority, and cleanup verified |
 | 2026-07-26 | Tender Room public explorer | `a83527e` | Tender Room unit/build checks and live 1440×1000 / 390×844 smoke | PASS — five finalized Sepolia tenders loaded without a wallet; loading/error paths expose no mock fallback or confidential fields |
+| 2026-07-26 | Tender Room wallet and writes | `f864a13` | 18 Tender Room tests plus Vite/vinext builds | PARTIAL — explicit EIP-6963 selection, network/account clearing, exactly funded Buyer orchestration, and encrypted Vendor orchestration pass unit/build gates; fresh-wallet browser E2E pending |

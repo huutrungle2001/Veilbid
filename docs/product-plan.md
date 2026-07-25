@@ -132,7 +132,7 @@ Disclosure policy:
 - [x] Permissionless close and proof-based finalize/refund.
 - [x] Confidential winner payment and buyer remainder.
 - [ ] Buyer/vendor authorized reveal and auditor ACL.
-- [ ] Wallet-free event-derived tender explorer.
+- [x] Wallet-free event-derived tender explorer.
 - [ ] Award receipt and activity/recovery UI.
 - [ ] Stateless finalizer with dry-run and bounded actions.
 - [ ] Responsive, keyboard-operable production frontend.
