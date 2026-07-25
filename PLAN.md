@@ -6,14 +6,14 @@
 ## 1. Current status
 
 - Current phase: Phase 3 — Feasibility spikes
-- Status: In progress
-- Next action: Run Gates A–D in order with the official local Nox stack, resolve
-  any runtime failures, then repeat the required Gate A transaction pair and
-  lifecycle assertions on Ethereum Sepolia.
+- Status: Blocked
+- Next action: Install and start Docker Engine with Compose, run Gates A–D in
+  order with the official local Nox stack, resolve any runtime failures, then
+  configure local Sepolia credentials and run the required live assertions.
 - Current blocker: Docker is not installed for the official local Nox Hardhat
   plugin, and `SEPOLIA_RPC_URL`/`SEPOLIA_PRIVATE_KEY` are not configured.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T22:07:20+07:00
+- Last updated: 2026-07-25T22:11:26+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -43,7 +43,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 0. Workspace handoff | Establish canonical documents, sources, and repository rules | User reviews handoff | Completed |
 | 1. Context and problem validation | Confirm competition facts, user pain, technical inputs, and product value | Decision-ready context | Completed |
 | 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Completed |
-| 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | In progress |
+| 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Blocked |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Todo |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Todo |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Todo |
