@@ -18,6 +18,7 @@
     "test:sepolia:b": "pnpm --filter @veilbid/feasibility test:sepolia:b",
     "test:sepolia:c": "pnpm --filter @veilbid/feasibility test:sepolia:c",
     "test:sepolia:d": "pnpm --filter @veilbid/feasibility test:sepolia:d",
+    "test:sepolia:e:safe": "pnpm --filter @veilbid/feasibility test:sepolia:e:safe",
     "test:preflight": "node --env-file-if-exists=.env.local feasibility/scripts/preflight.mjs",
     "evidence:validate": "node feasibility/scripts/validate-evidence.mjs"
   }

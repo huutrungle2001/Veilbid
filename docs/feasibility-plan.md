@@ -153,7 +153,7 @@ Safe and document higher-threshold execution through Safe Wallet.
 | B. Encrypted argmin | Pass | `evidence/sepolia/gate-b.json` | Six Sepolia cases and 2,000 deterministic model cases prove valid minimum, invalid exclusion, earlier-tie priority, no-valid behavior, and permutation invariance. |
 | C. Public winner proof | Pass | `evidence/sepolia/gate-c.json` | Sepolia proves winner-only public decryption, proof verification, tamper/tender binding, reload recovery, correct stored winner, and replay rejection. |
 | D. Confidential settlement | Pass | `evidence/sepolia/gate-d.json` | Sepolia proves official-wrapper funding, exact-funding proof, underfund rejection, both custody variants, confidential conservation, full refund, transient ACL, and replay guards. Internal market custody is selected. |
-| E. Safe composability | In progress | `evidence/local/gate-e.json`; Sepolia evidence pending | Preparation-only module and Safe-authorized funding consumer compile; ABI inspection confirms no Safe execution selector. |
+| E. Safe composability | In progress | `evidence/local/gate-e.json`, `evidence/sepolia/gate-e-safe.json`; authority evidence pending | A separate Safe v1.4.1 with one owner and threshold 1 is deployed and verified; preparation/funding/revoke assertions remain. |
 
 Full application development starts only after A–D pass on Sepolia and the Safe
 design for E is approved.

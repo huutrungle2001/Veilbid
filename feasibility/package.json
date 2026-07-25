@@ -16,6 +16,7 @@
     "test:sepolia:b": "node --env-file-if-exists=../.env.local live/gate-b.sepolia.mjs",
     "test:sepolia:c": "node --env-file-if-exists=../.env.local live/gate-c.sepolia.mjs",
     "test:sepolia:d": "node --env-file-if-exists=../.env.local live/gate-d.sepolia.mjs",
+    "test:sepolia:e:safe": "node --env-file-if-exists=../.env.local live/gate-e-safe.sepolia.mjs",
     "preflight": "node scripts/preflight.mjs",
     "evidence:validate": "node scripts/validate-evidence.mjs"
   },

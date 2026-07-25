@@ -29,7 +29,7 @@
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
-| Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | READY — Gate E contracts compile; Sepolia runtime pending |
+| Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PARTIAL — Safe v1.4.1 deployed/verified; funding path pending |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PARTIAL — execution selectors absent; Sepolia controls pending |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
@@ -130,3 +130,4 @@ npm run verify:deployment
 | 2026-07-25 | Gate C Ethereum Sepolia | `1b27797` | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
 | 2026-07-25 | Gate D Ethereum Sepolia | `576ee7a` | `evidence/sepolia/gate-d.json` | PASS — official wrapper, exact funding, underfund rejection, settlement/refund, cross-contract ACL, conservation, and replay verified |
 | 2026-07-25 | Gate E compile/static inspection | pending | `evidence/local/gate-e.json` | PARTIAL — module and consumer compile; module ABI has no Safe execution surface |
+| 2026-07-25 | Gate E Safe deployment | pending | `evidence/sepolia/gate-e-safe.json` | PARTIAL — separate Safe v1.4.1 owner/threshold verified; module authority path pending |

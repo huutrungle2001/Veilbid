@@ -7,12 +7,12 @@
 
 - Current phase: Phase 4 — Build design
 - Status: In progress
-- Next action: Deploy a new threshold-1 Safe, preparation-only module, and
-  funding consumer, then execute Gate E authority/revoke assertions on Sepolia.
+- Next action: Deploy and enable the preparation-only module plus funding
+  consumer on the new Safe, then execute Gate E authority/revoke assertions.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T23:09:46+07:00
+- Last updated: 2026-07-25T23:12:50+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
