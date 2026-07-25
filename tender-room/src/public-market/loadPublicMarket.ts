@@ -14,6 +14,7 @@ import { sepolia } from "viem/chains";
 
 const confirmationDepth = 12n;
 const blockChunkSize = 2_000n;
+export const defaultSepoliaRpcUrl = "https://11155111.rpc.thirdweb.com";
 
 interface DeploymentContract {
   address: Address;
@@ -41,7 +42,7 @@ export interface LoadedPublicMarket {
 
 export async function loadPublicMarket(
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ??
-    "https://11155111.rpc.thirdweb.com",
+    defaultSepoliaRpcUrl,
 ): Promise<LoadedPublicMarket> {
   if (testDeployment.chainId !== sepolia.id) {
     throw new Error("Generated deployment chain does not match Sepolia");

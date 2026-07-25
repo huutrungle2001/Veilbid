@@ -310,7 +310,12 @@ export function ExplorerView({
       </div>
 
       {activeRole !== "PUBLIC" && wallet ? (
-        <RoleWorkspace role={activeRole} wallet={wallet} />
+        <RoleWorkspace
+          role={activeRole}
+          wallet={wallet}
+          tenders={index.tenders}
+          onRefresh={onRetry}
+        />
       ) : (
         <main>
           <section className="explorer-intro">

@@ -1,13 +1,19 @@
+import type { PublicTender } from "@veilbid/chain-bindings";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
+import { VendorBidForm } from "./VendorBidForm";
 
 export type InteractiveRole = "BUYER" | "VENDOR";
 
 export function RoleWorkspace({
   role,
   wallet,
+  tenders,
+  onRefresh,
 }: {
   role: InteractiveRole;
   wallet: WalletController;
+  tenders: readonly PublicTender[];
+  onRefresh: () => void;
 }) {
   const buyer = role === "BUYER";
   return (
@@ -24,6 +30,13 @@ export function RoleWorkspace({
         </p>
       </section>
       <WalletPanel wallet={wallet} />
+      {!buyer && (
+        <VendorBidForm
+          wallet={wallet}
+          tenders={tenders}
+          onConfirmed={onRefresh}
+        />
+      )}
       <section className="journey-preview">
         <p className="eyebrow">TRANSACTION STAGES</p>
         <ol>
@@ -49,10 +62,12 @@ export function RoleWorkspace({
             </li>
           ))}
         </ol>
-        <p className="workspace-notice">
-          The staged write form is enabled in the next verified slice. This
-          panel does not submit partial or mock transactions.
-        </p>
+        {buyer && (
+          <p className="workspace-notice">
+            The staged Buyer write form is enabled in the next verified slice.
+            This panel does not submit partial or mock transactions.
+          </p>
+        )}
       </section>
     </main>
   );
