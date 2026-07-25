@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "suite": "release-two-vendor-lifecycle",
+  "recordedAt": "2026-07-25T19:13:16.697Z",
+  "environment": {
+    "network": "ethereum-sepolia",
+    "chainId": 11155111,
+    "runtime": "safe-1.4.1-and-official-nox-testnet"
+  },
+  "publicIdentifiers": {
+    "sourceCommit": "a9243fe0e73e48de2d8f834dd1bf0ba407f27c80",
+    "owner": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
+    "safe": "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
+    "vendors": [
+      "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
+      "0x4d2809486012076B2212C829742BD95eF5992dB0"
+    ],
+    "tenderId": "1",
+    "metadataHash": "0xff80ca61c9b2514a5bd1385f8c719428877b009c0596c6d1ec6886f343dbc09f",
+    "bidDeadline": "1785007152",
+    "moduleNonce": "11349638",
+    "contracts": {
+      "VeilBidTestUSDC": "0x45410b5e86e419615bB98fed1835B19Da371c3C2",
+      "VeilBidConfidentialUSDC": "0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E",
+      "VeilBidMarket": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
+      "VeilBidAwardReceipt": "0x85EACFF4fE159A0463223625Ce830457f5664661",
+      "VeilBidDemoSafe": "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
+      "VeilBidSafePreparationModule": "0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7"
+    },
+    "transactions": {
+      "faucet": "0xd2638690e277530b4e5efaa77f6c522e64e1ccdff52ed78da99ceacd7395d654",
+      "approveWrapper": "0x646985dcc623f691632089c2c7e9bbf84295ff8b50c5ccaa1ec62caea3836b08",
+      "wrapToSafe": "0xf20c2f801dfb53b4585582113dcb79258abee74e9348c853664fa27b6b3b412f",
+      "prepareInput": "0xc8f3d2d9b956af5ca4a1f9d656c4a501c72a78e1f2cd51becc5ad0d47c63fd73",
+      "safeCreateTender": "0x28855431aba7a0002a2f67cd33ef094dbf70dab4eb961af45493afb99aa3c253",
+      "confirmFunding": "0xd24e51ccfc3025db2e156f55c2f1683b70cc60fa658ace7bec8f6d02699a9d07",
+      "submitFirstBid": "0x1d38ef96d27b26080bfd4f76b3a15ff4e9a21162b7f962a99877e9d5b03d3328",
+      "submitSecondBid": "0x278a3b335c5148cc14de8eb77770dcc42386966aff069f4192477daeb635d197",
+      "closeTender": "0x48e9875741140bc2e18c4317e340021ff4279b9e6c2c0e91cf8fb5d4e9a3356f",
+      "finalizeTender": "0x79e7f3a737bfcefee1203d9871efbdf0903360039dcfab482e2e737be8b000ac",
+      "safeGrantCrossBidViewer": "0x578608e3e4bbc65f78ff7c22c83a97140e9b8faabc3cd0fc01e28191c165f75b"
+    },
+    "blocks": {
+      "faucet": "11349632",
+      "approveWrapper": "11349634",
+      "wrapToSafe": "11349637",
+      "prepareInput": "11349639",
+      "safeCreateTender": "11349641",
+      "confirmFunding": "11349643",
+      "submitFirstBid": "11349646",
+      "submitSecondBid": "11349648",
+      "closeTender": "11349659",
+      "finalizeTender": "11349661",
+      "safeGrantCrossBidViewer": "11349668"
+    }
+  },
+  "assertions": {
+    "verifiedReleaseReused": true,
+    "releaseSafeOperational": true,
+    "safePreparationAndFundingVerified": true,
+    "exactFundingProofOpenedTender": true,
+    "twoDistinctVendorsSubmitted": true,
+    "perVendorBidAclVerified": true,
+    "bothVendorBidsDecryptedInMemory": true,
+    "deadlineEnforced": true,
+    "winnerOnlyPublicDecryptionVerified": true,
+    "lowerSecondBidSelectedByProof": true,
+    "confidentialWinnerSettlementVerifiedInMemory": true,
+    "losingVendorBalanceUnchangedInMemory": true,
+    "awardReceiptVerified": true,
+    "directOwnerViewerGrantRejected": true,
+    "safeThresholdCrossBidGrantVerifiedInMemory": true,
+    "replayRejected": true,
+    "releaseSafeStatePreserved": true
+  },
+  "blockers": [],
+  "notes": [
+    "Bid prices, confidential balances, handles, proofs, signatures, RPC credentials, and wallet secrets are asserted only in memory and omitted.",
+    "The Safe owner also acts as the first approved vendor EOA; the buyer remains the distinct Safe address and the second vendor is a separate EOA.",
+    "The lower second bid must become the proof-derived public winner while both bid values remain confidential by default.",
+    "The release module and Safe-to-Market operator authorization remain enabled after this lifecycle.",
+    "The corrected bid-2 Safe disclosure checkpoint resumed without replaying the completed tender lifecycle."
+  ]
+}

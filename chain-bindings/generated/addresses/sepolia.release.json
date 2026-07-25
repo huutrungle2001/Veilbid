@@ -71,7 +71,8 @@
   "blockers": [],
   "evidence": [
     "evidence/sepolia/source-publication.release.json",
-    "evidence/sepolia/deployment-consistency.release.json"
+    "evidence/sepolia/deployment-consistency.release.json",
+    "evidence/sepolia/release-two-vendor.json"
   ],
   "notes": [
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",

@@ -43,7 +43,7 @@
       "kind": "release",
       "verified": true,
       "addresses": "addresses/sepolia.release.json",
-      "sha256": "8e2689478a08ef1ca8280976c5e341674bafe7c26811482dda20d2155f6a8597"
+      "sha256": "2eb12e1ded94a1c73b1ce6763b0f70ca16c6572766ed9a7eb8861b09d90baa0d"
     }
   ]
 }

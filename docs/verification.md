@@ -1,8 +1,8 @@
 # VeilBid Verification Plan and Evidence Ledger
 
-> Status: Feasibility Gates A–E and the canonical Sepolia release deployment
-> verification passed. Two-vendor release lifecycle and production frontend
-> smoke remain pending.
+> Status: Feasibility Gates A–E, canonical Sepolia release verification, and
+> the two-vendor release lifecycle passed. Production frontend smoke remains
+> pending.
 
 ## 1. Evidence rules
 
@@ -37,7 +37,7 @@
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — deterministic rebuild/dedupe/guards and bounded finalized Sepolia RPC pagination pass; reorg rollback pending |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PARTIAL — 39 tests cover wallet/session clearing, Buyer/Vendor validation, standalone routes, public dossiers/receipts, recovery, per-role disclosure filters, Auditor ACL-before-decrypt, and preparation-only Safe term binding; fresh-wallet live browser writes/reveal remain pending |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PARTIAL — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible form/control focus, reduced-motion handling, and live status regions; automated browser keyboard traversal remains pending |
-| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PARTIAL — production award, invalid/no-valid refund, cancellation, and Safe paths pass; two-vendor production run pending |
+| Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, and locally encoded constructor calldata verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — canonical release receipts, runtime bytecode, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state verified before manifest promotion |
 | Secret scan | Repository and evidence clean | PENDING |
@@ -152,3 +152,4 @@ npm run verify:deployment
 | 2026-07-26 | Canonical release preflight | `4a7d1e6` | `evidence/sepolia/release-preflight.json` | PASS — clean synchronized source, untracked environment, exact embedded receipt build input, distinct actors, Sepolia chain, compiled artifacts, and gas-balance thresholds verified without chain writes |
 | 2026-07-26 | Canonical release source publication | `1c0d990` | `evidence/sepolia/source-publication.release.json` | PASS — exact Sourcify top-level creation/runtime mappings and embedded receipt runtime/parent creation mapping verified from pinned Standard JSON inputs |
 | 2026-07-26 | Canonical release deployment consistency | `edd3c52` | `evidence/sepolia/deployment-consistency.release.json` | PASS — constructor calldata, receipts, runtime bytecode, wiring, Safe/module/operator state, and source mappings verified before `verified=true` promotion |
+| 2026-07-26 | Canonical release two-vendor lifecycle | `94bcfc8` | `evidence/sepolia/release-two-vendor.json` | PASS — Safe funding, two distinct encrypted bids, per-vendor ACL/decryption, proof-derived lower second winner, confidential settlement, receipt, replay rejection, threshold cross-bid grant, and preserved release state verified |

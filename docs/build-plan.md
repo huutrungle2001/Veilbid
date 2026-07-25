@@ -131,7 +131,7 @@ Exit: Public lifecycle remains live without private authority.
 - [x] Deploy test token, wrapper, internal-custody market, receipt, Safe, and
   module.
 - [ ] Synchronize canonical artifacts to client.
-- [ ] Run two-vendor live lifecycle.
+- [x] Run two-vendor live lifecycle.
 - [ ] Run invalid bid, tie, no-valid-bid, cancel, timeout, replay, ACL, and Safe
   flows.
 - [x] Publish exact source mapping and verify runtime bytecode.

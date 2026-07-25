@@ -7,13 +7,13 @@
 
 - Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Run the two-vendor lifecycle against the verified canonical
-  Sepolia release, switch all clients to its generated bindings, then deploy
-  the frontend with Vercel CLI.
+- Next action: Switch every runtime client to the verified canonical release
+  bindings, run the full release gate, then deploy the frontend with Vercel
+  CLI.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-26T02:11:01+07:00
+- Last updated: 2026-07-26T02:21:30+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
