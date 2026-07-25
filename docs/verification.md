@@ -1,6 +1,6 @@
 # VeilBid Verification Plan and Evidence Ledger
 
-> Status: Feasibility Gates A–D passed on Ethereum Sepolia. Production
+> Status: Feasibility Gates A–E passed on Ethereum Sepolia. Production
 > implementation and release verification remain pending.
 
 ## 1. Evidence rules
@@ -29,8 +29,8 @@
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PENDING |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PENDING |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PENDING |
-| Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PARTIAL — Safe v1.4.1 deployed/verified; funding path pending |
-| Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PARTIAL — execution selectors absent; Sepolia controls pending |
+| Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
+| Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PENDING |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PENDING |
 | Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PENDING |
@@ -129,5 +129,6 @@ npm run verify:deployment
 | 2026-07-25 | Gate B Ethereum Sepolia | `4f32508` | `evidence/sepolia/gate-b.json` | PASS — six representative encrypted cases and 2,000 deterministic model cases |
 | 2026-07-25 | Gate C Ethereum Sepolia | `1b27797` | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
 | 2026-07-25 | Gate D Ethereum Sepolia | `576ee7a` | `evidence/sepolia/gate-d.json` | PASS — official wrapper, exact funding, underfund rejection, settlement/refund, cross-contract ACL, conservation, and replay verified |
-| 2026-07-25 | Gate E compile/static inspection | pending | `evidence/local/gate-e.json` | PARTIAL — module and consumer compile; module ABI has no Safe execution surface |
-| 2026-07-25 | Gate E Safe deployment | pending | `evidence/sepolia/gate-e-safe.json` | PARTIAL — separate Safe v1.4.1 owner/threshold verified; module authority path pending |
+| 2026-07-25 | Gate E compile/static inspection | `7df3ff7` | `evidence/local/gate-e.json` | PASS — module and consumer compile; module ABI has no Safe execution surface |
+| 2026-07-25 | Gate E Safe deployment | `10e9b25` | `evidence/sepolia/gate-e-safe.json` | PASS — separate Safe v1.4.1 owner and threshold verified |
+| 2026-07-25 | Gate E Safe authority | `a3cc1db` | `evidence/sepolia/gate-e.json` | PASS — threshold funding, scoped preparation, negative bindings, replay guards, revoke/re-enable, preserved authority, and cleanup verified |

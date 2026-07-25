@@ -1,7 +1,6 @@
 # Feasibility and Kill-Criteria Plan
 
-> Status: Approved. Gates A–D passed on Ethereum Sepolia; Gate E continues as
-> the Safe composability gate.
+> Status: Complete. Gates A–E passed on Ethereum Sepolia.
 
 ## 1. Purpose
 
@@ -153,10 +152,10 @@ Safe and document higher-threshold execution through Safe Wallet.
 | B. Encrypted argmin | Pass | `evidence/sepolia/gate-b.json` | Six Sepolia cases and 2,000 deterministic model cases prove valid minimum, invalid exclusion, earlier-tie priority, no-valid behavior, and permutation invariance. |
 | C. Public winner proof | Pass | `evidence/sepolia/gate-c.json` | Sepolia proves winner-only public decryption, proof verification, tamper/tender binding, reload recovery, correct stored winner, and replay rejection. |
 | D. Confidential settlement | Pass | `evidence/sepolia/gate-d.json` | Sepolia proves official-wrapper funding, exact-funding proof, underfund rejection, both custody variants, confidential conservation, full refund, transient ACL, and replay guards. Internal market custody is selected. |
-| E. Safe composability | In progress | `evidence/local/gate-e.json`, `evidence/sepolia/gate-e-safe.json`; authority evidence pending | A separate Safe v1.4.1 with one owner and threshold 1 is deployed and verified; preparation/funding/revoke assertions remain. |
+| E. Safe composability | Pass | `evidence/local/gate-e.json`, `evidence/sepolia/gate-e-safe.json`, `evidence/sepolia/gate-e.json` | A separate Safe v1.4.1 proved threshold-authorized enable/configure/funding, scoped preparation ACL, action/consumer/nonce binding, replay rejection, revoke/re-enable, unchanged Safe authority, and final module/operator cleanup. |
 
 Full application development starts only after A–D pass on Sepolia and the Safe
-design for E is approved.
+design for E is approved. Both conditions were satisfied on 2026-07-25.
 
 ### Gate D funding observation
 

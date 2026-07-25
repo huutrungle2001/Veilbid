@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 4 — Build design
+- Current phase: Phase 5 — Core development
 - Status: In progress
-- Next action: Deploy and enable the preparation-only module plus funding
-  consumer on the new Safe, then execute Gate E authority/revoke assertions.
+- Next action: Scaffold the production workspaces and implement the
+  internal-custody market lifecycle from the approved contract specification.
 - Current blocker: None. Docker-backed local Nox is an optional regression
   environment under the approved Sepolia-first strategy.
 - Awaiting approval from: None
-- Last updated: 2026-07-25T23:12:50+07:00
+- Last updated: 2026-07-25T23:22:08+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -43,8 +43,8 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 1. Context and problem validation | Confirm competition facts, user pain, technical inputs, and product value | Decision-ready context | Completed |
 | 2. Product definition | Approve MVP, non-goals, acceptance criteria, and demo story | User approves Product Plan | Completed |
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
-| 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | In progress |
-| 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Todo |
+| 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
+| 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | In progress |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Todo |
 | 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Todo |
 
@@ -60,7 +60,7 @@ Only one phase may be `In progress`.
 | Product Plan | Approved | User | 2026-07-25 | Approved with fixed vendor admission, funded-ceiling escrow, preparation-only Safe module, post-close per-handle buyer ACL, no timeout refund after close, and a non-transferable winner receipt. |
 | Sepolia-first feasibility | Approved | User | 2026-07-25 | Mandatory runtime evidence moves to Ethereum Sepolia; local Docker/Nox becomes optional regression coverage. |
 | Feasibility gate | Approved | User | 2026-07-25 | Gates A–D passed; internal market custody selected and exact-funding proof added to the lifecycle. |
-| Build Plan | Pending |  |  |  |
+| Build Plan | Approved | User | 2026-07-25 | User requested continued implementation after the Safe design passed its Sepolia authority gate. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
@@ -69,7 +69,7 @@ Only one phase may be `In progress`.
 |---|---|---|---|---|
 | RSK-001 | Cross-transaction ACL for stored/computed bid handles behaves differently than expected | High | Engineering | Closed by Gate A Sepolia evidence |
 | RSK-002 | Public-decryption proof latency makes finalization unreliable | High | Engineering | Mitigated by retry/checkpoint/reload recovery; monitor |
-| RSK-003 | Safe owner input proofs require a restricted module pattern | High | Engineering | Open |
+| RSK-003 | Safe owner input proofs require a restricted module pattern | High | Engineering | Closed by Gate E Sepolia evidence |
 | RSK-004 | Cross-contract ERC-7984 settlement adds ACL complexity | High | Engineering | Closed for MVP by selecting internal custody |
 | RSK-005 | Scope cannot reach release quality before the submission deadline | High | Product | Open |
 | RSK-006 | ERC-7984 underfunding returns encrypted zero, so transaction success cannot establish publicly funded state | High | Engineering | Mitigated and verified by exact-funding public proof |

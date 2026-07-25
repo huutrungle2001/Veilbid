@@ -1,7 +1,7 @@
 # VeilBid Build Plan
 
-> Status: In review after approved feasibility results. Production workspaces
-> start only after this plan and the Safe design are frozen.
+> Status: Approved on 2026-07-25. Production implementation is in progress
+> after all feasibility gates and the Safe design passed.
 
 ## 1. Product profile
 
@@ -97,6 +97,10 @@ Exit: Core protocol tests pass without plaintext shadow state.
 
 Exit: Safe owns funds, module calls cannot execute from the Safe, and every
 funding/viewer write satisfies normal Safe threshold authority.
+
+Gate E established the implementation basis for the first three items and the
+revoke/re-enable path on Sepolia. These checkboxes remain open until the
+equivalent production contracts and tests exist outside `feasibility/`.
 
 ### Milestone 4 — Web product
 

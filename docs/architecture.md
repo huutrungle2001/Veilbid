@@ -65,6 +65,11 @@ is not accepted for the MVP.
 
 ### `VeilBidSafeModule`
 
+Gate E verified this boundary against a separate Safe v1.4.1 on Sepolia:
+preparation did not move funds, normal Safe threshold execution funded the
+consumer, revoke blocked new preparation without changing owners or threshold,
+and the test module/operator permissions were removed afterward.
+
 - Bound to one configured Safe.
 - Acts only as a preparation boundary; it is not a Safe transaction executor.
 - Accepts preparation calls only from a current owner of the configured Safe.
@@ -231,5 +236,6 @@ docs/
 
 The names reflect VeilBid's procurement domain rather than generic application
 and package buckets. Dependency rules and internal layouts are canonical in
-`repository-layout.md`. Product Plan approval permits only `feasibility/`;
-production source directories wait for the feasibility and build-design gates.
+`repository-layout.md`. The feasibility and build-design gates passed on
+2026-07-25, so production source directories may now be created according to
+this map.
