@@ -107,3 +107,32 @@ test("runner emits allowlisted proof-pending output without raw errors", async (
   assert.equal(emitted.join(" ").includes("handle"), false);
   assert.equal(emitted.join(" ").includes("proof"), true);
 });
+
+test("runner sanitizes an inspection failure and continues sequentially", async () => {
+  const visited = [];
+  const summary = await runRelayActions({
+    actions: [
+      { kind: "close", tenderId: 1n },
+      { kind: "close", tenderId: 2n },
+    ],
+    budget: 2,
+    adapter: {
+      async inspect(action) {
+        visited.push(`inspect:${action.tenderId}`);
+        if (action.tenderId === 1n) throw new Error("raw RPC response");
+        return "actionable";
+      },
+      async execute(action) {
+        visited.push(`execute:${action.tenderId}`);
+        return transactionHash;
+      },
+    },
+  });
+  assert.deepEqual(visited, ["inspect:1", "inspect:2", "execute:2"]);
+  assert.deepEqual(summary.results[0], {
+    action: "close",
+    tenderId: "1",
+    outcome: "failed",
+    reason: "action-failed",
+  });
+});

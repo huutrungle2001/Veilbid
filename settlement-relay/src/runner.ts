@@ -1,5 +1,6 @@
 import {
   ProofPendingError,
+  type ActionReadiness,
   type RelayAction,
   type RelayAdapter,
   type RelayResult,
@@ -17,10 +18,17 @@ function publicResult(
   };
 }
 
+function validateBudget(budget: number): void {
+  if (!Number.isSafeInteger(budget) || budget < 1) {
+    throw new Error("Action budget must be a positive safe integer.");
+  }
+}
+
 export function describeDryRun(
   actions: readonly RelayAction[],
   budget: number,
 ): RelayRunSummary {
+  validateBudget(budget);
   const selected = actions.slice(0, budget);
   return {
     discovered: actions.length,
@@ -44,14 +52,23 @@ export async function runRelayActions({
   adapter: RelayAdapter;
   onResult?: (result: RelayResult) => void;
 }): Promise<RelayRunSummary> {
-  if (!Number.isSafeInteger(budget) || budget < 1) {
-    throw new Error("Action budget must be a positive safe integer.");
-  }
+  validateBudget(budget);
   const selected = actions.slice(0, budget);
   const results: RelayResult[] = [];
 
   for (const action of selected) {
-    const readiness = await adapter.inspect(action);
+    let readiness: ActionReadiness;
+    try {
+      readiness = await adapter.inspect(action);
+    } catch {
+      const result = publicResult(action, {
+        outcome: "failed",
+        reason: "action-failed",
+      });
+      results.push(result);
+      onResult(result);
+      continue;
+    }
     if (readiness !== "actionable") {
       const result = publicResult(action, {
         outcome: readiness === "resolved" ? "race-resolved" : "waiting",
@@ -75,7 +92,12 @@ export async function runRelayActions({
           reason: "proof-pending",
         });
       } else {
-        const afterFailure = await adapter.inspect(action);
+        let afterFailure: ActionReadiness;
+        try {
+          afterFailure = await adapter.inspect(action);
+        } catch {
+          afterFailure = "waiting";
+        }
         result = publicResult(action, {
           outcome:
             afterFailure === "resolved" ? "race-resolved" : "failed",
