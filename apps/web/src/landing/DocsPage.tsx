@@ -108,7 +108,7 @@ export function DocsPage() {
             <StepList steps={[
               { title: "Connect a Sepolia wallet", copy: "Open the Buyer workspace and connect the account that will own the tender. The demo uses test vUSDC only." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
-              { title: "Acquire and wrap test assets", copy: "The guided transaction prepares test vUSDC and wraps the exact ceiling into its confidential ERC-7984 representation." },
+              { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC in the workspace balance panel, or let the guided Buyer transaction request the faucet automatically when the visible balance is insufficient. The exact ceiling is then wrapped into its confidential ERC-7984 representation." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
               { title: "Create funded tender", copy: "Simulate, review, and sign the tender creation transaction. The public terms and encrypted budget are bound together." },
               { title: "Prove exact funding", copy: "Request the public equality result proving escrow equals the ceiling, without opening the confidential balance itself." },

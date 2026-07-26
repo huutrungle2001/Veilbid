@@ -11,6 +11,7 @@ import {
 } from "../public-market/usePublicMarket";
 import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
+import { WalletBalancePanel } from "../wallet/WalletBalancePanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
 import { AuditorWorkspace } from "../auditor/AuditorWorkspace";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
@@ -315,36 +316,39 @@ export function ExplorerView({
   return (
     <div className="tender-layout">
       <div className="rolebar" aria-label="Tender workspaces">
-        {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
-          (role) => {
-            const interactive =
-              role === "PUBLIC" ||
-              role === "BUYER" ||
-              role === "VENDOR" ||
-              role === "ACTIVITY" ||
-              role === "AUDITOR" ||
-              role === "SAFE TREASURY";
-            const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
-            return (
-              <button
-                key={role}
-                className={role === activeRole ? "active" : ""}
-                aria-pressed={role === activeRole}
-                disabled={!enabled}
-                onClick={() =>
-                  enabled && onRoleChange?.(role as RoomRole)
-                }
-                title={
-                  enabled
-                    ? `${role} workspace`
-                    : "Role workspace is not enabled in this release slice"
-                }
-              >
-                {role}
-              </button>
-            );
-          },
-        )}
+        <div className="rolebar-links">
+          {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
+            (role) => {
+              const interactive =
+                role === "PUBLIC" ||
+                role === "BUYER" ||
+                role === "VENDOR" ||
+                role === "ACTIVITY" ||
+                role === "AUDITOR" ||
+                role === "SAFE TREASURY";
+              const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
+              return (
+                <button
+                  key={role}
+                  className={role === activeRole ? "active" : ""}
+                  aria-pressed={role === activeRole}
+                  disabled={!enabled}
+                  onClick={() =>
+                    enabled && onRoleChange?.(role as RoomRole)
+                  }
+                  title={
+                    enabled
+                      ? `${role} workspace`
+                      : "Role workspace is not enabled in this release slice"
+                  }
+                >
+                  {role}
+                </button>
+              );
+            },
+          )}
+        </div>
+        {wallet && <WalletBalancePanel wallet={wallet} />}
       </div>
 
       <div className="tender-surface">

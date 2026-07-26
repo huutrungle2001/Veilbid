@@ -296,7 +296,13 @@ textarea:focus-visible {
   padding: 0 6px 16px;
 }
 
-.rolebar button {
+.rolebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rolebar-links > button {
   background: var(--color-paper-white);
   border: 1px solid var(--color-ink-black);
   border-radius: 100px;
@@ -312,19 +318,137 @@ textarea:focus-visible {
   width: 100%;
 }
 
-.rolebar button:not(.active) {
+.rolebar-links > button:not(.active) {
   color: var(--color-ink-muted);
 }
 
-.rolebar button:disabled {
+.rolebar-links > button:disabled {
   background: var(--color-surface-muted);
   color: var(--color-ink-muted);
   cursor: not-allowed;
 }
 
-.rolebar button.active {
+.rolebar-links > button.active {
   background: var(--color-veil-green);
   color: var(--color-ink-black);
+}
+
+.sidebar-balances {
+  border-top: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 18px 4px 0;
+}
+
+.sidebar-balances header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sidebar-balances header strong,
+.sidebar-balances dt,
+.sidebar-balances dd,
+.balance-empty,
+.balance-note,
+.balance-message {
+  font-family: var(--font-mono);
+}
+
+.sidebar-balances header strong {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+}
+
+.sidebar-balances .balance-refresh {
+  align-items: center;
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  color: var(--color-ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.9rem;
+  height: 28px;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0;
+  width: 28px;
+}
+
+.sidebar-balances .balance-refresh:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sidebar-balances dl {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+
+.sidebar-balances dl div {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sidebar-balances dt {
+  color: var(--color-ink-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+}
+
+.sidebar-balances dd {
+  font-size: 0.64rem;
+  font-weight: 700;
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.balance-empty,
+.balance-message,
+.balance-note {
+  font-size: 0.58rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.balance-empty {
+  color: var(--color-ink-muted);
+  letter-spacing: 0.08em;
+}
+
+.sidebar-balances .balance-faucet {
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 100px;
+  color: var(--color-ink-black);
+  cursor: pointer;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  min-height: 36px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.sidebar-balances .balance-faucet:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-ink-muted);
+  cursor: not-allowed;
+}
+
+.balance-note {
+  color: var(--color-ink-muted);
+}
+
+.balance-message {
+  border-left: 2px solid var(--color-ink-black);
+  padding-left: 7px;
 }
 
 main {
@@ -1733,10 +1857,9 @@ footer p {
   .rolebar {
     border-bottom: 1px solid var(--color-ink-black);
     border-right: 0;
-    flex-direction: row;
+    flex-direction: column;
     height: auto;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     padding: 10px 16px;
     position: sticky;
     top: 115px;
@@ -1747,11 +1870,72 @@ footer p {
     display: none;
   }
 
-  .rolebar button {
+  .rolebar-links {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .rolebar-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rolebar-links > button {
     justify-content: center;
     min-width: max-content;
     text-align: center;
     width: auto;
+  }
+
+  .sidebar-balances {
+    align-items: center;
+    gap: 8px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-top: 0;
+    padding: 8px 0 0;
+  }
+
+  .sidebar-balances header {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .sidebar-balances dl {
+    display: grid;
+    gap: 8px;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sidebar-balances dl div {
+    display: grid;
+    gap: 2px;
+    justify-content: start;
+  }
+
+  .sidebar-balances dd {
+    text-align: left;
+  }
+
+  .sidebar-balances .balance-faucet {
+    grid-column: 2;
+    grid-row: 1;
+    padding-left: 14px;
+    padding-right: 14px;
+    width: auto;
+  }
+
+  .balance-empty {
+    grid-column: 1 / -1;
+  }
+
+  .balance-note,
+  .balance-message {
+    grid-column: 1 / -1;
   }
 
   .explorer-intro,

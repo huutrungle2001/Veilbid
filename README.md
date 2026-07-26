@@ -260,7 +260,8 @@ security, or mainnet readiness.
 1. Connect an injected EIP-6963 wallet and switch to Sepolia.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor
    addresses.
-3. Acquire faucet test USDC and wrap the exact ceiling as a confidential
+3. Inspect Sepolia ETH and test USDC in the workspace balance panel. Use
+   `GET TEST USDC` when needed, then wrap the exact ceiling as a confidential
    ERC-7984 balance.
 4. Authorize the market operator and create the funded tender.
 5. Request and submit the public exact-funding proof.
