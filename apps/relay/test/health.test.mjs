@@ -36,4 +36,10 @@ test("health endpoint exposes public liveness only", async (context) => {
     deploymentKind: "test-e2e",
     deploymentVerified: false,
   });
+
+  const liveResponse = await fetch(
+    `http://127.0.0.1:${address.port}/live`,
+  );
+  assert.equal(liveResponse.status, 200);
+  assert.deepEqual(await liveResponse.json(), { status: "ok" });
 });

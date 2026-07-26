@@ -7,6 +7,14 @@ export function startHealthServer(
   port: number,
 ): Promise<Server> {
   const server = createServer(async (request, response) => {
+    if (request.method === "GET" && request.url === "/live") {
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-type": "application/json",
+      });
+      response.end('{"status":"ok"}');
+      return;
+    }
     if (request.method !== "GET" || request.url !== "/health") {
       response.writeHead(404, { "content-type": "application/json" });
       response.end('{"status":"not-found"}');

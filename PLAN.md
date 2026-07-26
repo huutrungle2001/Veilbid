@@ -71,7 +71,7 @@ Only one phase may be `In progress`.
 | Settlement relay live writes | Verified | Agent | 2026-07-26 | Canonical release tender #5 completed Safe funding, encrypted vendor bidding, relay-account close, public-proof finalize, and proof-derived award on Sepolia; disposable failed setup tenders #3/#4 were cancelled and escrow returned to the Safe. |
 | Safe Buyer atomic workflow | Verified | Agent | 2026-07-27 | Safe Buyer now proposes one atomic preparation/create batch through Safe Transaction Service, displays threshold confirmations, and auto-executes threshold-one Safes; EOA confirmation remains an advanced fallback. |
 | Early close and funding relay | Verified | Agent | 2026-07-27 | Approved-vendor completion closes tenders before the deadline; the stateless relay confirms funding, closes, and finalizes without a database. |
-| Render settlement relay | Deployed | Agent | 2026-07-27 | Free web service `https://veilbid-settlement-relay.onrender.com` runs `node apps/relay/dist/cli.js poll` with `/health`; free-tier sleep/restart remains an operational limitation. |
+| Render settlement relay | Deployed | Agent | 2026-07-27 | Free web service `https://veilbid-settlement-relay.onrender.com` runs `node apps/relay/dist/cli.js poll` with `/live` liveness and `/health` chain readiness; free-tier sleep/restart remains an operational limitation. |
 | Upgraded frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_6Toox8JycbAjM16JU75AbuNgpdcu` is aliased to `https://veilbid-three.vercel.app` and passed wallet-free desktop/mobile production smoke against the new canonical market. |
 | Final submission | Pending |  |  |  |
 
