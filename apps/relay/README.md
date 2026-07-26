@@ -1,11 +1,12 @@
 # Settlement Relay
 
-Stateless, permissionless close and public-proof/finalize automation, including
-the proof-derived zero-winner refund outcome. It uses public chain state only
+Stateless, permissionless funding confirmation, close, and public-proof/finalize
+automation, including the proof-derived zero-winner refund outcome. It uses public chain state only
 and does not hold private decryption or buyer authority.
 
-The core planner prioritizes proof-ready `finalize` actions, then expired
-`close` actions. The runner processes actions sequentially under one shared
+The core planner confirms exact funding first, then prioritizes proof-ready
+`finalize` actions and `close` actions, including early close when all approved
+vendors have bid. The runner processes actions sequentially under one shared
 budget, rereads state before each action, and classifies a failed competing
 write as a benign race only after another canonical state read confirms that
 the action was resolved.
@@ -32,7 +33,8 @@ the verified canonical release manifest. The
 `VEILBID_ALLOW_UNVERIFIED_DEPLOYMENT` escape exists only for historical test
 manifests and must remain false for release operation.
 
-Polling exposes `GET /health` on `127.0.0.1:8787` by default. Each cycle rebuilds
+Polling exposes `GET /health` on `127.0.0.1:8787` by default (Render sets
+`FINALIZER_HEALTH_HOST=0.0.0.0` and its assigned `PORT`). Each cycle rebuilds
 the finalized public index in bounded RPC ranges; it keeps no database or
 confidential checkpoint. A zero winner ID follows the same `finalizeTender`
 call and produces the contract's full-refund outcome.

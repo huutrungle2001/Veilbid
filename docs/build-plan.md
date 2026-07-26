@@ -11,7 +11,8 @@
 - Contracts: Solidity 0.8.35, Hardhat 3, Node 24.
 - Confidential assets: official ERC-7984 wrapper.
 - Smart account: Safe v1.4.1 deployed through
-  `@safe-global/protocol-kit@8.0.4` and a VeilBid preparation-only module.
+  `@safe-global/protocol-kit@8.0.4`, Safe Transaction Service integration, and a
+  VeilBid preparation module with a Safe-only atomic entrypoint.
 - Automation: stateless Node finalizer.
 - Optional integration: MCP stdio, read-only by default.
 - Data model: chain events plus rebuildable local caches; no database.
@@ -91,6 +92,8 @@ Exit: Core protocol tests pass without plaintext shadow state.
 - [x] Deploy a new local/Sepolia Safe for VeilBid.
 - [x] Implement a preparation-only module with strict
   Safe/action/consumer/nonce binding and no Safe execution entry point.
+- [x] Make Safe Buyer the primary browser workflow with one atomic batch for
+  handle preparation and tender creation; retain EOA recovery fallback.
 - [x] Support owner handle preparation and threshold-authorized Safe funding.
 - [x] Support buyer cancellation/viewer operations where approved.
 - [x] Test revoke/re-enable and permissionless terminal actions.
@@ -111,7 +114,8 @@ equivalent production contracts and tests remain separate from
 - [x] Implement Buyer and Vendor flows.
 - [x] Implement Activity proof recovery.
 - [x] Implement Auditor viewer/reveal flow.
-- [x] Implement Safe Treasury workspace.
+- [x] Implement Safe Buyer workspace with Safe Transaction Service proposal,
+  threshold status, and automatic execution for threshold-one Safes.
 - [x] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged
   progress/result notifications.
 

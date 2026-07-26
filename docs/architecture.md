@@ -26,7 +26,7 @@ flowchart LR
     Safe["Safe treasury"] --> Module["Restricted VeilBid module"]
     Module --> Chain
 
-    Finalizer["Stateless finalizer"] -->|close / finalize| Chain
+    Finalizer["Stateless settlement relay"] -->|confirm funding / close / finalize| Chain
     Finalizer -->|public winner proof only| NoxServices
 
     MCP["MCP adapter<br/>read-only only"] --> Chain
@@ -72,7 +72,8 @@ consumer, revoke blocked new preparation without changing owners or threshold,
 and the test module/operator permissions were removed afterward.
 
 - Bound to one configured Safe.
-- Acts only as a preparation boundary; it is not a Safe transaction executor.
+- Acts as a preparation boundary, including a Safe-only atomic preparation
+  entrypoint; it is not a Safe transaction executor.
 - Accepts preparation calls only from a current owner of the configured Safe.
 - Imports owner-created external handles bound to the Safe, chain, module,
   intended market action, consumer, and one-time nonce.

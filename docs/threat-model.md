@@ -57,7 +57,8 @@ assets.
 
 ### Safe module
 
-The module is a preparation-only boundary and has no Safe execution function. A
+The module is a preparation-only boundary (including a Safe-only atomic
+preparation entrypoint) and has no Safe execution function. A
 compromise can prepare or leak incorrectly scoped handles, but cannot move Safe
 assets without a normal transaction satisfying the Safe threshold. The Safe
 remains the spending authority.

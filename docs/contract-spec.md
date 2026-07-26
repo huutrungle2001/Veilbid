@@ -143,7 +143,8 @@ Viewer grants:
 
 `closeTender`:
 
-- Requires `Open` and bid deadline passed.
+- Requires `Open` and either the bid deadline passed or every approved vendor
+  slot has submitted a bid.
 - Freezes bid submissions.
 - Stores close block/time.
 - Marks only encrypted winner bid ID publicly decryptable.

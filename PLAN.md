@@ -6,10 +6,9 @@
 ## 1. Current status
 
 - Current phase: Phase 6 — Sepolia and product release upgrade
-- Status: In progress
-- Next action: Add all-vendors-submitted early close, automate permissionless
-  funding/close/finalize relay actions, make Safe Buyer the primary workflow,
-  redeploy to Sepolia, and verify the upgraded release.
+- Status: Completed
+- Next action: User performs final browser walkthrough and prepares the
+  submission package.
 - Current blocker: None. The user approved live Sepolia deployment and relay
   operation after completing the browser test flow.
 - Awaiting approval from: None during implementation.
@@ -46,8 +45,8 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | In progress |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Todo |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
+| 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
 
@@ -70,6 +69,9 @@ Only one phase may be `In progress`.
 | Public repository | Published | User | 2026-07-26 | `https://github.com/huutrungle2001/Veilbid` was changed from private to public after the user requested continuation. |
 | Public RPC pagination recovery | Verified | Agent | 2026-07-26 | Deployment `dpl_GQ96e7T9v4VasT3F9P1E7wpSTyFW` limits inclusive `eth_getLogs` ranges to 1,000 blocks, restores wallet-free tender #1, and passes production desktop/mobile smoke without the unavailable-state fallback. |
 | Settlement relay live writes | Verified | Agent | 2026-07-26 | Canonical release tender #5 completed Safe funding, encrypted vendor bidding, relay-account close, public-proof finalize, and proof-derived award on Sepolia; disposable failed setup tenders #3/#4 were cancelled and escrow returned to the Safe. |
+| Safe Buyer atomic workflow | Verified | Agent | 2026-07-27 | Safe Buyer now proposes one atomic preparation/create batch through Safe Transaction Service, displays threshold confirmations, and auto-executes threshold-one Safes; EOA confirmation remains an advanced fallback. |
+| Early close and funding relay | Verified | Agent | 2026-07-27 | Approved-vendor completion closes tenders before the deadline; the stateless relay confirms funding, closes, and finalizes without a database. |
+| Render settlement relay | Deployed | Agent | 2026-07-27 | Free web service `https://veilbid-settlement-relay.onrender.com` runs `node apps/relay/dist/cli.js poll` with `/health`; free-tier sleep/restart remains an operational limitation. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

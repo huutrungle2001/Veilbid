@@ -84,7 +84,8 @@ Disclosure policy:
 4. Generate and submit the public funding-equality proof; only an exactly
    funded tender becomes `Open`.
 5. Monitor public bid activity without seeing unauthorized prices.
-6. Close or let a finalizer close after deadline.
+6. Close after the deadline or immediately when all approved vendors have bid;
+   the settlement relay performs this permissionlessly.
 7. Verify the proof-derived winner and confidential settlement.
 8. Reveal authorized data or grant an auditor.
 
@@ -92,8 +93,8 @@ Disclosure policy:
 
 1. Connect a configured Safe owner.
 2. Inspect owners, threshold, module, operator, and confidential balance.
-3. Prepare a target-bound budget handle through the restricted preparation-only
-   module.
+3. Safe Buyer prepares a target-bound budget handle and tender creation in one
+   threshold-authorized batch through the restricted preparation module.
 4. Execute tender creation/funding as a normal Safe transaction satisfying the
    configured owner threshold.
 5. Confirm the public exact-funding proof before the tender opens.

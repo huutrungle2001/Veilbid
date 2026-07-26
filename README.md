@@ -75,12 +75,12 @@ configuration, and canonical addresses.
 
 | Component | Ethereum Sepolia address |
 |---|---|
-| VeilBid Market | [`0x69f20485f388DCc2Cf9c513859C97de2419b6F16`](https://sepolia.etherscan.io/address/0x69f20485f388DCc2Cf9c513859C97de2419b6F16) |
-| Confidential ERC-7984 test token | [`0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E`](https://sepolia.etherscan.io/address/0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E) |
-| Faucet test USDC | [`0x45410b5e86e419615bB98fed1835B19Da371c3C2`](https://sepolia.etherscan.io/address/0x45410b5e86e419615bB98fed1835B19Da371c3C2) |
-| Non-transferable award receipt | [`0x85EACFF4fE159A0463223625Ce830457f5664661`](https://sepolia.etherscan.io/address/0x85EACFF4fE159A0463223625Ce830457f5664661) |
-| Demo Safe 1.4.1 | [`0x6Cf73078c21dded41f02FdEF54E532Ce7b356817`](https://sepolia.etherscan.io/address/0x6Cf73078c21dded41f02FdEF54E532Ce7b356817) |
-| Safe preparation module | [`0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7`](https://sepolia.etherscan.io/address/0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7) |
+| VeilBid Market | [`0x969F93642054130e87AFC8D380eec850617A6048`](https://sepolia.etherscan.io/address/0x969F93642054130e87AFC8D380eec850617A6048) |
+| Confidential ERC-7984 test token | [`0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1`](https://sepolia.etherscan.io/address/0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1) |
+| Faucet test USDC | [`0xeE9A2B02C8700596b4814923c4086786c63A9D01`](https://sepolia.etherscan.io/address/0xeE9A2B02C8700596b4814923c4086786c63A9D01) |
+| Non-transferable award receipt | [`0xb31206898CdED553011012110E7aAFFe681C127f`](https://sepolia.etherscan.io/address/0xb31206898CdED553011012110E7aAFFe681C127f) |
+| Demo Safe 1.4.1 | [`0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0`](https://sepolia.etherscan.io/address/0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0) |
+| Safe preparation module | [`0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401`](https://sepolia.etherscan.io/address/0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401) |
 
 The release has completed a real two-vendor Safe-funded lifecycle on Sepolia.
 The winner was selected through Nox computation and a public winner proof;
@@ -121,7 +121,7 @@ stateDiagram-v2
     FundingPending --> Open: exact-funding proof succeeds
     FundingPending --> Cancelled: proof establishes underfunding
     Open --> Cancelled: buyer cancels before first bid
-    Open --> Closed: permissionless close after deadline
+    Open --> Closed: permissionless close after deadline or all approved vendors bid
     Closed --> Awarded: proof-derived winner and settlement
     Closed --> Refunded: proof establishes no valid bid
     Cancelled --> [*]
@@ -133,8 +133,8 @@ stateDiagram-v2
 
 1. The buyer fixes a public ceiling, future deadline, metadata hash, payment
    token, and one to eight unique approved vendor addresses.
-2. Tender creation attempts to transfer the confidential ceiling into internal
-   market custody.
+2. Safe Buyer prepares the Nox funding handle and tender creation in one Safe
+   transaction batch; the EOA path remains available as an advanced fallback.
 3. A public equality proof must establish that encrypted escrow equals the
    public ceiling before the tender becomes `Open`.
 4. Each approved vendor may submit one immutable encrypted price.
@@ -142,8 +142,9 @@ stateDiagram-v2
    become an encrypted sentinel rather than revealing why they are invalid.
 6. `Nox.lt` and `Nox.select` update the encrypted best-price and winner-ID
    accumulators together. Equal valid bids preserve first-submission priority.
-7. After the deadline, anyone may call `closeTender`. Only the encrypted winner
-   ID becomes publicly decryptable.
+7. After the deadline, or immediately once every approved vendor has submitted,
+   anyone may call `closeTender`. Only the encrypted winner ID becomes publicly
+   decryptable.
 8. A Nox public-decryption proof binds the result to the stored winner handle.
    `finalizeTender` maps the proven bid ID to its stored vendor.
 9. The winner receives the confidential bid amount, while the buyer receives
@@ -175,7 +176,7 @@ flowchart LR
     Market <--> Token["ERC-7984 token"]
     Market --> Receipt["Award receipt"]
 
-    Relay["Stateless finalizer"] -->|close / proof / finalize| Market
+    Relay["Stateless settlement relay"] -->|confirm funding / close / proof / finalize| Market
     Console["Read-only CLI / MCP"] -->|public queries| Market
     Bindings["Generated ABI + address bindings"] --> Web
     Bindings --> Relay
@@ -269,7 +270,8 @@ security, or mainnet readiness.
 5. Request and submit the public exact-funding proof.
 6. Confirm the tender changes from `FundingPending` to `Open`.
 7. Monitor public bid count without receiving automatic access to bid prices.
-8. Close after the deadline or allow a permissionless finalizer to do so.
+8. Close after the deadline, or as soon as every approved vendor has bid; a
+   permissionless settlement relay can perform the write.
 9. Resume an interrupted proof request from Activity.
 10. After close, optionally grant an auditor access to one specific bid handle.
 
