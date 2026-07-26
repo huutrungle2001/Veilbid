@@ -7,13 +7,12 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: Attach the user's final demo-video URL, verify it signed out, then
-  publish the prepared X and DoraHacks entries.
-- Current blocker: The public repository and product release are ready. The
-  real-person demo video, X post, and DoraHacks publication remain
-  user-controlled.
-- Awaiting approval from: Hữu Trung — final video URL and publication.
-- Last updated: 2026-07-26T11:10:24+07:00
+- Next action: User reviews the completed release hardening and the canonical
+  production frontend deployment.
+- Current blocker: None for the implemented product release. No contract
+  redeployment is required.
+- Awaiting approval from: Hữu Trung — final release review.
+- Last updated: 2026-07-26T20:06:17+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

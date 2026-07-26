@@ -4,7 +4,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PublicMarketState } from "../src/public-market/usePublicMarket";
 import { ExplorerView } from "../src/shell/App";
@@ -278,6 +278,7 @@ describe("Tender Room public explorer", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(/cannot execute from the Safe/i)).toBeInTheDocument();
+    expect(screen.getByText(/RELEASE MODULE: ENABLED/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "SAFE TREASURY" }),
     ).toBeEnabled();

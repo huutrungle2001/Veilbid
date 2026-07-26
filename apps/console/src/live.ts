@@ -1,4 +1,5 @@
 import {
+  buildPublicLogBlockRanges,
   buildPublicMarketIndex,
   decodeVeilBidPublicEvent,
 } from "@veilbid/chain-bindings";
@@ -27,7 +28,6 @@ import type {
 } from "./types.js";
 
 const confirmationDepth = 12n;
-const blockChunkSize = 2_000n;
 const marketAbi = marketAbiJson as Abi;
 const receiptAbi = receiptAbiJson as Abi;
 
@@ -68,19 +68,14 @@ export class LivePublicOperatorSource implements PublicOperatorSource {
     );
     const events = [];
     if (finalizedBlock >= fromBlock) {
-      for (
-        let start = fromBlock;
-        start <= finalizedBlock;
-        start += blockChunkSize
-      ) {
-        const end =
-          start + blockChunkSize - 1n < finalizedBlock
-            ? start + blockChunkSize - 1n
-            : finalizedBlock;
+      for (const range of buildPublicLogBlockRanges(
+        fromBlock,
+        finalizedBlock,
+      )) {
         const logs = await this.#client.getLogs({
           address: deployment.contracts.VeilBidMarket.address,
-          fromBlock: start,
-          toBlock: end,
+          fromBlock: range.fromBlock,
+          toBlock: range.toBlock,
         });
         for (const log of logs) {
           if (
@@ -114,7 +109,7 @@ export class LivePublicOperatorSource implements PublicOperatorSource {
   }
 
   async settlementFlags(tenderId: bigint) {
-    const [winnerIdPubliclyDecryptable, canFinalize, canRefund] =
+    const [winnerIdPubliclyDecryptable, canFinalize] =
       await Promise.all([
         this.#client.readContract({
           address: deployment.contracts.VeilBidMarket.address,
@@ -128,18 +123,12 @@ export class LivePublicOperatorSource implements PublicOperatorSource {
           functionName: "canFinalize",
           args: [tenderId],
         }),
-        this.#client.readContract({
-          address: deployment.contracts.VeilBidMarket.address,
-          abi: marketAbi,
-          functionName: "canRefund",
-          args: [tenderId],
-        }),
       ]);
     return {
       winnerIdPubliclyDecryptable:
         winnerIdPubliclyDecryptable === true,
       canFinalize: canFinalize === true,
-      canRefund: canRefund === true,
+      refundRequiresZeroWinnerProof: true,
     };
   }
 

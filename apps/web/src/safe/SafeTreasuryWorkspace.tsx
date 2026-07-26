@@ -3,6 +3,9 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import {
   parseSafeTenderInput,
   prepareSafeTender,
+  safeReleaseConfiguration,
+  serializeSafeTransactionHandoff,
+  type SafePreparationResult,
   type SafeTenderInput,
 } from "./safePreparation";
 import { ContextHelp } from "../shell/ContextHelp";
@@ -15,6 +18,109 @@ const emptyInput: SafeTenderInput = {
   vendors: "",
   nonce: "1",
 };
+
+export function SafeActionHandoff({
+  result,
+}: {
+  result: SafePreparationResult;
+}) {
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  async function copy(label: string, value: string) {
+    try {
+      if (!navigator.clipboard) throw new Error("clipboard-unavailable");
+      await navigator.clipboard.writeText(value);
+      setCopyStatus(`${label} copied.`);
+    } catch {
+      setCopyStatus("Clipboard unavailable. Select and copy the value manually.");
+    }
+  }
+
+  return (
+    <section className="safe-handoff" aria-label="Safe transaction handoff">
+      <div>
+        <p className="eyebrow">SAFE TRANSACTION READY</p>
+        <h3>Submit through normal Safe authorization</h3>
+        <p>
+          Open the configured Safe, create a new transaction with value 0,
+          then paste the target and calldata below. Review both before signing.
+        </p>
+      </div>
+      <label>
+        <span>Target contract</span>
+        <input readOnly value={result.target} aria-label="Safe target contract" />
+      </label>
+      <button
+        className="secondary-button"
+        type="button"
+        onClick={() => void copy("Target", result.target)}
+      >
+        COPY TARGET
+      </button>
+      <label className="safe-calldata-field">
+        <span>Transaction calldata</span>
+        <textarea
+          readOnly
+          value={result.safeTransactionData}
+          aria-label="Safe transaction calldata"
+        />
+      </label>
+      <div className="safe-handoff-actions">
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() =>
+            void copy("Calldata", result.safeTransactionData)
+          }
+        >
+          COPY CALLDATA
+        </button>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() =>
+            void copy("Transaction JSON", serializeSafeTransactionHandoff(result))
+          }
+        >
+          COPY TRANSACTION JSON
+        </button>
+        <a
+          className="secondary-button"
+          href={safeReleaseConfiguration.walletUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          OPEN SAFE ↗
+        </a>
+      </div>
+      <dl className="safe-handoff-evidence">
+        <div>
+          <dt>Safe</dt>
+          <dd>{result.safe}</dd>
+        </div>
+        <div>
+          <dt>Action hash</dt>
+          <dd>{result.actionHash}</dd>
+        </div>
+        <div>
+          <dt>Preparation transaction</dt>
+          <dd>
+            <a
+              href={`https://sepolia.etherscan.io/tx/${result.transactionHash}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Inspect on Sepolia ↗
+            </a>
+          </dd>
+        </div>
+      </dl>
+      {copyStatus && (
+        <p className="result-line" aria-live="polite">{copyStatus}</p>
+      )}
+    </section>
+  );
+}
 
 export function SafeTreasuryWorkspace({
   wallet,
@@ -86,7 +192,7 @@ export function SafeTreasuryWorkspace({
             "Prepare the encrypted input and generated market calldata in this browser session.",
             "Open the Safe interface, submit that calldata, and satisfy the Safe's configured signer threshold.",
           ]}
-          note="This screen produces input only and has no treasury execution authority. The current demo module must be enabled by a normal Safe threshold transaction first."
+          note="This screen produces input only and has no treasury execution authority. Module state is checked on Sepolia again before every preparation."
         />
         <p className="eyebrow">SAFE TREASURY / PREPARATION ONLY</p>
         <h1>Prepare. Then authorize.</h1>
@@ -97,8 +203,8 @@ export function SafeTreasuryWorkspace({
       </section>
       <WalletPanel wallet={wallet} />
       <p className="workspace-notice">
-        THE CURRENT E2E MANIFEST RECORDS THE DEMO MODULE AS DISABLED. RE-ENABLE
-        REQUIRES A NORMAL SAFE THRESHOLD TRANSACTION.
+        RELEASE MODULE: {safeReleaseConfiguration.moduleEnabled ? "ENABLED" : "DISABLED"}
+        {" · "}LIVE MODULE STATE IS RECHECKED BEFORE PREPARATION.
       </p>
       <section className="write-form">
         <div className="form-heading">
@@ -148,12 +254,7 @@ export function SafeTreasuryWorkspace({
         </button>
         {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}
-        {result && (
-          <p className="result-line" aria-live="polite">
-            Prepared {result.actionHash.slice(0, 12)}… · Safe transaction
-            calldata generated in this session.
-          </p>
-        )}
+        {result && <SafeActionHandoff result={result} />}
       </section>
     </main>
   );

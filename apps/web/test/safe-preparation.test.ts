@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseSafeTenderInput } from "../src/safe/safePreparation";
+import {
+  parseSafeTenderInput,
+  safeReleaseConfiguration,
+  serializeSafeTransactionHandoff,
+} from "../src/safe/safePreparation";
 
 const vendor = "0x1111111111111111111111111111111111111111";
 
@@ -29,5 +33,20 @@ describe("Safe preparation terms", () => {
         nonce: "0",
       }),
     ).toThrow(/unique vendor/i);
+  });
+
+  it("reflects the canonical enabled module and serializes a zero-value Safe handoff", () => {
+    expect(safeReleaseConfiguration.moduleEnabled).toBe(true);
+    expect(safeReleaseConfiguration.walletUrl).toContain(
+      safeReleaseConfiguration.safe,
+    );
+    expect(
+      JSON.parse(
+        serializeSafeTransactionHandoff({
+          target: vendor,
+          safeTransactionData: "0x1234",
+        }),
+      ),
+    ).toEqual({ to: vendor, value: "0", data: "0x1234" });
   });
 });

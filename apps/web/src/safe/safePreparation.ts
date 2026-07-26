@@ -24,6 +24,13 @@ const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
 const moduleAddress =
   deployment.contracts.VeilBidSafePreparationModule.address as Address;
 const safeAddress = deployment.contracts.VeilBidDemoSafe.address as Address;
+export const safeReleaseConfiguration = {
+  safe: safeAddress,
+  module: moduleAddress,
+  moduleEnabled:
+    deployment.contracts.VeilBidSafePreparationModule.enabled === true,
+  walletUrl: `https://app.safe.global/home?safe=sep:${safeAddress}`,
+} as const;
 const safeReadAbi = [
   {
     type: "function",
@@ -186,4 +193,22 @@ export async function prepareSafeTender({
       ],
     }),
   };
+}
+
+export type SafePreparationResult = Awaited<
+  ReturnType<typeof prepareSafeTender>
+>;
+
+export function serializeSafeTransactionHandoff(
+  result: Pick<SafePreparationResult, "target" | "safeTransactionData">,
+): string {
+  return JSON.stringify(
+    {
+      to: result.target,
+      value: "0",
+      data: result.safeTransactionData,
+    },
+    null,
+    2,
+  );
 }

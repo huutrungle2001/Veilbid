@@ -17,7 +17,7 @@ export interface OperatorSnapshot {
 export interface SettlementFlags {
   winnerIdPubliclyDecryptable: boolean;
   canFinalize: boolean;
-  canRefund: boolean;
+  refundRequiresZeroWinnerProof: boolean;
 }
 
 export interface AwardEvidence {

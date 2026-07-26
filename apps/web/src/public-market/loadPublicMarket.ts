@@ -1,6 +1,8 @@
 import {
+  buildPublicLogBlockRanges,
   buildPublicMarketIndex,
   decodeVeilBidPublicEvent,
+  publicLogBlockChunkSize,
   type PublicMarketIndex,
 } from "@veilbid/chain-bindings";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
@@ -13,8 +15,8 @@ import {
 import { sepolia } from "viem/chains";
 
 const confirmationDepth = 12n;
-export const publicLogBlockChunkSize = 1_000n;
 export const defaultSepoliaRpcUrl = "https://11155111.rpc.thirdweb.com";
+export { buildPublicLogBlockRanges, publicLogBlockChunkSize };
 
 interface DeploymentContract {
   address: Address;
@@ -38,27 +40,6 @@ export interface LoadedPublicMarket {
   latestBlock: bigint;
   deploymentKind: string;
   deploymentVerified: boolean;
-}
-
-export function buildPublicLogBlockRanges(
-  fromBlock: bigint,
-  toBlock: bigint,
-) {
-  const ranges: Array<{ fromBlock: bigint; toBlock: bigint }> = [];
-  for (
-    let chunkStart = fromBlock;
-    chunkStart <= toBlock;
-    chunkStart += publicLogBlockChunkSize
-  ) {
-    ranges.push({
-      fromBlock: chunkStart,
-      toBlock:
-        chunkStart + publicLogBlockChunkSize - 1n < toBlock
-          ? chunkStart + publicLogBlockChunkSize - 1n
-          : toBlock,
-    });
-  }
-  return ranges;
 }
 
 export async function loadPublicMarket(

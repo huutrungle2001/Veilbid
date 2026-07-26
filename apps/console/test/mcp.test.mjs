@@ -49,7 +49,7 @@ function service() {
       return {
         winnerIdPubliclyDecryptable: false,
         canFinalize: false,
-        canRefund: false,
+        refundRequiresZeroWinnerProof: true,
       };
     },
     async awardEvidence() {

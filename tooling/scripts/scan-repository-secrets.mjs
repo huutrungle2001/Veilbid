@@ -71,6 +71,7 @@ function git(args, input) {
     cwd: repositoryRoot,
     encoding: "utf8",
     input,
+    maxBuffer: 64 * 1024 * 1024,
   });
 }
 

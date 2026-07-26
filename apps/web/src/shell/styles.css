@@ -1498,6 +1498,87 @@ main {
   font-size: 0.7rem;
 }
 
+.safe-handoff {
+  border-top: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 14px;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-top: 20px;
+}
+
+.safe-handoff > div:first-child,
+.safe-calldata-field,
+.safe-handoff-actions,
+.safe-handoff-evidence,
+.safe-handoff > .result-line {
+  grid-column: 1 / -1;
+}
+
+.safe-handoff h3 {
+  font-size: 1.7rem;
+  margin: 0 0 8px;
+}
+
+.safe-handoff p {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.safe-handoff > .secondary-button {
+  align-self: end;
+}
+
+.safe-calldata-field textarea {
+  min-height: 180px;
+  overflow-wrap: anywhere;
+}
+
+.safe-handoff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safe-handoff-actions .secondary-button {
+  align-items: center;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  justify-content: center;
+}
+
+.safe-handoff-evidence {
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  margin: 0;
+}
+
+.safe-handoff-evidence > div {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 180px minmax(0, 1fr);
+  padding: 10px 12px;
+}
+
+.safe-handoff-evidence > div + div {
+  border-top: 1px solid var(--color-ink-black);
+}
+
+.safe-handoff-evidence dt,
+.safe-handoff-evidence dd {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.safe-handoff-evidence dt {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 .progress-line {
   align-items: center;
   display: flex;
@@ -2454,6 +2535,18 @@ footer p {
   .write-form {
     grid-template-columns: 1fr;
     padding: 24px 20px;
+  }
+
+  .safe-handoff {
+    grid-template-columns: 1fr;
+  }
+
+  .safe-handoff > .secondary-button {
+    grid-column: 1 / -1;
+  }
+
+  .safe-handoff-evidence > div {
+    grid-template-columns: 1fr;
   }
 
   .activity-card {

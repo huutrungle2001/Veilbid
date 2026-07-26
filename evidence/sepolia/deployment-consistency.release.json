@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "release-deployment-consistency",
-  "recordedAt": "2026-07-25T19:39:47.569Z",
+  "recordedAt": "2026-07-26T13:02:40.633Z",
   "environment": {
     "network": "ethereum-sepolia",
     "chainId": 11155111,
@@ -110,8 +110,8 @@
   },
   "blockers": [],
   "notes": [
-    "Runtime comparisons mask Solidity immutable slots and separately verify every immutable relationship through public getters.",
-    "Constructor calldata is compared against locally encoded artifact bytecode and exact release arguments.",
+    "Runtime logic comparisons mask Solidity immutable slots, exclude only the compiler CBOR metadata trailer, and separately verify every immutable relationship through public getters.",
+    "Full deployed and creation bytecode are checked against Sourcify's exact canonical recompilation; constructor arguments are also checked against the current local ABI.",
     "The embedded receipt has exact runtime mapping and shares the exact Market creation transaction; Sourcify does not report a separate top-level creation match for this internal CREATE.",
     "No credentials, private keys, signatures, confidential handles, proofs, bid values, or balances are recorded."
   ]

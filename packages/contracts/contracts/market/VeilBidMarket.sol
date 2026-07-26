@@ -519,6 +519,9 @@ contract VeilBidMarket is ReentrancyGuard {
         return _requireTender(tenderId).status == TenderStatus.Closed;
     }
 
+    /// @notice Legacy readiness alias retained for the deployed release ABI.
+    /// @dev A true value does not authorize a standalone refund. Finalization
+    ///      refunds only when the verified public winner proof resolves to zero.
     function canRefund(uint256 tenderId) external view returns (bool) {
         return _requireTender(tenderId).status == TenderStatus.Closed;
     }

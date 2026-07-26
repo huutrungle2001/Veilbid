@@ -1,5 +1,6 @@
 import { createViemHandleClient, type HandleClient } from "@iexec-nox/handle";
 import {
+  buildPublicLogBlockRanges,
   buildPublicMarketIndex,
   decodeVeilBidPublicEvent,
   type PublicMarketIndex,
@@ -31,7 +32,6 @@ import {
 } from "./types.js";
 
 const confirmationDepth = 12n;
-const blockChunkSize = 2_000n;
 const marketAbi = marketAbiJson as Abi;
 
 interface DeploymentContract {
@@ -253,19 +253,14 @@ export class LiveRelay {
     );
     const events = [];
     if (finalizedBlock >= fromBlock) {
-      for (
-        let chunkStart = fromBlock;
-        chunkStart <= finalizedBlock;
-        chunkStart += blockChunkSize
-      ) {
-        const chunkEnd =
-          chunkStart + blockChunkSize - 1n < finalizedBlock
-            ? chunkStart + blockChunkSize - 1n
-            : finalizedBlock;
+      for (const range of buildPublicLogBlockRanges(
+        fromBlock,
+        finalizedBlock,
+      )) {
         const logs = await this.publicClient.getLogs({
           address: marketAddress,
-          fromBlock: chunkStart,
-          toBlock: chunkEnd,
+          fromBlock: range.fromBlock,
+          toBlock: range.toBlock,
         });
         for (const log of logs) {
           if (

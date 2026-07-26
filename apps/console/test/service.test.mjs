@@ -53,7 +53,7 @@ function source() {
       return {
         winnerIdPubliclyDecryptable: true,
         canFinalize: false,
-        canRefund: false,
+        refundRequiresZeroWinnerProof: true,
       };
     },
     async awardEvidence() {
@@ -100,6 +100,8 @@ test("service returns receipt and ACL evidence without decryption", async () => 
   const service = new PublicOperatorService(source());
   const settlement = await service.inspectSettlement("1");
   assert.equal(settlement.award.winner, vendor);
+  assert.equal(settlement.refundRequiresZeroWinnerProof, true);
+  assert.equal("canRefund" in settlement, false);
   const acl = await service.inspectBidViewer({
     tenderId: "1",
     bidId: "1",

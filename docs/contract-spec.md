@@ -68,7 +68,10 @@ No transition leaves a terminal state.
 - `getBid(tenderId, bidId)`
 - `canClose(tenderId)`
 - `canFinalize(tenderId)`
-- `canRefund(tenderId)`
+- `canRefund(tenderId)` — legacy deployed-ABI readiness alias; `true` means the
+  tender is closed and can be finalized, not that a standalone refund is
+  available. Refund occurs only when the verified winner proof resolves to
+  zero.
 
 ### Safe module
 

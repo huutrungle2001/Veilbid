@@ -3,7 +3,7 @@ import { getTenderReadiness } from "@veilbid/chain-bindings";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import { useMemo } from "react";
 import { formatUnits } from "viem";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router";
 import type { LoadedPublicMarket } from "../public-market/loadPublicMarket";
 import {
   type PublicMarketState,

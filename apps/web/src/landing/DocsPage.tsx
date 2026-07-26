@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const navItems = [
   ["overview", "OVERVIEW"],
@@ -190,9 +190,10 @@ export function DocsPage() {
             <div className="docs-callout">
               <strong>CURRENT DEMO STATE</strong>
               <p>
-                The release manifest records the demo module as disabled after
-                the verified lifecycle. Re-enabling it requires a normal Safe
-                threshold transaction.
+                The canonical release manifest records the preparation module as
+                enabled. The browser rechecks the live Safe state before every
+                preparation, and any future re-enable or revoke still requires
+                a normal Safe threshold transaction.
               </p>
             </div>
           </section>
@@ -251,7 +252,7 @@ export function DocsPage() {
               <div><dt>Wrap is unavailable</dt><dd>Connect on Sepolia and request Test USDC first. Wrap only the amount intended for testing; manual unwrap is not exposed in this release.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
               <div><dt>Auditor cannot reveal</dt><dd>Confirm the connected account has a grant for that exact bid handle; access to another bid does not carry over.</dd></div>
-              <div><dt>Safe action unavailable</dt><dd>The demo module is intentionally disabled. A Safe threshold transaction is required to enable it again.</dd></div>
+              <div><dt>Safe action unavailable</dt><dd>Confirm the connected wallet is a Safe owner and the live module is enabled. Enabling or re-enabling it requires a normal Safe threshold transaction.</dd></div>
             </dl>
           </section>
 

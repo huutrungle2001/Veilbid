@@ -1,4 +1,4 @@
-import { BrowserRouter, MemoryRouter } from "react-router-dom";
+import { BrowserRouter, MemoryRouter } from "react-router";
 import { App } from "../src/shell/App";
 
 export default function TenderRoomPage({

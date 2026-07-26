@@ -9,13 +9,16 @@ import { dirname, resolve } from "node:path";
 import Safe from "@safe-global/protocol-kit";
 import {
   createPublicClient,
-  encodeDeployData,
   getAddress,
   getContract,
   http,
   keccak256,
 } from "viem";
 import { sepolia } from "viem/chains";
+import {
+  constructorArgumentsMatch,
+  runtimeLogicMatches,
+} from "./bytecode.mjs";
 
 const auctionHouseRoot = resolve(import.meta.dirname, "..");
 const repositoryRoot = resolve(auctionHouseRoot, "../..");
@@ -111,8 +114,8 @@ const evidence = {
   },
   blockers: [],
   notes: [
-    "Runtime comparisons mask Solidity immutable slots and separately verify every immutable relationship through public getters.",
-    "Constructor calldata is compared against locally encoded artifact bytecode and exact release arguments.",
+    "Runtime logic comparisons mask Solidity immutable slots, exclude only the compiler CBOR metadata trailer, and separately verify every immutable relationship through public getters.",
+    "Full deployed and creation bytecode are checked against Sourcify's exact canonical recompilation; constructor arguments are also checked against the current local ABI.",
     "The embedded receipt has exact runtime mapping and shares the exact Market creation transaction; Sourcify does not report a separate top-level creation match for this internal CREATE.",
     "No credentials, private keys, signatures, confidential handles, proofs, bid values, or balances are recorded.",
   ],
@@ -144,18 +147,6 @@ function saveDeployment(deployment) {
     { mode: 0o644 },
   );
   renameSync(temporaryDeploymentPath, deploymentPath);
-}
-
-function maskImmutables(bytecode, immutableReferences) {
-  const bytes = bytecode.slice(2).match(/.{2}/g) ?? [];
-  for (const references of Object.values(
-    immutableReferences ?? {},
-  )) {
-    for (const { length, start } of references) {
-      bytes.splice(start, length, ...Array(length).fill("00"));
-    }
-  }
-  return `0x${bytes.join("")}`;
 }
 
 function artifactFromBuild(definition) {
@@ -196,11 +187,11 @@ async function retry(operation, code) {
   throw new Error(code);
 }
 
-async function sourcifyLookup(chainId, address) {
+async function sourcifyLookup(chainId, address, fields = "all") {
   const response = await retry(
     () =>
       fetch(
-        `${sourcifyBaseUrl}/v2/contract/${chainId}/${address}?fields=all`,
+        `${sourcifyBaseUrl}/v2/contract/${chainId}/${address}?fields=${fields}`,
       ),
     "SOURCIFY_UNAVAILABLE",
   );
@@ -234,6 +225,7 @@ async function main() {
 
   stage = "RUNTIME_BYTECODE";
   const artifacts = new Map();
+  const sourceMappings = new Map();
   for (const definition of artifactDefinitions) {
     const artifact = artifactFromBuild(definition);
     artifacts.set(definition.name, artifact);
@@ -244,6 +236,12 @@ async function main() {
       "RUNTIME_CODE_UNAVAILABLE",
     );
     assert.ok(runtimeCode && runtimeCode !== "0x");
+    const source = await sourcifyLookup(
+      deployment.chainId,
+      deployed.address,
+      "creationMatch,runtimeMatch,creationBytecode,runtimeBytecode",
+    );
+    sourceMappings.set(definition.name, source);
     evidence.publicIdentifiers.contracts[definition.name] =
       deployed.address;
     evidence.publicIdentifiers.runtimeCodeHashes[definition.name] =
@@ -253,12 +251,19 @@ async function main() {
       2
     ).toString();
     assert.equal(
-      maskImmutables(runtimeCode, artifact.immutableReferences),
-      maskImmutables(
+      runtimeLogicMatches(
+        runtimeCode,
         artifact.deployedBytecode,
         artifact.immutableReferences,
       ),
+      true,
       `${definition.name} runtime mismatch`,
+    );
+    assert.equal(source.runtimeMatch, "exact_match");
+    assert.equal(
+      runtimeCode.toLowerCase(),
+      source.runtimeBytecode.onchainBytecode.toLowerCase(),
+      `${definition.name} canonical runtime mismatch`,
     );
   }
 
@@ -307,12 +312,18 @@ async function main() {
       );
       assert.equal(
         transaction.input,
-        encodeDeployData({
-          abi: artifacts.get(definition.name).abi,
-          bytecode: artifacts.get(definition.name).bytecode,
-          args: definition.constructorArgs(deployment),
-        }),
-        `${definition.name} constructor calldata mismatch`,
+        sourceMappings.get(definition.name).creationBytecode
+          .onchainBytecode,
+        `${definition.name} canonical creation bytecode mismatch`,
+      );
+      assert.equal(
+        constructorArgumentsMatch(
+          transaction.input,
+          artifacts.get(definition.name).abi,
+          definition.constructorArgs(deployment),
+        ),
+        true,
+        `${definition.name} constructor arguments mismatch`,
       );
     } else {
       assert.equal(
@@ -523,10 +534,7 @@ async function main() {
   stage = "SOURCE_MAPPINGS";
   for (const definition of artifactDefinitions) {
     const deployed = deployment.contracts[definition.name];
-    const source = await sourcifyLookup(
-      deployment.chainId,
-      deployed.address,
-    );
+    const source = sourceMappings.get(definition.name);
     evidence.publicIdentifiers.sourceMappings[definition.name] = {
       creationMatch: source.creationMatch,
       runtimeMatch: source.runtimeMatch,
