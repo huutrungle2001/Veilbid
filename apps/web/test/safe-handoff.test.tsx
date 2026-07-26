@@ -1,11 +1,14 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SafeActionHandoff } from "../src/safe/SafeTreasuryWorkspace";
-import type { SafePreparationResult } from "../src/safe/safePreparation";
+import {
+  safeReleaseConfiguration,
+  type SafePreparationResult,
+} from "../src/safe/safePreparation";
 
 const result = {
   actionHash: `0x${"11".repeat(32)}`,
-  safe: "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
+  safe: safeReleaseConfiguration.safe,
   target: "0x4444444444444444444444444444444444444444",
   safeTransactionData: `0x${"55".repeat(96)}`,
   preparationTransactionData: `0x${"66".repeat(96)}`,
@@ -50,7 +53,7 @@ describe("Safe transaction handoff", () => {
     );
     expect(screen.getByRole("link", { name: /open safe/i })).toHaveAttribute(
       "href",
-      expect.stringContaining(result.safe),
+      safeReleaseConfiguration.walletUrl,
     );
 
     fireEvent.click(
