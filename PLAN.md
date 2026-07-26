@@ -7,12 +7,12 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: User reviews the completed release hardening and the canonical
-  production frontend deployment.
+- Next action: User reviews the completed release hardening, canonical
+  production frontend, and live relay write verification.
 - Current blocker: None for the implemented product release. No contract
   redeployment is required.
 - Awaiting approval from: Hữu Trung — final release review.
-- Last updated: 2026-07-26T20:06:17+07:00
+- Last updated: 2026-07-26T20:34:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -68,6 +68,7 @@ Only one phase may be `In progress`.
 | Repository consolidation | Verified | Agent | 2026-07-26 | Applications moved under `apps/`, reusable workspaces under `packages/`, and repository scripts under `tooling/`; production and feasibility Solidity now share one pinned contracts workspace with separate deployment boundaries. |
 | Public repository | Published | User | 2026-07-26 | `https://github.com/huutrungle2001/Veilbid` was changed from private to public after the user requested continuation. |
 | Public RPC pagination recovery | Verified | Agent | 2026-07-26 | Deployment `dpl_GQ96e7T9v4VasT3F9P1E7wpSTyFW` limits inclusive `eth_getLogs` ranges to 1,000 blocks, restores wallet-free tender #1, and passes production desktop/mobile smoke without the unavailable-state fallback. |
+| Settlement relay live writes | Verified | Agent | 2026-07-26 | Canonical release tender #5 completed Safe funding, encrypted vendor bidding, relay-account close, public-proof finalize, and proof-derived award on Sepolia; disposable failed setup tenders #3/#4 were cancelled and escrow returned to the Safe. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

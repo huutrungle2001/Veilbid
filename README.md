@@ -554,8 +554,8 @@ rules.
   full live reorg rollback test remains pending.
 - Contract callback protections are statically and structurally tested; a
   dedicated adversarial callback runtime test remains pending.
-- Relay-originated live Sepolia close/finalize writes remain pending even though
-  the same lifecycle and relay planning are independently verified.
+- Relay-originated close/finalize writes are verified on the canonical Sepolia
+  release with sanitized public lifecycle evidence.
 - Fresh-wallet browser write and authorized-reveal E2E coverage is not yet as
   complete as contract-level Sepolia evidence.
 - VeilBid does not verify vendor service quality, legal performance, identity,
