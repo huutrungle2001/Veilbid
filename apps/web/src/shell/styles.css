@@ -2358,6 +2358,103 @@ footer p {
   }
 }
 
+@media (min-width: 901px) {
+  .tender-layout {
+    grid-template-columns: clamp(240px, 20vw, 280px) minmax(0, 1fr);
+  }
+
+  .rolebar {
+    gap: 12px;
+    padding: 30px 20px;
+  }
+
+  .rolebar::before {
+    font-size: 0.78rem;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .rolebar-links {
+    gap: 10px;
+  }
+
+  .rolebar-links > button {
+    font-size: 0.86rem;
+    min-height: 46px;
+    padding: 10px 20px;
+  }
+
+  .sidebar-balances {
+    gap: 14px;
+    margin-top: 16px;
+    padding: 22px 6px 0;
+  }
+
+  .sidebar-balances header strong {
+    font-size: 0.82rem;
+  }
+
+  .sidebar-balances .context-help.compact .context-help-trigger,
+  .sidebar-balances .balance-refresh {
+    font-size: 0.86rem;
+    height: 34px;
+    min-height: 34px;
+    width: 34px;
+  }
+
+  .sidebar-balances dl {
+    gap: 11px;
+  }
+
+  .sidebar-balances dt {
+    font-size: 0.7rem;
+  }
+
+  .sidebar-balances dd {
+    font-size: 0.82rem;
+  }
+
+  .sidebar-balances .balance-reveal {
+    height: 30px;
+    min-height: 30px;
+    width: 30px;
+  }
+
+  .balance-empty,
+  .balance-message,
+  .balance-note {
+    font-size: 0.68rem;
+  }
+
+  .sidebar-balances .balance-faucet,
+  .sidebar-balances .balance-wrap-toggle {
+    font-size: 0.74rem;
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  .balance-wrap-form {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .balance-wrap-form label,
+  .balance-wrap-form p {
+    font-size: 0.65rem;
+  }
+
+  .balance-wrap-form input {
+    font-size: 0.74rem;
+    min-height: 42px;
+  }
+
+  .balance-wrap-form > div button,
+  .balance-wrap-confirm {
+    font-size: 0.66rem;
+    min-height: 42px;
+  }
+}
+
 @media (max-width: 900px) {
   .topbar {
     gap: 12px 20px;
