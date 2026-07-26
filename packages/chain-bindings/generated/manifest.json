@@ -41,9 +41,9 @@
       "network": "ethereum-sepolia",
       "chainId": 11155111,
       "kind": "release",
-      "verified": false,
+      "verified": true,
       "addresses": "addresses/sepolia.release.json",
-      "sha256": "6f01ed294a24ef9b4e7305a49f1f5842c96f4c1576757fe99d60bf42395b55cd"
+      "sha256": "baf852ff67419f148b1ecf45a67afc8e5e06d913ef00c2f3a6393a41315b9e8b"
     }
   ]
 }
