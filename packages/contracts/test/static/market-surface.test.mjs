@@ -84,6 +84,24 @@ describe("VeilBidMarket production surface", () => {
     assert.match(source, /hasSubmittedBid\[tenderId\]\[msg\.sender\]/);
   });
 
+  it("closes when the deadline passes or every approved vendor has bid", () => {
+    assert.match(
+      source,
+      /tender\.approvedVendorCount = uint8\(approvedVendors\.length\)/,
+    );
+    assert.match(
+      source,
+      /block\.timestamp < tender\.bidDeadline &&\s*tender\.bidCount < tender\.approvedVendorCount/,
+    );
+    assert.match(
+      source,
+      /block\.timestamp >= tender\.bidDeadline \|\|\s*tender\.bidCount == tender\.approvedVendorCount/,
+    );
+    const getTender = abiFunction("getTender");
+    const components = getTender.outputs[0].components.map(({ name }) => name);
+    assert.ok(components.includes("approvedVendorCount"));
+  });
+
   it("exposes no administrator, arbitrary withdrawal, or Safe execution path", () => {
     const forbidden = new Set([
       "admin",

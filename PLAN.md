@@ -5,14 +5,15 @@
 
 ## 1. Current status
 
-- Current phase: Phase 7 — Submission
-- Status: Waiting for approval
-- Next action: User verifies immediate post-confirmation tender visibility,
-  public status filtering, and the multi-vendor Buyer form in production.
-- Current blocker: None for the implemented product release. No contract
-  redeployment is required.
-- Awaiting approval from: Hữu Trung — final release review.
-- Last updated: 2026-07-26T21:52:00+07:00
+- Current phase: Phase 6 — Sepolia and product release upgrade
+- Status: In progress
+- Next action: Add all-vendors-submitted early close, automate permissionless
+  funding/close/finalize relay actions, make Safe Buyer the primary workflow,
+  redeploy to Sepolia, and verify the upgraded release.
+- Current blocker: None. The user approved live Sepolia deployment and relay
+  operation after completing the browser test flow.
+- Awaiting approval from: None during implementation.
+- Last updated: 2026-07-27T00:00:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,8 +46,8 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | Completed |
-| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Waiting for approval |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Release verification passes | In progress |
+| 7. Submission | Publish repository, feedback, live UI, video, X post, and DoraHacks entry | User final review | Todo |
 
 Only one phase may be `In progress`.
 

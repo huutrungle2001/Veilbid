@@ -49,6 +49,7 @@ contract VeilBidMarket is ReentrancyGuard {
         uint256 publicCeiling;
         uint64 bidDeadline;
         uint64 closeBlock;
+        uint8 approvedVendorCount;
         uint8 bidCount;
         TenderStatus status;
         uint256 winnerBidId;
@@ -72,6 +73,7 @@ contract VeilBidMarket is ReentrancyGuard {
         uint256 publicCeiling;
         uint64 bidDeadline;
         uint64 closeBlock;
+        uint8 approvedVendorCount;
         uint8 bidCount;
         TenderStatus status;
         uint256 winnerBidId;
@@ -130,7 +132,8 @@ contract VeilBidMarket is ReentrancyGuard {
         bytes32 indexed metadataHash,
         address paymentToken,
         uint256 publicCeiling,
-        uint64 bidDeadline
+        uint64 bidDeadline,
+        uint8 approvedVendorCount
     );
     event TenderFunded(uint256 indexed tenderId);
     event BidSubmitted(
@@ -298,7 +301,10 @@ contract VeilBidMarket is ReentrancyGuard {
     function closeTender(uint256 tenderId) external nonReentrant {
         Tender storage tender = _requireTender(tenderId);
         _requireStatus(tender, TenderStatus.Open);
-        if (block.timestamp < tender.bidDeadline) {
+        if (
+            block.timestamp < tender.bidDeadline &&
+            tender.bidCount < tender.approvedVendorCount
+        ) {
             revert BidDeadlineNotReached();
         }
 
@@ -444,6 +450,7 @@ contract VeilBidMarket is ReentrancyGuard {
             publicCeiling: tender.publicCeiling,
             bidDeadline: tender.bidDeadline,
             closeBlock: tender.closeBlock,
+            approvedVendorCount: tender.approvedVendorCount,
             bidCount: tender.bidCount,
             status: tender.status,
             winnerBidId: tender.winnerBidId,
@@ -512,7 +519,10 @@ contract VeilBidMarket is ReentrancyGuard {
         Tender storage tender = _requireTender(tenderId);
         return
             tender.status == TenderStatus.Open &&
-            block.timestamp >= tender.bidDeadline;
+            (
+                block.timestamp >= tender.bidDeadline ||
+                tender.bidCount == tender.approvedVendorCount
+            );
     }
 
     function canFinalize(uint256 tenderId) external view returns (bool) {
@@ -552,6 +562,7 @@ contract VeilBidMarket is ReentrancyGuard {
         tender.metadataHash = metadataHash;
         tender.publicCeiling = publicCeiling;
         tender.bidDeadline = bidDeadline;
+        tender.approvedVendorCount = uint8(approvedVendors.length);
         tender.status = TenderStatus.FundingPending;
         tender.encryptedBestPrice = Nox.toEuint256(publicCeiling + 1);
         tender.encryptedWinnerBidId = Nox.toEuint256(0);
@@ -573,7 +584,8 @@ contract VeilBidMarket is ReentrancyGuard {
             metadataHash,
             address(paymentToken),
             publicCeiling,
-            bidDeadline
+            bidDeadline,
+            uint8(approvedVendors.length)
         );
     }
 
