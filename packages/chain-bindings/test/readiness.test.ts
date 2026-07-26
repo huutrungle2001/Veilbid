@@ -18,6 +18,7 @@ function tender(
     publicCeiling: 100n,
     bidDeadline: 50n,
     closeBlock: null,
+    approvedVendorCount: 2,
     bidCount: 0,
     status,
     winnerBidId: null,
@@ -39,6 +40,13 @@ describe("getTenderReadiness", () => {
     );
     assert.equal(getTenderReadiness(tender("Open"), 49n).canClose, false);
     assert.equal(getTenderReadiness(tender("Open"), 50n).canClose, true);
+    assert.equal(
+      getTenderReadiness(
+        tender("Open", { bidCount: 2 }),
+        10n,
+      ).canClose,
+      true,
+    );
     assert.equal(
       getTenderReadiness(tender("Closed"), 100n).needsWinnerProof,
       true,

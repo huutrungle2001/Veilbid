@@ -14,6 +14,7 @@ function tender(tenderId, status, bidDeadline = 100n) {
     publicCeiling: 1n,
     bidDeadline,
     closeBlock: status === "Closed" ? 10n : null,
+    approvedVendorCount: 2,
     bidCount: 0,
     status,
     winnerBidId: null,

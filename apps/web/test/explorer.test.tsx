@@ -38,6 +38,7 @@ function state(
             publicCeiling: 100_000_000n,
             bidDeadline: 2_000_000_000n,
             closeBlock: null,
+            approvedVendorCount: 2,
             bidCount: 1,
             status: "Open",
             winnerBidId: null,

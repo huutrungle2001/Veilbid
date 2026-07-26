@@ -30,6 +30,7 @@ function publicTender(tender: PublicTender): PublicTenderOutput {
     publicCeiling: tender.publicCeiling.toString(),
     bidDeadline: tender.bidDeadline.toString(),
     closeBlock: tender.closeBlock?.toString() ?? null,
+    approvedVendorCount: tender.approvedVendorCount,
     bidCount: tender.bidCount,
     status: tender.status,
     winnerBidId: tender.winnerBidId?.toString() ?? null,

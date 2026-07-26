@@ -19,6 +19,7 @@ export interface PublicTender {
   publicCeiling: bigint;
   bidDeadline: bigint;
   closeBlock: bigint | null;
+  approvedVendorCount: number;
   bidCount: number;
   status: TenderStatus;
   winnerBidId: bigint | null;

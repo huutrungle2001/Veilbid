@@ -58,6 +58,17 @@ function addressArgument(
   return value as Address;
 }
 
+function numberArgument(
+  args: Record<string, unknown>,
+  name: string,
+): number {
+  const value = args[name];
+  if (typeof value !== "number") {
+    throw new Error(`VeilBid event argument ${name} is not number`);
+  }
+  return value;
+}
+
 function hexArgument(args: Record<string, unknown>, name: string): Hex {
   const value = args[name];
   if (typeof value !== "string") {
@@ -100,6 +111,7 @@ export function decodeVeilBidPublicEvent(
         paymentToken: addressArgument(args, "paymentToken"),
         publicCeiling: bigintArgument(args, "publicCeiling"),
         bidDeadline: bigintArgument(args, "bidDeadline"),
+        approvedVendorCount: numberArgument(args, "approvedVendorCount"),
       };
     case "TenderFunded":
       return { ...position, name: decoded.eventName, tenderId };

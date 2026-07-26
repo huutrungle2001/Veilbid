@@ -3,6 +3,7 @@ import type { PublicTender } from "../domain/tender.js";
 
 export interface TenderReadiness {
   needsFundingProof: boolean;
+  allVendorsSubmitted: boolean;
   canClose: boolean;
   needsWinnerProof: boolean;
   canBuyerCancel: boolean;
@@ -17,10 +18,15 @@ export function getTenderReadiness(
   const buyerActor =
     actor !== undefined &&
     actor.toLowerCase() === tender.buyer.toLowerCase();
+  const allVendorsSubmitted =
+    tender.approvedVendorCount > 0 &&
+    tender.bidCount === tender.approvedVendorCount;
   return {
     needsFundingProof: tender.status === "FundingPending",
+    allVendorsSubmitted,
     canClose:
-      tender.status === "Open" && timestamp >= tender.bidDeadline,
+      tender.status === "Open" &&
+      (timestamp >= tender.bidDeadline || allVendorsSubmitted),
     needsWinnerProof: tender.status === "Closed",
     canBuyerCancel:
       tender.status === "Open" &&

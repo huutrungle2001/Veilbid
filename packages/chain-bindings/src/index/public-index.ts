@@ -101,6 +101,7 @@ export function buildPublicMarketIndex(
         publicCeiling: event.publicCeiling,
         bidDeadline: event.bidDeadline,
         closeBlock: null,
+        approvedVendorCount: event.approvedVendorCount,
         bidCount: 0,
         status: "FundingPending",
         winnerBidId: null,

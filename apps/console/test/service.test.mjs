@@ -14,6 +14,7 @@ const publicTender = {
   publicCeiling: 1_000_000n,
   bidDeadline: 100n,
   closeBlock: 12n,
+  approvedVendorCount: 1,
   bidCount: 1,
   status: "Awarded",
   winnerBidId: 1n,

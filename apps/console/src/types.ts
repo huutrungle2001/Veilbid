@@ -48,6 +48,7 @@ export interface PublicTenderOutput {
   publicCeiling: string;
   bidDeadline: string;
   closeBlock: string | null;
+  approvedVendorCount: number;
   bidCount: number;
   status: TenderStatus;
   winnerBidId: string | null;

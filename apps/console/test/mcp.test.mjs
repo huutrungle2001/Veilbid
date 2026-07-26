@@ -24,6 +24,7 @@ function service() {
               publicCeiling: 1n,
               bidDeadline: 100n,
               closeBlock: null,
+              approvedVendorCount: 2,
               bidCount: 0,
               status: "Open",
               winnerBidId: null,

@@ -15,6 +15,7 @@ export type VeilBidPublicEvent =
       paymentToken: Address;
       publicCeiling: bigint;
       bidDeadline: bigint;
+      approvedVendorCount: number;
     })
   | (EventPosition & {
       name: "TenderFunded";

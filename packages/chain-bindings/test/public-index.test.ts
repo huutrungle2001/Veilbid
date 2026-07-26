@@ -30,6 +30,7 @@ function lifecycle(): VeilBidPublicEvent[] {
       paymentToken: token,
       publicCeiling: 100n,
       bidDeadline: 50n,
+      approvedVendorCount: 1,
     },
     { ...position(11n), name: "TenderFunded", tenderId: 1n },
     {
@@ -91,6 +92,7 @@ describe("buildPublicMarketIndex", () => {
       {
         status: index.tenders[0].status,
         bidCount: index.tenders[0].bidCount,
+        approvedVendorCount: index.tenders[0].approvedVendorCount,
         winnerBidId: index.tenders[0].winnerBidId,
         winner: index.tenders[0].winner,
         viewerGrantCount: index.tenders[0].viewerGrantCount,
@@ -99,6 +101,7 @@ describe("buildPublicMarketIndex", () => {
       {
         status: "Awarded",
         bidCount: 1,
+        approvedVendorCount: 1,
         winnerBidId: 1n,
         winner: vendor,
         viewerGrantCount: 2,

@@ -8,7 +8,7 @@ import {
 import { decodeVeilBidPublicEvent } from "../src/events/decode.ts";
 
 const createdEvent = parseAbiItem(
-  "event TenderCreated(uint256 indexed tenderId, address indexed buyer, bytes32 indexed metadataHash, address paymentToken, uint256 publicCeiling, uint64 bidDeadline)",
+  "event TenderCreated(uint256 indexed tenderId, address indexed buyer, bytes32 indexed metadataHash, address paymentToken, uint256 publicCeiling, uint64 bidDeadline, uint8 approvedVendorCount)",
 );
 const buyer = "0x1111111111111111111111111111111111111111";
 const token = "0x2222222222222222222222222222222222222222";
@@ -31,8 +31,9 @@ describe("decodeVeilBidPublicEvent", () => {
         { type: "address" },
         { type: "uint256" },
         { type: "uint64" },
+        { type: "uint8" },
       ],
-      [token, 100_000_000n, 2_000_000_000n],
+      [token, 100_000_000n, 2_000_000_000n, 3],
     );
 
     assert.deepEqual(
@@ -51,6 +52,7 @@ describe("decodeVeilBidPublicEvent", () => {
         paymentToken: token,
         publicCeiling: 100_000_000n,
         bidDeadline: 2_000_000_000n,
+        approvedVendorCount: 3,
         blockNumber: 90n,
         transactionHash,
         logIndex: 3,
