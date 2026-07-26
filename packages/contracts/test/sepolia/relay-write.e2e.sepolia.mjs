@@ -58,7 +58,9 @@ const evidence = {
     releaseModuleEnabled: false,
     releaseMarketOperatorEnabled: false,
     safeCreatedTender: false,
+    atomicSafeBatchVerified: false,
     exactFundingConfirmed: false,
+    relayFundingSubmitted: false,
     vendorBidSubmitted: false,
     relayCloseSubmitted: false,
     relayFinalizeSubmitted: false,
@@ -184,43 +186,35 @@ async function main() {
     "uint256",
     moduleAddress,
   );
-  stage = "prepare-input";
-  const prepareSimulation = await publicClient.simulateContract({
-    account: owner,
-    address: moduleAddress,
+  const prepareInputData = encodeFunctionData({
     abi: moduleArtifact.abi,
-    functionName: "prepareInput",
+    functionName: "prepareInputForSafe",
     args: [
       encryptedBudget.handle,
       encryptedBudget.handleProof,
+      owner.address,
       marketAddress,
       actionDataHash,
       actionHash,
       nonce,
     ],
   });
-  await record(
-    "prepareInput",
-    await ownerWallet.writeContract(prepareSimulation.request),
-  );
+  const createTenderData = encodeFunctionData({
+    abi: marketArtifact.abi,
+    functionName: "createTenderAuthorized",
+    args: [
+      metadataHash,
+      budget,
+      deadline,
+      vendors,
+      moduleAddress,
+      nonce,
+    ],
+  });
   const safeTransaction = await safeKit.createTransaction({
     transactions: [
-      {
-        to: marketAddress,
-        value: "0",
-        data: encodeFunctionData({
-          abi: marketArtifact.abi,
-          functionName: "createTenderAuthorized",
-          args: [
-            metadataHash,
-            budget,
-            deadline,
-            vendors,
-            moduleAddress,
-            nonce,
-          ],
-        }),
-      },
+      { to: moduleAddress, value: "0", data: prepareInputData },
+      { to: marketAddress, value: "0", data: createTenderData },
     ],
   });
   stage = "safe-create-tender";
@@ -230,30 +224,24 @@ async function main() {
   evidence.publicIdentifiers.tenderId = tenderId.toString();
   evidence.assertions.safeCreatedTender =
     (await market.read.getTender([tenderId])).status === 0;
+  evidence.assertions.atomicSafeBatchVerified =
+    (await module.read.preparedConsumed([actionHash])) === true;
   assert.equal(evidence.assertions.safeCreatedTender, true);
+  assert.equal(evidence.assertions.atomicSafeBatchVerified, true);
 
   const pending = await market.read.getTender([tenderId]);
   stage = "confirm-funding";
-  let funding;
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    try {
-      funding = await handles.publicDecrypt(pending.fundingCheckHandle);
-      if (funding.value === true) break;
-    } catch {
-      // The Nox handle service can briefly lag the mined Safe transaction.
-    }
-    await new Promise((resolve) => setTimeout(resolve, 5_000));
-  }
-  assert.equal(funding?.value, true);
-  const fundingSimulation = await publicClient.simulateContract({
-    account: owner,
-    address: marketAddress,
-    abi: marketArtifact.abi,
-    functionName: "confirmTenderFunding",
-    args: [tenderId, funding.decryptionProof],
+  const relayConfig = loadRelayConfig(["once"], process.env);
+  const relay = new LiveRelay(relayConfig);
+  const fundingSummary = await runRelayActions({
+    actions: [{ kind: "confirm-funding", tenderId }],
+    budget: 1,
+    adapter: relay.adapter(),
   });
-  const fundingTx = await ownerWallet.writeContract(fundingSimulation.request);
-  await record("confirmFunding", fundingTx);
+  const fundingResult = fundingSummary.results[0];
+  assert.equal(fundingResult.outcome, "submitted");
+  evidence.assertions.relayFundingSubmitted = true;
+  await record("relayFunding", fundingResult.transactionHash);
   evidence.assertions.exactFundingConfirmed =
     (await market.read.getTender([tenderId])).status === 1;
   assert.equal(evidence.assertions.exactFundingConfirmed, true);
@@ -275,13 +263,7 @@ async function main() {
   evidence.assertions.vendorBidSubmitted = true;
   saveEvidence();
 
-  while ((await publicClient.getBlock({ blockTag: "latest" })).timestamp < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, 6_000));
-  }
-
   stage = "relay-close";
-  const relayConfig = loadRelayConfig(["once"], process.env);
-  const relay = new LiveRelay(relayConfig);
   // Scope the live adapter to the disposable tender directly. The production
   // planner intentionally indexes finalized blocks and can lag a just-mined
   // E2E write by several Sepolia confirmations.
