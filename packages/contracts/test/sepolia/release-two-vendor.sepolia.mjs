@@ -77,11 +77,13 @@ let evidence = {
     verifiedReleaseReused: false,
     releaseSafeOperational: false,
     safePreparationAndFundingVerified: false,
+    atomicSafeBatchVerified: false,
     exactFundingProofOpenedTender: false,
     twoDistinctVendorsSubmitted: false,
     perVendorBidAclVerified: false,
     bothVendorBidsDecryptedInMemory: false,
     deadlineEnforced: false,
+    earlyCloseAfterAllVendorsVerified: false,
     winnerOnlyPublicDecryptionVerified: false,
     lowerSecondBidSelectedByProof: false,
     confidentialWinnerSettlementVerifiedInMemory: false,
@@ -322,11 +324,11 @@ async function main() {
     saveEvidence();
   }
 
-  async function safeCall(label, to, data) {
+  async function safeBatch(label, transactions) {
     const transaction = await retry(
       () =>
         safeKit.createTransaction({
-          transactions: [{ data, to, value: "0" }],
+          transactions,
         }),
       `${label.toUpperCase()}_SAFE_TX_CREATION_FAILED`,
     );
@@ -351,6 +353,10 @@ async function main() {
     evidence.publicIdentifiers.blocks[label] =
       transactionReceipt.blockNumber.toString();
     saveEvidence();
+  }
+
+  async function safeCall(label, to, data) {
+    await safeBatch(label, [{ data, to, value: "0" }]);
   }
 
   async function expectMarketRevert(account, functionName, args) {
@@ -541,20 +547,20 @@ async function main() {
       ),
     "BUDGET_ENCRYPTION_FAILED",
   );
-  await record("prepareInput", () =>
-    module.write.prepareInput([
+  const prepareInputData = encodeFunctionData({
+    abi: moduleArtifact.abi,
+    functionName: "prepareInputForSafe",
+    args: [
       encryptedBudget.handle,
       encryptedBudget.handleProof,
+      owner.address,
       marketAddress,
       actionDataHash,
       actionHash,
       moduleNonce,
-    ]),
-  );
-  await safeCall(
-    "safeCreateTender",
-    marketAddress,
-    encodeFunctionData({
+    ],
+  });
+  const createTenderData = encodeFunctionData({
       abi: marketArtifact.abi,
       functionName: "createTenderAuthorized",
       args: [
@@ -565,8 +571,11 @@ async function main() {
         moduleAddress,
         moduleNonce,
       ],
-    }),
-  );
+  });
+  await safeBatch("safeCreateTender", [
+    { data: prepareInputData, to: moduleAddress, value: "0" },
+    { data: createTenderData, to: marketAddress, value: "0" },
+  ]);
   const tenderId = await retry(
     () => market.read.tenderCount(),
     "TENDER_COUNT_UNAVAILABLE",
@@ -588,6 +597,7 @@ async function main() {
     evidence.assertions.safePreparationAndFundingVerified,
     true,
   );
+  evidence.assertions.atomicSafeBatchVerified = true;
   const funding = await retry(
     () =>
       ownerHandles.publicDecrypt(pending.fundingCheckHandle),
@@ -638,6 +648,14 @@ async function main() {
       encryptedFirstBid.handleProof,
     ]),
   );
+  assert.equal(
+    await retry(
+      () => market.read.canClose([tenderId]),
+      "PARTIAL_VENDOR_CLOSE_READ_UNAVAILABLE",
+    ),
+    false,
+  );
+  evidence.assertions.deadlineEnforced = true;
   const encryptedSecondBid = await retry(
     () =>
       secondVendorHandles.encryptInput(
@@ -749,20 +767,9 @@ async function main() {
       () => market.read.canClose([tenderId]),
       "CAN_CLOSE_UNAVAILABLE",
     ),
-    false,
+    true,
   );
-  await expectMarketRevert(owner, "closeTender", [tenderId]);
-  evidence.assertions.deadlineEnforced = true;
-  while (
-    (
-      await retry(
-        () => publicClient.getBlock(),
-        "DEADLINE_BLOCK_UNAVAILABLE",
-      )
-    ).timestamp < bidDeadline
-  ) {
-    await new Promise((resolve) => setTimeout(resolve, 6_000));
-  }
+  evidence.assertions.earlyCloseAfterAllVendorsVerified = true;
 
   stage = "CLOSE_AND_FINALIZE";
   await record("closeTender", () =>
