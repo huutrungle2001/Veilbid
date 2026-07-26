@@ -4,6 +4,7 @@ import {
   type BuyerTenderStage,
 } from "../transactions/buyerTender";
 import type { WalletController } from "../wallet/WalletPanel";
+import { useToasts } from "../shell/ToastProvider";
 
 const labels: Record<BuyerTenderStage, string> = {
   faucet: "Acquiring test USDC",
@@ -31,6 +32,7 @@ export function BuyerTenderForm({
   wallet: WalletController;
   onConfirmed: () => void;
 }) {
+  const toasts = useToasts();
   const [metadata, setMetadata] = useState("");
   const [ceiling, setCeiling] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -53,6 +55,10 @@ export function BuyerTenderForm({
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!connected) return;
+    const toastId = toasts.start(
+      "CREATE TENDER",
+      "Validating public terms and test balances…",
+    );
     setError(null);
     setResult(null);
     try {
@@ -65,12 +71,23 @@ export function BuyerTenderForm({
           deadlineInput: deadline,
           vendorInput: vendors,
         },
-        onStage: setStage,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          if (nextStage === "confirmed") {
+            toasts.succeed(toastId, labels[nextStage]);
+          } else {
+            toasts.update(toastId, labels[nextStage]);
+          }
+        },
       });
       setResult(`Tender ${created.tenderId.toString()} opened on Sepolia`);
       onConfirmed();
     } catch (cause) {
       setStage(null);
+      toasts.fail(
+        toastId,
+        "Tender creation stopped. Review the form or wallet request.",
+      );
       setError(
         cause instanceof Error
           ? cause.message

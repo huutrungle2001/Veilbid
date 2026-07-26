@@ -6,6 +6,7 @@ import {
   type SafeTenderInput,
 } from "./safePreparation";
 import { ContextHelp } from "../shell/ContextHelp";
+import { useToasts } from "../shell/ToastProvider";
 
 const emptyInput: SafeTenderInput = {
   metadata: "",
@@ -20,6 +21,7 @@ export function SafeTreasuryWorkspace({
 }: {
   wallet: WalletController;
 }) {
+  const toasts = useToasts();
   const [input, setInput] = useState(emptyInput);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,19 +41,33 @@ export function SafeTreasuryWorkspace({
 
   async function prepare() {
     if (!connected) return;
+    const toastId = toasts.start(
+      "PREPARE SAFE ACTION",
+      "Validating Safe-bound tender input…",
+    );
     setError(null);
     setResult(null);
     try {
       parseSafeTenderInput(input);
-      setResult(
-        await prepareSafeTender({
-          input,
-          walletClient: wallet.state.walletClient!,
-          account: wallet.state.account!,
-          onStage: setStage,
-        }),
+      const prepared = await prepareSafeTender({
+        input,
+        walletClient: wallet.state.walletClient!,
+        account: wallet.state.account!,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          toasts.update(toastId, nextStage);
+        },
+      });
+      setResult(prepared);
+      toasts.succeed(
+        toastId,
+        "Safe calldata prepared in this browser session.",
       );
     } catch (cause) {
+      toasts.fail(
+        toastId,
+        "Safe preparation stopped. Review the input and module status.",
+      );
       setError(cause instanceof Error ? cause.message : "Safe preparation failed.");
     } finally {
       setStage(null);

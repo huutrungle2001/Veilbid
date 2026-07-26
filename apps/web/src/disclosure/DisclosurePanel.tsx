@@ -3,7 +3,11 @@ import { useEffect, useMemo, useState } from "react";
 import { revealAuthorizedBid } from "../auditor/revealBid";
 import type { WalletController } from "../wallet/WalletPanel";
 import type { InteractiveRole } from "../workspaces/RoleWorkspace";
-import { grantStoredBidViewer } from "./grantViewer";
+import {
+  grantStoredBidViewer,
+  type ViewerGrantStage,
+} from "./grantViewer";
+import { useToasts } from "../shell/ToastProvider";
 
 export function eligibleDisclosureBids(
   role: InteractiveRole,
@@ -21,6 +25,12 @@ export function eligibleDisclosureBids(
   });
 }
 
+const viewerGrantStageLabel: Record<ViewerGrantStage, string> = {
+  simulating: "Simulating the viewer grant…",
+  signing: "Waiting for your wallet signature…",
+  confirming: "Transaction signed. Waiting for Sepolia confirmation…",
+};
+
 export function DisclosurePanel({
   role,
   wallet,
@@ -34,6 +44,7 @@ export function DisclosurePanel({
   bids: readonly PublicBid[];
   onConfirmed: () => void;
 }) {
+  const toasts = useToasts();
   const account = wallet.state.account;
   const eligible = useMemo(
     () => eligibleDisclosureBids(role, account, tenders, bids),
@@ -62,6 +73,10 @@ export function DisclosurePanel({
 
   async function reveal() {
     if (!connected || !selected) return;
+    const toastId = toasts.start(
+      "REVEAL STORED BID",
+      "Waiting for wallet authorization and private decryption…",
+    );
     setError(null);
     setStage("Authorizing session-only reveal");
     try {
@@ -72,7 +87,15 @@ export function DisclosurePanel({
         bidId: selected.bidId,
       });
       setPlaintext(result.value);
+      toasts.succeed(
+        toastId,
+        "Stored bid revealed in this browser session only.",
+      );
     } catch (cause) {
+      toasts.fail(
+        toastId,
+        "Stored bid reveal was rejected or unavailable.",
+      );
       setError(cause instanceof Error ? cause.message : "Reveal failed.");
     } finally {
       setStage(null);
@@ -81,6 +104,10 @@ export function DisclosurePanel({
 
   async function grant() {
     if (!connected || !selected) return;
+    const toastId = toasts.start(
+      "GRANT BID VIEWER",
+      "Simulating the per-bid viewer grant…",
+    );
     setError(null);
     setStage("Simulating per-bid viewer grant");
     try {
@@ -90,13 +117,26 @@ export function DisclosurePanel({
         tenderId: selected.tenderId,
         bidId: selected.bidId,
         viewer,
+        onStage: (nextStage) => {
+          const message = viewerGrantStageLabel[nextStage];
+          setStage(message);
+          toasts.update(toastId, message);
+        },
       });
       setGrantResult(
         `Viewer grant confirmed · ${transactionHash.slice(0, 10)}…${transactionHash.slice(-8)}`,
       );
       setViewer("");
       onConfirmed();
+      toasts.succeed(
+        toastId,
+        "Viewer grant confirmed for the selected bid only.",
+      );
     } catch (cause) {
+      toasts.fail(
+        toastId,
+        "Viewer grant was rejected or failed on Sepolia.",
+      );
       setError(cause instanceof Error ? cause.message : "Viewer grant failed.");
     } finally {
       setStage(null);

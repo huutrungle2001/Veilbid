@@ -14,6 +14,7 @@ import {
   subscribeToWalletProviders,
   type WalletProviderDetail,
 } from "./eip6963";
+import { useToasts } from "../shell/ToastProvider";
 
 export type WalletStatus =
   | "discovering"
@@ -95,6 +96,7 @@ function connectedState(
 }
 
 export function useWallet() {
+  const toasts = useToasts();
   const [state, setState] = useState<WalletState>(initialState);
   const reconnectAttempted = useRef(new Set<string>());
 
@@ -111,6 +113,10 @@ export function useWallet() {
   }, []);
 
   const connect = useCallback(async (detail: WalletProviderDetail) => {
+    const toastId = toasts.start(
+      "CONNECT WALLET",
+      `Waiting for ${detail.info.name} authorization…`,
+    );
     setState((current) => ({
       ...current,
       status: "connecting",
@@ -129,14 +135,25 @@ export function useWallet() {
       setState((current) =>
         connectedState(current, detail, account, chainId),
       );
+      toasts.succeed(
+        toastId,
+        chainId === sepolia.id
+          ? `${detail.info.name} connected on Sepolia.`
+          : `${detail.info.name} connected. Switch to Sepolia to continue.`,
+      );
     } catch {
+      toasts.fail(toastId, "Wallet connection was rejected or unavailable.");
       clearSession("error", "Wallet connection was rejected or unavailable.");
     }
-  }, [clearSession]);
+  }, [clearSession, toasts]);
 
   const switchToSepolia = useCallback(async () => {
     const detail = state.selectedProvider;
     if (!detail) return;
+    const toastId = toasts.start(
+      "SWITCH NETWORK",
+      "Waiting for the wallet to switch to Ethereum Sepolia…",
+    );
     try {
       await detail.provider.request({
         method: "wallet_switchEthereumChain",
@@ -147,14 +164,16 @@ export function useWallet() {
       setState((current) =>
         connectedState(current, detail, account, sepolia.id),
       );
+      toasts.succeed(toastId, "Wallet switched to Ethereum Sepolia.");
     } catch {
+      toasts.fail(toastId, "Network switch was rejected or unavailable.");
       setState((current) => ({
         ...current,
         status: "wrong-chain",
         error: "Switch the selected wallet to Ethereum Sepolia.",
       }));
     }
-  }, [state.selectedProvider]);
+  }, [state.selectedProvider, toasts]);
 
   const disconnect = useCallback(() => {
     localStorage.removeItem(selectedProviderStorageKey);

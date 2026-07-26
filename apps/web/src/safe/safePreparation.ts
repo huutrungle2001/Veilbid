@@ -162,6 +162,7 @@ export async function prepareSafeTender({
   });
   onStage("Awaiting owner signature");
   const transactionHash = await walletClient.writeContract(simulation.request);
+  onStage("Transaction signed; waiting for Sepolia confirmation");
   const receipt = await publicClient.waitForTransactionReceipt({
     hash: transactionHash,
   });

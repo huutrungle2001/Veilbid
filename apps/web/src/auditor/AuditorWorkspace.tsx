@@ -7,6 +7,7 @@ import {
 } from "./revealBid";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
+import { useToasts } from "../shell/ToastProvider";
 
 export function AuditorWorkspace({
   wallet,
@@ -17,6 +18,7 @@ export function AuditorWorkspace({
   tenders: readonly PublicTender[];
   bids: readonly PublicBid[];
 }) {
+  const toasts = useToasts();
   const [selection, setSelection] = useState("");
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [revealed, setRevealed] = useState<{
@@ -51,6 +53,10 @@ export function AuditorWorkspace({
 
   async function checkAccess() {
     if (!connected || !selected) return;
+    const toastId = toasts.start(
+      "CHECK VIEWER ACCESS",
+      "Reading the per-bid viewer permission from Sepolia…",
+    );
     setError(null);
     setRevealed(null);
     setStage("Reading per-bid viewer ACL");
@@ -62,10 +68,16 @@ export function AuditorWorkspace({
         account: wallet.state.account!,
       });
       setAuthorized(result);
-      if (!result) setError("This wallet has not been granted access to this bid.");
+      if (!result) {
+        setError("This wallet has not been granted access to this bid.");
+        toasts.fail(toastId, "This wallet is not authorized for the selected bid.");
+      } else {
+        toasts.succeed(toastId, "Viewer access confirmed for this bid only.");
+      }
     } catch {
       setAuthorized(null);
       setError("Viewer access could not be read from Sepolia.");
+      toasts.fail(toastId, "Viewer access could not be read from Sepolia.");
     } finally {
       setStage(null);
     }
@@ -73,6 +85,10 @@ export function AuditorWorkspace({
 
   async function reveal() {
     if (!connected || !selected || authorized !== true) return;
+    const toastId = toasts.start(
+      "REVEAL BID",
+      "Waiting for wallet authorization and private decryption…",
+    );
     setError(null);
     setStage("Awaiting wallet authorization and private reveal");
     try {
@@ -83,8 +99,16 @@ export function AuditorWorkspace({
         account: wallet.state.account!,
       });
       setRevealed(result);
+      toasts.succeed(
+        toastId,
+        "Bid revealed in this browser session only.",
+      );
     } catch (cause) {
       setRevealed(null);
+      toasts.fail(
+        toastId,
+        "Private reveal was rejected or could not be completed.",
+      );
       setError(
         cause instanceof Error
           ? cause.message

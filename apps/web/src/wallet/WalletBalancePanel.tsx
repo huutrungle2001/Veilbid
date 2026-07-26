@@ -16,6 +16,7 @@ import {
 import { sepolia } from "viem/chains";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
 import { ContextHelp } from "../shell/ContextHelp";
+import { useToasts } from "../shell/ToastProvider";
 import type { WalletController } from "./WalletPanel";
 
 const tokenAbi = tokenAbiJson as Abi;
@@ -24,6 +25,12 @@ const tokenAddress = deployment.contracts.VeilBidTestUSDC.address as Address;
 const wrapperAddress = deployment.contracts
   .VeilBidConfidentialUSDC.address as Address;
 const zeroHandle = `0x${"00".repeat(32)}` as Hex;
+
+const wrapToastLabel: Record<WrapStage, string> = {
+  checking: "Checking Test USDC balance and wrapper allowance…",
+  approving: "Waiting for the approval signature and confirmation…",
+  wrapping: "Waiting for the wrap signature and confirmation…",
+};
 
 export type ConfidentialBalanceState =
   | "encrypted"
@@ -242,6 +249,7 @@ export function WalletBalancePanel({
   revealBalance?: BalanceRevealer;
   requestWrap?: BalanceWrapper;
 }) {
+  const toasts = useToasts();
   const { state } = wallet;
   const [balances, setBalances] = useState<WalletBalances | null>(null);
   const [status, setStatus] = useState<
@@ -259,6 +267,7 @@ export function WalletBalancePanel({
   const [message, setMessage] = useState<BalanceMessage | null>(null);
   const revealRequestId = useRef(0);
   const walletActionRequestId = useRef(0);
+  const activeToastIds = useRef(new Set<string>());
   const connected =
     state.status === "connected" &&
     state.account &&
@@ -283,6 +292,10 @@ export function WalletBalancePanel({
 
   useEffect(() => {
     walletActionRequestId.current += 1;
+    for (const toastId of activeToastIds.current) {
+      toasts.dismiss(toastId);
+    }
+    activeToastIds.current.clear();
     if (!connected) {
       revealRequestId.current += 1;
       setBalances(null);
@@ -298,10 +311,15 @@ export function WalletBalancePanel({
       return;
     }
     void refresh();
-  }, [connected, refresh, state.sessionRevision]);
+  }, [connected, refresh, state.sessionRevision, toasts]);
 
   async function faucet() {
     if (!connected) return;
+    const toastId = toasts.start(
+      "GET TEST USDC",
+      "Simulating the faucet request and waiting for your wallet…",
+    );
+    activeToastIds.current.add(toastId);
     const requestId = walletActionRequestId.current + 1;
     walletActionRequestId.current = requestId;
     setFaucetPending(true);
@@ -314,12 +332,16 @@ export function WalletBalancePanel({
         kind: "status",
         text: "10,000 test USDC received.",
       });
+      activeToastIds.current.delete(toastId);
+      toasts.succeed(toastId, "10,000 Test USDC confirmed on Sepolia.");
     } catch {
       if (walletActionRequestId.current === requestId) {
         setMessage({
           kind: "error",
           text: "Faucet transaction was rejected or failed.",
         });
+        activeToastIds.current.delete(toastId);
+        toasts.fail(toastId, "Faucet request was rejected or failed.");
       }
     } finally {
       if (walletActionRequestId.current === requestId) {
@@ -336,6 +358,11 @@ export function WalletBalancePanel({
     ) {
       return;
     }
+    const toastId = toasts.start(
+      "REVEAL vcUSDC",
+      "Waiting for wallet authorization and private decryption…",
+    );
+    activeToastIds.current.add(toastId);
     const requestId = revealRequestId.current + 1;
     revealRequestId.current = requestId;
     setRevealPending(true);
@@ -347,11 +374,21 @@ export function WalletBalancePanel({
       );
       if (revealRequestId.current === requestId) {
         setRevealedBalance(value);
+        activeToastIds.current.delete(toastId);
+        toasts.succeed(
+          toastId,
+          "vcUSDC revealed in this browser session only.",
+        );
       }
     } catch {
       if (revealRequestId.current === requestId) {
         setRevealError(
           "Balance reveal was rejected or is unavailable.",
+        );
+        activeToastIds.current.delete(toastId);
+        toasts.fail(
+          toastId,
+          "Balance reveal was rejected or unavailable.",
         );
       }
     } finally {
@@ -387,6 +424,11 @@ export function WalletBalancePanel({
     }
     const requestId = walletActionRequestId.current + 1;
     walletActionRequestId.current = requestId;
+    const toastId = toasts.start(
+      "WRAP TO vcUSDC",
+      wrapToastLabel.checking,
+    );
+    activeToastIds.current.add(toastId);
     setWrapStage("checking");
     try {
       await requestWrap(
@@ -396,6 +438,7 @@ export function WalletBalancePanel({
         (stage) => {
           if (walletActionRequestId.current === requestId) {
             setWrapStage(stage);
+            toasts.update(toastId, wrapToastLabel[stage]);
           }
         },
       );
@@ -407,12 +450,19 @@ export function WalletBalancePanel({
         kind: "status",
         text: `${compactAmount(amount, 6, 6)} Test USDC wrapped to vcUSDC.`,
       });
+      activeToastIds.current.delete(toastId);
+      toasts.succeed(
+        toastId,
+        `${compactAmount(amount, 6, 6)} Test USDC wrapped successfully.`,
+      );
     } catch {
       if (walletActionRequestId.current === requestId) {
         setMessage({
           kind: "error",
           text: "Wrap transaction was rejected or failed.",
         });
+        activeToastIds.current.delete(toastId);
+        toasts.fail(toastId, "Wrap transaction was rejected or failed.");
       }
     } finally {
       if (walletActionRequestId.current === requestId) {

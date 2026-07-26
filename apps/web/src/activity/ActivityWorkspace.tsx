@@ -15,6 +15,7 @@ import {
 } from "./recoveryStore";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
+import { useToasts } from "../shell/ToastProvider";
 
 const stageLabel: Record<RecoveryStage, string> = {
   reading: "Reading canonical state",
@@ -40,6 +41,7 @@ export function ActivityWorkspace({
   tenders: readonly PublicTender[];
   onRefresh: () => void;
 }) {
+  const toasts = useToasts();
   const [records, setRecords] = useState<RecoveryRecord[]>([]);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [stage, setStage] = useState<RecoveryStage | null>(null);
@@ -89,6 +91,10 @@ export function ActivityWorkspace({
 
   async function resume(record: RecoveryRecord) {
     if (!connected) return;
+    const toastId = toasts.start(
+      "RESUME RECOVERY",
+      "Reading the saved public checkpoint…",
+    );
     const key = `${record.kind}:${record.tenderId}`;
     setActiveKey(key);
     setError(null);
@@ -97,11 +103,19 @@ export function ActivityWorkspace({
         record,
         walletClient: wallet.state.walletClient!,
         account: wallet.state.account!,
-        onStage: setStage,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          toasts.update(toastId, stageLabel[nextStage]);
+        },
       });
       reload();
       onRefresh();
+      toasts.succeed(toastId, "Recovery completed and public state refreshed.");
     } catch (cause) {
+      toasts.fail(
+        toastId,
+        "Recovery stopped. The public checkpoint remains available.",
+      );
       setError(
         cause instanceof Error ? cause.message : "Recovery attempt failed.",
       );
@@ -113,6 +127,10 @@ export function ActivityWorkspace({
 
   async function close(tender: PublicTender) {
     if (!connected) return;
+    const toastId = toasts.start(
+      "CLOSE TENDER",
+      "Checking canonical tender readiness…",
+    );
     const key = `close:${tender.tenderId.toString()}`;
     setActiveKey(key);
     setError(null);
@@ -122,11 +140,22 @@ export function ActivityWorkspace({
         knownTransactionHash: tender.updatedTransaction,
         walletClient: wallet.state.walletClient!,
         account: wallet.state.account!,
-        onStage: setStage,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          toasts.update(toastId, stageLabel[nextStage]);
+        },
       });
       reload();
       onRefresh();
+      toasts.succeed(
+        toastId,
+        "Close or proof tracking completed and state refreshed.",
+      );
     } catch (cause) {
+      toasts.fail(
+        toastId,
+        "Tender close or proof tracking stopped. Retry from Activity.",
+      );
       setError(
         cause instanceof Error ? cause.message : "Tender close failed.",
       );

@@ -677,6 +677,123 @@ textarea:focus-visible {
   padding-left: 7px;
 }
 
+.toast-viewport {
+  bottom: 20px;
+  display: grid;
+  gap: 10px;
+  max-width: min(390px, calc(100vw - 32px));
+  pointer-events: none;
+  position: fixed;
+  right: 20px;
+  width: 100%;
+  z-index: 2000;
+}
+
+.transaction-toast {
+  align-items: start;
+  animation: toast-enter 180ms ease-out;
+  background: var(--color-ink-black);
+  border: 1px solid var(--color-ink-black);
+  box-shadow: 6px 6px 0 rgb(0 0 0 / 18%);
+  color: var(--color-paper-white);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  padding: 15px;
+  pointer-events: auto;
+}
+
+.transaction-toast.success {
+  border-left: 6px solid var(--color-veil-green);
+}
+
+.transaction-toast.error {
+  background: var(--color-paper-white);
+  border-left: 6px solid var(--color-ink-black);
+  color: var(--color-ink-black);
+}
+
+.toast-status-mark {
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.transaction-toast.loading .toast-status-mark {
+  animation: toast-spin 800ms linear infinite;
+  border-right-color: transparent;
+}
+
+.transaction-toast.success .toast-status-mark {
+  background: var(--color-veil-green);
+  border-color: var(--color-veil-green);
+  color: var(--color-ink-black);
+}
+
+.toast-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.toast-copy strong,
+.toast-copy > span {
+  font-family: var(--font-mono);
+}
+
+.toast-copy strong {
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.toast-copy > span {
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.transaction-toast > button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  min-height: 24px;
+  padding: 0;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transaction-toast,
+  .transaction-toast.loading .toast-status-mark {
+    animation: none;
+  }
+}
+
 main {
   margin: 0 auto;
   max-width: 1200px;
@@ -2302,6 +2419,11 @@ footer p {
 }
 
 @media (max-width: 640px) {
+  .toast-viewport {
+    bottom: 12px;
+    right: 12px;
+  }
+
   main {
     padding: 48px 16px 80px;
   }

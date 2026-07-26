@@ -13,6 +13,7 @@ import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
 
 const marketAbi = marketAbiJson as Abi;
 const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
+export type ViewerGrantStage = "simulating" | "signing" | "confirming";
 
 export async function grantStoredBidViewer({
   walletClient,
@@ -20,6 +21,7 @@ export async function grantStoredBidViewer({
   tenderId,
   bidId,
   viewer,
+  onStage = () => undefined,
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 }: {
   walletClient: WalletClient;
@@ -27,6 +29,7 @@ export async function grantStoredBidViewer({
   tenderId: bigint;
   bidId: bigint;
   viewer: string;
+  onStage?: (stage: ViewerGrantStage) => void;
   rpcUrl?: string;
 }) {
   if (!isAddress(viewer)) throw new Error("Viewer must be a valid nonzero address.");
@@ -35,6 +38,7 @@ export async function grantStoredBidViewer({
     chain: sepolia,
     transport: http(rpcUrl),
   });
+  onStage("simulating");
   const simulation = await publicClient.simulateContract({
     account,
     address: marketAddress,
@@ -42,7 +46,9 @@ export async function grantStoredBidViewer({
     functionName: "grantBidViewer",
     args: [tenderId, bidId, viewer],
   });
+  onStage("signing");
   const transactionHash = await walletClient.writeContract(simulation.request);
+  onStage("confirming");
   const receipt = await publicClient.waitForTransactionReceipt({
     hash: transactionHash,
   });

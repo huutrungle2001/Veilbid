@@ -8,6 +8,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Address, WalletClient } from "viem";
 import type { WalletController } from "../src/wallet/WalletPanel";
+import { ToastProvider } from "../src/shell/ToastProvider";
 import {
   parseWrapAmount,
   WalletBalancePanel,
@@ -127,11 +128,13 @@ describe("workspace wallet balances", () => {
     const requestFaucet = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <WalletBalancePanel
-        wallet={wallet("connected")}
-        loadBalances={loadBalances}
-        requestFaucet={requestFaucet}
-      />,
+      <ToastProvider>
+        <WalletBalancePanel
+          wallet={wallet("connected")}
+          loadBalances={loadBalances}
+          requestFaucet={requestFaucet}
+        />
+      </ToastProvider>,
     );
     await screen.findByText("NONE");
     expect(
@@ -148,6 +151,9 @@ describe("workspace wallet balances", () => {
       expect(requestFaucet).toHaveBeenCalledWith(walletClient, account),
     );
     await screen.findByText("10,000 test USDC received.");
+    expect(
+      screen.getByText("10,000 Test USDC confirmed on Sepolia."),
+    ).toBeInTheDocument();
     expect(loadBalances).toHaveBeenCalledTimes(2);
   });
 

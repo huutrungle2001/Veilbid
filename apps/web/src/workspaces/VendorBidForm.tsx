@@ -6,6 +6,7 @@ import {
   type VendorBidStage,
 } from "../transactions/vendorBid";
 import type { WalletController } from "../wallet/WalletPanel";
+import { useToasts } from "../shell/ToastProvider";
 
 const stageLabels: Record<VendorBidStage, string> = {
   checking: "Checking admission",
@@ -25,6 +26,7 @@ export function VendorBidForm({
   tenders: readonly PublicTender[];
   onConfirmed: () => void;
 }) {
+  const toasts = useToasts();
   const openTenders = useMemo(
     () => tenders.filter((tender) => tender.status === "Open"),
     [tenders],
@@ -53,6 +55,10 @@ export function VendorBidForm({
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!connected || !selected) return;
+    const toastId = toasts.start(
+      "SUBMIT BID",
+      "Checking tender and vendor admission…",
+    );
     setError(null);
     setTransactionHash(null);
     try {
@@ -62,13 +68,24 @@ export function VendorBidForm({
         tenderId: selected.tenderId,
         publicCeiling: selected.publicCeiling,
         priceInput: price,
-        onStage: setStage,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          if (nextStage === "confirmed") {
+            toasts.succeed(toastId, stageLabels[nextStage]);
+          } else {
+            toasts.update(toastId, stageLabels[nextStage]);
+          }
+        },
       });
       setTransactionHash(result.transactionHash);
       setPrice("");
       onConfirmed();
     } catch (cause) {
       setStage(null);
+      toasts.fail(
+        toastId,
+        "Bid submission stopped. Review the wallet request and tender state.",
+      );
       setError(
         cause instanceof Error
           ? cause.message
