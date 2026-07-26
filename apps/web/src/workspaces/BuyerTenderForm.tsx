@@ -36,7 +36,7 @@ export function BuyerTenderForm({
   const [metadata, setMetadata] = useState("");
   const [ceiling, setCeiling] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [vendors, setVendors] = useState("");
+  const [vendors, setVendors] = useState([""]);
   const [stage, setStage] = useState<BuyerTenderStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export function BuyerTenderForm({
           metadata,
           ceilingInput: ceiling,
           deadlineInput: deadline,
-          vendorInput: vendors,
+          vendorInput: vendors.join("\n"),
         },
         onStage: (nextStage) => {
           setStage(nextStage);
@@ -138,16 +138,71 @@ export function BuyerTenderForm({
           Choose a local time at least one minute from now.
         </small>
       </label>
-      <label>
-        Approved vendors (1–8)
-        <input
-          value={vendors}
-          onChange={(event) => setVendors(event.target.value)}
-          disabled={pending}
-          placeholder="Comma or space separated addresses"
-          required
-        />
-      </label>
+      <fieldset className="vendor-fieldset">
+        <legend>Approved vendors (1–8)</legend>
+        <small id="approved-vendors-help" className="field-hint">
+          Add one wallet address per row. You can also paste comma- or
+          whitespace-separated addresses into a row.
+        </small>
+        <div className="vendor-input-list">
+          {vendors.map((vendor, index) => (
+            <div className="vendor-input-row" key={`vendor-${index}`}>
+              <label htmlFor={`approved-vendor-${index}`}>
+                Vendor {index + 1}
+                <input
+                  id={`approved-vendor-${index}`}
+                  value={vendor}
+                  onChange={(event) => {
+                    const pasted = event.target.value
+                      .split(/[\s,]+/)
+                      .filter(Boolean);
+                    if (pasted.length > 1) {
+                      setVendors((current) => [
+                        ...current.slice(0, index),
+                        ...pasted.slice(0, 8 - index),
+                        ...current.slice(index + 1),
+                      ]);
+                    } else {
+                      setVendors((current) =>
+                        current.map((value, itemIndex) =>
+                          itemIndex === index ? event.target.value : value,
+                        ),
+                      );
+                    }
+                  }}
+                  disabled={pending}
+                  placeholder="0x…"
+                  aria-describedby="approved-vendors-help"
+                  required
+                />
+              </label>
+              {vendors.length > 1 && (
+                <button
+                  className="vendor-remove-button"
+                  type="button"
+                  onClick={() =>
+                    setVendors((current) =>
+                      current.filter((_, itemIndex) => itemIndex !== index),
+                    )
+                  }
+                  disabled={pending}
+                  aria-label={`Remove vendor ${index + 1}`}
+                >
+                  REMOVE
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        <button
+          className="vendor-add-button"
+          type="button"
+          onClick={() => setVendors((current) => [...current, ""])}
+          disabled={pending || vendors.length >= 8}
+        >
+          + ADD VENDOR ({vendors.length}/8)
+        </button>
+      </fieldset>
       <div className="privacy-confirmation">
         <strong>Authority boundary</strong>
         <span>

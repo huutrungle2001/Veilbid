@@ -881,6 +881,33 @@ main {
   text-transform: uppercase;
 }
 
+.public-filter-control {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 0 4px 4px;
+}
+
+.public-filter-control span {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.public-filter-control select {
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  color: var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  min-height: 40px;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
 .icon-button {
   background: var(--color-paper-white);
   border: 1px solid var(--color-ink-black);
@@ -1441,6 +1468,66 @@ main {
   gap: 8px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.vendor-fieldset {
+  border: 0;
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.vendor-fieldset legend {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+.vendor-input-list {
+  display: grid;
+  gap: 10px;
+}
+
+.vendor-input-row {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.vendor-remove-button,
+.vendor-add-button {
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  color: var(--color-ink-black);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
+.vendor-add-button {
+  justify-self: start;
+}
+
+.vendor-remove-button:hover:not(:disabled),
+.vendor-remove-button:focus-visible,
+.vendor-add-button:hover:not(:disabled),
+.vendor-add-button:focus-visible {
+  background: var(--color-veil-green);
+}
+
+.vendor-remove-button:disabled,
+.vendor-add-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .field-hint {

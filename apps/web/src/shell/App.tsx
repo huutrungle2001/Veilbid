@@ -31,6 +31,43 @@ type RoomRole =
   | "AUDITOR"
   | "SAFE TREASURY";
 
+type PublicTenderFilter =
+  | "current"
+  | "all"
+  | "awarded"
+  | "refunded"
+  | "cancelled";
+
+const publicTenderFilters: ReadonlyArray<{
+  value: PublicTenderFilter;
+  label: string;
+}> = [
+  { value: "current", label: "Current & awarded" },
+  { value: "all", label: "All tenders" },
+  { value: "awarded", label: "Awarded" },
+  { value: "refunded", label: "Refunded" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+function isPublicTenderFilter(value: string | null): value is PublicTenderFilter {
+  return publicTenderFilters.some((option) => option.value === value);
+}
+
+function filterPublicTenders(
+  tenders: readonly PublicTender[],
+  filter: PublicTenderFilter,
+) {
+  if (filter === "all") return tenders;
+  if (filter === "current") {
+    return tenders.filter((tender) =>
+      ["FundingPending", "Open", "Closed", "Awarded"].includes(tender.status),
+    );
+  }
+  const status = filter === "cancelled" ? "Cancelled" :
+    filter[0].toUpperCase() + filter.slice(1);
+  return tenders.filter((tender) => tender.status === status);
+}
+
 const zeroIndex: PublicMarketIndex = {
   tenders: [],
   bids: [],
@@ -303,16 +340,39 @@ export function ExplorerView({
   const deploymentKind = state.data?.deploymentKind ?? deployment.kind;
   const deploymentVerified =
     state.data?.deploymentVerified ?? deployment.verified;
+  const requestedFilter = searchParams.get("status");
+  const publicFilter: PublicTenderFilter = isPublicTenderFilter(requestedFilter)
+    ? requestedFilter
+    : "current";
+  const visibleTenders = useMemo(() => {
+    const filtered = filterPublicTenders(index.tenders, publicFilter);
+    return activeRole === "PUBLIC" ? filtered : index.tenders;
+  }, [activeRole, index.tenders, publicFilter]);
   const selectedId = searchParams.get("tender");
   const selected = useMemo(
     () =>
-      index.tenders.find(
+      visibleTenders.find(
         (tender) => tender.tenderId.toString() === selectedId,
       ) ??
-      index.tenders[0] ??
+      visibleTenders[0] ??
       null,
-    [index.tenders, selectedId],
+    [selectedId, visibleTenders],
   );
+
+  function changePublicFilter(nextFilter: PublicTenderFilter) {
+    const next = new URLSearchParams(searchParams);
+    if (nextFilter === "current") next.delete("status");
+    else next.set("status", nextFilter);
+    if (
+      selectedId &&
+      !filterPublicTenders(index.tenders, nextFilter).some(
+        (tender) => tender.tenderId.toString() === selectedId,
+      )
+    ) {
+      next.delete("tender");
+    }
+    setSearchParams(next);
+  }
 
   return (
     <div className="tender-layout">
@@ -443,13 +503,13 @@ export function ExplorerView({
               </section>
             )}
 
-            {state.status === "ready" && selected && state.data && (
+            {state.status === "ready" && state.data && (
               <section className="explorer-grid" id="tenders">
                 <aside className="dossier-list" aria-label="Public tenders">
                   <header>
                     <div>
                       <p className="eyebrow">FINALIZED DOSSIERS</p>
-                      <h2>{index.tenders.length} tenders</h2>
+                      <h2>{visibleTenders.length} tenders</h2>
                     </div>
                     <button
                       className="icon-button"
@@ -459,7 +519,29 @@ export function ExplorerView({
                       ↻
                     </button>
                   </header>
-                  {index.tenders.map((tender) => (
+                  <label className="public-filter-control">
+                    <span>Show</span>
+                    <select
+                      aria-label="Filter public tenders"
+                      value={publicFilter}
+                      onChange={(event) =>
+                        changePublicFilter(event.target.value as PublicTenderFilter)
+                      }
+                    >
+                      {publicTenderFilters.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {visibleTenders.length === 0 && (
+                    <p className="form-empty-hint">
+                      No tenders match this filter. Choose “All tenders” to
+                      inspect cancelled and refunded history.
+                    </p>
+                  )}
+                  {visibleTenders.map((tender) => (
                     <TenderCard
                       key={tender.tenderId.toString()}
                       tender={tender}
@@ -470,10 +552,22 @@ export function ExplorerView({
                     />
                   ))}
                 </aside>
-                <TenderDetail
-                  tender={selected}
-                  finalizedBlock={state.data.finalizedBlock}
-                />
+                {selected ? (
+                  <TenderDetail
+                    tender={selected}
+                    finalizedBlock={state.data.finalizedBlock}
+                  />
+                ) : (
+                  <section className="state-panel">
+                    <span aria-hidden="true">0</span>
+                    <div>
+                      <h2>No tenders match this filter</h2>
+                      <p>
+                        Choose “All tenders” to inspect the public history.
+                      </p>
+                    </div>
+                  </section>
+                )}
               </section>
             )}
           </main>

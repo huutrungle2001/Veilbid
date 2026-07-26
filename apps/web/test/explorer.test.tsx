@@ -117,6 +117,44 @@ describe("Tender Room public explorer", () => {
     ).toBeInTheDocument();
   });
 
+  it("hides cancelled history by default and exposes it through the status filter", () => {
+    const filtered = state();
+    const openTender = filtered.data!.index.tenders[0];
+    filtered.data = {
+      ...filtered.data!,
+      index: {
+        ...filtered.data!.index,
+        tenders: [
+          openTender,
+          {
+            ...openTender,
+            tenderId: 2n,
+            status: "Cancelled",
+            bidCount: 0,
+          },
+          {
+            ...openTender,
+            tenderId: 3n,
+            status: "Awarded",
+            winner: buyer,
+            winnerBidId: 1n,
+          },
+        ],
+      },
+    };
+    view(filtered);
+    expect(screen.getByText("2 tenders")).toBeInTheDocument();
+    expect(screen.queryByText("Confidential procurement #2")).not.toBeInTheDocument();
+
+    const filter = screen.getByRole("combobox", {
+      name: "Filter public tenders",
+    });
+    fireEvent.change(filter, { target: { value: "cancelled" } });
+    expect(screen.getByText("1 tenders")).toBeInTheDocument();
+    expect(screen.getAllByText("Confidential procurement #2").length).toBeGreaterThan(0);
+    expect(filter).toHaveValue("cancelled");
+  });
+
   it("surfaces explicit non-transferable receipt evidence after award", () => {
     const awarded = state();
     const tender = awarded.data!.index.tenders[0];
