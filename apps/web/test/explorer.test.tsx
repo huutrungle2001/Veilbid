@@ -218,7 +218,43 @@ describe("Tender Room public explorer", () => {
       screen.getByRole("heading", { name: "Reveal one granted bid." }),
     ).toBeInTheDocument();
     expect(screen.getByText(/does not confer token/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No finalized bid references are indexed yet/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AUDITOR" })).toBeEnabled();
+  });
+
+  it("explains empty Vendor actions instead of leaving disabled controls ambiguous", () => {
+    const inactive = state();
+    inactive.data = {
+      ...inactive.data!,
+      index: {
+        ...inactive.data!.index,
+        tenders: inactive.data!.index.tenders.map((tender) => ({
+          ...tender,
+          status: "Closed" as const,
+          closeBlock: 96n,
+        })),
+      },
+    };
+    render(
+      <MemoryRouter initialEntries={["/room"]}>
+        <ExplorerView
+          state={inactive}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="VENDOR"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByText(/No finalized tender is accepting bids/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/has not submitted a bid/i),
+    ).toBeInTheDocument();
   });
 
   it("opens the preparation-only Safe Treasury workspace", () => {

@@ -124,7 +124,11 @@ export function AuditorWorkspace({
             value={selection}
             onChange={(event) => setSelection(event.target.value)}
           >
-            <option value="">Select tender / bid</option>
+            <option value="">
+              {options.length === 0
+                ? "No public bid references available"
+                : "Select tender / bid"}
+            </option>
             {options.map((option) => (
               <option value={option.key} key={option.key}>
                 Tender {option.tenderId.toString()} · Bid{" "}
@@ -133,6 +137,12 @@ export function AuditorWorkspace({
             ))}
           </select>
         </label>
+        {options.length === 0 && (
+          <p className="form-empty-hint" role="status">
+            No finalized bid references are indexed yet. A vendor must
+            submit a bid before viewer access can be checked.
+          </p>
+        )}
         <div className="form-actions">
           <button
             className="secondary-button"

@@ -112,7 +112,11 @@ export function DisclosurePanel({
       <label>
         Eligible bid
         <select value={selectedKey} onChange={(event) => setSelectedKey(event.target.value)}>
-          <option value="">Select one public bid reference</option>
+          <option value="">
+            {eligible.length === 0
+              ? "No eligible bids for this wallet"
+              : "Select one public bid reference"}
+          </option>
           {eligible.map((bid) => (
             <option key={`${bid.tenderId}:${bid.bidId}`} value={`${bid.tenderId}:${bid.bidId}`}>
               Tender {bid.tenderId.toString()} · Bid {bid.bidId.toString()}
@@ -120,6 +124,13 @@ export function DisclosurePanel({
           ))}
         </select>
       </label>
+      {eligible.length === 0 && (
+        <p className="form-empty-hint" role="status">
+          {role === "VENDOR"
+            ? "This wallet has not submitted a bid in the indexed tenders."
+            : "Buyer disclosure becomes available only for this wallet's tenders after the Open stage."}
+        </p>
+      )}
       <label>
         Viewer address
         <input value={viewer} onChange={(event) => setViewer(event.target.value)} placeholder="0x…" />

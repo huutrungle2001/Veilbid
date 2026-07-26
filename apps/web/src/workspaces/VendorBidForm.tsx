@@ -91,7 +91,11 @@ export function VendorBidForm({
           disabled={pending}
           required
         >
-          <option value="">Select finalized dossier</option>
+          <option value="">
+            {openTenders.length === 0
+              ? "No Open tenders available"
+              : "Select finalized dossier"}
+          </option>
           {openTenders.map((tender) => (
             <option
               key={tender.tenderId.toString()}
@@ -103,6 +107,12 @@ export function VendorBidForm({
           ))}
         </select>
       </label>
+      {openTenders.length === 0 && (
+        <p className="form-empty-hint" role="status">
+          No finalized tender is accepting bids. Check Public and refresh
+          after the buyer opens a tender.
+        </p>
+      )}
       <label>
         Private bid price (vUSDC)
         <input

@@ -16,6 +16,14 @@ const labels: Record<BuyerTenderStage, string> = {
   confirmed: "Tender open",
 };
 
+function minimumLocalDeadline() {
+  const deadline = new Date(Date.now() + 60_000);
+  deadline.setMinutes(
+    deadline.getMinutes() - deadline.getTimezoneOffset(),
+  );
+  return deadline.toISOString().slice(0, 16);
+}
+
 export function BuyerTenderForm({
   wallet,
   onConfirmed,
@@ -105,9 +113,13 @@ export function BuyerTenderForm({
           type="datetime-local"
           value={deadline}
           onChange={(event) => setDeadline(event.target.value)}
+          min={minimumLocalDeadline()}
           disabled={pending}
           required
         />
+        <small className="field-hint">
+          Choose a local time at least one minute from now.
+        </small>
       </label>
       <label>
         Approved vendors (1–8)
