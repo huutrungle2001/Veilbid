@@ -32,9 +32,12 @@ Import các tài khoản test vào MetaMask bằng private key tương ứng tro
 `.env.local`:
 
 - Buyer: `SEPOLIA_PRIVATE_KEY`
-- Vendor 1: `SEPOLIA_VENDOR_PRIVATE_KEY`
-- Vendor 2/Auditor: ví test thứ ba được quản lý riêng, không đọc từ biến môi
-  trường của repository
+- Vendor 1: `SEPOLIA_TEST_VENDOR_PRIVATE_KEY`
+- Vendor 2/Auditor: `SEPOLIA_TEST_AUDITOR_PRIVATE_KEY`
+
+`SEPOLIA_VENDOR_PRIVATE_KEY` thuộc vendor của canonical release lifecycle
+(`0x4d2809486012076B2212C829742BD95eF5992dB0`), không phải Vendor 1 trong
+hướng dẫn test ba trình duyệt này.
 
 Không sao chép private key vào tài liệu, ảnh chụp, terminal output hoặc Git.
 Chỉ dùng các ví này trên testnet.
