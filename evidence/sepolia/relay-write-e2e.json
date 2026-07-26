@@ -1,37 +1,37 @@
 {
   "schemaVersion": 1,
   "suite": "relay-write-e2e",
-  "recordedAt": "2026-07-26T13:31:31.000Z",
+  "recordedAt": "2026-07-26T18:24:13.038Z",
   "network": "ethereum-sepolia",
   "chainId": 11155111,
   "deploymentKind": "release",
   "deploymentVerified": true,
   "publicIdentifiers": {
-    "safe": "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
-    "market": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
-    "tenderId": "5",
+    "safe": "0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0",
+    "market": "0x969F93642054130e87AFC8D380eec850617A6048",
+    "tenderId": "3",
     "transactions": {
-      "prepareInput": "0xd005d9dc342f0a16bc4e95302aa8a14aa4c97c092e302d45a7784c1ba127a19c",
-      "safeCreateTender": "0x67482c126879e5ab9974d626890c968a89d9615b44dca6794219a9be21cfd4c0",
-      "confirmFunding": "0xbe9ea5b1e9328ee272866e539c439fd1f6f55cb476551a6a25618acdceb02c9d",
-      "submitBid": "0xcce30016744074cd2de5f6bf7562b763f06d87fca6109227b5dfc907079645d0",
-      "relayClose": "0x169dd3c1ce8984f316e6e0f8d71fe4e131c3445f9bb8fb7fc6b3c2a0ae822402",
-      "relayFinalize": "0xa5bf1ca3aca4a83c8e5ac193917d5e4bdc979a792120125cff8dae4cf918ad23"
+      "safeCreateTender": "0x19f5a5140192c85dbfcc508bf4f531c1089f472289d4384cd5ef06812bcaf714",
+      "relayFunding": "0xfbb9b0fb63a3bb36872e3a7ac5e54a2a1de34f3f902fe41e79beaaf0f8ddaf06",
+      "submitBid": "0x0251b8308bb70ff99b03ca8ed3ebb897b89cda48870060ac85d5c0a0758c1b6e",
+      "relayClose": "0x6ac4a464b852eabd6855ce17c59fb3fc1b34e4327ab091443f3642bc86573237",
+      "relayFinalize": "0x36b59ca4a3f1b838468b04901ed25930d437ac9e5fccbc625e7dcdf89cc2a1bf"
     },
     "blocks": {
-      "prepareInput": "11354888",
-      "safeCreateTender": "11354890",
-      "confirmFunding": "11354891",
-      "submitBid": "11354893",
-      "relayClose": "11354908",
-      "relayFinalize": "11354916"
+      "safeCreateTender": "11356363",
+      "relayFunding": "11356365",
+      "submitBid": "11356367",
+      "relayClose": "11356368",
+      "relayFinalize": "11356369"
     }
   },
   "assertions": {
     "releaseModuleEnabled": true,
     "releaseMarketOperatorEnabled": true,
     "safeCreatedTender": true,
+    "atomicSafeBatchVerified": true,
     "exactFundingConfirmed": true,
+    "relayFundingSubmitted": true,
     "vendorBidSubmitted": true,
     "relayCloseSubmitted": true,
     "relayFinalizeSubmitted": true,

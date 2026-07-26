@@ -1,68 +1,68 @@
 {
   "schemaVersion": 1,
   "suite": "release-two-vendor-lifecycle",
-  "recordedAt": "2026-07-25T19:13:16.697Z",
+  "recordedAt": "2026-07-26T18:15:54.239Z",
   "environment": {
     "network": "ethereum-sepolia",
     "chainId": 11155111,
     "runtime": "safe-1.4.1-and-official-nox-testnet"
   },
   "publicIdentifiers": {
-    "sourceCommit": "a9243fe0e73e48de2d8f834dd1bf0ba407f27c80",
+    "sourceCommit": "c528b2ef4d4f5d754ca71d5e7f88c94247d0deba",
     "owner": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
-    "safe": "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
+    "safe": "0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0",
     "vendors": [
       "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
       "0x4d2809486012076B2212C829742BD95eF5992dB0"
     ],
     "tenderId": "1",
     "metadataHash": "0xff80ca61c9b2514a5bd1385f8c719428877b009c0596c6d1ec6886f343dbc09f",
-    "bidDeadline": "1785007152",
-    "moduleNonce": "11349638",
+    "bidDeadline": "1785090084",
+    "moduleNonce": "11356326",
     "contracts": {
-      "VeilBidTestUSDC": "0x45410b5e86e419615bB98fed1835B19Da371c3C2",
-      "VeilBidConfidentialUSDC": "0x57fcEb7F69e51B01bB087226a4B1bB4640f1571E",
-      "VeilBidMarket": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
-      "VeilBidAwardReceipt": "0x85EACFF4fE159A0463223625Ce830457f5664661",
-      "VeilBidDemoSafe": "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
-      "VeilBidSafePreparationModule": "0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7"
+      "VeilBidTestUSDC": "0xeE9A2B02C8700596b4814923c4086786c63A9D01",
+      "VeilBidConfidentialUSDC": "0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1",
+      "VeilBidMarket": "0x969F93642054130e87AFC8D380eec850617A6048",
+      "VeilBidAwardReceipt": "0xb31206898CdED553011012110E7aAFFe681C127f",
+      "VeilBidDemoSafe": "0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0",
+      "VeilBidSafePreparationModule": "0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401"
     },
     "transactions": {
-      "faucet": "0xd2638690e277530b4e5efaa77f6c522e64e1ccdff52ed78da99ceacd7395d654",
-      "approveWrapper": "0x646985dcc623f691632089c2c7e9bbf84295ff8b50c5ccaa1ec62caea3836b08",
-      "wrapToSafe": "0xf20c2f801dfb53b4585582113dcb79258abee74e9348c853664fa27b6b3b412f",
-      "prepareInput": "0xc8f3d2d9b956af5ca4a1f9d656c4a501c72a78e1f2cd51becc5ad0d47c63fd73",
-      "safeCreateTender": "0x28855431aba7a0002a2f67cd33ef094dbf70dab4eb961af45493afb99aa3c253",
-      "confirmFunding": "0xd24e51ccfc3025db2e156f55c2f1683b70cc60fa658ace7bec8f6d02699a9d07",
-      "submitFirstBid": "0x1d38ef96d27b26080bfd4f76b3a15ff4e9a21162b7f962a99877e9d5b03d3328",
-      "submitSecondBid": "0x278a3b335c5148cc14de8eb77770dcc42386966aff069f4192477daeb635d197",
-      "closeTender": "0x48e9875741140bc2e18c4317e340021ff4279b9e6c2c0e91cf8fb5d4e9a3356f",
-      "finalizeTender": "0x79e7f3a737bfcefee1203d9871efbdf0903360039dcfab482e2e737be8b000ac",
-      "safeGrantCrossBidViewer": "0x578608e3e4bbc65f78ff7c22c83a97140e9b8faabc3cd0fc01e28191c165f75b"
+      "faucet": "0xf3317bdfe991fe8dc4742c73a2a1e120f0f383a4ae69ac55efd3fc42841612c4",
+      "approveWrapper": "0x8378605dee4ef8480fced0b33ff435b0cecfc21301da5b8518ada4e1b3d61698",
+      "wrapToSafe": "0xde8c0744229b8c93193f2d5f667431f24d8b05f16078942980c0354994b90b22",
+      "safeCreateTender": "0xdc165c349518ad2c28132748d9c24394b8d8e7089a56cce02b62c0469494e6d7",
+      "confirmFunding": "0x927d68a93cd5ac1e628593c2efb2fc5081fec79f0b015f184437541633d4f4c8",
+      "submitFirstBid": "0xf31bba7e263efbb4cfc0c944b459b2e18d2ae60e3867d2dfeab57167c557408c",
+      "submitSecondBid": "0xa1de8756c8030267aa23568bd7d38d78eb4ea86dd9d86700a94cd7d190338600",
+      "closeTender": "0x4ca55d5fb3f47a106d944c58ab82fefff74dd57c1f2fc036f44b4dd069dfb1fc",
+      "finalizeTender": "0xfb765f07b95843166283f3981beb6c88db2056ec48112557342f9a26d2f76b2b",
+      "safeGrantCrossBidViewer": "0x2e5053450ee8a43a0e0788803e6a0e0072e2f45b341d43f7179dc455e574c95e"
     },
     "blocks": {
-      "faucet": "11349632",
-      "approveWrapper": "11349634",
-      "wrapToSafe": "11349637",
-      "prepareInput": "11349639",
-      "safeCreateTender": "11349641",
-      "confirmFunding": "11349643",
-      "submitFirstBid": "11349646",
-      "submitSecondBid": "11349648",
-      "closeTender": "11349659",
-      "finalizeTender": "11349661",
-      "safeGrantCrossBidViewer": "11349668"
+      "faucet": "11356321",
+      "approveWrapper": "11356323",
+      "wrapToSafe": "11356325",
+      "safeCreateTender": "11356328",
+      "confirmFunding": "11356330",
+      "submitFirstBid": "11356332",
+      "submitSecondBid": "11356334",
+      "closeTender": "11356337",
+      "finalizeTender": "11356339",
+      "safeGrantCrossBidViewer": "11356342"
     }
   },
   "assertions": {
     "verifiedReleaseReused": true,
     "releaseSafeOperational": true,
     "safePreparationAndFundingVerified": true,
+    "atomicSafeBatchVerified": true,
     "exactFundingProofOpenedTender": true,
     "twoDistinctVendorsSubmitted": true,
     "perVendorBidAclVerified": true,
     "bothVendorBidsDecryptedInMemory": true,
     "deadlineEnforced": true,
+    "earlyCloseAfterAllVendorsVerified": true,
     "winnerOnlyPublicDecryptionVerified": true,
     "lowerSecondBidSelectedByProof": true,
     "confidentialWinnerSettlementVerifiedInMemory": true,
@@ -78,7 +78,6 @@
     "Bid prices, confidential balances, handles, proofs, signatures, RPC credentials, and wallet secrets are asserted only in memory and omitted.",
     "The Safe owner also acts as the first approved vendor EOA; the buyer remains the distinct Safe address and the second vendor is a separate EOA.",
     "The lower second bid must become the proof-derived public winner while both bid values remain confidential by default.",
-    "The release module and Safe-to-Market operator authorization remain enabled after this lifecycle.",
-    "The corrected bid-2 Safe disclosure checkpoint resumed without replaying the completed tender lifecycle."
+    "The release module and Safe-to-Market operator authorization remain enabled after this lifecycle."
   ]
 }
