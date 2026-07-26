@@ -73,6 +73,7 @@ Only one phase may be `In progress`.
 | Early close and funding relay | Verified | Agent | 2026-07-27 | Approved-vendor completion closes tenders before the deadline; the stateless relay confirms funding, closes, and finalizes without a database. |
 | Render settlement relay | Deployed | Agent | 2026-07-27 | Free web service `https://veilbid-settlement-relay.onrender.com` runs `node apps/relay/dist/cli.js poll` with `/live` liveness and `/health` chain readiness; free-tier sleep/restart remains an operational limitation. |
 | Upgraded frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_6Toox8JycbAjM16JU75AbuNgpdcu` is aliased to `https://veilbid-three.vercel.app` and passed wallet-free desktop/mobile production smoke against the new canonical market. |
+| GitHub Actions relay | Verified | Agent | 2026-07-27 | Workflow `.github/workflows/settlement-relay.yml` runs one stateless Sepolia cycle every five minutes with repository secrets, concurrency protection, manual dispatch, and successful run `30218254852`. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
