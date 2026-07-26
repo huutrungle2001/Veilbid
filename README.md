@@ -272,6 +272,12 @@ security, or mainnet readiness.
 9. Resume an interrupted proof request from Activity.
 10. After close, optionally grant an auditor access to one specific bid handle.
 
+Long-running wallet actions update a bottom-right notification instead of
+appearing idle. The same notification advances through the operation’s actual
+validation, encryption or simulation, wallet-signature, confirmation, and
+success/error stages. Loading notifications persist; completed and failed
+notifications can be dismissed and also close automatically.
+
 The balance panel shows a disabled eye when no vcUSDC exists. After wrapping,
 the state changes to `ENCRYPTED`; selecting the eye asks the connected wallet
 to decrypt the balance for the current browser session only. The value clears

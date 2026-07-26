@@ -76,7 +76,7 @@ export function DocsPage() {
               { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
-              { title: "Review before signing", copy: "The app simulates each write and asks the selected wallet to sign. Verify the target and values in the wallet prompt." },
+              { title: "Follow transaction progress", copy: "A bottom-right notification moves through validation, simulation, wallet signature, confirmation, and completion. Verify every target and value in the wallet prompt." },
               { title: "Wait for finalized state", copy: "After confirmation, refresh the public dossier. Proof requests can be resumed from Activity if interrupted." },
             ]} />
             <div className="docs-actions">
