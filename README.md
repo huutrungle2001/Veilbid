@@ -261,8 +261,9 @@ security, or mainnet readiness.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor
    addresses.
 3. Inspect Sepolia ETH and test USDC in the workspace balance panel. Use
-   `GET TEST USDC` when needed, then wrap the exact ceiling as a confidential
-   ERC-7984 balance.
+   `GET TEST USDC` when needed. For an explicit test, open `WRAP TO vcUSDC`,
+   enter an amount, and confirm the ERC-20 approval and wrap transactions.
+   The guided Buyer flow can instead wrap the exact ceiling automatically.
 4. Authorize the market operator and create the funded tender.
 5. Request and submit the public exact-funding proof.
 6. Confirm the tender changes from `FundingPending` to `Open`.
@@ -270,6 +271,14 @@ security, or mainnet readiness.
 8. Close after the deadline or allow a permissionless finalizer to do so.
 9. Resume an interrupted proof request from Activity.
 10. After close, optionally grant an auditor access to one specific bid handle.
+
+The balance panel shows a disabled eye when no vcUSDC exists. After wrapping,
+the state changes to `ENCRYPTED`; selecting the eye asks the connected wallet
+to decrypt the balance for the current browser session only. The value clears
+on refresh, account change, or chain change and is never written to storage,
+logs, URLs, or public evidence. Manual unwrap is not exposed by this release
+because the wrapper requires a separate public-decryption and finalization
+flow.
 
 ### Vendor
 

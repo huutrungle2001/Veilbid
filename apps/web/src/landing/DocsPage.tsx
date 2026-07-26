@@ -73,6 +73,7 @@ export function DocsPage() {
             <StepList steps={[
               { title: "Open Tenders", copy: "Use the TENDERS link to load finalized public state. No wallet is required to browse." },
               { title: "Choose a workspace", copy: "Switch between Public, Buyer, Vendor, Activity, Auditor, and Safe Treasury from the workspace bar." },
+              { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
               { title: "Review before signing", copy: "The app simulates each write and asks the selected wallet to sign. Verify the target and values in the wallet prompt." },
@@ -108,7 +109,7 @@ export function DocsPage() {
             <StepList steps={[
               { title: "Connect a Sepolia wallet", copy: "Open the Buyer workspace and connect the account that will own the tender. The demo uses test vUSDC only." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
-              { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC in the workspace balance panel, or let the guided Buyer transaction request the faucet automatically when the visible balance is insufficient. The exact ceiling is then wrapped into its confidential ERC-7984 representation." },
+              { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
               { title: "Create funded tender", copy: "Simulate, review, and sign the tender creation transaction. The public terms and encrypted budget are bound together." },
               { title: "Prove exact funding", copy: "Request the public equality result proving escrow equals the ceiling, without opening the confidential balance itself." },
@@ -117,6 +118,8 @@ export function DocsPage() {
             <p className="docs-note">
               If the funding proof is interrupted, do not create another
               tender. Open Activity and resume the stored public checkpoint.
+              The eye beside vcUSDC performs an explicit, session-only reveal
+              and appears disabled when no confidential balance exists.
             </p>
           </section>
 
@@ -245,6 +248,7 @@ export function DocsPage() {
               <div><dt>No wallet detected</dt><dd>Unlock or install an EIP-6963 compatible browser wallet, then reload. Public mode remains available.</dd></div>
               <div><dt>Wrong network</dt><dd>Open the header wallet menu and select SWITCH TO SEPOLIA. Write actions remain disabled until chain 11155111 is active.</dd></div>
               <div><dt>Public state unavailable</dt><dd>Retry the Sepolia read. VeilBid deliberately shows an error instead of substituting mock data.</dd></div>
+              <div><dt>Wrap is unavailable</dt><dd>Connect on Sepolia and request Test USDC first. Wrap only the amount intended for testing; manual unwrap is not exposed in this release.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
               <div><dt>Auditor cannot reveal</dt><dd>Confirm the connected account has a grant for that exact bid handle; access to another bid does not carry over.</dd></div>
               <div><dt>Safe action unavailable</dt><dd>The demo module is intentionally disabled. A Safe threshold transaction is required to enable it again.</dd></div>
