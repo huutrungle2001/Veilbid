@@ -7,6 +7,7 @@ import {
   createPublicClient,
   formatUnits,
   http,
+  parseUnits,
   type Abi,
   type Address,
   type Hex,
@@ -45,6 +46,17 @@ export type BalanceRevealer = (
   walletClient: WalletClient,
   handle: Hex,
 ) => Promise<bigint>;
+export type WrapStage = "checking" | "approving" | "wrapping";
+export type BalanceWrapper = (
+  walletClient: WalletClient,
+  account: Address,
+  amount: bigint,
+  onStage: (stage: WrapStage) => void,
+) => Promise<void>;
+type BalanceMessage = {
+  kind: "error" | "status";
+  text: string;
+};
 
 function compactAmount(value: bigint, decimals: number, precision: number) {
   const [whole, fraction = ""] = formatUnits(value, decimals).split(".");
@@ -146,16 +158,89 @@ export async function requestTestUsdc(
   }
 }
 
+export function parseWrapAmount(input: string) {
+  const normalized = input.trim();
+  if (!/^(0|[1-9]\d*)(\.\d{1,6})?$/.test(normalized)) {
+    throw new Error("Enter a positive amount with at most 6 decimals.");
+  }
+  const amount = parseUnits(normalized, 6);
+  if (amount === 0n) {
+    throw new Error("Wrap amount must be greater than zero.");
+  }
+  return amount;
+}
+
+export async function wrapTestUsdc(
+  walletClient: WalletClient,
+  account: Address,
+  amount: bigint,
+  onStage: (stage: WrapStage) => void,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+) {
+  if (amount <= 0n) throw new Error("Wrap amount must be positive.");
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(rpcUrl),
+  });
+  const transact = async (
+    address: Address,
+    abi: Abi,
+    functionName: string,
+    args: readonly unknown[],
+  ) => {
+    const simulation = await client.simulateContract({
+      account,
+      address,
+      abi,
+      functionName,
+      args,
+    });
+    const hash = await walletClient.writeContract(simulation.request);
+    const receipt = await client.waitForTransactionReceipt({ hash });
+    if (receipt.status !== "success") {
+      throw new Error(`${functionName} reverted.`);
+    }
+  };
+  const [balance, allowance] = await Promise.all([
+    client.readContract({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "balanceOf",
+      args: [account],
+    }),
+    client.readContract({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "allowance",
+      args: [account, wrapperAddress],
+    }),
+  ]);
+  if (typeof balance !== "bigint" || balance < amount) {
+    throw new Error("Insufficient Test USDC balance.");
+  }
+  if (typeof allowance !== "bigint" || allowance < amount) {
+    onStage("approving");
+    await transact(tokenAddress, tokenAbi, "approve", [
+      wrapperAddress,
+      amount,
+    ]);
+  }
+  onStage("wrapping");
+  await transact(wrapperAddress, wrapperAbi, "wrap", [account, amount]);
+}
+
 export function WalletBalancePanel({
   wallet,
   loadBalances = readWalletBalances,
   requestFaucet = requestTestUsdc,
   revealBalance = revealConfidentialBalance,
+  requestWrap = wrapTestUsdc,
 }: {
   wallet: WalletController;
   loadBalances?: BalanceLoader;
   requestFaucet?: FaucetRequester;
   revealBalance?: BalanceRevealer;
+  requestWrap?: BalanceWrapper;
 }) {
   const { state } = wallet;
   const [balances, setBalances] = useState<WalletBalances | null>(null);
@@ -163,13 +248,17 @@ export function WalletBalancePanel({
     "idle" | "loading" | "ready" | "error"
   >("idle");
   const [faucetPending, setFaucetPending] = useState(false);
+  const [wrapExpanded, setWrapExpanded] = useState(false);
+  const [wrapAmount, setWrapAmount] = useState("");
+  const [wrapStage, setWrapStage] = useState<WrapStage | null>(null);
   const [revealPending, setRevealPending] = useState(false);
   const [revealedBalance, setRevealedBalance] = useState<bigint | null>(
     null,
   );
   const [revealError, setRevealError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<BalanceMessage | null>(null);
   const revealRequestId = useRef(0);
+  const walletActionRequestId = useRef(0);
   const connected =
     state.status === "connected" &&
     state.account &&
@@ -193,13 +282,18 @@ export function WalletBalancePanel({
   }, [loadBalances, state.account, state.status]);
 
   useEffect(() => {
+    walletActionRequestId.current += 1;
     if (!connected) {
       revealRequestId.current += 1;
       setBalances(null);
       setStatus("idle");
+      setFaucetPending(false);
       setRevealPending(false);
       setRevealedBalance(null);
       setRevealError(null);
+      setWrapExpanded(false);
+      setWrapAmount("");
+      setWrapStage(null);
       setMessage(null);
       return;
     }
@@ -208,16 +302,29 @@ export function WalletBalancePanel({
 
   async function faucet() {
     if (!connected) return;
+    const requestId = walletActionRequestId.current + 1;
+    walletActionRequestId.current = requestId;
     setFaucetPending(true);
     setMessage(null);
     try {
       await requestFaucet(state.walletClient!, state.account!);
+      if (walletActionRequestId.current !== requestId) return;
       await refresh();
-      setMessage("10,000 test USDC received.");
+      setMessage({
+        kind: "status",
+        text: "10,000 test USDC received.",
+      });
     } catch {
-      setMessage("Faucet transaction was rejected or failed.");
+      if (walletActionRequestId.current === requestId) {
+        setMessage({
+          kind: "error",
+          text: "Faucet transaction was rejected or failed.",
+        });
+      }
     } finally {
-      setFaucetPending(false);
+      if (walletActionRequestId.current === requestId) {
+        setFaucetPending(false);
+      }
     }
   }
 
@@ -254,6 +361,66 @@ export function WalletBalancePanel({
     }
   }
 
+  async function wrap(event: React.FormEvent) {
+    event.preventDefault();
+    if (!connected || !balances) return;
+    setMessage(null);
+    let amount: bigint;
+    try {
+      amount = parseWrapAmount(wrapAmount);
+    } catch (cause) {
+      setMessage({
+        kind: "error",
+        text:
+          cause instanceof Error
+            ? cause.message
+            : "Wrap amount is invalid.",
+      });
+      return;
+    }
+    if (amount > balances.testUsdc) {
+      setMessage({
+        kind: "error",
+        text: "Wrap amount exceeds the available Test USDC balance.",
+      });
+      return;
+    }
+    const requestId = walletActionRequestId.current + 1;
+    walletActionRequestId.current = requestId;
+    setWrapStage("checking");
+    try {
+      await requestWrap(
+        state.walletClient!,
+        state.account!,
+        amount,
+        (stage) => {
+          if (walletActionRequestId.current === requestId) {
+            setWrapStage(stage);
+          }
+        },
+      );
+      if (walletActionRequestId.current !== requestId) return;
+      await refresh();
+      setWrapAmount("");
+      setWrapExpanded(false);
+      setMessage({
+        kind: "status",
+        text: `${compactAmount(amount, 6, 6)} Test USDC wrapped to vcUSDC.`,
+      });
+    } catch {
+      if (walletActionRequestId.current === requestId) {
+        setMessage({
+          kind: "error",
+          text: "Wrap transaction was rejected or failed.",
+        });
+      }
+    } finally {
+      if (walletActionRequestId.current === requestId) {
+        setWrapStage(null);
+      }
+    }
+  }
+
   function hideRevealedBalance() {
     revealRequestId.current += 1;
     setRevealPending(false);
@@ -280,10 +447,10 @@ export function WalletBalancePanel({
             steps={[
               "SEP ETH pays Sepolia gas; acquire it from a Sepolia faucet if needed.",
               "GET TEST USDC requests demo tokens from the VeilBid faucet contract.",
-              "Buyer actions wrap Test USDC into confidential vcUSDC when funding a tender.",
+              "WRAP TO vcUSDC converts a chosen Test USDC amount after an ERC-20 approval; Buyer can also wrap automatically while funding.",
               "When vcUSDC shows ENCRYPTED, use the eye and authorize your wallet to reveal it for this session only.",
             ]}
-            note="Refresh rereads Sepolia. Confidential values are never stored in the URL, browser storage, logs, or public evidence."
+            note="Refresh rereads Sepolia. Wrap only what you intend to test. Confidential values are never stored in the URL, browser storage, logs, or public evidence."
           />
           <button
             className="balance-refresh"
@@ -325,7 +492,7 @@ export function WalletBalancePanel({
                     ? confidentialLabel
                     : compactAmount(revealedBalance, 6, 2)}
                 </span>
-                {balances.confidential === "encrypted" && (
+                {balances.confidential !== "unavailable" && (
                   <button
                     className="balance-reveal"
                     type="button"
@@ -334,14 +501,22 @@ export function WalletBalancePanel({
                         ? void reveal()
                         : hideRevealedBalance()
                     }
-                    disabled={revealPending || status === "loading"}
+                    disabled={
+                      balances.confidential !== "encrypted" ||
+                      revealPending ||
+                      status === "loading"
+                    }
                     aria-label={
-                      revealedBalance === null
+                      balances.confidential !== "encrypted"
+                        ? "No confidential vcUSDC balance to reveal"
+                        : revealedBalance === null
                         ? "Reveal confidential vcUSDC balance"
                         : "Hide confidential vcUSDC balance"
                     }
                     title={
-                      revealedBalance === null
+                      balances.confidential !== "encrypted"
+                        ? "Wrap Test USDC to create a confidential balance"
+                        : revealedBalance === null
                         ? "Reveal with connected wallet"
                         : "Hide balance"
                     }
@@ -378,10 +553,81 @@ export function WalletBalancePanel({
         className="balance-faucet"
         type="button"
         onClick={() => void faucet()}
-        disabled={!connected || faucetPending}
+        disabled={!connected || faucetPending || wrapStage !== null}
       >
         {faucetPending ? "CONFIRMING…" : "GET TEST USDC"}
       </button>
+      <button
+        className="balance-wrap-toggle"
+        type="button"
+        aria-expanded={wrapExpanded}
+        aria-controls="balance-wrap-form"
+        onClick={() => {
+          setWrapExpanded((current) => !current);
+          setMessage(null);
+        }}
+        disabled={
+          !connected ||
+          faucetPending ||
+          wrapStage !== null ||
+          status === "loading" ||
+          balances?.testUsdc === 0n
+        }
+        title={
+          balances?.testUsdc === 0n
+            ? "Get Test USDC before wrapping"
+            : "Convert Test USDC to confidential vcUSDC"
+        }
+      >
+        {wrapExpanded ? "CANCEL WRAP" : "WRAP TO vcUSDC"}
+      </button>
+      {wrapExpanded && balances && (
+        <form
+          className="balance-wrap-form"
+          id="balance-wrap-form"
+          onSubmit={(event) => void wrap(event)}
+        >
+          <label htmlFor="balance-wrap-amount">TEST USDC AMOUNT</label>
+          <div>
+            <input
+              id="balance-wrap-amount"
+              value={wrapAmount}
+              onChange={(event) => setWrapAmount(event.target.value)}
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0.00"
+              disabled={wrapStage !== null}
+              required
+            />
+            <button
+              type="button"
+              onClick={() =>
+                setWrapAmount(formatUnits(balances.testUsdc, 6))
+              }
+              disabled={wrapStage !== null}
+            >
+              MAX
+            </button>
+          </div>
+          <button
+            className="balance-wrap-confirm"
+            type="submit"
+            disabled={wrapStage !== null || wrapAmount.trim() === ""}
+          >
+            {wrapStage === "checking"
+              ? "CHECKING ALLOWANCE…"
+              : wrapStage === "approving"
+              ? "APPROVE IN WALLET…"
+              : wrapStage === "wrapping"
+                ? "WRAP IN WALLET…"
+                : "APPROVE & WRAP"}
+          </button>
+          <p>
+            Two wallet confirmations may be required. Wrap only what you
+            intend to use for testing.
+          </p>
+        </form>
+      )}
       <p className="balance-note">
         Use the eye to decrypt vcUSDC with your wallet. The value stays
         in this browser session only.
@@ -394,9 +640,9 @@ export function WalletBalancePanel({
       {message && (
         <p
           className="balance-message"
-          role={message.includes("failed") ? "alert" : "status"}
+          role={message.kind === "error" ? "alert" : "status"}
         >
-          {message}
+          {message.text}
         </p>
       )}
     </section>
