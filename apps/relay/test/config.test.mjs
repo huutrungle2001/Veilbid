@@ -39,7 +39,31 @@ test("configuration bounds the shared action budget", () => {
   );
 });
 
+test("Render PORT is used when an explicit health port is absent", () => {
+  const config = loadRelayConfig(["dry-run"], {
+    SEPOLIA_RPC_URL: "https://rpc.example",
+    PORT: "10000",
+  });
+  assert.equal(config.healthPort, 10000);
+});
+
 test("canonical readiness classifies stale actions without trusting the index", () => {
+  assert.equal(
+    classifyActionReadiness(
+      { kind: "confirm-funding", tenderId: 1n },
+      0,
+      false,
+    ),
+    "actionable",
+  );
+  assert.equal(
+    classifyActionReadiness(
+      { kind: "confirm-funding", tenderId: 1n },
+      1,
+      false,
+    ),
+    "resolved",
+  );
   assert.equal(
     classifyActionReadiness({ kind: "close", tenderId: 1n }, 1, true),
     "actionable",

@@ -99,7 +99,7 @@ export function loadRelayConfig(
     ),
     healthHost: env.FINALIZER_HEALTH_HOST?.trim() || "127.0.0.1",
     healthPort: positiveInteger(
-      env.FINALIZER_HEALTH_PORT,
+      env.FINALIZER_HEALTH_PORT ?? env.PORT,
       8787,
       "health-port",
       65_535,

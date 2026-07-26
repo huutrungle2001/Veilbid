@@ -1,6 +1,6 @@
 import type { Hex } from "viem";
 
-export type RelayActionKind = "close" | "finalize";
+export type RelayActionKind = "confirm-funding" | "close" | "finalize";
 
 export interface RelayAction {
   kind: RelayActionKind;

@@ -27,7 +27,7 @@ function tender(tenderId, status, bidDeadline = 100n) {
   };
 }
 
-test("planner selects only public close and finalize readiness", () => {
+test("planner selects public funding, close, and finalize readiness", () => {
   const actions = planRelayActions(
     {
       tenders: [
@@ -43,6 +43,7 @@ test("planner selects only public close and finalize readiness", () => {
     150n,
   );
   assert.deepEqual(actions, [
+    { kind: "confirm-funding", tenderId: 5n },
     { kind: "finalize", tenderId: 1n },
     { kind: "close", tenderId: 2n },
   ]);
@@ -65,5 +66,17 @@ test("planner is deterministic and prioritizes proof-ready tenders", () => {
   assert.deepEqual(
     actions.map(({ kind, tenderId }) => `${kind}:${tenderId}`),
     ["finalize:2", "finalize:7", "close:1", "close:8"],
+  );
+});
+
+test("planner closes early when every approved vendor has submitted", () => {
+  const complete = tender(9n, "Open", 500n);
+  complete.bidCount = complete.approvedVendorCount;
+  assert.deepEqual(
+    planRelayActions(
+      { tenders: [complete], bids: [], checkpoint: null },
+      100n,
+    ),
+    [{ kind: "close", tenderId: 9n }],
   );
 });

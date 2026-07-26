@@ -5,8 +5,9 @@ import {
 import type { RelayAction } from "./types.js";
 
 const kindOrder: Record<RelayAction["kind"], number> = {
-  finalize: 0,
-  close: 1,
+  "confirm-funding": 0,
+  finalize: 1,
+  close: 2,
 };
 
 export function planRelayActions(
@@ -16,6 +17,9 @@ export function planRelayActions(
   return index.tenders
     .flatMap((tender): RelayAction[] => {
       const readiness = getTenderReadiness(tender, timestamp);
+      if (readiness.needsFundingProof) {
+        return [{ kind: "confirm-funding", tenderId: tender.tenderId }];
+      }
       if (readiness.needsWinnerProof) {
         return [{ kind: "finalize", tenderId: tender.tenderId }];
       }

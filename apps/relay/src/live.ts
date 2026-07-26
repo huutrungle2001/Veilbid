@@ -50,6 +50,7 @@ interface RelayDeployment {
 
 interface TenderRelayView {
   status: number;
+  fundingCheckHandle: Hex;
   encryptedWinnerBidIdHandle: Hex;
 }
 
@@ -79,6 +80,7 @@ function parseTender(value: unknown): TenderRelayView {
   const candidate = value as Partial<TenderRelayView>;
   if (
     typeof candidate.status !== "number" ||
+    typeof candidate.fundingCheckHandle !== "string" ||
     typeof candidate.encryptedWinnerBidIdHandle !== "string"
   ) {
     throw new Error("malformed-tender-state");
@@ -95,11 +97,15 @@ export function classifyActionReadiness(
     if (status > 1) return "resolved";
     return status === 1 && canClose ? "actionable" : "waiting";
   }
+  if (action.kind === "confirm-funding") {
+    if (status > 0) return "resolved";
+    return status === 0 ? "actionable" : "waiting";
+  }
   if (status >= 3) return "resolved";
   return status === 2 ? "actionable" : "waiting";
 }
 
-async function waitForWinnerProof(
+async function waitForPublicProof(
   handleClient: Pick<HandleClient, "publicDecrypt">,
   handle: Hex,
   attempts: number,
@@ -158,7 +164,10 @@ export class LiveRelayAdapter implements RelayAdapter {
     const account = this.#walletClient.account;
     if (!account) throw new Error("missing-finalizer-account");
 
-    let functionName: "closeTender" | "finalizeTender";
+    let functionName:
+      | "confirmTenderFunding"
+      | "closeTender"
+      | "finalizeTender";
     let args: readonly unknown[];
     if (action.kind === "close") {
       functionName = "closeTender";
@@ -172,15 +181,21 @@ export class LiveRelayAdapter implements RelayAdapter {
           args: [action.tenderId],
         }),
       );
-      if (tender.status !== 2) throw new Error("stale-finalize");
+      const expectedStatus = action.kind === "confirm-funding" ? 0 : 2;
+      if (tender.status !== expectedStatus) throw new Error("stale-proof-action");
       this.#handleClient ??= await createViemHandleClient(this.#walletClient);
-      const proof = await waitForWinnerProof(
+      const proof = await waitForPublicProof(
         this.#handleClient,
-        tender.encryptedWinnerBidIdHandle,
+        action.kind === "confirm-funding"
+          ? tender.fundingCheckHandle
+          : tender.encryptedWinnerBidIdHandle,
         this.#config.proofAttempts,
         this.#config.proofDelayMs,
       );
-      functionName = "finalizeTender";
+      functionName =
+        action.kind === "confirm-funding"
+          ? "confirmTenderFunding"
+          : "finalizeTender";
       args = [action.tenderId, proof];
     }
 
