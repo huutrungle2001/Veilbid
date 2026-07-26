@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "suite": "production-frontend-smoke",
-  "recordedAt": "2026-07-26T04:10:18.770Z",
+  "recordedAt": "2026-07-26T08:53:51.350Z",
   "publicIdentifiers": {
-    "sourceCommit": "5cbf3febbf81d1eb9f6bf89afa77ceef38262a70",
+    "sourceCommit": "70bc786f62bfca748e789f79decd59d426c1b0f3",
     "provider": "vercel",
     "project": "veilbid",
-    "deploymentId": "dpl_GQ96e7T9v4VasT3F9P1E7wpSTyFW",
+    "deploymentId": "dpl_8DuBzhYFWAHgDzVaf9CMCAggMtMu",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "network": "ethereum-sepolia",
     "chainId": 11155111,
@@ -14,7 +14,7 @@
     "deploymentVerified": true,
     "market": "0x69f20485f388DCc2Cf9c513859C97de2419b6F16",
     "tenderId": "1",
-    "observedBlock": "11352229"
+    "observedBlock": "11353607"
   },
   "routeStatuses": {
     "/": 200,
@@ -34,7 +34,7 @@
         "width": 390,
         "height": 844
       },
-      "sha256": "c18e759ad528151cea17563dd326b3da4120968332a59a92fdc043fdc0d912dc"
+      "sha256": "c1e026af452b77ae1c5d9ee19c98109384fb53b0d01d5bf050ccd7b5821f1fb5"
     },
     "docsDesktop": {
       "viewport": {
