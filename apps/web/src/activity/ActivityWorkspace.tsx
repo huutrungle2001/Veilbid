@@ -172,18 +172,18 @@ export function ActivityWorkspace({
           label="Help for Activity workspace"
           title="HOW TO USE ACTIVITY"
           steps={[
-            "Connect the wallet that started the interrupted operation.",
+            "The hosted relay automatically confirms funding, closes eligible tenders, and finalizes public proofs.",
+            "Connect the wallet that started an interrupted manual operation only when recovery is needed.",
             "Use Resume on a saved funding or winner-proof checkpoint; the app rereads required handles and proofs.",
-            "Use Close & Track after a tender deadline, or Track Proof when a tender is already closed.",
-            "Wait for each wallet confirmation, then verify the refreshed public dossier.",
+            "Use manual Close & Track only if relay health is unavailable or delayed.",
           ]}
           note="Recovery persists public identifiers and transaction references only—never plaintext values, handles, or proofs."
         />
-        <p className="eyebrow">ACTIVITY / PUBLIC PROOF RECOVERY</p>
-        <h1>Resume, never restart.</h1>
+        <p className="eyebrow">ACTIVITY / AUTOMATION & RECOVERY</p>
+        <h1>Automatic by default. Recoverable by design.</h1>
         <p>
-          Recovery stores public tender IDs and transaction hashes only. Handles
-          and proofs are reread or requested when you resume.
+          The relay performs permissionless lifecycle writes. Manual recovery
+          stores public IDs and transaction hashes only—never plaintext bids.
         </p>
       </section>
       <WalletPanel wallet={wallet} />
@@ -236,7 +236,7 @@ export function ActivityWorkspace({
       <section className="activity-section">
         <header>
           <div>
-            <p className="eyebrow">PERMISSIONLESS ACTIONS</p>
+            <p className="eyebrow">MANUAL RELAY FALLBACK</p>
             <h2>{trackable.length} ready</h2>
           </div>
         </header>
@@ -257,7 +257,7 @@ export function ActivityWorkspace({
                         : "CLOSE READY"}
                     </p>
                     <h3>Tender {tender.tenderId.toString()}</h3>
-                    <span>{tender.bidCount} sealed bids</span>
+                    <span>{tender.bidCount}/{tender.approvedVendorCount} vendors submitted</span>
                   </div>
                   <button
                     className="primary-button"

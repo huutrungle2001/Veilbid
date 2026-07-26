@@ -5,10 +5,27 @@ import type { SafePreparationResult } from "../src/safe/safePreparation";
 
 const result = {
   actionHash: `0x${"11".repeat(32)}`,
-  transactionHash: `0x${"22".repeat(32)}`,
   safe: "0x6Cf73078c21dded41f02FdEF54E532Ce7b356817",
   target: "0x4444444444444444444444444444444444444444",
   safeTransactionData: `0x${"55".repeat(96)}`,
+  preparationTransactionData: `0x${"66".repeat(96)}`,
+  transactions: [
+    {
+      to: "0x6666666666666666666666666666666666666666",
+      value: "0",
+      data: `0x${"66".repeat(96)}`,
+    },
+    {
+      to: "0x4444444444444444444444444444444444444444",
+      value: "0",
+      data: `0x${"55".repeat(96)}`,
+    },
+  ],
+  safeTxHash: `0x${"22".repeat(32)}`,
+  threshold: 2,
+  confirmations: 1,
+  executed: false,
+  executionTransactionHash: null,
 } as SafePreparationResult;
 
 afterEach(() => {
@@ -17,7 +34,7 @@ afterEach(() => {
 });
 
 describe("Safe transaction handoff", () => {
-  it("exposes complete target/calldata and copies a zero-value transaction", async () => {
+  it("exposes proposal status and copies the atomic Safe batch", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -37,14 +54,10 @@ describe("Safe transaction handoff", () => {
     );
 
     fireEvent.click(
-      screen.getByRole("button", { name: "COPY TRANSACTION JSON" }),
+      screen.getByRole("button", { name: "COPY BATCH JSON" }),
     );
     expect(writeText).toHaveBeenCalledOnce();
-    expect(JSON.parse(writeText.mock.calls[0][0])).toEqual({
-      to: result.target,
-      value: "0",
-      data: result.safeTransactionData,
-    });
+    expect(JSON.parse(writeText.mock.calls[0][0])).toEqual(result.transactions);
     expect(await screen.findByText("Transaction JSON copied.")).toBeInTheDocument();
   });
 });

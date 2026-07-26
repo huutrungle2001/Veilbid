@@ -12,9 +12,7 @@ const labels: Record<BuyerTenderStage, string> = {
   wrap: "Wrapping confidential vUSDC",
   "approve-market": "Authorizing market operator",
   create: "Creating and funding tender",
-  "funding-proof": "Recovering exact-funding proof",
-  "confirm-funding": "Opening tender on-chain",
-  confirmed: "Tender open",
+  confirmed: "Tender submitted; relay will verify funding",
 };
 
 function minimumLocalDeadline() {
@@ -80,7 +78,9 @@ export function BuyerTenderForm({
           }
         },
       });
-      setResult(`Tender ${created.tenderId.toString()} opened on Sepolia`);
+      setResult(
+        `Tender ${created.tenderId.toString()} submitted on Sepolia; relay opening is automatic`,
+      );
       onConfirmed();
     } catch (cause) {
       setStage(null);

@@ -35,7 +35,7 @@ describe("Safe preparation terms", () => {
     ).toThrow(/unique vendor/i);
   });
 
-  it("reflects the canonical enabled module and serializes a zero-value Safe handoff", () => {
+  it("reflects the canonical enabled module and serializes an atomic Safe batch", () => {
     expect(safeReleaseConfiguration.moduleEnabled).toBe(true);
     expect(safeReleaseConfiguration.walletUrl).toContain(
       safeReleaseConfiguration.safe,
@@ -43,10 +43,9 @@ describe("Safe preparation terms", () => {
     expect(
       JSON.parse(
         serializeSafeTransactionHandoff({
-          target: vendor,
-          safeTransactionData: "0x1234",
+          transactions: [{ to: vendor, value: "0", data: "0x1234" }],
         }),
       ),
-    ).toEqual({ to: vendor, value: "0", data: "0x1234" });
+    ).toEqual([{ to: vendor, value: "0", data: "0x1234" }]);
   });
 });

@@ -1,4 +1,3 @@
-import { createViemHandleClient } from "@iexec-nox/handle";
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
 import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
 import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
@@ -19,12 +18,8 @@ import {
   type WalletClient,
 } from "viem";
 import { sepolia } from "viem/chains";
-import {
-  removeRecoveryRecord,
-  saveRecoveryRecord,
-} from "../activity/recoveryStore";
+import { saveRecoveryRecord } from "../activity/recoveryStore";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
-import { waitForPublicDecryption } from "./publicDecryption";
 
 const marketAbi = marketAbiJson as Abi;
 const tokenAbi = tokenAbiJson as Abi;
@@ -40,8 +35,6 @@ export type BuyerTenderStage =
   | "wrap"
   | "approve-market"
   | "create"
-  | "funding-proof"
-  | "confirm-funding"
   | "confirmed";
 
 export interface BuyerTenderDraft {
@@ -216,40 +209,9 @@ export async function createBuyerTender({
     triggerTransactionHash: createReceipt.transactionHash,
   });
 
-  onStage("funding-proof");
-  const tender = await publicClient.readContract({
-    address: marketAddress,
-    abi: marketAbi,
-    functionName: "getTender",
-    args: [tenderId],
-  });
-  if (!tender || typeof tender !== "object") {
-    throw new Error("Funding-pending tender could not be read.");
-  }
-  const fundingCheckHandle = (tender as { fundingCheckHandle?: unknown })
-    .fundingCheckHandle;
-  if (typeof fundingCheckHandle !== "string") {
-    throw new Error("Funding check handle is unavailable.");
-  }
-  const handleClient = await createViemHandleClient(walletClient);
-  const funding = await waitForPublicDecryption(
-    handleClient,
-    fundingCheckHandle as Hex,
-  );
-  onStage("confirm-funding");
-  const confirmation = await transact(
-    marketAddress,
-    marketAbi,
-    "confirmTenderFunding",
-    [tenderId, funding.decryptionProof],
-  );
-  removeRecoveryRecord("funding", tenderId);
-  if (funding.value !== true) {
-    throw new Error("Exact-funding proof evaluated false; tender was cancelled.");
-  }
   onStage("confirmed");
   return {
     tenderId,
-    transactionHash: confirmation.transactionHash,
+    transactionHash: createReceipt.transactionHash,
   };
 }

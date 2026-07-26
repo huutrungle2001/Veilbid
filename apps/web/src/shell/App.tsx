@@ -128,8 +128,8 @@ function TenderCard({
           Public ceiling
         </span>
         <span>
-          <strong>{tender.bidCount}</strong>
-          Sealed bids
+          <strong>{tender.bidCount}/{tender.approvedVendorCount}</strong>
+          Bids received
         </span>
       </span>
       <span className="card-deadline">
@@ -270,7 +270,7 @@ function TenderDetail({
         </div>
         <div>
           <dt>Sealed bids</dt>
-          <dd>{tender.bidCount}</dd>
+          <dd>{tender.bidCount} / {tender.approvedVendorCount} vendors</dd>
         </div>
       </dl>
 
@@ -389,8 +389,14 @@ export function ExplorerView({
     <div className="tender-layout">
       <div className="rolebar" aria-label="Tender workspaces">
         <div className="rolebar-links">
-          {["PUBLIC", "BUYER", "VENDOR", "ACTIVITY", "AUDITOR", "SAFE TREASURY"].map(
-            (role) => {
+          {([
+            ["PUBLIC", "PUBLIC"],
+            ["SAFE TREASURY", "SAFE BUYER"],
+            ["VENDOR", "VENDOR"],
+            ["ACTIVITY", "ACTIVITY"],
+            ["AUDITOR", "AUDITOR"],
+            ["BUYER", "EOA BUYER"],
+          ] as const).map(([role, label]) => {
               const interactive =
                 role === "PUBLIC" ||
                 role === "BUYER" ||
@@ -414,7 +420,7 @@ export function ExplorerView({
                       : "Role workspace is not enabled in this release slice"
                   }
                 >
-                  {role}
+                  {label}
                 </button>
               );
             },

@@ -15,7 +15,7 @@
     {
       "contractName": "VeilBidSafePreparationModule",
       "abi": "abis/VeilBidSafePreparationModule.json",
-      "sha256": "0239bce876d4531b0515022b47a245e8675b0fbc71d218164008f0666c2f437c"
+      "sha256": "99074925719b2e908f6ceefc24aee5c86fa00c0a94c5b373e79e4ab4b2f2af3e"
     },
     {
       "contractName": "VeilBidTestUSDC",

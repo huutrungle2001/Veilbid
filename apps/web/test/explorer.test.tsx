@@ -232,9 +232,9 @@ describe("Tender Room public explorer", () => {
   it("keeps non-public role workspaces visibly unavailable", () => {
     view(state());
     expect(screen.getByRole("button", { name: "PUBLIC" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "BUYER" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "EOA BUYER" })).toBeDisabled();
     expect(
-      screen.getByRole("button", { name: "SAFE TREASURY" }),
+      screen.getByRole("button", { name: "SAFE BUYER" }),
     ).toBeDisabled();
   });
 
@@ -251,12 +251,14 @@ describe("Tender Room public explorer", () => {
       </MemoryRouter>,
     );
     expect(
-      screen.getByRole("heading", { name: "Resume, never restart." }),
+      screen.getByRole("heading", {
+        name: "Automatic by default. Recoverable by design.",
+      }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Help for Activity workspace" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/public tender IDs/i)).toBeInTheDocument();
+    expect(screen.getByText(/public IDs and transaction hashes/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
   });
 
@@ -315,7 +317,7 @@ describe("Tender Room public explorer", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens the preparation-only Safe Treasury workspace", () => {
+  it("opens the primary Safe Buyer workspace", () => {
     render(
       <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
@@ -328,17 +330,17 @@ describe("Tender Room public explorer", () => {
       </MemoryRouter>,
     );
     expect(
-      screen.getByRole("heading", { name: "Prepare. Then authorize." }),
+      screen.getByRole("heading", { name: "Approve once. Track the threshold." }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
-        name: "Help for Safe Treasury workspace",
+        name: "Help for Safe Buyer workspace",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/cannot execute from the Safe/i)).toBeInTheDocument();
+    expect(screen.getByText(/permissionless relay handles later public steps/i)).toBeInTheDocument();
     expect(screen.getByText(/RELEASE MODULE: ENABLED/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "SAFE TREASURY" }),
+      screen.getByRole("button", { name: "SAFE BUYER" }),
     ).toBeEnabled();
   });
 });

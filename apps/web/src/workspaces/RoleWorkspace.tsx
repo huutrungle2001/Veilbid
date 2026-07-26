@@ -25,15 +25,15 @@ export function RoleWorkspace({
     <main className="role-workspace" id="main-content">
       <section className="workspace-intro">
         <ContextHelp
-          label={`Help for ${role.toLowerCase()} workspace`}
-          title={buyer ? "HOW TO USE BUYER" : "HOW TO USE VENDOR"}
+          label={`Help for ${buyer ? "EOA Buyer" : "Vendor"} workspace`}
+          title={buyer ? "HOW TO USE EOA BUYER" : "HOW TO USE VENDOR"}
           steps={
             buyer
               ? [
                   "Connect the Sepolia wallet that will own the tender.",
                   "Enter public metadata, the vUSDC ceiling, a future deadline, and 1–8 approved vendor addresses.",
-                  "Confirm the guided faucet, wrap, approval, funding-proof, and opening transactions in order.",
-                  "If proof recovery is interrupted, resume it from Activity instead of recreating the tender.",
+                  "Confirm the guided faucet, wrap, operator approval, and creation transactions in order.",
+                  "The relay confirms exact funding and opens the tender; Activity remains a manual recovery path.",
                 ]
               : [
                   "Connect the exact Sepolia account approved by the buyer.",
@@ -48,7 +48,7 @@ export function RoleWorkspace({
               : "Each approved vendor submits one immutable encrypted bid before the deadline."
           }
         />
-        <p className="eyebrow">{role} / SEPOLIA TEST WORKSPACE</p>
+        <p className="eyebrow">{buyer ? "EOA BUYER / ADVANCED FALLBACK" : "VENDOR / SEPOLIA TEST WORKSPACE"}</p>
         <h1>
           {buyer ? "Fund public terms." : "Submit a sealed price."}
         </h1>
@@ -84,8 +84,8 @@ export function RoleWorkspace({
                 "Acquire and wrap test vUSDC",
                 "Approve market operator",
                 "Create funded tender",
-                "Recover exact-funding proof",
-                "Open tender on-chain",
+                "Relay verifies exact funding",
+                "Relay opens tender on-chain",
               ]
             : [
                 "Verify vendor admission",

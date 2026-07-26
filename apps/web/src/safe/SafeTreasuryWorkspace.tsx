@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import {
+  approveAndExecuteSafeProposal,
+  getSafeProposalStatus,
   parseSafeTenderInput,
   prepareSafeTender,
   safeReleaseConfiguration,
@@ -21,8 +23,14 @@ const emptyInput: SafeTenderInput = {
 
 export function SafeActionHandoff({
   result,
+  busy = false,
+  onRefresh,
+  onApprove,
 }: {
   result: SafePreparationResult;
+  busy?: boolean;
+  onRefresh?: () => void;
+  onApprove?: () => void;
 }) {
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
 
@@ -39,11 +47,11 @@ export function SafeActionHandoff({
   return (
     <section className="safe-handoff" aria-label="Safe transaction handoff">
       <div>
-        <p className="eyebrow">SAFE TRANSACTION READY</p>
-        <h3>Submit through normal Safe authorization</h3>
+        <p className="eyebrow">SAFE TRANSACTION SERVICE</p>
+        <h3>{result.executed ? "Safe batch executed" : "Safe proposal published"}</h3>
         <p>
-          Open the configured Safe, create a new transaction with value 0,
-          then paste the target and calldata below. Review both before signing.
+          Preparation and tender creation are one atomic Safe batch. The raw
+          calls below remain available as a recovery handoff.
         </p>
       </div>
       <label>
@@ -82,7 +90,7 @@ export function SafeActionHandoff({
             void copy("Transaction JSON", serializeSafeTransactionHandoff(result))
           }
         >
-          COPY TRANSACTION JSON
+          COPY BATCH JSON
         </button>
         <a
           className="secondary-button"
@@ -103,18 +111,40 @@ export function SafeActionHandoff({
           <dd>{result.actionHash}</dd>
         </div>
         <div>
-          <dt>Preparation transaction</dt>
+          <dt>Safe transaction hash</dt>
+          <dd>{result.safeTxHash}</dd>
+        </div>
+        <div>
+          <dt>Threshold progress</dt>
+          <dd>{result.confirmations} / {result.threshold} approvals</dd>
+        </div>
+        <div>
+          <dt>Execution</dt>
           <dd>
-            <a
-              href={`https://sepolia.etherscan.io/tx/${result.transactionHash}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Inspect on Sepolia ↗
-            </a>
+            {result.executionTransactionHash ? (
+              <a
+                href={`https://sepolia.etherscan.io/tx/${result.executionTransactionHash}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Confirmed on Sepolia ↗
+              </a>
+            ) : "Waiting for threshold"}
           </dd>
         </div>
       </dl>
+      <div className="safe-handoff-actions">
+        {onRefresh && (
+          <button className="secondary-button" disabled={busy} onClick={onRefresh}>
+            REFRESH SIGNATURES ↻
+          </button>
+        )}
+        {!result.executed && onApprove && (
+          <button className="primary-button" disabled={busy} onClick={onApprove}>
+            APPROVE / EXECUTE →
+          </button>
+        )}
+      </div>
       {copyStatus && (
         <p className="result-line" aria-live="polite">{copyStatus}</p>
       )}
@@ -131,9 +161,7 @@ export function SafeTreasuryWorkspace({
   const [input, setInput] = useState(emptyInput);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<Awaited<
-    ReturnType<typeof prepareSafeTender>
-  > | null>(null);
+  const [result, setResult] = useState<SafePreparationResult | null>(null);
   const connected =
     wallet.state.status === "connected" &&
     wallet.state.account &&
@@ -158,6 +186,7 @@ export function SafeTreasuryWorkspace({
       const prepared = await prepareSafeTender({
         input,
         walletClient: wallet.state.walletClient!,
+        provider: wallet.state.selectedProvider!.provider,
         account: wallet.state.account!,
         onStage: (nextStage) => {
           setStage(nextStage);
@@ -167,7 +196,9 @@ export function SafeTreasuryWorkspace({
       setResult(prepared);
       toasts.succeed(
         toastId,
-        "Safe calldata prepared in this browser session.",
+        prepared.executed
+          ? "Safe tender batch executed. Relay will confirm funding automatically."
+          : "Safe proposal published for the remaining approvals.",
       );
     } catch (cause) {
       toasts.fail(
@@ -180,25 +211,65 @@ export function SafeTreasuryWorkspace({
     }
   }
 
+  async function refreshProposal() {
+    if (!result) return;
+    const toastId = toasts.start("SAFE STATUS", "Reading threshold status…");
+    try {
+      const status = await getSafeProposalStatus(result.safeTxHash);
+      setResult((current) => current ? { ...current, ...status } : current);
+      toasts.succeed(toastId, `${status.confirmations}/${status.threshold} approvals collected.`);
+    } catch {
+      toasts.fail(toastId, "Safe Transaction Service status is unavailable.");
+    }
+  }
+
+  async function approveProposal() {
+    if (!result || !connected) return;
+    const toastId = toasts.start("SAFE APPROVAL", "Checking proposal status…");
+    setStage("Checking proposal status");
+    try {
+      const status = await approveAndExecuteSafeProposal({
+        safeTxHash: result.safeTxHash,
+        provider: wallet.state.selectedProvider!.provider,
+        account: wallet.state.account!,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          toasts.update(toastId, nextStage);
+        },
+      });
+      setResult((current) => current ? { ...current, ...status } : current);
+      toasts.succeed(
+        toastId,
+        status.executed
+          ? "Safe batch executed. Relay will continue the public lifecycle."
+          : `${status.confirmations}/${status.threshold} approvals collected.`,
+      );
+    } catch {
+      toasts.fail(toastId, "Safe approval or execution did not complete.");
+    } finally {
+      setStage(null);
+    }
+  }
+
   return (
     <main className="role-workspace safe-workspace" id="main-content">
       <section className="workspace-intro">
         <ContextHelp
-          label="Help for Safe Treasury workspace"
-          title="HOW TO USE SAFE TREASURY"
+          label="Help for Safe Buyer workspace"
+          title="HOW TO USE SAFE BUYER"
           steps={[
-            "Connect a wallet that can prepare the intended Safe action.",
+            "Connect an owner of the configured Safe on Sepolia.",
             "Enter the public terms, ceiling, deadline, approved vendors, and a fresh one-time nonce.",
-            "Prepare the encrypted input and generated market calldata in this browser session.",
-            "Open the Safe interface, submit that calldata, and satisfy the Safe's configured signer threshold.",
+            "Approve one atomic Safe batch containing preparation and tender creation.",
+            "For a multi-owner Safe, collect the displayed threshold; VeilBid executes once it is met.",
           ]}
-          note="This screen produces input only and has no treasury execution authority. Module state is checked on Sepolia again before every preparation."
+          note="The relay automatically handles public funding confirmation, eligible close, and proof-based finalize. Safe threshold authorization remains mandatory."
         />
-        <p className="eyebrow">SAFE TREASURY / PREPARATION ONLY</p>
-        <h1>Prepare. Then authorize.</h1>
+        <p className="eyebrow">SAFE BUYER / PRIMARY WORKFLOW</p>
+        <h1>Approve once. Track the threshold.</h1>
         <p>
-          Preparation binds encrypted budget, full tender terms, consumer, and
-          nonce. It cannot execute from the Safe or move Safe-owned funds.
+          VeilBid batches encrypted input preparation and tender creation. Safe
+          owners retain custody; the permissionless relay handles later public steps.
         </p>
       </section>
       <WalletPanel wallet={wallet} />
@@ -208,8 +279,8 @@ export function SafeTreasuryWorkspace({
       </p>
       <section className="write-form">
         <div className="form-heading">
-          <p className="eyebrow">BOUND ACTION INPUT</p>
-          <h2>Prepare createTenderAuthorized</h2>
+          <p className="eyebrow">ATOMIC SAFE BATCH</p>
+          <h2>Create a Safe-owned tender</h2>
         </div>
         {[
           ["metadata", "Public metadata"],
@@ -241,8 +312,8 @@ export function SafeTreasuryWorkspace({
         <div className="privacy-confirmation">
           <strong>AUTHORITY BOUNDARY</strong>
           <span>
-            After preparation, submit the generated market calldata through the
-            Safe UI and satisfy its configured threshold.
+            Expected for the threshold-1 demo: one Safe approval and one on-chain
+            execution confirmation. Funding proof, close, and finalize require no Buyer signature.
           </span>
         </div>
         <button
@@ -250,11 +321,18 @@ export function SafeTreasuryWorkspace({
           disabled={!connected || stage !== null}
           onClick={() => void prepare()}
         >
-          PREPARE INPUT ONLY →
+          CREATE WITH SAFE →
         </button>
         {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}
-        {result && <SafeActionHandoff result={result} />}
+        {result && (
+          <SafeActionHandoff
+            result={result}
+            busy={stage !== null}
+            onRefresh={() => void refreshProposal()}
+            onApprove={() => void approveProposal()}
+          />
+        )}
       </section>
     </main>
   );

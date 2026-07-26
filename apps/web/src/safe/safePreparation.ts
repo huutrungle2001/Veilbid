@@ -1,4 +1,7 @@
 import { createViemHandleClient } from "@iexec-nox/handle";
+import type {
+  Eip1193Provider as SafeEip1193Provider,
+} from "@safe-global/protocol-kit";
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
 import moduleAbiJson from "@veilbid/chain-bindings/abis/VeilBidSafePreparationModule";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
@@ -13,6 +16,7 @@ import {
   type Abi,
   type Address,
   type Hex,
+  type EIP1193Provider,
   type WalletClient,
 } from "viem";
 import { sepolia } from "viem/chains";
@@ -24,6 +28,8 @@ const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
 const moduleAddress =
   deployment.contracts.VeilBidSafePreparationModule.address as Address;
 const safeAddress = deployment.contracts.VeilBidDemoSafe.address as Address;
+const legacySafeTransactionServiceUrl =
+  "https://safe-transaction-sepolia.safe.global";
 export const safeReleaseConfiguration = {
   safe: safeAddress,
   module: moduleAddress,
@@ -54,6 +60,59 @@ export interface SafeTenderInput {
   deadline: string;
   vendors: string;
   nonce: string;
+}
+
+export interface SafeBatchTransaction {
+  to: Address;
+  value: "0";
+  data: Hex;
+}
+
+export interface SafePreparationResult {
+  actionHash: Hex;
+  safe: Address;
+  target: Address;
+  safeTransactionData: Hex;
+  preparationTransactionData: Hex;
+  transactions: readonly SafeBatchTransaction[];
+  safeTxHash: Hex;
+  threshold: number;
+  confirmations: number;
+  executed: boolean;
+  executionTransactionHash: Hex | null;
+}
+
+export interface SafeProposalStatus {
+  safeTxHash: Hex;
+  threshold: number;
+  confirmations: number;
+  executed: boolean;
+  executionTransactionHash: Hex | null;
+}
+
+async function safeApiKit() {
+  const { default: SafeApiKit } = await import("@safe-global/api-kit");
+  const apiKey = import.meta.env.VITE_SAFE_TRANSACTION_SERVICE_API_KEY?.trim();
+  return new SafeApiKit(
+    apiKey
+      ? { chainId: BigInt(sepolia.id), apiKey }
+      : {
+          chainId: BigInt(sepolia.id),
+          txServiceUrl: legacySafeTransactionServiceUrl,
+        },
+  );
+}
+
+async function protocolKit(
+  provider: EIP1193Provider,
+  account: Address,
+) {
+  const { default: Safe } = await import("@safe-global/protocol-kit");
+  return Safe.init({
+    provider: provider as SafeEip1193Provider,
+    signer: account,
+    safeAddress,
+  });
 }
 
 export function parseSafeTenderInput(input: SafeTenderInput) {
@@ -93,12 +152,14 @@ export function parseSafeTenderInput(input: SafeTenderInput) {
 export async function prepareSafeTender({
   input,
   walletClient,
+  provider,
   account,
   onStage,
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 }: {
   input: SafeTenderInput;
   walletClient: WalletClient;
+  provider: EIP1193Provider;
   account: Address;
   onStage: (stage: string) => void;
   rpcUrl?: string;
@@ -152,63 +213,153 @@ export async function prepareSafeTender({
     "uint256",
     moduleAddress,
   );
-  onStage("Simulating preparation-only write");
-  const simulation = await publicClient.simulateContract({
-    account,
-    address: moduleAddress,
+  const preparationTransactionData = encodeFunctionData({
     abi: moduleAbi,
-    functionName: "prepareInput",
+    functionName: "prepareInputForSafe",
     args: [
       encrypted.handle,
       encrypted.handleProof,
+      account,
       marketAddress,
       actionDataHash,
       actionHash,
       terms.nonce,
     ],
   });
-  onStage("Awaiting owner signature");
-  const transactionHash = await walletClient.writeContract(simulation.request);
-  onStage("Transaction signed; waiting for Sepolia confirmation");
-  const receipt = await publicClient.waitForTransactionReceipt({
-    hash: transactionHash,
+  const safeTransactionData = encodeFunctionData({
+    abi: marketAbi,
+    functionName: "createTenderAuthorized",
+    args: [
+      terms.metadataHash,
+      terms.publicCeiling,
+      terms.bidDeadline,
+      terms.approvedVendors,
+      moduleAddress,
+      terms.nonce,
+    ],
   });
-  if (receipt.status !== "success") throw new Error("Preparation transaction reverted.");
+  const transactions: SafeBatchTransaction[] = [
+    { to: moduleAddress, value: "0", data: preparationTransactionData },
+    { to: marketAddress, value: "0", data: safeTransactionData },
+  ];
+
+  onStage("Building one atomic Safe batch");
+  const safeKit = await protocolKit(provider, account);
+  const safeTransaction = await safeKit.createTransaction({ transactions });
+  const safeTxHash = (await safeKit.getTransactionHash(safeTransaction)) as Hex;
+
+  onStage("Awaiting one Safe owner approval");
+  const signedTransaction = await safeKit.signTransaction(safeTransaction);
+  const senderSignature = signedTransaction.getSignature(account)?.data;
+  if (!senderSignature) throw new Error("Safe owner signature was not produced.");
+
+  onStage("Publishing proposal to Safe Transaction Service");
+  const apiKit = await safeApiKit();
+  await apiKit.proposeTransaction({
+    safeAddress,
+    safeTransactionData: signedTransaction.data,
+    safeTxHash,
+    senderAddress: account,
+    senderSignature,
+    origin: "VeilBid Safe Buyer",
+  });
+
+  const threshold = await safeKit.getThreshold();
+  let executionTransactionHash: Hex | null = null;
+  if (threshold === 1) {
+    onStage("Threshold reached; awaiting the execution transaction");
+    const execution = await safeKit.executeTransaction(signedTransaction);
+    executionTransactionHash = execution.hash as Hex;
+    onStage("Safe batch submitted; waiting for Sepolia confirmation");
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: executionTransactionHash,
+    });
+    if (receipt.status !== "success") throw new Error("Safe batch reverted.");
+  }
 
   return {
     actionHash,
-    transactionHash,
     safe: safeAddress,
     target: marketAddress,
-    safeTransactionData: encodeFunctionData({
-      abi: marketAbi,
-      functionName: "createTenderAuthorized",
-      args: [
-        terms.metadataHash,
-        terms.publicCeiling,
-        terms.bidDeadline,
-        terms.approvedVendors,
-        moduleAddress,
-        terms.nonce,
-      ],
-    }),
+    safeTransactionData,
+    preparationTransactionData,
+    transactions,
+    safeTxHash,
+    threshold,
+    confirmations: 1,
+    executed: threshold === 1,
+    executionTransactionHash,
+  } satisfies SafePreparationResult;
+}
+
+export async function getSafeProposalStatus(
+  safeTxHash: Hex,
+): Promise<SafeProposalStatus> {
+  const transaction = await (await safeApiKit()).getTransaction(safeTxHash);
+  return {
+    safeTxHash,
+    threshold: transaction.confirmationsRequired,
+    confirmations: transaction.confirmations?.length ?? 0,
+    executed: transaction.isExecuted,
+    executionTransactionHash:
+      (transaction.transactionHash as Hex | null) ?? null,
   };
 }
 
-export type SafePreparationResult = Awaited<
-  ReturnType<typeof prepareSafeTender>
->;
+export async function approveAndExecuteSafeProposal({
+  safeTxHash,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  safeTxHash: Hex;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}): Promise<SafeProposalStatus> {
+  const safeKit = await protocolKit(provider, account);
+  if (!(await safeKit.isOwner(account))) {
+    throw new Error("Connected wallet is not an owner of the demo Safe.");
+  }
+  const apiKit = await safeApiKit();
+  let transaction = await apiKit.getTransaction(safeTxHash);
+  const alreadyConfirmed = transaction.confirmations?.some(
+    ({ owner }) => owner.toLowerCase() === account.toLowerCase(),
+  );
+  if (!alreadyConfirmed) {
+    onStage("Awaiting Safe owner approval");
+    const signature = await safeKit.signHash(safeTxHash);
+    await apiKit.confirmTransaction(safeTxHash, signature.data);
+    transaction = await apiKit.getTransaction(safeTxHash);
+  }
+  const confirmations = transaction.confirmations?.length ?? 0;
+  if (!transaction.isExecuted && confirmations >= transaction.confirmationsRequired) {
+    onStage("Threshold reached; awaiting the execution transaction");
+    const execution = await safeKit.executeTransaction(transaction);
+    const executionTransactionHash = execution.hash as Hex;
+    const publicClient = createPublicClient({
+      chain: sepolia,
+      transport: http(rpcUrl),
+    });
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: executionTransactionHash,
+    });
+    if (receipt.status !== "success") throw new Error("Safe batch reverted.");
+    return {
+      safeTxHash,
+      threshold: transaction.confirmationsRequired,
+      confirmations,
+      executed: true,
+      executionTransactionHash,
+    };
+  }
+  return getSafeProposalStatus(safeTxHash);
+}
 
 export function serializeSafeTransactionHandoff(
-  result: Pick<SafePreparationResult, "target" | "safeTransactionData">,
+  result: Pick<SafePreparationResult, "transactions">,
 ): string {
-  return JSON.stringify(
-    {
-      to: result.target,
-      value: "0",
-      data: result.safeTransactionData,
-    },
-    null,
-    2,
-  );
+  return JSON.stringify(result.transactions, null, 2);
 }
