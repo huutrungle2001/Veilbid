@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "gate": "PREFLIGHT",
-  "recordedAt": "2026-07-25T15:27:29.745Z",
+  "recordedAt": "2026-07-26T03:19:54.614Z",
   "environment": {
     "node": "v24.18.0",
     "pnpm": "10.33.0",
