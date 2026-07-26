@@ -13,7 +13,7 @@ import {
 import { sepolia } from "viem/chains";
 
 const confirmationDepth = 12n;
-const blockChunkSize = 2_000n;
+export const publicLogBlockChunkSize = 1_000n;
 export const defaultSepoliaRpcUrl = "https://11155111.rpc.thirdweb.com";
 
 interface DeploymentContract {
@@ -38,6 +38,27 @@ export interface LoadedPublicMarket {
   latestBlock: bigint;
   deploymentKind: string;
   deploymentVerified: boolean;
+}
+
+export function buildPublicLogBlockRanges(
+  fromBlock: bigint,
+  toBlock: bigint,
+) {
+  const ranges: Array<{ fromBlock: bigint; toBlock: bigint }> = [];
+  for (
+    let chunkStart = fromBlock;
+    chunkStart <= toBlock;
+    chunkStart += publicLogBlockChunkSize
+  ) {
+    ranges.push({
+      fromBlock: chunkStart,
+      toBlock:
+        chunkStart + publicLogBlockChunkSize - 1n < toBlock
+          ? chunkStart + publicLogBlockChunkSize - 1n
+          : toBlock,
+    });
+  }
+  return ranges;
 }
 
 export async function loadPublicMarket(
@@ -70,19 +91,14 @@ export async function loadPublicMarket(
   }
 
   const decoded = [];
-  for (
-    let chunkStart = fromBlock;
-    chunkStart <= finalizedBlock;
-    chunkStart += blockChunkSize
-  ) {
-    const chunkEnd =
-      chunkStart + blockChunkSize - 1n < finalizedBlock
-        ? chunkStart + blockChunkSize - 1n
-        : finalizedBlock;
+  for (const range of buildPublicLogBlockRanges(
+    fromBlock,
+    finalizedBlock,
+  )) {
     const logs = await client.getLogs({
       address: releaseDeployment.contracts.VeilBidMarket.address,
-      fromBlock: chunkStart,
-      toBlock: chunkEnd,
+      fromBlock: range.fromBlock,
+      toBlock: range.toBlock,
     });
     for (const log of logs) {
       if (
