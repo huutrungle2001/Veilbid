@@ -2,7 +2,8 @@
 
 ## 1. Submission checklist
 
-- [ ] Public independent GitHub repository.
+- [x] Public independent GitHub repository:
+  `https://github.com/huutrungle2001/Veilbid`.
 - [x] Complete source code and MIT license.
 - [x] Judge-first README.
 - [x] Setup, deployment, use, architecture, threat model, and verification docs.

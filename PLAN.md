@@ -7,14 +7,13 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: With user approval, make `huutrungle2001/Veilbid` public; then
-  attach the user's final demo video before publishing the X and DoraHacks
-  entries.
-- Current blocker: Repository restructuring is complete. Repository visibility,
-  real-person video, X post, and DoraHacks publication remain user-controlled.
-- Awaiting approval from: Hữu Trung — public repository visibility and final
-  publication inputs.
-- Last updated: 2026-07-26T10:20:26+07:00
+- Next action: Attach the user's final demo-video URL, verify it signed out, then
+  publish the prepared X and DoraHacks entries.
+- Current blocker: The public repository and product release are ready. The
+  real-person demo video, X post, and DoraHacks publication remain
+  user-controlled.
+- Awaiting approval from: Hữu Trung — final video URL and publication.
+- Last updated: 2026-07-26T10:57:06+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -68,6 +67,7 @@ Only one phase may be `In progress`.
 | Final web polish | Verified | Agent | 2026-07-26 | Production deployment `dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz` added explicit multi-wallet selection, unified Docs navigation, sticky documentation sections, expanded usage guidance, responsive landing content, and a zero-failure 176-element Docs contrast audit. |
 | Tender navigation correction | Verified | Agent | 2026-07-26 | Production deployment `dpl_DbuNsxKGhJ96Yc3ER1J1nyZRyLHo` keeps Tender workspaces in a sticky left sidebar on desktop and a sticky horizontal rail on mobile; the public-metadata badge now has explicit black-on-white contrast. |
 | Repository consolidation | Verified | Agent | 2026-07-26 | Applications moved under `apps/`, reusable workspaces under `packages/`, and repository scripts under `tooling/`; production and feasibility Solidity now share one pinned contracts workspace with separate deployment boundaries. |
+| Public repository | Published | User | 2026-07-26 | `https://github.com/huutrungle2001/Veilbid` was changed from private to public after the user requested continuation. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
@@ -93,5 +93,6 @@ Only one phase may be `In progress`.
 - [x] Contracts and web client are deployed.
 - [x] Ethereum Sepolia source/deployment mapping is verified.
 - [x] `feedback.md` contains evidence-based feedback.
+- [x] GitHub repository is public.
 - [ ] Demo video is no longer than four minutes.
-- [ ] Public GitHub, X post, and DoraHacks submission are complete.
+- [ ] X post and DoraHacks submission are public.

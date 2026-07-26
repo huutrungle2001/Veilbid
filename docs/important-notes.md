@@ -42,6 +42,8 @@ least 24 hours earlier.
   workspaces under `packages/`, and repository-wide scripts under `tooling/`.
   Production and feasibility Solidity share `packages/contracts`, but remain
   isolated by source, test, deployment, and release-script boundaries.
+- The canonical GitHub repository
+  `https://github.com/huutrungle2001/Veilbid` is public as of 2026-07-26.
 
 ## 4. Organizer-context notes requiring care
 
