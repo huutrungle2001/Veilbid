@@ -90,6 +90,7 @@ test("service explains readiness from chain time", async () => {
     status: "Awarded",
     chainTimestamp: "200",
     needsFundingProof: false,
+    allVendorsSubmitted: true,
     canClose: false,
     needsWinnerProof: false,
     canBuyerCancel: false,
