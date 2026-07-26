@@ -5,6 +5,7 @@ import {
   prepareSafeTender,
   type SafeTenderInput,
 } from "./safePreparation";
+import { ContextHelp } from "../shell/ContextHelp";
 
 const emptyInput: SafeTenderInput = {
   metadata: "",
@@ -60,6 +61,17 @@ export function SafeTreasuryWorkspace({
   return (
     <main className="role-workspace safe-workspace" id="main-content">
       <section className="workspace-intro">
+        <ContextHelp
+          label="Help for Safe Treasury workspace"
+          title="HOW TO USE SAFE TREASURY"
+          steps={[
+            "Connect a wallet that can prepare the intended Safe action.",
+            "Enter the public terms, ceiling, deadline, approved vendors, and a fresh one-time nonce.",
+            "Prepare the encrypted input and generated market calldata in this browser session.",
+            "Open the Safe interface, submit that calldata, and satisfy the Safe's configured signer threshold.",
+          ]}
+          note="This screen produces input only and has no treasury execution authority. The current demo module must be enabled by a normal Safe threshold transaction first."
+        />
         <p className="eyebrow">SAFE TREASURY / PREPARATION ONLY</p>
         <h1>Prepare. Then authorize.</h1>
         <p>

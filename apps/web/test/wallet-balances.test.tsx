@@ -12,6 +12,7 @@ import { WalletBalancePanel } from "../src/wallet/WalletBalancePanel";
 
 const account = "0x1111111111111111111111111111111111111111" as Address;
 const walletClient = {} as WalletClient;
+const confidentialHandle = `0x${"22".repeat(32)}` as const;
 
 function wallet(status: "connected" | "disconnected") {
   return {
@@ -39,6 +40,7 @@ describe("workspace wallet balances", () => {
       eth: 1_234_500_000_000_000_000n,
       testUsdc: 1_250_000_000n,
       confidential: "encrypted",
+      confidentialHandle,
     });
 
     render(
@@ -49,10 +51,61 @@ describe("workspace wallet balances", () => {
     );
 
     await waitFor(() => expect(screen.getByText("1.2345")).toBeInTheDocument());
+    const balanceHelp = screen.getByRole("button", {
+      name: "Help for wallet balances",
+    });
+    expect(balanceHelp).toHaveAttribute("aria-describedby");
+    fireEvent.mouseEnter(balanceHelp);
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      "HOW TO USE BALANCES",
+    );
+    fireEvent.mouseLeave(balanceHelp);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     expect(screen.getByText("1250")).toBeInTheDocument();
     expect(screen.getByText("ENCRYPTED")).toBeInTheDocument();
-    expect(screen.getByText(/values stay private/i)).toBeInTheDocument();
+    expect(screen.getByText(/browser session only/i)).toBeInTheDocument();
+    expect(screen.queryByText(confidentialHandle)).not.toBeInTheDocument();
     expect(loadBalances).toHaveBeenCalledWith(account);
+  });
+
+  it("reveals vcUSDC only after an explicit wallet action and can hide it", async () => {
+    const loadBalances = vi.fn().mockResolvedValue({
+      eth: 1n,
+      testUsdc: 0n,
+      confidential: "encrypted",
+      confidentialHandle,
+    });
+    const revealBalance = vi.fn().mockResolvedValue(42_500_000n);
+
+    render(
+      <WalletBalancePanel
+        wallet={wallet("connected")}
+        loadBalances={loadBalances}
+        revealBalance={revealBalance}
+      />,
+    );
+    await screen.findByText("ENCRYPTED");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Reveal confidential vcUSDC balance",
+      }),
+    );
+
+    await screen.findByText("42.5");
+    expect(revealBalance).toHaveBeenCalledWith(
+      walletClient,
+      confidentialHandle,
+    );
+    expect(screen.queryByText(confidentialHandle)).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Hide confidential vcUSDC balance",
+      }),
+    );
+    expect(screen.getByText("ENCRYPTED")).toBeInTheDocument();
+    expect(screen.queryByText("42.5")).not.toBeInTheDocument();
   });
 
   it("requests test USDC through the connected wallet and refreshes", async () => {
@@ -60,6 +113,7 @@ describe("workspace wallet balances", () => {
       eth: 1n,
       testUsdc: 0n,
       confidential: "none",
+      confidentialHandle: null,
     });
     const requestFaucet = vi.fn().mockResolvedValue(undefined);
 

@@ -14,6 +14,7 @@ import {
   type RecoveryRecord,
 } from "./recoveryStore";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
+import { ContextHelp } from "../shell/ContextHelp";
 
 const stageLabel: Record<RecoveryStage, string> = {
   reading: "Reading canonical state",
@@ -138,6 +139,17 @@ export function ActivityWorkspace({
   return (
     <main className="role-workspace activity-workspace" id="main-content">
       <section className="workspace-intro">
+        <ContextHelp
+          label="Help for Activity workspace"
+          title="HOW TO USE ACTIVITY"
+          steps={[
+            "Connect the wallet that started the interrupted operation.",
+            "Use Resume on a saved funding or winner-proof checkpoint; the app rereads required handles and proofs.",
+            "Use Close & Track after a tender deadline, or Track Proof when a tender is already closed.",
+            "Wait for each wallet confirmation, then verify the refreshed public dossier.",
+          ]}
+          note="Recovery persists public identifiers and transaction references only—never plaintext values, handles, or proofs."
+        />
         <p className="eyebrow">ACTIVITY / PUBLIC PROOF RECOVERY</p>
         <h1>Resume, never restart.</h1>
         <p>

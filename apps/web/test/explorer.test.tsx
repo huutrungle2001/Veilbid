@@ -87,6 +87,9 @@ function view(
 describe("Tender Room public explorer", () => {
   it("renders a finalized public tender without wallet or bid plaintext", () => {
     view(state());
+    expect(
+      screen.getByRole("button", { name: "Help for Public workspace" }),
+    ).toHaveAttribute("aria-describedby");
     expect(screen.getByText("1 tenders")).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -192,6 +195,9 @@ describe("Tender Room public explorer", () => {
     expect(
       screen.getByRole("heading", { name: "Resume, never restart." }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Help for Activity workspace" }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/public tender IDs/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
   });
@@ -229,6 +235,11 @@ describe("Tender Room public explorer", () => {
     );
     expect(
       screen.getByRole("heading", { name: "Prepare. Then authorize." }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Help for Safe Treasury workspace",
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText(/cannot execute from the Safe/i)).toBeInTheDocument();
     expect(

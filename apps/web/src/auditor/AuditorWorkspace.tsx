@@ -6,6 +6,7 @@ import {
   revealAuthorizedBid,
 } from "./revealBid";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
+import { ContextHelp } from "../shell/ContextHelp";
 
 export function AuditorWorkspace({
   wallet,
@@ -97,6 +98,17 @@ export function AuditorWorkspace({
   return (
     <main className="role-workspace auditor-workspace" id="main-content">
       <section className="workspace-intro">
+        <ContextHelp
+          label="Help for Auditor workspace"
+          title="HOW TO USE AUDITOR"
+          steps={[
+            "Connect the auditor wallet on Sepolia.",
+            "Select one public tender and bid reference.",
+            "Check the on-chain per-bid viewer permission before attempting a reveal.",
+            "Reveal only after access is confirmed; the plaintext is cleared when the wallet session changes.",
+          ]}
+          note="Viewer access applies only to the granted handle and provides no token, Safe signer, buyer, vendor, or administrator authority."
+        />
         <p className="eyebrow">AUDITOR / SELECTIVE DISCLOSURE</p>
         <h1>Reveal one granted bid.</h1>
         <p>

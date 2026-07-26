@@ -18,6 +18,7 @@ import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
 import { PrimaryNavigation } from "./PrimaryNavigation";
+import { ContextHelp } from "./ContextHelp";
 import {
   RoleWorkspace,
   type InteractiveRole,
@@ -377,6 +378,16 @@ export function ExplorerView({
         ) : (
           <main id="main-content">
             <section className="explorer-intro">
+              <ContextHelp
+                label="Help for Public workspace"
+                title="HOW TO USE PUBLIC"
+                steps={[
+                  "Choose a finalized tender from the dossier list.",
+                  "Review its public ceiling, deadline, lifecycle, buyer, bid count, and award status.",
+                  "Use refresh to reread finalized Sepolia events when a transaction has just confirmed.",
+                ]}
+                note="No wallet is required. Bid prices and confidential balances never appear in this public index."
+              />
               <div>
                 <p className="eyebrow">CONFIDENTIAL PROCUREMENT / LIVE TEST STATE</p>
                 <h1>

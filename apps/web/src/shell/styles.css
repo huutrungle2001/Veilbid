@@ -347,6 +347,129 @@ textarea:focus-visible {
   justify-content: space-between;
 }
 
+.balance-header-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.context-help {
+  display: inline-flex;
+  position: relative;
+  z-index: 30;
+}
+
+.context-help-trigger {
+  align-items: center;
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  color: var(--color-ink-black);
+  cursor: help;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 32px;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0;
+  width: 32px;
+}
+
+.context-help-trigger:hover,
+.context-help-trigger:focus-visible {
+  background: var(--color-veil-green);
+}
+
+.context-help-card {
+  background: var(--color-ink-black);
+  border: 1px solid var(--color-ink-black);
+  color: var(--color-paper-white);
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  opacity: 0;
+  padding: 18px;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  text-align: left;
+  top: calc(100% + 10px);
+  transform: translateY(-4px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    visibility 120ms ease;
+  visibility: hidden;
+  width: min(380px, calc(100vw - 32px));
+  z-index: 50;
+}
+
+.context-help-card::before {
+  background: var(--color-ink-black);
+  content: "";
+  height: 10px;
+  position: absolute;
+  right: 10px;
+  top: -5px;
+  transform: rotate(45deg);
+  width: 10px;
+}
+
+.context-help-card strong {
+  color: var(--color-veil-green);
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.context-help-card ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.context-help-note {
+  border-top: 1px solid rgb(255 255 255 / 35%);
+  color: var(--color-paper-white);
+  display: block;
+  margin-bottom: 0;
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.context-help:hover .context-help-card,
+.context-help:focus-within .context-help-card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.context-help-card.context-help-portal {
+  opacity: 1;
+  overflow-y: auto;
+  pointer-events: auto;
+  position: fixed;
+  transform: none;
+  visibility: visible;
+  z-index: 1000;
+}
+
+.context-help-card.context-help-portal::before {
+  display: none;
+}
+
+.context-help.compact .context-help-trigger {
+  height: 28px;
+  min-height: 28px;
+  width: 28px;
+}
+
 .sidebar-balances header strong,
 .sidebar-balances dt,
 .sidebar-balances dd,
@@ -409,6 +532,46 @@ textarea:focus-visible {
   text-align: right;
 }
 
+.confidential-balance {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.sidebar-balances .balance-reveal {
+  align-items: center;
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  color: var(--color-ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  height: 25px;
+  justify-content: center;
+  min-height: 25px;
+  padding: 0;
+  width: 25px;
+}
+
+.sidebar-balances .balance-reveal svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.sidebar-balances .balance-reveal:hover:not(:disabled),
+.sidebar-balances .balance-reveal:focus-visible {
+  background: var(--color-veil-green);
+}
+
+.sidebar-balances .balance-reveal:disabled {
+  cursor: wait;
+  opacity: 0.45;
+}
+
 .balance-empty,
 .balance-message,
 .balance-note {
@@ -463,6 +626,7 @@ main {
   gap: 56px;
   grid-template-columns: 7fr 5fr;
   margin-bottom: 64px;
+  position: relative;
 }
 
 .eyebrow,
@@ -903,6 +1067,18 @@ main {
   gap: 24px;
   grid-template-columns: 7fr 5fr;
   padding-bottom: 48px;
+  position: relative;
+}
+
+.explorer-intro > .context-help,
+.workspace-intro > .context-help {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.workspace-intro > .eyebrow {
+  padding-right: 48px;
 }
 
 .workspace-intro .eyebrow {
