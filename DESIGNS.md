@@ -4,7 +4,7 @@
 > as an institutional bidding interface.
 >
 > Status: Canonical visual, interaction, responsive, and privacy-language
-> specification for `tender-room`.
+> specification for the web application in `apps/web`.
 
 **Theme:** mixed
 

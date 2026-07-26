@@ -60,28 +60,30 @@ When a canonical document conflicts with a higher-priority source, stop using
 the conflicting claim, verify the source, update the canonical document, and
 record the resolution in `docs/important-notes.md`.
 
-## 4. Planned repository map
+## 4. Repository map
 
-VeilBid uses procurement-specific top-level workspaces:
+VeilBid uses a compact monorepo layout:
 
-- `feasibility/`: temporary pre-build contracts, tests, and scripts used only to
-  prove the mandatory Nox/ERC-7984 assumptions.
-- `tender-room/`: landing page and Buyer, Vendor, Public, and Auditor interface.
-- `auction-house/`: Solidity protocol, Hardhat tests, deployment, and source
-  verification.
-- `settlement-relay/`: stateless close, public-decryption, finalize, and refund
+- `apps/web/`: landing page and Buyer, Vendor, Public, Activity, Auditor, and
+  Safe Treasury interface.
+- `apps/relay/`: stateless close, public-decryption, finalize, and refund
   automation.
-- `operator-console/`: MCP stdio tools and local procurement CLI; read-only by
+- `apps/console/`: MCP stdio tools and local procurement CLI; read-only by
   default.
-- `chain-bindings/`: generated ABI/address snapshots, event codecs, public index,
-  and domain types.
+- `packages/contracts/`: the shared Hardhat/Nox workspace. Production Auction
+  House contracts remain separate from isolated feasibility contracts and
+  tests inside this package.
+- `packages/chain-bindings/`: generated ABI/address snapshots, event codecs,
+  public index, and domain types.
+- `tooling/scripts/`: repository preflight, evidence validation, and secret
+  scanning.
 - `evidence/`: sanitized schemas and public local/Sepolia verification output.
 - `docs/`: product, competition, threat model, original sources, and submission
   documentation.
 
-After Product Plan approval, `feasibility/` may be created for Gates A–E.
-Do not create the production source directories until Gates A–D pass, Gate D
-selects the custody architecture, and the Build Plan is approved.
+Feasibility contracts under `packages/contracts/contracts/feasibility/` are
+never production deployment inputs. Production source, tests, and manifests
+remain independently identifiable inside the same pinned toolchain.
 
 ## 5. Architecture invariants
 

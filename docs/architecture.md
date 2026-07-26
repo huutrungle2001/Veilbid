@@ -1,7 +1,8 @@
 # VeilBid Architecture
 
 > Status: Implemented release architecture. Canonical Ethereum Sepolia
-> addresses are recorded in `auction-house/deployments/sepolia.release.json`.
+> addresses are recorded in
+> `packages/contracts/deployments/sepolia.release.json`.
 
 ## 1. Architecture goals
 
@@ -225,16 +226,18 @@ There is no application database or authentication server.
 ## 9. Implemented repository structure
 
 ```text
-feasibility/       # pre-build spike workspace; never a runtime dependency
-tender-room/
-auction-house/
-settlement-relay/
-operator-console/
-chain-bindings/
+apps/
+  web/
+  relay/
+  console/
+packages/
+  contracts/       # production and isolated feasibility Solidity suites
+  chain-bindings/
+tooling/
 evidence/
 docs/
 ```
 
-The names reflect VeilBid's procurement domain rather than generic application
-and package buckets. Dependency rules and internal layouts are canonical in
-`repository-layout.md`.
+Production and feasibility contracts share one pinned Hardhat/Nox toolchain,
+while separate source and test directories preserve their authority boundary.
+Dependency rules and internal layouts are canonical in `repository-layout.md`.

@@ -10,11 +10,11 @@
 - Next action: With user approval, make `huutrungle2001/Veilbid` public; then
   attach the user's final demo video before publishing the X and DoraHacks
   entries.
-- Current blocker: The final web release is complete. Repository visibility,
+- Current blocker: Repository restructuring is complete. Repository visibility,
   real-person video, X post, and DoraHacks publication remain user-controlled.
 - Awaiting approval from: Hữu Trung — public repository visibility and final
   publication inputs.
-- Last updated: 2026-07-26T03:45:29+07:00
+- Last updated: 2026-07-26T10:20:26+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -67,6 +67,7 @@ Only one phase may be `In progress`.
 | Frontend release | Verified | Agent | 2026-07-26 | Vercel production URL `https://veilbid-three.vercel.app` passed wallet-free desktop/mobile smoke plus real-browser forward/reverse keyboard traversal, including persistent navigation and active route state, against the canonical release. |
 | Final web polish | Verified | Agent | 2026-07-26 | Production deployment `dpl_Bnk6pMbKkFtCgSHc3qskL8BSjfxz` added explicit multi-wallet selection, unified Docs navigation, sticky documentation sections, expanded usage guidance, responsive landing content, and a zero-failure 176-element Docs contrast audit. |
 | Tender navigation correction | Verified | Agent | 2026-07-26 | Production deployment `dpl_DbuNsxKGhJ96Yc3ER1J1nyZRyLHo` keeps Tender workspaces in a sticky left sidebar on desktop and a sticky horizontal rail on mobile; the public-metadata badge now has explicit black-on-white contrast. |
+| Repository consolidation | Verified | Agent | 2026-07-26 | Applications moved under `apps/`, reusable workspaces under `packages/`, and repository scripts under `tooling/`; production and feasibility Solidity now share one pinned contracts workspace with separate deployment boundaries. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

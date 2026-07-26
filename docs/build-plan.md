@@ -59,7 +59,7 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 
 ### Milestone 1 — Feasibility scaffold
 
-- [x] Initialize the root tooling and isolated `feasibility` workspace only.
+- [x] Initialize root tooling and the then-isolated feasibility workspace.
 - [x] Install pinned Nox/Hardhat dependencies.
 - [x] Implement and verify persistent-handle spike on Sepolia.
 - [x] Implement and verify encrypted argmin spike on Sepolia.
@@ -69,9 +69,10 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 
 Exit: Gates A–D pass.
 
-Production workspaces are not created during this milestone. Gate outputs record
-the versions and architecture that the later `auction-house` implementation must
-use.
+Production workspaces were not created during this milestone. Gate outputs
+recorded the versions and architecture later used by the production Auction
+House. The retained spike sources and tests now live under the isolated
+feasibility subtrees in `packages/contracts`.
 
 ### Milestone 2 — Core contracts
 
@@ -100,7 +101,8 @@ funding/viewer write satisfies normal Safe threshold authority.
 
 Gate E established the implementation basis for the first three items and the
 revoke/re-enable path on Sepolia. These checkboxes remain open until the
-equivalent production contracts and tests exist outside `feasibility/`.
+equivalent production contracts and tests remain separate from
+`packages/contracts/contracts/feasibility/`.
 
 ### Milestone 4 — Web product
 

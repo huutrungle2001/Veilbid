@@ -38,6 +38,10 @@ least 24 hours earlier.
   canonical production URL is `https://veilbid-three.vercel.app`; deployment
   `dpl_3GjxxULLLtW3iWkLNkTNpM8xDHWP` from source `b2f9842` passed release
   smoke.
+- Repository applications are grouped under `apps/`, reusable and contract
+  workspaces under `packages/`, and repository-wide scripts under `tooling/`.
+  Production and feasibility Solidity share `packages/contracts`, but remain
+  isolated by source, test, deployment, and release-script boundaries.
 
 ## 4. Organizer-context notes requiring care
 
@@ -73,5 +77,3 @@ material submission facts through the official event page before publication.
 | ID | Question | Required by |
 |---|---|---|
 | Q-001 | What is the independently verified deadline timezone? | Before submission |
-| Q-002 | What exact Safe deployment/module pattern will the new workspace use? | Build design |
-| Q-003 | Can cross-contract encrypted settlement pass ACL tests reliably? | Feasibility gate |

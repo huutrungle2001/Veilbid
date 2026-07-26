@@ -20,10 +20,12 @@ Change versions only through a recorded decision and regression run.
 
 ## 1.1 Execution boundary
 
-After Product Plan approval, run these spikes in the isolated `feasibility/`
-workspace. It contains no production deployment, generated consumer artifact,
-frontend, relay, MCP, or submission claim. Production workspaces remain absent
-until Gates A–D pass and the custody architecture is selected.
+After Product Plan approval, these spikes ran in an isolated pre-build
+workspace. Their retained sources now live under
+`packages/contracts/contracts/feasibility/` and their tests under
+`packages/contracts/test/feasibility/`. Neither path is a production deployment
+input, generated consumer-artifact source, frontend, relay, MCP, or submission
+claim.
 
 The user approved a Sepolia-first strategy on 2026-07-25. Compile checks and
 deterministic models remain mandatory, while real Nox/ERC-7984 behavior must be

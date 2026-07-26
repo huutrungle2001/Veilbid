@@ -43,7 +43,7 @@ the vendors' prices to competitors or public chain observers.
 | Safe Preparation Module | `0x78c7b426060e9cACBEae4e69234AaF0f7AcA96f7` |
 
 The canonical machine-readable manifest is
-[`auction-house/deployments/sepolia.release.json`](auction-house/deployments/sepolia.release.json).
+[`packages/contracts/deployments/sepolia.release.json`](packages/contracts/deployments/sepolia.release.json).
 
 ## End-to-end flow
 
