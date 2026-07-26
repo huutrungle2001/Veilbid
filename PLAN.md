@@ -13,7 +13,7 @@
   real-person demo video, X post, and DoraHacks publication remain
   user-controlled.
 - Awaiting approval from: Hữu Trung — final video URL and publication.
-- Last updated: 2026-07-26T10:57:06+07:00
+- Last updated: 2026-07-26T11:10:24+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -68,6 +68,7 @@ Only one phase may be `In progress`.
 | Tender navigation correction | Verified | Agent | 2026-07-26 | Production deployment `dpl_DbuNsxKGhJ96Yc3ER1J1nyZRyLHo` keeps Tender workspaces in a sticky left sidebar on desktop and a sticky horizontal rail on mobile; the public-metadata badge now has explicit black-on-white contrast. |
 | Repository consolidation | Verified | Agent | 2026-07-26 | Applications moved under `apps/`, reusable workspaces under `packages/`, and repository scripts under `tooling/`; production and feasibility Solidity now share one pinned contracts workspace with separate deployment boundaries. |
 | Public repository | Published | User | 2026-07-26 | `https://github.com/huutrungle2001/Veilbid` was changed from private to public after the user requested continuation. |
+| Public RPC pagination recovery | Verified | Agent | 2026-07-26 | Deployment `dpl_GQ96e7T9v4VasT3F9P1E7wpSTyFW` limits inclusive `eth_getLogs` ranges to 1,000 blocks, restores wallet-free tender #1, and passes production desktop/mobile smoke without the unavailable-state fallback. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
