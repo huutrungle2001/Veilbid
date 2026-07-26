@@ -14,7 +14,7 @@ import {
 } from "viem";
 import { sepolia } from "viem/chains";
 
-const confirmationDepth = 12n;
+const finalityDepth = 12n;
 export const defaultSepoliaRpcUrl = "https://11155111.rpc.thirdweb.com";
 export { buildPublicLogBlockRanges, publicLogBlockChunkSize };
 
@@ -36,6 +36,7 @@ const releaseDeployment = deployment as Deployment;
 
 export interface LoadedPublicMarket {
   index: PublicMarketIndex;
+  indexedBlock: bigint;
   finalizedBlock: bigint;
   latestBlock: bigint;
   deploymentKind: string;
@@ -54,16 +55,20 @@ export async function loadPublicMarket(
     transport: http(rpcUrl),
   });
   const latestBlock = await client.getBlockNumber();
+  // The browser reads through the latest mined block for responsive UX. The
+  // separate finality boundary lets the UI label recent dossiers honestly.
+  const indexedBlock = latestBlock;
   const finalizedBlock =
-    latestBlock > confirmationDepth
-      ? latestBlock - confirmationDepth
+    latestBlock > finalityDepth
+      ? latestBlock - finalityDepth
       : 0n;
   const fromBlock = BigInt(
     releaseDeployment.contracts.VeilBidMarket.deploymentBlock,
   );
-  if (finalizedBlock < fromBlock) {
+  if (indexedBlock < fromBlock) {
     return {
       index: buildPublicMarketIndex([]),
+      indexedBlock,
       finalizedBlock,
       latestBlock,
       deploymentKind: releaseDeployment.kind,
@@ -74,7 +79,7 @@ export async function loadPublicMarket(
   const decoded = [];
   for (const range of buildPublicLogBlockRanges(
     fromBlock,
-    finalizedBlock,
+    indexedBlock,
   )) {
     const logs = await client.getLogs({
       address: releaseDeployment.contracts.VeilBidMarket.address,
@@ -104,6 +109,7 @@ export async function loadPublicMarket(
 
   return {
     index: buildPublicMarketIndex(decoded),
+    indexedBlock,
     finalizedBlock,
     latestBlock,
     deploymentKind: releaseDeployment.kind,

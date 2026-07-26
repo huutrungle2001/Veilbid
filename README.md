@@ -252,8 +252,9 @@ security, or mainnet readiness.
 1. Open `/room` without connecting a wallet.
 2. Select a tender and inspect public lifecycle data.
 3. Follow transaction and address links to Sepolia.
-4. Refresh to rebuild finalized public state. Missing RPC/indexer data is shown
-   as unavailable; the UI does not substitute mock success data.
+4. Refresh to rebuild confirmed public state through the latest mined block.
+   Records inside the 12-block finality window are labeled as pending finality;
+   missing RPC/indexer data is shown as unavailable with no mock fallback.
 
 ### Buyer
 

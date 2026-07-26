@@ -71,13 +71,13 @@ export function DocsPage() {
             <p className="eyebrow">QUICK START</p>
             <h2>Inspect first. Connect only when needed.</h2>
             <StepList steps={[
-              { title: "Open Tenders", copy: "Use the TENDERS link to load finalized public state. No wallet is required to browse." },
+              { title: "Open Tenders", copy: "Use the TENDERS link to load confirmed public state. No wallet is required to browse; recent records are marked until finality." },
               { title: "Choose a workspace", copy: "Switch between Public, Buyer, Vendor, Activity, Auditor, and Safe Treasury from the workspace bar." },
               { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
               { title: "Follow transaction progress", copy: "A bottom-right notification moves through validation, simulation, wallet signature, confirmation, and completion. Verify every target and value in the wallet prompt." },
-              { title: "Wait for finalized state", copy: "After confirmation, refresh the public dossier. Proof requests can be resumed from Activity if interrupted." },
+              { title: "Refresh confirmed state", copy: "After confirmation, refresh the public dossier. It appears immediately with a finality-pending label; proof requests can be resumed from Activity if interrupted." },
             ]} />
             <div className="docs-actions">
               <Link className="primary-button" to="/room">OPEN TENDERS →</Link>
@@ -89,7 +89,7 @@ export function DocsPage() {
             <p className="eyebrow">PUBLIC EXPLORER</p>
             <h2>Read canonical state without signing.</h2>
             <p>
-              Public mode indexes finalized Sepolia events and shows each
+              Public mode indexes confirmed Sepolia events and shows each
               tender’s ceiling, deadline, bid count, buyer, lifecycle status,
               winner where available, award receipt, and transaction
               fingerprints. It never substitutes mock tenders when RPC or
@@ -99,7 +99,7 @@ export function DocsPage() {
               <li>Select a tender card to open its public dossier.</li>
               <li>Use the lifecycle and readiness labels to distinguish contract state from derived next actions.</li>
               <li>Inspect Sepolia links and receipt ownership for awarded tenders.</li>
-              <li>Refresh to reread finalized logs; confidential prices are intentionally absent.</li>
+              <li>Refresh to reread confirmed logs; recent records remain marked until the 12-block finality boundary.</li>
             </ul>
           </section>
 
@@ -154,7 +154,7 @@ export function DocsPage() {
               against its stored vendor mapping.
             </p>
             <StepList steps={[
-              { title: "Close when ready", copy: "Activity derives close eligibility from finalized public state and simulates the close transaction." },
+              { title: "Close when ready", copy: "Activity derives close eligibility from confirmed public state and simulates the close transaction against canonical on-chain state." },
               { title: "Request winner proof", copy: "The relay requests public decryption for the winner ID, not for bid or settlement values." },
               { title: "Resume after interruption", copy: "Activity stores only public tender IDs and trigger transaction hashes; handles and proofs are reread when resuming." },
               { title: "Finalize once", copy: "On-chain proof verification and replay protection permit confidential vendor payment or the protocol’s full refund outcome." },

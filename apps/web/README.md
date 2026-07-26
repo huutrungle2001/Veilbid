@@ -2,7 +2,8 @@
 
 VeilBid's browser product. The current slice is a wallet-free public explorer
 plus Buyer, Vendor, Activity, Auditor, and Safe Treasury workspaces. The public
-route rebuilds tender dossiers from finalized Ethereum Sepolia logs.
+route rebuilds tender dossiers through the latest confirmed Ethereum Sepolia
+block and labels records that remain inside the 12-block finality window.
 
 It intentionally:
 

@@ -242,7 +242,7 @@ export function ActivityWorkspace({
         </header>
         {trackable.length === 0 ? (
           <p className="empty-activity">
-            No finalized public dossier is currently ready to close or track.
+            No confirmed public dossier is currently ready to close or track.
           </p>
         ) : (
           <div className="activity-list">

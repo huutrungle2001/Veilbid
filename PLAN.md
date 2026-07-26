@@ -7,12 +7,12 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: User reviews the completed release hardening, canonical
-  production frontend, and live relay write verification.
+- Next action: User verifies immediate post-confirmation tender visibility,
+  public status filtering, and the multi-vendor Buyer form in production.
 - Current blocker: None for the implemented product release. No contract
   redeployment is required.
 - Awaiting approval from: Hữu Trung — final release review.
-- Last updated: 2026-07-26T20:34:00+07:00
+- Last updated: 2026-07-26T21:52:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.

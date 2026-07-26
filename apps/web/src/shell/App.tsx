@@ -211,11 +211,14 @@ function AwardReceiptPanel({ tender }: { tender: PublicTender }) {
 
 function TenderDetail({
   tender,
+  indexedBlock,
   finalizedBlock,
 }: {
   tender: PublicTender;
+  indexedBlock: bigint;
   finalizedBlock: bigint;
 }) {
+  const finalityPending = tender.updatedBlock > finalizedBlock;
   const readiness = getTenderReadiness(
     tender,
     BigInt(Math.floor(Date.now() / 1_000)),
@@ -246,7 +249,9 @@ function TenderDetail({
         <span className="signal-dot" aria-hidden="true" />
         <div>
           <strong>{readinessLabel}</strong>
-          <span>Derived from finalized public state, not a contract status.</span>
+          <span>
+            Derived from confirmed public state, not a contract status.
+          </span>
         </div>
       </section>
 
@@ -294,11 +299,17 @@ function TenderDetail({
       <AwardReceiptPanel tender={tender} />
 
       <section className="evidence-panel">
-        <p className="eyebrow">FINALIZED EVIDENCE</p>
+        <p className="eyebrow">
+          {finalityPending ? "CONFIRMED / FINALITY PENDING" : "FINALIZED EVIDENCE"}
+        </p>
         <dl>
           <div>
             <dt>Chain</dt>
             <dd>Ethereum Sepolia / 11155111</dd>
+          </div>
+          <div>
+            <dt>Indexed through</dt>
+            <dd>Block {indexedBlock.toString()}</dd>
           </div>
           <div>
             <dt>Finalized through</dt>
@@ -442,9 +453,9 @@ export function ExplorerView({
                 label="Help for Public workspace"
                 title="HOW TO USE PUBLIC"
                 steps={[
-                  "Choose a finalized tender from the dossier list.",
+                  "Choose a confirmed tender from the dossier list.",
                   "Review its public ceiling, deadline, lifecycle, buyer, bid count, and award status.",
-                  "Use refresh to reread finalized Sepolia events when a transaction has just confirmed.",
+                  "Use refresh to reread confirmed Sepolia events when a transaction has just mined.",
                 ]}
                 note="No wallet is required. Bid prices and confidential balances never appear in this public index."
               />
@@ -458,8 +469,9 @@ export function ExplorerView({
               </div>
               <div className="intro-copy">
                 <p>
-                  Browse finalized tender coordination without connecting a
-                  wallet. Prices and confidential balances are never indexed here.
+                  Browse confirmed tender coordination without connecting a
+                  wallet. Recent records remain marked until finality; prices
+                  and confidential balances are never indexed here.
                 </p>
                 <span className="deployment-label">
                   {deploymentKind.toUpperCase()} DEPLOYMENT ·{" "}
@@ -474,7 +486,7 @@ export function ExplorerView({
               <section className="state-panel" aria-live="polite">
                 <span className="loading-mark" aria-hidden="true" />
                 <div>
-                  <h2>Reading finalized Sepolia logs</h2>
+                  <h2>Reading confirmed Sepolia logs</h2>
                   <p>No placeholder tenders are shown while public state loads.</p>
                 </div>
               </section>
@@ -497,7 +509,7 @@ export function ExplorerView({
               <section className="state-panel">
                 <span aria-hidden="true">0</span>
                 <div>
-                  <h2>No finalized tenders found</h2>
+                  <h2>No confirmed tenders found</h2>
                   <p>The explorer is connected; no public tender events exist yet.</p>
                 </div>
               </section>
@@ -508,13 +520,13 @@ export function ExplorerView({
                 <aside className="dossier-list" aria-label="Public tenders">
                   <header>
                     <div>
-                      <p className="eyebrow">FINALIZED DOSSIERS</p>
+                      <p className="eyebrow">CONFIRMED DOSSIERS</p>
                       <h2>{visibleTenders.length} tenders</h2>
                     </div>
                     <button
                       className="icon-button"
                       onClick={onRetry}
-                      aria-label="Refresh finalized Sepolia state"
+                      aria-label="Refresh confirmed Sepolia state"
                     >
                       ↻
                     </button>
@@ -555,6 +567,7 @@ export function ExplorerView({
                 {selected ? (
                   <TenderDetail
                     tender={selected}
+                    indexedBlock={state.data.indexedBlock}
                     finalizedBlock={state.data.finalizedBlock}
                   />
                 ) : (

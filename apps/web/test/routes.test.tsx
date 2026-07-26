@@ -66,7 +66,7 @@ describe("standalone public routes", () => {
     expect(
       screen.getByRole("link", { name: /skip to content/i }),
     ).toHaveAttribute("href", "#main-content");
-    expect(screen.queryByText(/Reading finalized Sepolia logs/i)).toBeNull();
+    expect(screen.queryByText(/Reading confirmed Sepolia logs/i)).toBeNull();
     const navigation = screen.getByRole("navigation", {
       name: "Primary navigation",
     });

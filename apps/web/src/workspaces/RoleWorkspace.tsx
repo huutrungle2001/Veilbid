@@ -92,7 +92,7 @@ export function RoleWorkspace({
                 "Encrypt price for market",
                 "Simulate bid transaction",
                 "Sign and confirm on-chain",
-                "Refresh finalized dossier",
+                "Refresh confirmed dossier",
               ]
           ).map((stage, index) => (
             <li key={stage}>

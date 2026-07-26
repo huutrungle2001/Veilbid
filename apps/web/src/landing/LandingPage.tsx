@@ -3,7 +3,7 @@ import { Link } from "react-router";
 const workspaces = [
   {
     title: "PUBLIC",
-    copy: "Inspect finalized tender terms, bid counts, lifecycle state, winner receipts, and transaction evidence without a wallet.",
+    copy: "Inspect confirmed tender terms, bid counts, lifecycle state, winner receipts, and transaction evidence without a wallet; recent records are marked until finality.",
     to: "/room",
     action: "EXPLORE PUBLIC STATE",
   },

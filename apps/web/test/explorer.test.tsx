@@ -24,6 +24,7 @@ function state(
     refreshedAt: new Date("2026-07-26T00:00:00Z"),
     data: {
       finalizedBlock: 100n,
+      indexedBlock: 112n,
       latestBlock: 112n,
       deploymentKind: "test-e2e",
       deploymentVerified: false,
@@ -183,10 +184,28 @@ describe("Tender Room public explorer", () => {
     ).toHaveAttribute("href", expect.stringContaining("sepolia.etherscan.io"));
   });
 
+  it("labels recent confirmed state until it crosses the finality boundary", () => {
+    const recent = state();
+    recent.data = {
+      ...recent.data!,
+      index: {
+        ...recent.data!.index,
+        tenders: recent.data!.index.tenders.map((tender) => ({
+          ...tender,
+          updatedBlock: 110n,
+        })),
+      },
+    };
+    view(recent);
+    expect(screen.getByText("CONFIRMED / FINALITY PENDING")).toBeInTheDocument();
+    expect(screen.getByText("Block 112")).toBeInTheDocument();
+    expect(screen.getByText("Block 100")).toBeInTheDocument();
+  });
+
   it("shows an explicit loading state without placeholder dossiers", () => {
     view(state({ status: "loading", data: null }));
     expect(
-      screen.getByText("Reading finalized Sepolia logs"),
+      screen.getByText("Reading confirmed Sepolia logs"),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Confidential procurement #/)).not.toBeInTheDocument();
   });
@@ -257,7 +276,7 @@ describe("Tender Room public explorer", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/does not confer token/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/No finalized bid references are indexed yet/i),
+      screen.getByText(/No confirmed bid references are indexed yet/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AUDITOR" })).toBeEnabled();
   });
@@ -288,7 +307,7 @@ describe("Tender Room public explorer", () => {
     );
 
     expect(
-      screen.getByText(/No finalized tender is accepting bids/i),
+      screen.getByText(/No confirmed tender is accepting bids/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/has not submitted a bid/i),

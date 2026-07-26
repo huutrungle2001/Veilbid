@@ -158,7 +158,8 @@ buyer refund during a Nox outage.
 ### Web
 
 - Wallet discovery and provider-specific reconnect.
-- Public event index with bounded RPC ranges and finalized checkpoint.
+- Public event index with bounded RPC ranges, immediate confirmed-state display,
+  and a separately labeled 12-block finality checkpoint.
 - Buyer, Vendor, Public, Auditor, Activity, and Safe workspaces.
 - Handle encryption/decryption, ACL views, and public proof recovery.
 - Persistent progress UI for wallet, chain, indexing, proof, and refresh stages.
@@ -212,7 +213,7 @@ There is no application database or authentication server.
 
 ## 8. Failure and recovery
 
-- RPC failure: preserve last finalized public checkpoint and show stale state.
+- RPC failure: show unavailable state rather than substituting mock success.
 - Nox indexing delay: bounded retry with explicit pending/retry state.
 - Proof delay: persist the close/proof request and resume without reclosing; the
   escrow remains locked while Nox public decryption is unavailable.

@@ -111,7 +111,7 @@ export function VendorBidForm({
           <option value="">
             {openTenders.length === 0
               ? "No Open tenders available"
-              : "Select finalized dossier"}
+              : "Select confirmed dossier"}
           </option>
           {openTenders.map((tender) => (
             <option
@@ -126,7 +126,7 @@ export function VendorBidForm({
       </label>
       {openTenders.length === 0 && (
         <p className="form-empty-hint" role="status">
-          No finalized tender is accepting bids. Check Public and refresh
+          No confirmed tender is accepting bids. Check Public and refresh
           after the buyer opens a tender.
         </p>
       )}

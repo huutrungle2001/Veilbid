@@ -163,7 +163,7 @@ export function AuditorWorkspace({
         </label>
         {options.length === 0 && (
           <p className="form-empty-hint" role="status">
-            No finalized bid references are indexed yet. A vendor must
+            No confirmed bid references are indexed yet. A vendor must
             submit a bid before viewer access can be checked.
           </p>
         )}
