@@ -38,6 +38,7 @@ describe("VeilBidSafePreparationModule production surface", () => {
       "configureMarket",
       "consumePreparedInput",
       "prepareInput",
+      "prepareInputForSafe",
     ]);
   });
 
@@ -51,6 +52,24 @@ describe("VeilBidSafePreparationModule production surface", () => {
     assert.deepEqual(
       prepare.inputs.map(({ type }) => type),
       ["bytes32", "bytes", "address", "bytes32", "bytes32", "uint256"],
+    );
+  });
+
+  it("supports atomic Safe preparation without granting execution authority", () => {
+    const prepareForSafe = functions.find(
+      ({ name }) => name === "prepareInputForSafe",
+    );
+    assert.deepEqual(
+      prepareForSafe.inputs.map(({ type }) => type),
+      [
+        "bytes32",
+        "bytes",
+        "address",
+        "address",
+        "bytes32",
+        "bytes32",
+        "uint256",
+      ],
     );
   });
 });

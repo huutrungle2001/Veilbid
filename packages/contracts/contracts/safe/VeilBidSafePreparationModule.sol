@@ -6,6 +6,12 @@ import {
     euint256,
     externalEuint256
 } from "@iexec-nox/nox-protocol-contracts/contracts/sdk/Nox.sol";
+import {
+    INoxCompute
+} from "@iexec-nox/nox-protocol-contracts/contracts/interfaces/INoxCompute.sol";
+import {
+    TEEType
+} from "@iexec-nox/nox-protocol-contracts/contracts/utils/TypeUtils.sol";
 
 interface IVeilBidSafeRegistry {
     function isModuleEnabled(address module) external view returns (bool);
@@ -95,6 +101,62 @@ contract VeilBidSafePreparationModule {
         uint256 nonce
     ) external {
         if (!safe.isOwner(msg.sender)) revert NotSafeOwner();
+        _validatePreparation(
+            consumer,
+            actionDataHash,
+            actionHash,
+            nonce
+        );
+
+        _storePreparedInput(
+            Nox.fromExternal(encryptedAmount, inputProof),
+            actionHash,
+            nonce,
+            msg.sender
+        );
+    }
+
+    /// @notice Imports an owner's encrypted input inside a threshold-authorized
+    /// Safe batch so preparation and tender creation can execute atomically.
+    function prepareInputForSafe(
+        externalEuint256 encryptedAmount,
+        bytes calldata inputProof,
+        address inputOwner,
+        address consumer,
+        bytes32 actionDataHash,
+        bytes32 actionHash,
+        uint256 nonce
+    ) external {
+        if (msg.sender != address(safe)) revert NotSafe();
+        if (!safe.isOwner(inputOwner)) revert NotSafeOwner();
+        _validatePreparation(
+            consumer,
+            actionDataHash,
+            actionHash,
+            nonce
+        );
+
+        bytes32 handle = externalEuint256.unwrap(encryptedAmount);
+        INoxCompute(Nox.noxComputeContract()).validateInputProof(
+            handle,
+            inputOwner,
+            inputProof,
+            TEEType.Uint256
+        );
+        _storePreparedInput(
+            euint256.wrap(handle),
+            actionHash,
+            nonce,
+            inputOwner
+        );
+    }
+
+    function _validatePreparation(
+        address consumer,
+        bytes32 actionDataHash,
+        bytes32 actionHash,
+        uint256 nonce
+    ) internal view {
         if (!safe.isModuleEnabled(address(this))) {
             revert ModuleDisabled();
         }
@@ -111,11 +173,14 @@ contract VeilBidSafePreparationModule {
         ) {
             revert ActionAlreadyPrepared();
         }
+    }
 
-        euint256 amount = Nox.fromExternal(
-            encryptedAmount,
-            inputProof
-        );
+    function _storePreparedInput(
+        euint256 amount,
+        bytes32 actionHash,
+        uint256 nonce,
+        address inputOwner
+    ) internal {
         Nox.allowThis(amount);
         Nox.allow(amount, address(safe));
         Nox.allow(amount, market);
@@ -126,7 +191,7 @@ contract VeilBidSafePreparationModule {
             nonce: nonce,
             consumed: false
         });
-        emit InputPrepared(actionHash, nonce, msg.sender);
+        emit InputPrepared(actionHash, nonce, inputOwner);
     }
 
     function consumePreparedInput(
