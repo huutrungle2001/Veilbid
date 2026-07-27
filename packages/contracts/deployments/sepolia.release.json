@@ -4,8 +4,8 @@
   "chainId": 11155111,
   "kind": "release",
   "deploymentState": "configured",
-  "verified": true,
-  "sourceCommit": "e69eeadfa4b62948e66c539f6e3ff5e2c9707a6c",
+  "verified": false,
+  "sourceCommit": "7b3962941ef326d8dda87d426d8079aeb93dbec1",
   "deployedBy": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
   "safe": {
     "version": "1.4.1",
@@ -51,6 +51,11 @@
       "address": "0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4",
       "deploymentTransaction": "0x671219beda00ed983074e05465f4bcd4216e584e4fc79aa022271fa3e6f6fcf1",
       "deploymentBlock": "11359691"
+    },
+    "VeilBidSafeUnwrapPreparation": {
+      "address": "0x779bacA165500e34aF65BF01AF4C2F2a997C9ff9",
+      "deploymentTransaction": "0xab9ac639f83ca1f8bc38e5e693574aad97630c80cb5ddb7f78737d00a5e994ce",
+      "deploymentBlock": "11361538"
     }
   },
   "configurationTransactions": {
@@ -69,9 +74,8 @@
   },
   "sourceVerification": {
     "provider": "sourcify-v2",
-    "status": "verified",
-    "checkedAt": "2026-07-27T05:55:24.097Z",
-    "evidence": "evidence/sepolia/deployment-consistency.release.json"
+    "status": "pending",
+    "checkedAt": null
   },
   "blockers": [],
   "evidence": [
@@ -82,6 +86,8 @@
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",
     "The threshold-1 Safe is the documented browser-demo configuration; all Safe-owned spending still requires a normal Safe transaction.",
     "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion.",
-    "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold."
+    "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold.",
+    "Safe partial unwrap preparation deployed without custody or Safe execution authority; every partial unwrap remains one threshold-approved atomic Safe batch.",
+    "Source verification remains pending for the Safe partial unwrap preparation."
   ]
 }
