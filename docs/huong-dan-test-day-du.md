@@ -62,7 +62,8 @@ Release hiện tại dùng:
 `SAFE BUYER` hoạt động với bất kỳ Safe đã deploy trên Ethereum Sepolia nếu ví
 đang kết nối là một owner. Web tự tìm Safe theo owner qua Safe Transaction
 Service; người dùng cũng có thể dán địa chỉ Safe thủ công khi dịch vụ discovery
-chậm. Nếu owner chỉ có đúng một Safe, web tự chọn Safe đó.
+chậm. Web không tự mở chi tiết Safe, kể cả khi owner chỉ có một Safe; người dùng
+luôn bấm chọn card để xác nhận đúng treasury trước khi tiếp tục.
 
 Mỗi Safe mới có một preparation module riêng được factory triển khai bằng
 CREATE2. Thiết lập lần đầu vẫn là một Safe proposal và phải đạt đúng threshold
@@ -70,8 +71,9 @@ của Safe. Factory không thể enable module, đổi owner, hạ threshold ho�
 giao dịch thay Safe.
 
 Canonical demo Safe hiện có threshold `1/1` và dùng canonical module đã được
-xác minh. Safe mới có thể faucet và wrap trực tiếp bằng batch
-`FAUCET + WRAP WITH SAFE`; không cần chuyển vcUSDC từ EOA.
+xác minh. Để nạp Safe, ví kết nối lấy public Test USDC bằng `GET TEST USDC`, sau
+đó nhập `vcUSDC amount` và bấm `DEPOSIT TO SAFE`. Wrapper mint vcUSDC trực tiếp
+cho Safe đã chọn; người dùng không phải chuyển vcUSDC từ EOA sang Safe.
 
 Không sao chép private key vào tài liệu, ảnh chụp, terminal output hoặc Git.
 Chỉ dùng các ví này trên testnet.
@@ -157,14 +159,17 @@ Kết nối một Safe owner và chuyển sang workspace `SAFE BUYER`.
 2. Web chỉ đánh dấu `LAST USED`, không tự mở chi tiết Safe.
 3. Bấm card Safe muốn dùng; selected state và skeleton phải xuất hiện ngay.
 4. Nếu discovery không khả dụng, dán địa chỉ Safe rồi bấm `CHECK SAFE`.
-5. Xác nhận thẻ `SELECTED SAFE` hiển thị:
+5. Nếu ví chưa sở hữu Safe nào, bấm `CREATE MY SAFE 1/1`, xác nhận giao dịch
+   deploy, chờ Safe mới xuất hiện rồi bấm card của Safe đó. Việc tạo Safe không
+   tự cấu hình VeilBid; one-time setup vẫn là proposal riêng ở bước 4.5.
+6. Xác nhận thẻ `SELECTED SAFE` hiển thị:
    - Safe address.
    - Số owner và threshold.
    - Khối `SAFE FUNDS` nhỏ gọn.
    - vcUSDC là `0`, unavailable hoặc được che bằng `••••••` trong một dòng.
    - Nút con mắt và `REFRESH`.
    - `OPEN SAFE` mở đúng Safe đã chọn.
-6. Xác nhận Safe Buyer không hiển thị ETH, public vUSDC hoặc token không liên
+7. Xác nhận Safe Buyer không hiển thị ETH, public vUSDC hoặc token không liên
    quan. Dùng Safe Wallet nếu cần quản lý các tài sản công khai đó.
 
 ### 4.2. Nạp confidential vcUSDC cho Safe từ ví kết nối
@@ -176,9 +181,10 @@ Kết nối một Safe owner và chuyển sang workspace `SAFE BUYER`.
 4. Xác nhận approve wrapper nếu allowance chưa đủ, sau đó xác nhận wrap.
 5. Xác nhận `SELECTED SAFE` hiển thị vcUSDC dạng `••••••`.
 
-Hai giao dịch này do EOA đang kết nối ký và trả gas; recipient của lệnh wrap là
-Safe đã chọn, nên vcUSDC được mint thuộc Safe. Đây không phải Safe proposal và
-không cần cấu hình module trước.
+Luồng deposit cần một hoặc hai giao dịch do EOA đang kết nối ký và trả gas:
+approve wrapper chỉ xuất hiện khi allowance chưa đủ, sau đó là giao dịch wrap.
+Recipient của lệnh wrap là Safe đã chọn, nên vcUSDC được mint thuộc Safe. Đây
+không phải Safe proposal và không cần cấu hình module trước.
 
 ### 4.3. Reveal vcUSDC của Safe
 
