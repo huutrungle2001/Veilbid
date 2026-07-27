@@ -7,15 +7,17 @@ import {
 } from "@veilbid/chain-bindings";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
-  createPublicClient,
-  http,
   type Address,
   type Hex,
 } from "viem";
 import { sepolia } from "viem/chains";
+import {
+  createResilientSepoliaClient,
+  defaultSepoliaRpcUrl,
+} from "../chain/sepoliaRpc";
 
 const finalityDepth = 12n;
-export const defaultSepoliaRpcUrl = "https://11155111.rpc.thirdweb.com";
+export { defaultSepoliaRpcUrl };
 export { buildPublicLogBlockRanges, publicLogBlockChunkSize };
 
 interface DeploymentContract {
@@ -50,10 +52,7 @@ export async function loadPublicMarket(
   if (releaseDeployment.chainId !== sepolia.id) {
     throw new Error("Generated deployment chain does not match Sepolia");
   }
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const latestBlock = await client.getBlockNumber();
   // The browser reads through the latest mined block for responsive UX. The
   // separate finality boundary lets the UI label recent dossiers honestly.

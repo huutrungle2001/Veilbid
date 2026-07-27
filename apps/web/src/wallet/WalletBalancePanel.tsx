@@ -4,16 +4,14 @@ import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import { createViemHandleClient } from "@iexec-nox/handle";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  createPublicClient,
   formatUnits,
-  http,
   parseUnits,
   type Abi,
   type Address,
   type Hex,
   type WalletClient,
 } from "viem";
-import { sepolia } from "viem/chains";
+import { createResilientSepoliaClient } from "../chain/sepoliaRpc";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
@@ -77,10 +75,7 @@ export async function readWalletBalances(
   account: Address,
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 ): Promise<WalletBalances> {
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const [eth, testUsdc, confidentialResult] = await Promise.all([
     client.getBalance({ address: account }),
     client.readContract({
@@ -148,10 +143,7 @@ export async function requestTestUsdc(
   account: Address,
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 ) {
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const simulation = await client.simulateContract({
     account,
     address: tokenAddress,
@@ -185,10 +177,7 @@ export async function wrapTestUsdc(
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 ) {
   if (amount <= 0n) throw new Error("Wrap amount must be positive.");
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const transact = async (
     address: Address,
     abi: Abi,
