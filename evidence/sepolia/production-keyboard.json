@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "suite": "production-keyboard-navigation",
-  "recordedAt": "2026-07-27T13:00:39.587Z",
+  "recordedAt": "2026-07-27T13:29:01.129Z",
   "publicIdentifiers": {
-    "testCommit": "a58448afce6acbbbbc75ce21b140b1f877cbd9dc",
-    "deploymentSourceCommit": "a58448afce6acbbbbc75ce21b140b1f877cbd9dc",
-    "deploymentId": "dpl_Eq5LN1QzBrTjDbN9GofRcGfgFhXV",
+    "testCommit": "9f65164dd8d696e63d0c8b8064ba2eb7c8f32d02",
+    "deploymentSourceCommit": "9f65164dd8d696e63d0c8b8064ba2eb7c8f32d02",
+    "deploymentId": "dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "browser": "Google Chrome 149.0.7827.200",
     "viewport": "1280x900"
