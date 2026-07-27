@@ -226,6 +226,8 @@ Optional, non-authoritative, and not implemented in this release:
 | Revealed plaintext | Browser session only |
 | Safe authority | Safe owners and threshold |
 | Pending Safe proposal recovery | Browser local storage: public Safe address, transaction hash, action kind, timestamp only |
+| Safe confidential balance viewer | Nox per-handle ACL granted by a normal threshold-authorized Safe transaction |
+| Safe unwrap request | Wrapper event and public Safe execution transaction; plaintext amount appears only at finalization |
 | Deployment addresses/ABIs | Contract workspace canonical artifact |
 | Assistant draft | Browser session only |
 
@@ -238,6 +240,10 @@ There is no application database or authentication server.
 - Proof delay: persist the close/proof request and resume without reclosing; the
   escrow remains locked while Nox public decryption is unavailable.
 - Competing finalizer: reread status and simulate; treat stale race as benign.
+- Safe balance viewer: reread the current balance handle; a grant for an older
+  handle never authorizes a new balance after funding, transfer, or unwrap.
+- Safe unwrap: recover the request handle from the confirmed Safe execution and
+  resume public-proof finalization without storing confidential plaintext.
 - Wallet disconnect/network change: clear revealed plaintext and writes.
 - Safe module revoked: public finalize/refund remains available; owner module
   preparation pauses, while previously prepared inputs cannot move funds

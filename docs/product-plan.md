@@ -93,7 +93,8 @@ Disclosure policy:
 
 1. Connect a Sepolia Safe owner and select one of its discovered Safes.
 2. Inspect owners, threshold, dedicated module, operator, and confidential
-   balance status.
+   balance status. Public Safe balances are directly readable; exact vcUSDC
+   reveal requires a threshold-authorized per-handle viewer grant.
 3. For a new Safe, approve the one-time module deployment/enablement,
    Market-binding, and operator setup through the existing threshold.
 4. Faucet/wrap test funding into the Safe through a threshold-authorized batch
@@ -104,6 +105,9 @@ Disclosure policy:
    configured owner threshold.
 7. Confirm the public exact-funding proof before the tender opens.
 8. Settle/refund to the Safe; the browser owner does not become custodian.
+9. Optionally manage treasury exits without bypassing Safe authority:
+   threshold-authorized ETH/vUSDC withdrawal or a full vcUSDC unwrap request
+   followed by public-proof finalization.
 
 ### Vendor
 
