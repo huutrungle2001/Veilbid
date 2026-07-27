@@ -228,6 +228,7 @@ Optional, non-authoritative, and not implemented in this release:
 | Pending Safe proposal recovery | Browser local storage: public Safe address, transaction hash, action kind, timestamp only |
 | Safe confidential balance viewer | Nox per-handle ACL granted by a normal threshold-authorized Safe transaction |
 | Safe unwrap request | Wrapper event and public Safe execution transaction; plaintext amount appears only at finalization |
+| Safe partial-unwrap authorization | Dedicated adapter nonce plus current-balance-handle binding; encrypted amount access is transient for one atomic Safe transaction |
 | Deployment addresses/ABIs | Contract workspace canonical artifact |
 | Assistant draft | Browser session only |
 
@@ -244,6 +245,10 @@ There is no application database or authentication server.
   handle never authorizes a new balance after funding, transfer, or unwrap.
 - Safe unwrap: recover the request handle from the confirmed Safe execution and
   resume public-proof finalization without storing confidential plaintext.
+  Full unwrap uses the current Safe balance handle directly. Custom unwrap
+  privately reveals the balance client-side for amount validation, then uses a
+  fresh owner-encrypted amount, adapter nonce, and current-handle check in the
+  same Safe batch as the wrapper call.
 - Wallet disconnect/network change: clear revealed plaintext and writes.
 - Safe module revoked: public finalize/refund remains available; owner module
   preparation pauses, while previously prepared inputs cannot move funds

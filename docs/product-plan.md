@@ -105,7 +105,11 @@ Disclosure policy:
    configured owner threshold.
 7. Confirm the public exact-funding proof before the tender opens.
 8. Settle/refund to the Safe; the browser owner does not become custodian.
-9. Manage public ETH/vUSDC and unrelated assets in Safe Wallet rather than
+9. Exit confidential treasury funds with either a full-handle unwrap or an
+   owner-encrypted custom amount. Both require the normal Safe threshold and a
+   separate permissionless public-proof finalization; amount and recipient
+   become public at finalization.
+10. Manage public ETH/vUSDC and unrelated assets in Safe Wallet rather than
    duplicating a general-purpose treasury interface inside VeilBid.
 
 ### Vendor

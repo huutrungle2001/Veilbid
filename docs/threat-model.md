@@ -100,8 +100,9 @@ same risk as that wallet.
 | Attacker deploys a module for another Safe | Factory deployment is deterministic but inert until that Safe enables/configures it through its own threshold | Address squatting is prevented by CREATE2; factory/bytecode bugs remain unaudited |
 | Browser recovers pending Safe proposals | Local storage contains only public Safe address, Safe transaction hash, action kind, and timestamp | Browser compromise can observe public workflow metadata |
 | Safe owner requests confidential balance reveal | Safe threshold grants viewer access only to the connected owner and current balance handle | Viewer access is irreversible for that handle; a compromised authorized owner can decrypt it |
-| Safe treasury withdrawal targets the wrong recipient | UI validates and displays the public recipient; normal Safe threshold remains mandatory | Owners can still approve an incorrect recipient |
-| Safe vcUSDC unwrap changes privacy | UI requires an explicit full-balance action and warns before the Safe proposal | Finalized unwrap amount and recipient are public by wrapper design |
+| Safe vcUSDC unwrap targets the wrong recipient | UI validates and displays the public recipient; normal Safe threshold remains mandatory | Owners can still approve an incorrect recipient |
+| Safe vcUSDC unwrap changes privacy | UI separates Full and Custom modes, requires private balance reveal only for Custom, and warns before the Safe proposal | Finalized unwrap amount and recipient are public by wrapper design |
+| Partial unwrap proof is replayed or prepared against stale funds | Adapter binds the owner proof to the calling Safe, fresh nonce, one-time handle, current balance handle, and transaction-scoped Nox access | Nox, wrapper, adapter, or Safe bugs remain unaudited |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
 | Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |

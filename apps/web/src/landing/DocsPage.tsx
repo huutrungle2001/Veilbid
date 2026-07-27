@@ -181,19 +181,25 @@ export function DocsPage() {
             <p className="eyebrow">SAFE TREASURY</p>
             <h2>Preparation is not execution.</h2>
             <p>
-              The restricted module binds the chain, Safe, module, market,
-              complete tender terms, encrypted budget, and one-time nonce. It
-              cannot call the Safe or transfer funds. After preparation, submit
-              the generated calldata through the Safe interface and satisfy the
-              Safe’s configured threshold.
+              Choose any discovered Sepolia Safe owned by the connected wallet.
+              VeilBid proposes setup, confidential funding, tender creation,
+              balance-view grants, and unwraps through the Safe Transaction
+              Service. Every action still satisfies that Safe’s configured
+              threshold.
             </p>
+            <StepList steps={[
+              { title: "Select and configure", copy: "Select a Safe card or paste an address. A one-time threshold batch deploys/enables its deterministic preparation module and binds the canonical Market." },
+              { title: "Fund confidentially", copy: "ADD TEST vcUSDC faucets public test funds when needed, then approves and wraps into the selected Safe in one threshold-authorized batch." },
+              { title: "Reveal only when needed", copy: "The eye grants the connected owner viewer access to the current balance handle, then decrypts only in this browser session. A new handle requires a new grant." },
+              { title: "Choose Full or Custom unwrap", copy: "Full uses the encrypted balance directly. Custom first reveals the current balance privately, then encrypts the selected amount for an atomic preparation + wrapper batch." },
+              { title: "Finalize the public exit", copy: "After the Safe executes, FINALIZE UNWRAP completes the permissionless public proof. The amount and recipient become public; remaining vcUSDC and bid values stay confidential." },
+            ]} />
             <div className="docs-callout">
-              <strong>CURRENT DEMO STATE</strong>
+              <strong>AUTHORITY BOUNDARY</strong>
               <p>
-                The canonical release manifest records the preparation module as
-                enabled. The browser rechecks the live Safe state before every
-                preparation, and any future re-enable or revoke still requires
-                a normal Safe threshold transaction.
+                Neither preparation contract can execute from the Safe, custody
+                funds, or bypass owners. Multi-owner proposals remain pending
+                until the normal threshold is reached.
               </p>
             </div>
           </section>
@@ -250,6 +256,7 @@ export function DocsPage() {
               <div><dt>Wrong network</dt><dd>Open the header wallet menu and select SWITCH TO SEPOLIA. Write actions remain disabled until chain 11155111 is active.</dd></div>
               <div><dt>Public state unavailable</dt><dd>Retry the Sepolia read. VeilBid deliberately shows an error instead of substituting mock data.</dd></div>
               <div><dt>Safe assets are not listed</dt><dd>Safe Buyer intentionally shows only vcUSDC. Open the selected account in Safe Wallet to inspect or transfer public ETH, vUSDC, and unrelated assets.</dd></div>
+              <div><dt>Custom unwrap is unavailable</dt><dd>Reveal the current Safe vcUSDC balance first. Full unwrap does not require reveal. Both modes need the Safe threshold, followed by public-proof finalization.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
               <div><dt>Auditor cannot reveal</dt><dd>Confirm the connected account has a grant for that exact bid handle; access to another bid does not carry over.</dd></div>
               <div><dt>Safe action unavailable</dt><dd>Confirm the connected wallet is a Safe owner and the live module is enabled. Enabling or re-enabling it requires a normal Safe threshold transaction.</dd></div>

@@ -95,6 +95,8 @@ Exit: Core protocol tests pass without plaintext shadow state.
 - [x] Make Safe Buyer the primary browser workflow with one atomic batch for
   handle preparation and tender creation; retain EOA recovery fallback.
 - [x] Support owner handle preparation and threshold-authorized Safe funding.
+- [x] Support threshold-authorized full and custom Safe vcUSDC unwrap through a
+  custody-free, transaction-scoped preparation adapter.
 - [x] Support buyer cancellation/viewer operations where approved.
 - [x] Test revoke/re-enable and permissionless terminal actions.
 - [x] Document threshold-1 browser limitations.

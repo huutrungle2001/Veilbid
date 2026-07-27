@@ -207,7 +207,49 @@ EOA owner trả gas cho transaction thực thi; tài sản được mint/wrap th
 
 Viewer grant là per-handle, không cấp operator, signer hoặc quyền xem bid.
 
-### 4.5. Tạo tender
+### 4.5. Unwrap vcUSDC: toàn bộ hoặc tùy chỉnh
+
+Khối `UNWRAP vcUSDC` nằm ngay trong card `SELECTED SAFE`, không mở lại bảng
+quản lý ETH/public vUSDC.
+
+#### Full
+
+1. Giữ chế độ `FULL`.
+2. Kiểm tra `Public vUSDC recipient`; mặc định là EOA owner đang kết nối.
+3. Bấm `PROPOSE FULL UNWRAP`.
+4. Full dùng balance handle mã hóa hiện tại, nên không cần bấm con mắt hoặc
+   reveal balance trước.
+5. Ký/thu thập đủ threshold cho Safe transaction.
+
+#### Custom
+
+1. Chọn `CUSTOM`.
+2. Nếu balance chưa reveal, bấm `AUTHORIZE BALANCE VIEW`, chờ Safe proposal
+   execute, rồi bấm `REVEAL BALANCE`.
+3. Nhập số vcUSDC nhỏ hơn balance vừa reveal. Muốn rút hết thì chuyển về
+   `FULL`, không nhập đúng bằng balance trong Custom.
+4. Kiểm tra recipient và bấm `PROPOSE CUSTOM UNWRAP`.
+5. Safe batch phải gồm đúng hai call nguyên tử:
+   - Adapter xác minh owner-encrypted amount, Safe, balance handle hiện tại và
+     nonce mới; quyền Nox chỉ tồn tại trong transaction đó.
+   - Wrapper burn lượng vcUSDC đã chọn và tạo unwrap request.
+6. Ký/thu thập đủ threshold.
+
+Sau khi Safe execute, bấm `FINALIZE UNWRAP`. Đây là transaction permissionless
+thứ hai dùng public-decryption proof để trả public vUSDC cho recipient.
+
+Kết quả mong đợi:
+
+- `FULL` không yêu cầu reveal balance.
+- `CUSTOM` yêu cầu reveal để web chặn amount bằng 0, bằng full balance hoặc lớn
+  hơn balance; contract còn chặn balance handle cũ và replay nonce/handle.
+- Khi finalize, amount unwrap và recipient trở thành công khai.
+- Phần vcUSDC còn lại và mọi bid value vẫn confidential.
+- Browser không lưu amount đã reveal, encrypted handle, proof hoặc chữ ký.
+- Sau partial unwrap, balance handle đổi và viewer grant cũ không được tái sử
+  dụng.
+
+### 4.6. Tạo tender
 
 Dùng dữ liệu mẫu:
 

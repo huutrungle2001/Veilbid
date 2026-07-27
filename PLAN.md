@@ -5,15 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Confidential Safe asset exits
+- Current phase: Phase 6 — Sepolia and product
 - Status: In progress
-- Next action: Commit and push the vcUSDC-focused Safe Buyer simplification,
-  then design and verify threshold-authorized full/custom unwrap without
-  expanding the public-asset UI.
+- Next action: Run the full release gate, deploy the updated web bundle, and
+  repeat production desktop/mobile smoke before submission media.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T19:03:28+07:00
+- Last updated: 2026-07-27T19:31:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -81,8 +80,9 @@ Only one phase may be `In progress`.
 | Generic Safe frontend release | Verified | Agent | 2026-07-27 | Production deployment `dpl_HCFBAXRiSpm8nePzKutQ7kzQhSsr` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, keyboard navigation, release bindings, and bundled factory address checks passed. |
 | iExec Hello World registration | Verified | Agent | 2026-07-27 | Wallet `0x8234…4A55` deployed the official-pattern confidential Piggy Bank and completed encrypted deposit, owner decrypt, encrypted withdrawal, and final owner decrypt on Ethereum Sepolia. |
 | Safe discovery hotfix | Local verified | Agent | 2026-07-27 | Corrected the API Kit base path from the obsolete root to `/api`, restored seven indexed owner Safes, and added direct on-chain ownership verification. The local UX now presents explicit Safe cards, highlights rather than auto-opens the last-used Safe, responds immediately with selection/loading state, caches inspected status, ignores stale RPC responses, and automatically fails over from Thirdweb to independent Sepolia providers. Awaiting user confirmation before production promotion. |
-| Safe treasury management | Local verified | Agent | 2026-07-27 | Added selected-Safe ETH/vUSDC balances, threshold-authorized per-handle vcUSDC reveal, ETH/vUSDC withdrawals, full confidential unwrap plus public-proof finalization, on-chain finalized-request recovery, and adaptive Pending Approvals/Transaction History. Typed lint, 70 Tender Room tests, production build, desktop mock-wallet smoke, and 390px overflow smoke pass; Sepolia writes remain user-controlled and the patch is not yet promoted. |
+| Safe treasury management | Superseded | Agent | 2026-07-27 | The broader ETH/vUSDC withdrawal surface was locally verified, then intentionally removed after product review so VeilBid remains focused on confidential vcUSDC and delegates general public-asset management to Safe Wallet. |
 | Safe Buyer confidential focus | Approved | User | 2026-07-27 | Keep only vcUSDC and its private reveal control inside `SELECTED SAFE`; omit public ETH/vUSDC balances and general withdrawals because Safe Wallet already owns that surface. Remove the old Treasury Actions panel before implementing the separately verified full/custom unwrap experience. |
+| Safe confidential asset exits | Verified | Agent | 2026-07-27 | Adapter `0x779b…9ff9` has exact Sourcify creation/runtime mappings and canonical-wrapper binding. Sepolia E2E funded the release Safe, executed atomic partial preparation/unwrap with replay protection, finalized the exact partial amount in memory, then full-unwrapped/finalized the remainder while preserving owners and threshold. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
