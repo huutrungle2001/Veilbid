@@ -408,6 +408,20 @@ function SafeTenderSetup({
   busy: boolean;
   onSetup: () => void;
 }) {
+  if (configuration.ready) {
+    return (
+      <section
+        className="safe-tender-setup is-ready"
+        aria-label="Safe tender setup"
+      >
+        <div>
+          <p className="eyebrow">TENDER SETUP</p>
+          <strong>Module enabled · Market bound · Settlement authorized</strong>
+        </div>
+        <span className="safe-ready-badge">SAFE READY ✓</span>
+      </section>
+    );
+  }
   const checks = [
     ["Module contract", configuration.moduleDeployed],
     ["Module enabled", configuration.moduleEnabled],
@@ -419,25 +433,21 @@ function SafeTenderSetup({
       <div className="safe-tender-setup-heading">
         <div>
           <p className="eyebrow">TENDER SETUP</p>
-          <h3>{configuration.ready ? "Safe ready" : "One-time VeilBid setup"}</h3>
+          <h3>One-time VeilBid setup</h3>
           <p>
-            {configuration.ready
-              ? "This Safe can prepare confidential funding and create a tender."
-              : "Required only for Safe-owned tender creation. Setup deploys and enables the dedicated module, binds the Market, and grants settlement authority in one Safe proposal."}
+            Required only for Safe-owned tender creation. Setup deploys and
+            enables the dedicated module, binds the Market, and grants
+            settlement authority in one Safe proposal.
           </p>
         </div>
-        {configuration.ready ? (
-          <strong className="safe-ready-badge">SAFE READY ✓</strong>
-        ) : (
-          <button
-            className="primary-button"
-            type="button"
-            disabled={busy || !configuration.module}
-            onClick={onSetup}
-          >
-            CONFIGURE THIS SAFE →
-          </button>
-        )}
+        <button
+          className="primary-button"
+          type="button"
+          disabled={busy || !configuration.module}
+          onClick={onSetup}
+        >
+          CONFIGURE THIS SAFE →
+        </button>
       </div>
       {!configuration.module && (
         <p className="inline-error">
@@ -445,15 +455,13 @@ function SafeTenderSetup({
           deployed in the release configuration.
         </p>
       )}
-      {!configuration.ready && (
-        <ul className="safe-readiness-list">
-          {checks.map(([label, passed]) => (
-            <li key={label} data-ready={passed}>
-              <span aria-hidden="true">{passed ? "✓" : "○"}</span> {label}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="safe-readiness-list">
+        {checks.map(([label, passed]) => (
+          <li key={label} data-ready={passed}>
+            <span aria-hidden="true">{passed ? "✓" : "○"}</span> {label}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -1319,6 +1327,40 @@ export function SafeTreasuryWorkspace({
     unwrapRequestSafe.toLowerCase() === configuration.safe.toLowerCase()
       ? unwrapRequest
       : null;
+  const vendorRows = input.vendors === ""
+    ? [""]
+    : input.vendors.split("\n").slice(0, 8);
+  const vendorCount = vendorRows.filter((vendor) => vendor.trim()).length;
+
+  function updateVendor(index: number, value: string) {
+    const pasted = value.split(/[\s,]+/).filter(Boolean);
+    const next = [...vendorRows];
+    if (pasted.length > 1) {
+      next.splice(index, 1, ...pasted.slice(0, 8 - index));
+    } else {
+      next[index] = value;
+    }
+    setInput((current) => ({
+      ...current,
+      vendors: next.slice(0, 8).join("\n"),
+    }));
+  }
+
+  function removeVendor(index: number) {
+    const next = vendorRows.filter((_, itemIndex) => itemIndex !== index);
+    setInput((current) => ({
+      ...current,
+      vendors: (next.length > 0 ? next : [""]).join("\n"),
+    }));
+  }
+
+  function addVendor() {
+    if (vendorRows.length >= 8) return;
+    setInput((current) => ({
+      ...current,
+      vendors: [...vendorRows, ""].join("\n"),
+    }));
+  }
 
   return (
     <main className="role-workspace safe-workspace" id="main-content">
@@ -1573,15 +1615,24 @@ export function SafeTreasuryWorkspace({
               onApprove={() => void approveProposal()}
             />
           )}
-          <section className="write-form">
-            <div className="form-heading">
-              <p className="eyebrow">2 / CREATE TENDER</p>
-              <h2>Create a Safe-owned tender</h2>
-              <p>
-                VeilBid generates a fresh preparation nonce automatically. No
-                extra owner input is required.
-              </p>
-            </div>
+          <section className="write-form safe-tender-form">
+            <header className="safe-tender-form-header">
+              <div className="form-heading">
+                <p className="eyebrow">2 / CREATE TENDER</p>
+                <h2>Create a Safe-owned tender</h2>
+                <p>
+                  Define the public terms and approve one confidential funding
+                  batch through this Safe.
+                </p>
+              </div>
+              <div className="safe-tender-context">
+                <span>SELECTED SAFE</span>
+                <strong>{shortAddress(configuration.safe)}</strong>
+                <small>
+                  {configuration.owners.length} owner(s) · threshold {configuration.threshold}
+                </small>
+              </div>
+            </header>
             <SafeTenderSetup
               configuration={configuration}
               busy={stage !== null}
@@ -1595,49 +1646,129 @@ export function SafeTreasuryWorkspace({
                 onApprove={() => void approveProposal()}
               />
             )}
-            {[
-              ["metadata", "Public metadata"],
-              ["ceiling", "Public ceiling (6 decimals)"],
-              ["deadline", "Bid deadline"],
-            ].map(([name, label]) => (
-              <label key={name}>
-                <span>{label}</span>
-                <input
-                  type={name === "deadline" ? "datetime-local" : "text"}
-                  value={input[name as keyof SafeTenderInput]}
-                  onChange={(event) =>
-                    setInput((current) => ({ ...current, [name]: event.target.value }))
-                  }
-                />
-              </label>
-            ))}
-            <label>
-              <span>Approved vendors</span>
-              <textarea
-                value={input.vendors}
-                onChange={(event) =>
-                  setInput((current) => ({ ...current, vendors: event.target.value }))
-                }
-                placeholder="One address per line"
-              />
-            </label>
-            <div className="privacy-confirmation">
-              <strong>AUTHORITY BOUNDARY</strong>
-              <span>
-                Safe threshold approval remains mandatory. The relay only handles
-                later permissionless lifecycle actions and cannot spend the Safe.
-                The connected wallet {shortAddress(wallet.state.account!)} is
-                bound as review wallet and receives private bid access only
-                after finalization.
-              </span>
+            <div className="safe-tender-form-body">
+              <section className="safe-tender-terms">
+                <div className="safe-tender-section-heading">
+                  <span>01</span>
+                  <div>
+                    <strong>TENDER TERMS</strong>
+                    <small>Public procurement rules</small>
+                  </div>
+                </div>
+                <label className="safe-tender-metadata">
+                  <span>Public metadata</span>
+                  <input
+                    value={input.metadata}
+                    onChange={(event) =>
+                      setInput((current) => ({
+                        ...current,
+                        metadata: event.target.value,
+                      }))
+                    }
+                    placeholder="Procurement title or terms fingerprint source"
+                  />
+                </label>
+                <label>
+                  <span>Public ceiling (vUSDC)</span>
+                  <input
+                    value={input.ceiling}
+                    onChange={(event) =>
+                      setInput((current) => ({
+                        ...current,
+                        ceiling: event.target.value,
+                      }))
+                    }
+                    inputMode="decimal"
+                    placeholder="100"
+                  />
+                </label>
+                <label>
+                  <span>Bid deadline</span>
+                  <input
+                    type="datetime-local"
+                    value={input.deadline}
+                    onChange={(event) =>
+                      setInput((current) => ({
+                        ...current,
+                        deadline: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+              </section>
+
+              <fieldset className="safe-tender-vendors">
+                <legend>
+                  <span className="safe-tender-section-heading">
+                    <span>02</span>
+                    <span>
+                      <strong>APPROVED VENDORS</strong>
+                      <small>One immutable bid slot per address</small>
+                    </span>
+                  </span>
+                  <span className="safe-vendor-count">{vendorCount} / 8</span>
+                </legend>
+                <div className="safe-vendor-list">
+                  {vendorRows.map((vendor, index) => (
+                    <div className="safe-vendor-row" key={`safe-vendor-${index}`}>
+                      <label htmlFor={`safe-approved-vendor-${index}`}>
+                        <span>Vendor {index + 1}</span>
+                        <input
+                          id={`safe-approved-vendor-${index}`}
+                          value={vendor}
+                          onChange={(event) => updateVendor(index, event.target.value)}
+                          placeholder="0x…"
+                        />
+                      </label>
+                      {vendorRows.length > 1 && (
+                        <button
+                          type="button"
+                          aria-label={`Remove Safe vendor ${index + 1}`}
+                          onClick={() => removeVendor(index)}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="safe-vendor-add"
+                  type="button"
+                  disabled={vendorRows.length >= 8}
+                  onClick={addVendor}
+                >
+                  + ADD VENDOR
+                </button>
+              </fieldset>
             </div>
-            <button
-              className="primary-button"
-              disabled={!configuration.ready || stage !== null}
-              onClick={() => void prepare()}
-            >
-              CREATE WITH SAFE →
-            </button>
+
+            <footer className="safe-tender-submit">
+              <div>
+                <p className="eyebrow">03 / REVIEW &amp; SUBMIT</p>
+                <dl>
+                  <div>
+                    <dt>SAFE THRESHOLD</dt>
+                    <dd>{configuration.threshold} of {configuration.owners.length}</dd>
+                  </div>
+                  <div>
+                    <dt>REVIEW WALLET</dt>
+                    <dd>{shortAddress(wallet.state.account!)}</dd>
+                  </div>
+                </dl>
+                <small>
+                  The review wallet receives private bid access only after
+                  proof-derived finalization. The relay cannot spend this Safe.
+                </small>
+              </div>
+              <button
+                className="primary-button"
+                disabled={!configuration.ready || stage !== null}
+                onClick={() => void prepare()}
+              >
+                CREATE WITH SAFE →
+              </button>
+            </footer>
             {tenderResult && (
               <SafeActionHandoff
                 result={tenderResult}

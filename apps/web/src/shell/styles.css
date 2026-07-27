@@ -2147,6 +2147,26 @@ main {
   padding: 20px;
 }
 
+.safe-tender-setup.is-ready {
+  align-items: center;
+  background: color-mix(in srgb, var(--color-veil-green) 24%, var(--color-paper-white));
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 13px 16px;
+}
+
+.safe-tender-setup.is-ready > div {
+  display: grid;
+  gap: 3px;
+}
+
+.safe-tender-setup.is-ready strong:not(.safe-ready-badge) {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
 .safe-tender-setup-heading {
   align-items: start;
   display: flex;
@@ -2187,6 +2207,265 @@ main {
 
 .safe-inline-funding .secondary-button {
   min-height: 50px;
+}
+
+.safe-tender-form {
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.safe-tender-form-header,
+.safe-tender-form-body,
+.safe-tender-submit,
+.safe-tender-form > .safe-tender-setup,
+.safe-tender-form > .safe-handoff {
+  grid-column: 1 / -1;
+}
+
+.safe-tender-form-header {
+  align-items: end;
+  border-bottom: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 28px 30px 24px;
+}
+
+.safe-tender-form-header .form-heading {
+  max-width: 720px;
+}
+
+.safe-tender-form-header .form-heading h2 {
+  font-size: clamp(2rem, 3.5vw, 3.15rem);
+}
+
+.safe-tender-context {
+  border-left: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 5px;
+  min-width: 210px;
+  padding: 4px 0 4px 20px;
+}
+
+.safe-tender-context span,
+.safe-tender-context small {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.safe-tender-context strong {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.safe-tender-form > .safe-tender-setup {
+  margin: 20px 30px 0;
+}
+
+.safe-tender-form > .safe-handoff {
+  margin: 20px 30px 0;
+}
+
+.safe-tender-form-body {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  padding: 20px 30px 30px;
+}
+
+.safe-tender-terms,
+.safe-tender-vendors {
+  border: 1px solid var(--color-ink-black);
+  margin: 0;
+  min-width: 0;
+  padding: 20px;
+}
+
+.safe-tender-terms {
+  align-content: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.safe-tender-metadata,
+.safe-tender-section-heading {
+  grid-column: 1 / -1;
+}
+
+.safe-tender-section-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.safe-tender-section-heading > span:first-child {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  border-radius: 100%;
+  display: flex;
+  flex: 0 0 28px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  height: 28px;
+  justify-content: center;
+}
+
+.safe-tender-section-heading > div,
+.safe-tender-section-heading > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.safe-tender-section-heading strong,
+.safe-tender-section-heading small {
+  font-family: var(--font-mono);
+}
+
+.safe-tender-section-heading strong {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.safe-tender-section-heading small {
+  color: var(--color-ink-muted);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.safe-tender-vendors {
+  display: grid;
+  gap: 14px;
+}
+
+.safe-tender-vendors legend {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0 14px;
+  width: 100%;
+}
+
+.safe-vendor-count {
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 7px 9px;
+  white-space: nowrap;
+}
+
+.safe-vendor-list {
+  display: grid;
+  gap: 9px;
+}
+
+.safe-vendor-row {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 44px;
+}
+
+.safe-vendor-row > button,
+.safe-vendor-add {
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  color: var(--color-ink-black);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.safe-vendor-row > button {
+  font-size: 1.2rem;
+  height: 52px;
+  padding: 0;
+}
+
+.safe-vendor-add {
+  font-size: 0.64rem;
+  justify-self: start;
+  min-height: 38px;
+  padding: 8px 12px;
+}
+
+.safe-vendor-row > button:hover,
+.safe-vendor-row > button:focus-visible,
+.safe-vendor-add:hover:not(:disabled),
+.safe-vendor-add:focus-visible {
+  background: var(--color-veil-green);
+}
+
+.safe-vendor-add:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.safe-tender-submit {
+  align-items: center;
+  background: var(--color-ink-black);
+  color: var(--color-paper-white);
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 24px 30px;
+}
+
+.safe-tender-submit > div {
+  display: grid;
+  gap: 12px;
+}
+
+.safe-tender-submit .eyebrow {
+  color: var(--color-veil-green);
+}
+
+.safe-tender-submit dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0;
+}
+
+.safe-tender-submit dl > div {
+  display: grid;
+  gap: 3px;
+}
+
+.safe-tender-submit dt,
+.safe-tender-submit dd,
+.safe-tender-submit small {
+  font-family: var(--font-mono);
+}
+
+.safe-tender-submit dt {
+  color: var(--color-veil-green);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.safe-tender-submit dd {
+  font-size: 0.76rem;
+  margin: 0;
+}
+
+.safe-tender-submit small {
+  color: var(--color-surface-muted);
+  font-size: 0.66rem;
+  line-height: 1.45;
+  max-width: 720px;
+}
+
+.safe-tender-submit > .primary-button {
+  min-height: 50px;
+  min-width: 210px;
 }
 
 .safe-unwrap-action {
@@ -3606,6 +3885,63 @@ footer p {
 
   .safe-readiness-list {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .safe-tender-form-header,
+  .safe-tender-form-body,
+  .safe-tender-submit {
+    grid-template-columns: 1fr;
+  }
+
+  .safe-tender-form-header {
+    align-items: stretch;
+    gap: 18px;
+    padding: 24px 20px 20px;
+  }
+
+  .safe-tender-context {
+    border-left: 0;
+    border-top: 1px solid var(--color-ink-black);
+    min-width: 0;
+    padding: 14px 0 0;
+  }
+
+  .safe-tender-form > .safe-tender-setup,
+  .safe-tender-form > .safe-handoff {
+    margin: 16px 20px 0;
+  }
+
+  .safe-tender-setup.is-ready {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .safe-tender-form-body {
+    padding: 16px 20px 20px;
+  }
+
+  .safe-tender-terms {
+    grid-template-columns: 1fr;
+  }
+
+  .safe-tender-metadata,
+  .safe-tender-section-heading {
+    grid-column: auto;
+  }
+
+  .safe-tender-vendors legend {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .safe-tender-submit {
+    align-items: stretch;
+    padding: 22px 20px;
+  }
+
+  .safe-tender-submit > .primary-button {
+    min-width: 0;
+    width: 100%;
   }
 
   .safe-recovery > ul > li {
