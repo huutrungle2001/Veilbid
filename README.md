@@ -488,6 +488,13 @@ corepack pnpm finalizer:poll
 - `once`: execute at most the configured shared action budget.
 - `poll`: repeat bounded planning/execution and expose `GET /health`.
 
+The continuously running Railway deployment is available at
+[`veilbid-relay-production.up.railway.app`](https://veilbid-relay-production.up.railway.app/health).
+Its `/live` endpoint reports process liveness, while `/health` verifies the
+Sepolia chain ID, canonical Market bytecode, and verified release manifest.
+The root [`railway.json`](railway.json) limits the build to shared bindings and
+the relay, then runs polling with an always-restart policy.
+
 The relay has no database or private reveal path. It processes actions
 sequentially, rereads canonical state before writes, and logs only allowlisted
 public fields.

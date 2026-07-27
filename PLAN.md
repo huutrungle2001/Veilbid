@@ -12,7 +12,7 @@
 - Current blocker: None. The user approved live Sepolia deployment and relay
   operation after completing the browser test flow.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T00:00:00+07:00
+- Last updated: 2026-07-27T10:47:55+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -74,6 +74,7 @@ Only one phase may be `In progress`.
 | Render settlement relay | Deployed | Agent | 2026-07-27 | Free web service `https://veilbid-settlement-relay.onrender.com` runs `node apps/relay/dist/cli.js poll` with `/live` liveness and `/health` chain readiness; free-tier sleep/restart remains an operational limitation. |
 | Upgraded frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_6Toox8JycbAjM16JU75AbuNgpdcu` is aliased to `https://veilbid-three.vercel.app` and passed wallet-free desktop/mobile production smoke against the new canonical market. |
 | GitHub Actions relay | Verified | Agent | 2026-07-27 | Workflow `.github/workflows/settlement-relay.yml` runs one stateless Sepolia cycle every five minutes with repository secrets, concurrency protection, manual dispatch, and successful run `30218254852`. |
+| Railway settlement relay | Verified | Agent | 2026-07-27 | Hobby service `veilbid-relay` is linked to `huutrungle2001/Veilbid@main`, deploys through `railway.json`, runs continuously with restart policy `ALWAYS`, and exposes verified Sepolia readiness at `https://veilbid-relay-production.up.railway.app/health`; deployment `f77d0384-a946-45ff-9147-73c0f53187c2` completed repeated successful polling cycles. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

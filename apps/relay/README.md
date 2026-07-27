@@ -41,8 +41,11 @@ the verified canonical release manifest. The
 manifests and must remain false for release operation.
 
 Polling exposes chain readiness at `GET /health` and process liveness at
-`GET /live` on `127.0.0.1:8787` by default. Render uses `/live`, sets
-`FINALIZER_HEALTH_HOST=0.0.0.0`, and supplies `PORT`. Each cycle rebuilds
+`GET /live` on `127.0.0.1:8787` by default. Hosted deployments set
+`FINALIZER_HEALTH_HOST=0.0.0.0` and supply `PORT`. The canonical Railway
+service is linked to the repository's `main` branch, reads `railway.json`, and
+publishes health at
+`https://veilbid-relay-production.up.railway.app/health`. Each cycle rebuilds
 the finalized public index in bounded RPC ranges; it keeps no database or
 confidential checkpoint. A zero winner ID follows the same `finalizeTender`
 call and produces the contract's full-refund outcome.
