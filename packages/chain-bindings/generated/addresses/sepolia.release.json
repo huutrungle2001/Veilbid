@@ -4,7 +4,7 @@
   "chainId": 11155111,
   "kind": "release",
   "deploymentState": "configured",
-  "verified": false,
+  "verified": true,
   "sourceCommit": "7b3962941ef326d8dda87d426d8079aeb93dbec1",
   "deployedBy": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
   "safe": {
@@ -74,8 +74,9 @@
   },
   "sourceVerification": {
     "provider": "sourcify-v2",
-    "status": "pending",
-    "checkedAt": null
+    "status": "verified",
+    "checkedAt": "2026-07-27T12:14:27.531Z",
+    "evidence": "evidence/sepolia/deployment-consistency.release.json"
   },
   "blockers": [],
   "evidence": [
@@ -85,9 +86,8 @@
   "notes": [
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",
     "The threshold-1 Safe is the documented browser-demo configuration; all Safe-owned spending still requires a normal Safe transaction.",
-    "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion.",
     "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold.",
     "Safe partial unwrap preparation deployed without custody or Safe execution authority; every partial unwrap remains one threshold-approved atomic Safe batch.",
-    "Source verification remains pending for the Safe partial unwrap preparation."
+    "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion."
   ]
 }
