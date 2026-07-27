@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  formatEther,
   formatUnits,
   getAddress,
   isAddress,
-  parseEther,
   parseUnits,
-  zeroAddress,
   type Address,
   type Hex,
 } from "viem";
@@ -18,8 +15,6 @@ import {
   authorizeSafeBalanceViewer,
   deployPersonalSafe,
   discoverOwnerSafes,
-  finalizeSafeUnwrap,
-  findSafeUnwrapRequest,
   fundSafeForVeilBid,
   getSafeProposalStatus,
   inspectSafeConfiguration,
@@ -30,16 +25,11 @@ import {
   safeWalletUrl,
   serializeSafeTransactionHandoff,
   setupSafeForVeilBid,
-  unwrapFullSafeConfidentialBalance,
   verifyOwnedSafes,
-  withdrawSafeEth,
-  withdrawSafeTestUsdc,
   type SafeAccountConfiguration,
   type SafePreparationResult,
   type SafeProposalStatus,
   type SafeTenderInput,
-  type SafeUnwrapFinalization,
-  type SafeUnwrapRequest,
 } from "./safePreparation";
 import {
   loadSafeProposals,
@@ -238,8 +228,18 @@ export function SafeActionHandoff({
 
 function SafeConfigurationCard({
   configuration,
+  revealedConfidentialBalance,
+  busy,
+  revealPending,
+  onRefresh,
+  onToggleReveal,
 }: {
   configuration: SafeAccountConfiguration;
+  revealedConfidentialBalance: bigint | null;
+  busy: boolean;
+  revealPending: boolean;
+  onRefresh: () => void;
+  onToggleReveal: () => void;
 }) {
   const checks = [
     ["Module contract", configuration.moduleDeployed],
@@ -247,15 +247,96 @@ function SafeConfigurationCard({
     ["Market configured", configuration.marketConfigured],
     ["Settlement authority", configuration.marketAuthorized],
   ] as const;
+  const hasConfidentialBalance =
+    configuration.balances.confidential === "encrypted";
+  const confidentialBalanceLabel =
+    revealedConfidentialBalance !== null
+      ? formatUnits(revealedConfidentialBalance, 6)
+      : hasConfidentialBalance
+        ? "••••••"
+        : configuration.balances.confidential === "none"
+          ? "0"
+          : "Unavailable";
   return (
     <section className="safe-account-card" aria-label="Selected Safe status">
-      <div className="form-heading">
-        <p className="eyebrow">SELECTED SAFE</p>
-        <h2>{shortAddress(configuration.safe)}</h2>
-        <p>
-          {configuration.owners.length} owner(s) · threshold{" "}
-          {configuration.threshold}
-        </p>
+      <div className="safe-selected-heading">
+        <div className="form-heading">
+          <p className="eyebrow">SELECTED SAFE</p>
+          <h2>{shortAddress(configuration.safe)}</h2>
+          <p>
+            {configuration.owners.length} owner(s) · threshold{" "}
+            {configuration.threshold}
+          </p>
+        </div>
+        <div className="safe-section-actions">
+          <button
+            className="secondary-button"
+            disabled={busy}
+            onClick={onRefresh}
+            aria-label="Refresh selected Safe"
+          >
+            REFRESH ↻
+          </button>
+          <a
+            className="secondary-button"
+            href={safeWalletUrl(configuration.safe)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            OPEN SAFE ↗
+          </a>
+        </div>
+      </div>
+      <div className="safe-selected-confidential">
+        <div>
+          <span>vcUSDC BALANCE</span>
+          <strong>{confidentialBalanceLabel}</strong>
+          <small>
+            {revealedConfidentialBalance !== null
+              ? "Visible in this browser session only"
+              : configuration.confidentialViewerAuthorized
+                ? "Private viewer authorized for the current handle"
+                : hasConfidentialBalance
+                  ? "First reveal requires Safe approval"
+                  : "Confidential tender asset"}
+          </small>
+        </div>
+        <button
+          className="balance-reveal safe-balance-eye"
+          type="button"
+          onClick={onToggleReveal}
+          disabled={!hasConfidentialBalance || busy || revealPending}
+          aria-label={
+            !hasConfidentialBalance
+              ? "No confidential vcUSDC balance to reveal"
+              : !configuration.confidentialViewerAuthorized
+                ? "Authorize and reveal confidential Safe balance"
+                : revealedConfidentialBalance === null
+                  ? "Reveal confidential Safe balance"
+                  : "Hide confidential Safe balance"
+          }
+          title={
+            !hasConfidentialBalance
+              ? "No vcUSDC balance"
+              : !configuration.confidentialViewerAuthorized
+                ? "Authorize this owner for the current balance handle"
+                : revealedConfidentialBalance === null
+                  ? "Reveal vcUSDC"
+                  : "Hide vcUSDC"
+          }
+        >
+          {revealedConfidentialBalance === null ? (
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+              <circle cx="12" cy="12" r="2.5" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+              <path d="m4 4 16 16" />
+              <path d="M10.6 6.1A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-2.2 2.9M14.4 17.7A10 10 0 0 1 12 18c-6 0-9.5-6-9.5-6a17 17 0 0 1 3.1-3.7" />
+            </svg>
+          )}
+        </button>
       </div>
       <dl className="safe-handoff-evidence">
         <div>
@@ -292,7 +373,7 @@ function SafeConfigurationSkeleton({ safe }: { safe: Address }) {
       <div className="form-heading">
         <p className="eyebrow">READING SELECTED SAFE</p>
         <h2>{shortAddress(safe)}</h2>
-        <p>Checking owners, threshold, balances, and VeilBid setup on Sepolia…</p>
+        <p>Checking owners, threshold, vcUSDC, and VeilBid setup on Sepolia…</p>
       </div>
       <div className="safe-skeleton-grid" aria-hidden="true">
         <span />
@@ -301,117 +382,6 @@ function SafeConfigurationSkeleton({ safe }: { safe: Address }) {
         <span />
       </div>
       <div className="safe-skeleton-line" aria-hidden="true" />
-    </section>
-  );
-}
-
-function SafeTreasuryBalances({
-  configuration,
-  revealedConfidentialBalance,
-  busy,
-  revealPending,
-  onRefresh,
-  onAuthorizeViewer,
-  onReveal,
-  onHide,
-}: {
-  configuration: SafeAccountConfiguration;
-  revealedConfidentialBalance: bigint | null;
-  busy: boolean;
-  revealPending: boolean;
-  onRefresh: () => void;
-  onAuthorizeViewer: () => void;
-  onReveal: () => void;
-  onHide: () => void;
-}) {
-  const hasConfidentialBalance =
-    configuration.balances.confidential === "encrypted";
-  return (
-    <section className="safe-treasury-balances" aria-label="Safe treasury balances">
-      <div className="safe-section-heading">
-        <div>
-          <p className="eyebrow">TREASURY BALANCES</p>
-          <h2>Assets owned by this Safe</h2>
-          <p>Public balances refresh from Sepolia. vcUSDC stays private.</p>
-        </div>
-        <div className="safe-section-actions">
-          <button
-            className="secondary-button"
-            disabled={busy}
-            onClick={onRefresh}
-          >
-            REFRESH BALANCES ↻
-          </button>
-          <a
-            className="secondary-button"
-            href={safeWalletUrl(configuration.safe)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            OPEN IN SAFE ↗
-          </a>
-        </div>
-      </div>
-      <div className="safe-balance-grid">
-        <article>
-          <span>SEP ETH</span>
-          <strong>{Number(formatEther(configuration.balances.eth)).toFixed(4)}</strong>
-          <small>Public balance</small>
-        </article>
-        <article>
-          <span>vUSDC</span>
-          <strong>{formatUnits(configuration.balances.testUsdc, 6)}</strong>
-          <small>Public test token</small>
-        </article>
-        <article className="confidential">
-          <span>vcUSDC</span>
-          <strong>
-            {revealedConfidentialBalance !== null
-              ? formatUnits(revealedConfidentialBalance, 6)
-              : hasConfidentialBalance
-                ? "••••••"
-                : configuration.balances.confidential === "none"
-                  ? "0"
-                  : "Unavailable"}
-          </strong>
-          <small>
-            {configuration.confidentialViewerAuthorized
-              ? "Current handle authorized for this owner"
-              : "Encrypted balance · per-handle access"}
-          </small>
-        </article>
-      </div>
-      {hasConfidentialBalance && (
-        <div className="safe-balance-private-actions">
-          {!configuration.confidentialViewerAuthorized ? (
-            <button
-              className="secondary-button"
-              disabled={busy}
-              onClick={onAuthorizeViewer}
-            >
-              AUTHORIZE PRIVATE VIEW →
-            </button>
-          ) : (
-            <button
-              className="secondary-button"
-              disabled={revealPending}
-              onClick={
-                revealedConfidentialBalance === null ? onReveal : onHide
-              }
-            >
-              {revealPending
-                ? "DECRYPTING…"
-                : revealedConfidentialBalance === null
-                  ? "REVEAL vcUSDC"
-                  : "HIDE vcUSDC"}
-            </button>
-          )}
-          <p>
-            Authorization applies only to the current encrypted balance handle.
-            A new handle after funding, transfer, or unwrap requires approval again.
-          </p>
-        </div>
-      )}
     </section>
   );
 }
@@ -435,7 +405,6 @@ export function SafeTreasuryWorkspace({
     Record<string, SafeAccountConfiguration>
   >({});
   const inspectionRequestId = useRef(0);
-  const recoveredUnwrapTransactions = useRef(new Set<string>());
   const [lastUsedSafe, setLastUsedSafe] = useState<Address | null>(null);
   const [loadingSafe, setLoadingSafe] = useState<Address | null>(null);
   const [safeReadWarning, setSafeReadWarning] = useState<string | null>(null);
@@ -444,17 +413,6 @@ export function SafeTreasuryWorkspace({
     value: bigint;
   } | null>(null);
   const [revealPending, setRevealPending] = useState(false);
-  const [treasuryActionsOpen, setTreasuryActionsOpen] = useState(false);
-  const [withdrawRecipient, setWithdrawRecipient] = useState("");
-  const [withdrawEthAmount, setWithdrawEthAmount] = useState("");
-  const [withdrawUsdcAmount, setWithdrawUsdcAmount] = useState("");
-  const [unwrapRecipient, setUnwrapRecipient] = useState("");
-  const [unwrapRequest, setUnwrapRequest] =
-    useState<SafeUnwrapRequest | null>(null);
-  const [unwrapRequestSafe, setUnwrapRequestSafe] = useState<Address | null>(null);
-  const [unwrapFinalization, setUnwrapFinalization] =
-    useState<SafeUnwrapFinalization | null>(null);
-  const [unwrapStage, setUnwrapStage] = useState<string | null>(null);
   const [discoveryStage, setDiscoveryStage] = useState<string | null>(null);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -545,16 +503,6 @@ export function SafeTreasuryWorkspace({
     setSafeReadWarning(null);
     setRevealedSafeBalance(null);
     setRevealPending(false);
-    setTreasuryActionsOpen(false);
-    setWithdrawRecipient("");
-    setWithdrawEthAmount("");
-    setWithdrawUsdcAmount("");
-    setUnwrapRecipient("");
-    setUnwrapRequest(null);
-    setUnwrapRequestSafe(null);
-    setUnwrapFinalization(null);
-    setUnwrapStage(null);
-    recoveredUnwrapTransactions.current.clear();
     setOwnerSafes([]);
     setStoredProposals([]);
     configurationCacheRef.current = {};
@@ -563,8 +511,6 @@ export function SafeTreasuryWorkspace({
     if (!connected) return;
     let cancelled = false;
     const account = wallet.state.account!;
-    setWithdrawRecipient(account);
-    setUnwrapRecipient(account);
     setDiscoveryStage("Finding Sepolia Safes owned by this wallet…");
     void (async () => {
       const remembered = loadRememberedOwnerSafes(account);
@@ -628,27 +574,6 @@ export function SafeTreasuryWorkspace({
         return next;
       });
 
-      for (const { proposal, status } of settled) {
-        const executionHash = status?.executionTransactionHash;
-        if (
-          proposal.kind !== "unwrap" ||
-          !status?.executed ||
-          !executionHash ||
-          recoveredUnwrapTransactions.current.has(executionHash)
-        ) {
-          continue;
-        }
-        recoveredUnwrapTransactions.current.add(executionHash);
-        try {
-          const request = await findSafeUnwrapRequest(executionHash);
-          if (cancelled) return;
-          setUnwrapRequest(request);
-          setUnwrapRequestSafe(proposal.safe);
-          setUnwrapFinalization(null);
-        } catch {
-          recoveredUnwrapTransactions.current.delete(executionHash);
-        }
-      }
       if (
         !cancelled &&
         settled.some(({ status }) => !status || !status.executed)
@@ -839,139 +764,6 @@ export function SafeTreasuryWorkspace({
     }
   }
 
-  function treasuryRecipient(value: string) {
-    if (!isAddress(value)) {
-      throw new Error("Enter a valid Sepolia recipient address.");
-    }
-    const recipient = getAddress(value);
-    if (recipient === zeroAddress) {
-      throw new Error("Recipient cannot be the zero address.");
-    }
-    return recipient;
-  }
-
-  async function withdrawEth() {
-    if (!connected || !configuration) return;
-    let amount: bigint;
-    let recipient: Address;
-    try {
-      amount = parseEther(withdrawEthAmount);
-      recipient = treasuryRecipient(withdrawRecipient);
-    } catch (cause) {
-      setError(
-        cause instanceof Error && cause.message.startsWith("Enter")
-          ? cause.message
-          : "Enter a positive ETH amount with at most 18 decimals.",
-      );
-      return;
-    }
-    await runAction("WITHDRAW SAFE ETH", (onStage) =>
-      withdrawSafeEth({
-        configuration,
-        recipient,
-        amount,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
-    );
-  }
-
-  async function withdrawUsdc() {
-    if (!connected || !configuration) return;
-    let amount: bigint;
-    let recipient: Address;
-    try {
-      amount = parseUnits(withdrawUsdcAmount, 6);
-      recipient = treasuryRecipient(withdrawRecipient);
-    } catch (cause) {
-      setError(
-        cause instanceof Error && cause.message.startsWith("Enter")
-          ? cause.message
-          : "Enter a positive vUSDC amount with at most 6 decimals.",
-      );
-      return;
-    }
-    await runAction("WITHDRAW SAFE vUSDC", (onStage) =>
-      withdrawSafeTestUsdc({
-        configuration,
-        recipient,
-        amount,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
-    );
-  }
-
-  async function requestUnwrap() {
-    if (!connected || !configuration) return;
-    let recipient: Address;
-    try {
-      recipient = treasuryRecipient(unwrapRecipient);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Invalid recipient.");
-      return;
-    }
-    const completed = await runAction("UNWRAP SAFE vcUSDC", (onStage) =>
-      unwrapFullSafeConfidentialBalance({
-        configuration,
-        recipient,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
-    );
-    if (!completed?.executed || !completed.executionTransactionHash) return;
-    try {
-      const request = await findSafeUnwrapRequest(
-        completed.executionTransactionHash,
-      );
-      setUnwrapRequest(request);
-      setUnwrapRequestSafe(completed.safe);
-      setUnwrapFinalization(null);
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Could not recover the unwrap request.",
-      );
-    }
-  }
-
-  async function finalizeUnwrap() {
-    if (!connected || !configuration || !unwrapRequest) return;
-    const toastId = toasts.start(
-      "FINALIZE UNWRAP",
-      "Waiting for the public decryption proof…",
-    );
-    setError(null);
-    try {
-      const finalized = await finalizeSafeUnwrap({
-        requestHandle: unwrapRequest.requestHandle,
-        walletClient: wallet.state.walletClient!,
-        account: wallet.state.account!,
-        onStage: (nextStage) => {
-          setUnwrapStage(nextStage);
-          toasts.update(toastId, nextStage);
-        },
-      });
-      setUnwrapFinalization(finalized);
-      toasts.succeed(
-        toastId,
-        `${formatUnits(finalized.plaintextAmount, 6)} vUSDC released.`,
-      );
-      await refreshConfiguration(configuration.safe, wallet.state.account!);
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "Unwrap finalization failed.";
-      setError(message);
-      toasts.fail(toastId, message);
-    } finally {
-      setUnwrapStage(null);
-    }
-  }
-
   async function prepare() {
     if (!connected || !configuration) return;
     try {
@@ -1032,30 +824,6 @@ export function SafeTreasuryWorkspace({
           ? "Safe batch executed."
           : `${status.confirmations}/${status.threshold} approvals collected.`,
       );
-      const actionKind =
-        result?.safeTxHash === safeTxHash
-          ? result.kind
-          : storedProposals.find(
-              (proposal) => proposal.safeTxHash === safeTxHash,
-            )?.kind;
-      if (
-        status.executed &&
-        status.executionTransactionHash &&
-        actionKind === "unwrap"
-      ) {
-        try {
-          const request = await findSafeUnwrapRequest(
-            status.executionTransactionHash,
-          );
-          setUnwrapRequest(request);
-          setUnwrapRequestSafe(safe);
-          setUnwrapFinalization(null);
-        } catch {
-          setError(
-            "Safe executed the unwrap, but its request is still being indexed.",
-          );
-        }
-      }
       if (status.executed && wallet.state.account) {
         await refreshConfiguration(safe, wallet.state.account);
       }
@@ -1090,11 +858,6 @@ export function SafeTreasuryWorkspace({
   });
   const balanceResult =
     result?.kind === "view-balance" ? result : null;
-  const treasuryResult =
-    result &&
-    ["withdraw-eth", "withdraw-usdc", "unwrap"].includes(result.kind)
-      ? result
-      : null;
   const preparationResult =
     result && ["setup", "fund"].includes(result.kind) ? result : null;
   const tenderResult = result?.kind === "tender" ? result : null;
@@ -1257,8 +1020,8 @@ export function SafeTreasuryWorkspace({
           <div>
             <strong>SELECT A SAFE TO CONTINUE</strong>
             <span>
-              Full balances and VeilBid readiness will appear here after your
-              selection.
+              Safe authority, confidential vcUSDC, and VeilBid readiness will
+              appear here after your selection.
             </span>
           </div>
         </section>
@@ -1271,8 +1034,7 @@ export function SafeTreasuryWorkspace({
               Refreshing selected Safe from Sepolia…
             </p>
           )}
-          <SafeConfigurationCard configuration={configuration} />
-          <SafeTreasuryBalances
+          <SafeConfigurationCard
             configuration={configuration}
             revealedConfidentialBalance={
               revealedSafeBalance?.handle ===
@@ -1288,9 +1050,15 @@ export function SafeTreasuryWorkspace({
                 wallet.state.account!,
               )
             }
-            onAuthorizeViewer={() => void authorizeBalanceViewer()}
-            onReveal={() => void revealBalance()}
-            onHide={() => setRevealedSafeBalance(null)}
+            onToggleReveal={() => {
+              if (!configuration.confidentialViewerAuthorized) {
+                void authorizeBalanceViewer();
+              } else if (revealedSafeBalance === null) {
+                void revealBalance();
+              } else {
+                setRevealedSafeBalance(null);
+              }
+            }}
           />
           {stage && (
             <p className="progress-line safe-action-feedback" aria-live="polite">
@@ -1310,203 +1078,6 @@ export function SafeTreasuryWorkspace({
               onApprove={() => void approveProposal()}
             />
           )}
-          <section className="safe-treasury-actions">
-            <button
-              className="safe-actions-toggle"
-              type="button"
-              aria-expanded={treasuryActionsOpen}
-              aria-controls="safe-treasury-actions-panel"
-              onClick={() => setTreasuryActionsOpen((current) => !current)}
-            >
-              <span>
-                <span className="eyebrow">TREASURY ACTIONS</span>
-                <strong>Withdraw or unwrap Safe assets</strong>
-              </span>
-              <span aria-hidden="true">{treasuryActionsOpen ? "−" : "+"}</span>
-            </button>
-            {treasuryActionsOpen && (
-              <div id="safe-treasury-actions-panel">
-                <label className="safe-action-recipient">
-                  <span>Public withdrawal recipient</span>
-                  <input
-                    value={withdrawRecipient}
-                    onChange={(event) =>
-                      setWithdrawRecipient(event.target.value)
-                    }
-                    placeholder="0x…"
-                  />
-                </label>
-                <div className="safe-action-grid">
-                  <article>
-                    <div>
-                      <p className="eyebrow">PUBLIC ASSET</p>
-                      <h3>Withdraw SEP ETH</h3>
-                      <p>
-                        A standard Safe transfer requiring the configured
-                        threshold.
-                      </p>
-                    </div>
-                    <label>
-                      <span>Amount</span>
-                      <div className="safe-amount-input">
-                        <input
-                          value={withdrawEthAmount}
-                          onChange={(event) =>
-                            setWithdrawEthAmount(event.target.value)
-                          }
-                          inputMode="decimal"
-                          placeholder="0.00"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setWithdrawEthAmount(
-                              formatEther(configuration.balances.eth),
-                            )
-                          }
-                        >
-                          MAX
-                        </button>
-                      </div>
-                    </label>
-                    <button
-                      className="secondary-button"
-                      disabled={stage !== null}
-                      onClick={() => void withdrawEth()}
-                    >
-                      PROPOSE ETH WITHDRAWAL →
-                    </button>
-                  </article>
-                  <article>
-                    <div>
-                      <p className="eyebrow">PUBLIC ASSET</p>
-                      <h3>Withdraw vUSDC</h3>
-                      <p>
-                        Transfers public Test USDC from the Safe to the chosen
-                        recipient.
-                      </p>
-                    </div>
-                    <label>
-                      <span>Amount</span>
-                      <div className="safe-amount-input">
-                        <input
-                          value={withdrawUsdcAmount}
-                          onChange={(event) =>
-                            setWithdrawUsdcAmount(event.target.value)
-                          }
-                          inputMode="decimal"
-                          placeholder="0.00"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setWithdrawUsdcAmount(
-                              formatUnits(
-                                configuration.balances.testUsdc,
-                                6,
-                              ),
-                            )
-                          }
-                        >
-                          MAX
-                        </button>
-                      </div>
-                    </label>
-                    <button
-                      className="secondary-button"
-                      disabled={stage !== null}
-                      onClick={() => void withdrawUsdc()}
-                    >
-                      PROPOSE vUSDC WITHDRAWAL →
-                    </button>
-                  </article>
-                </div>
-                <article className="safe-unwrap-action">
-                  <div>
-                    <p className="eyebrow">CONFIDENTIAL → PUBLIC</p>
-                    <h3>Unwrap the full Safe vcUSDC balance</h3>
-                    <p>
-                      The Safe first burns its current encrypted balance. A
-                      second permissionless transaction finalizes the public
-                      proof and releases vUSDC.
-                    </p>
-                  </div>
-                  <label>
-                    <span>vUSDC recipient</span>
-                    <input
-                      value={unwrapRecipient}
-                      onChange={(event) =>
-                        setUnwrapRecipient(event.target.value)
-                      }
-                      placeholder="0x…"
-                    />
-                  </label>
-                  <div className="safe-unwrap-warning">
-                    <strong>PRIVACY CHANGE</strong>
-                    <span>
-                      Finalization publicly reveals the amount being unwrapped.
-                      Bid values and unrelated confidential balances remain
-                      private.
-                    </span>
-                  </div>
-                  <button
-                    className="primary-button"
-                    disabled={
-                      stage !== null ||
-                      configuration.balances.confidential !== "encrypted"
-                    }
-                    onClick={() => void requestUnwrap()}
-                  >
-                    PROPOSE FULL UNWRAP →
-                  </button>
-                  {unwrapRequest &&
-                    unwrapRequestSafe?.toLowerCase() ===
-                      configuration.safe.toLowerCase() && (
-                      <div className="safe-unwrap-finalize">
-                        <div>
-                          <strong>UNWRAP REQUEST READY</strong>
-                          <span>{shortHash(unwrapRequest.requestHandle)}</span>
-                          <small>
-                            Receiver {shortAddress(unwrapRequest.receiver)}
-                          </small>
-                        </div>
-                        {unwrapFinalization ? (
-                          <a
-                            className="secondary-button"
-                            href={`https://sepolia.etherscan.io/tx/${unwrapFinalization.transactionHash}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {formatUnits(
-                              unwrapFinalization.plaintextAmount,
-                              6,
-                            )} vUSDC RELEASED ↗
-                          </a>
-                        ) : unwrapRequest.finalized ? (
-                          <strong>ALREADY FINALIZED ON-CHAIN</strong>
-                        ) : (
-                          <button
-                            className="primary-button"
-                            disabled={unwrapStage !== null}
-                            onClick={() => void finalizeUnwrap()}
-                          >
-                            {unwrapStage ? "FINALIZING…" : "FINALIZE UNWRAP →"}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                </article>
-                {treasuryResult && (
-                  <SafeActionHandoff
-                    result={treasuryResult}
-                    busy={stage !== null}
-                    onRefresh={() => void refreshProposal()}
-                    onApprove={() => void approveProposal()}
-                  />
-                )}
-              </div>
-            )}
-          </section>
           <section className="write-form">
             <div className="form-heading">
               <p className="eyebrow">2 / PREPARE TREASURY</p>
@@ -1536,7 +1107,7 @@ export function SafeTreasuryWorkspace({
               </p>
             )}
             <label>
-              <span>Confidential funding amount (vUSDC)</span>
+              <span>Test vcUSDC amount</span>
               <input
                 value={fundAmount}
                 onChange={(event) => setFundAmount(event.target.value)}
@@ -1548,7 +1119,7 @@ export function SafeTreasuryWorkspace({
               disabled={stage !== null}
               onClick={() => void fund()}
             >
-              FAUCET + WRAP WITH SAFE →
+              ADD TEST vcUSDC →
             </button>
             {preparationResult && (
               <SafeActionHandoff

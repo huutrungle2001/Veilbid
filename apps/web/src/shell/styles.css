@@ -1883,6 +1883,82 @@ main {
   width: 100%;
 }
 
+.safe-selected-heading {
+  align-items: start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.safe-selected-confidential {
+  align-items: center;
+  background: var(--color-ink-black);
+  color: var(--color-paper-white);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 20px;
+}
+
+.safe-selected-confidential > div {
+  display: grid;
+  gap: 6px;
+}
+
+.safe-selected-confidential span,
+.safe-selected-confidential strong,
+.safe-selected-confidential small {
+  font-family: var(--font-mono);
+}
+
+.safe-selected-confidential span {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.safe-selected-confidential strong {
+  font-size: 1.8rem;
+  overflow-wrap: anywhere;
+}
+
+.safe-selected-confidential small {
+  color: #c8c8c8;
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.safe-balance-eye {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--color-paper-white);
+  color: var(--color-paper-white);
+  cursor: pointer;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.safe-balance-eye:hover:not(:disabled),
+.safe-balance-eye:focus-visible {
+  background: var(--color-veil-green);
+  color: var(--color-ink-black);
+}
+
+.safe-balance-eye:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.safe-balance-eye svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .safe-treasury-balances,
 .safe-treasury-actions {
   border: 1px solid var(--color-ink-black);
@@ -3365,9 +3441,14 @@ footer p {
   }
 
   .safe-section-heading,
+  .safe-selected-heading,
   .safe-unwrap-finalize {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .safe-selected-heading .safe-section-actions {
+    justify-content: start;
   }
 
   .safe-section-actions {
