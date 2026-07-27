@@ -213,6 +213,13 @@ export interface PersonalSafeDeployment {
   deploymentTransactionHash: Hex;
 }
 
+export interface WalletSafeDepositResult {
+  safe: Address;
+  amount: bigint;
+  approvalTransactionHash: Hex | null;
+  depositTransactionHash: Hex;
+}
+
 export function safeWalletUrl(safe: Address) {
   return `https://app.safe.global/home?safe=sep:${safe}`;
 }
@@ -779,52 +786,12 @@ export async function setupSafeForVeilBid({
   });
 }
 
-export async function fundSafeForVeilBid({
-  configuration,
-  amount,
-  provider,
-  account,
-  onStage,
-  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
-}: {
-  configuration: SafeAccountConfiguration;
-  amount: bigint;
-  provider: EIP1193Provider;
-  account: Address;
-  onStage: (stage: string) => void;
-  rpcUrl?: string;
-}) {
-  if (amount <= 0n) throw new Error("Funding amount must be positive.");
-  const transactions: SafeBatchTransaction[] = [];
-  if (configuration.balances.testUsdc < amount) {
-    const publicClient = createResilientSepoliaClient(rpcUrl);
-    const faucetAmount = await publicClient.readContract({
-      address: tokenAddress,
-      abi: tokenAbi,
-      functionName: "FAUCET_AMOUNT",
-    });
-    if (typeof faucetAmount !== "bigint" || faucetAmount <= 0n) {
-      throw new Error("Test USDC faucet configuration is unavailable.");
-    }
-    const shortfall = amount - configuration.balances.testUsdc;
-    const faucetCalls = Number(
-      (shortfall + faucetAmount - 1n) / faucetAmount,
-    );
-    if (faucetCalls > 8) {
-      throw new Error("Funding amount exceeds the bounded demo faucet batch.");
-    }
-    for (let index = 0; index < faucetCalls; index += 1) {
-      transactions.push({
-        to: tokenAddress,
-        value: "0",
-        data: encodeFunctionData({
-          abi: tokenAbi,
-          functionName: "faucet",
-        }),
-      });
-    }
-  }
-  transactions.push(
+export function buildWalletSafeDepositTransactions(
+  safe: Address,
+  amount: bigint,
+) {
+  if (amount <= 0n) throw new Error("Deposit amount must be positive.");
+  return [
     {
       to: tokenAddress,
       value: "0",
@@ -840,19 +807,97 @@ export async function fundSafeForVeilBid({
       data: encodeFunctionData({
         abi: wrapperAbi,
         functionName: "wrap",
-        args: [configuration.safe, amount],
+        args: [safe, amount],
       }),
     },
+  ] as const satisfies readonly SafeBatchTransaction[];
+}
+
+export async function depositWalletTestUsdcToSafe({
+  safe,
+  amount,
+  walletClient,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  safe: Address;
+  amount: bigint;
+  walletClient: WalletClient;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}): Promise<WalletSafeDepositResult> {
+  if (amount <= 0n) throw new Error("Deposit amount must be positive.");
+  const publicClient = createResilientSepoliaClient(rpcUrl);
+  onStage("Checking wallet vUSDC balance and wrapper allowance");
+  const [balance, allowance] = await Promise.all([
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "balanceOf",
+      args: [account],
+    }),
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "allowance",
+      args: [account, wrapperAddress],
+    }),
+  ]);
+  if (typeof balance !== "bigint" || balance < amount) {
+    throw new Error(
+      "Insufficient wallet vUSDC. Use GET TEST USDC in the wallet balance panel first.",
+    );
+  }
+  if (typeof allowance !== "bigint") {
+    throw new Error("Wallet vUSDC allowance response is malformed.");
+  }
+
+  const transact = async (
+    address: Address,
+    abi: Abi,
+    functionName: string,
+    args: readonly unknown[],
+  ) => {
+    const simulation = await publicClient.simulateContract({
+      account,
+      address,
+      abi,
+      functionName,
+      args,
+    });
+    const hash = await walletClient.writeContract(simulation.request);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    if (receipt.status !== "success") {
+      throw new Error(`${functionName} transaction reverted.`);
+    }
+    return hash;
+  };
+
+  let approvalTransactionHash: Hex | null = null;
+  if (allowance < amount) {
+    onStage("Approve the wrapper to use wallet vUSDC");
+    approvalTransactionHash = await transact(
+      tokenAddress,
+      tokenAbi,
+      "approve",
+      [wrapperAddress, amount],
+    );
+  }
+  onStage("Confirm the vcUSDC deposit to the selected Safe");
+  const depositTransactionHash = await transact(
+    wrapperAddress,
+    wrapperAbi,
+    "wrap",
+    [safe, amount],
   );
-  return proposeSafeBatch({
-    kind: "fund",
-    safe: configuration.safe,
-    transactions,
-    provider,
-    account,
-    onStage,
-    rpcUrl,
-  });
+  return {
+    safe,
+    amount,
+    approvalTransactionHash,
+    depositTransactionHash,
+  };
 }
 
 export async function authorizeSafeBalanceViewer({

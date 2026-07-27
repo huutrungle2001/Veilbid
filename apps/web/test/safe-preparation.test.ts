@@ -17,6 +17,7 @@ import {
   buildSafeBalanceViewerTransaction,
   buildSafeEthWithdrawalTransaction,
   buildSafeTestUsdcWithdrawalTransaction,
+  buildWalletSafeDepositTransactions,
   noxComputeAddress,
   parseSafeTenderInput,
   safeReleaseConfiguration,
@@ -175,6 +176,22 @@ describe("Safe preparation terms", () => {
     ).toMatchObject({
       functionName: "unwrap",
       args: [safe, recipient, handle],
+    });
+  });
+
+  it("targets the selected Safe when a connected wallet deposits vcUSDC", () => {
+    const [approval, deposit] = buildWalletSafeDepositTransactions(safe, 789n);
+    expect(
+      decodeFunctionData({ abi: tokenAbiJson as Abi, data: approval.data }),
+    ).toMatchObject({
+      functionName: "approve",
+      args: [deposit.to, 789n],
+    });
+    expect(
+      decodeFunctionData({ abi: wrapperAbiJson as Abi, data: deposit.data }),
+    ).toMatchObject({
+      functionName: "wrap",
+      args: [safe, 789n],
     });
   });
 });

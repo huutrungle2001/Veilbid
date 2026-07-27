@@ -20,11 +20,11 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import {
   approveAndExecuteSafeProposal,
   authorizeSafeBalanceViewer,
+  depositWalletTestUsdcToSafe,
   deployPersonalSafe,
   discoverOwnerSafes,
   finalizeSafeUnwrap,
   findSafeUnwrapRequest,
-  fundSafeForVeilBid,
   getSafeProposalStatus,
   inspectSafeConfiguration,
   parseSafeTenderInput,
@@ -412,7 +412,7 @@ function SafePreparationControl({
           </h3>
           <p>
             {configuration.ready
-              ? "The module and settlement authority are active. Add confidential funding when needed."
+              ? "The module and settlement authority are active. Deposit confidential funding from your connected wallet when needed."
               : "Setup deploys this Safe’s module, enables it, binds the Market, and grants settlement authority in one proposal."}
           </p>
         </div>
@@ -448,9 +448,13 @@ function SafePreparationControl({
           disabled={busy}
           onClick={onFund}
         >
-          ADD TEST vcUSDC →
+          DEPOSIT TO SAFE →
         </button>
       </div>
+      <p className="safe-deposit-note">
+        Uses public vUSDC from the connected wallet and mints vcUSDC directly
+        to this Safe. Get test vUSDC from the wallet balance panel first.
+      </p>
     </section>
   );
 }
@@ -1006,15 +1010,37 @@ export function SafeTreasuryWorkspace({
       setError("Enter a positive funding amount with at most 6 decimals.");
       return;
     }
-    await runAction("FUND SAFE", (onStage) =>
-      fundSafeForVeilBid({
-        configuration,
-        amount,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
+    const toastId = toasts.start(
+      "DEPOSIT TO SAFE",
+      "Checking connected-wallet vUSDC…",
     );
+    setError(null);
+    setResult(null);
+    try {
+      const deposited = await depositWalletTestUsdcToSafe({
+        safe: configuration.safe,
+        amount,
+        walletClient: wallet.state.walletClient!,
+        account: wallet.state.account!,
+        onStage: (nextStage) => {
+          setStage(nextStage);
+          toasts.update(toastId, nextStage);
+        },
+      });
+      toasts.succeed(
+        toastId,
+        `${formatUnits(deposited.amount, 6)} vcUSDC deposited to the selected Safe.`,
+      );
+      setFundAmount("");
+      await refreshConfiguration(configuration.safe, wallet.state.account!);
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Safe deposit failed.";
+      setError(message);
+      toasts.fail(toastId, message);
+    } finally {
+      setStage(null);
+    }
   }
 
   async function authorizeBalanceViewer() {
@@ -1323,10 +1349,11 @@ export function SafeTreasuryWorkspace({
           steps={[
             "Connect any owner of a deployed Sepolia Safe.",
             "Choose the discovered Safe, or paste its address.",
-            "Run the one-time VeilBid setup and fund confidential vUSDC if needed.",
+            "Deposit vcUSDC from the connected wallet when the Safe needs funds.",
+            "Run the one-time VeilBid setup from the tender form if required.",
             "Enter tender terms and approve the atomic preparation + creation batch.",
           ]}
-          note="Setup, funding, and tender creation are normal Safe proposals. Multi-owner Safes retain their configured threshold."
+          note="Depositing signs with the connected wallet. Setup, tender creation, balance-view authorization, and unwrap remain normal Safe proposals that preserve the configured threshold."
         />
         <p className="eyebrow">SAFE BUYER / PRIMARY WORKFLOW</p>
         <h1>Use your own Safe treasury.</h1>
