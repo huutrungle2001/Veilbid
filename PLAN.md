@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Generic Safe product upgrade
-- Status: In progress
-- Next action: Publish and smoke-test the generic Safe frontend, then preserve
-  the verified commit/deployment identifiers for the demo and submission.
+- Current phase: Phase 7 — Submission
+- Status: Waiting for approval
+- Next action: Record the short demo/video and voice-over, then complete the
+  X post and DoraHacks submission when the user is ready.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T13:05:47+07:00
+- Last updated: 2026-07-27T13:10:03+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,7 +45,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
@@ -77,6 +77,7 @@ Only one phase may be `In progress`.
 | Railway settlement relay | Verified | Agent | 2026-07-27 | Hobby service `veilbid-relay` is linked to `huutrungle2001/Veilbid@main`, deploys through `railway.json`, runs continuously with restart policy `ALWAYS`, and exposes verified Sepolia readiness at `https://veilbid-relay-production.up.railway.app/health`; deployment `f77d0384-a946-45ff-9147-73c0f53187c2` completed repeated successful polling cycles. |
 | Generic Safe upgrade | Approved | User | 2026-07-27 | Replace the fixed demo-Safe-only Buyer experience with self-service Safe discovery, per-Safe module deployment, setup/funding, automatic nonce handling, and proposal recovery. The current release is preserved in GitHub and local backup branch `backup/pre-generic-safe-20260727`. |
 | Generic Safe contract release | Verified | Agent | 2026-07-27 | Factory `0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4` has exact Sourcify creation/runtime mappings and the full release verifier passed. Independent Safe `0xC85A…B752` completed threshold setup, Safe-owned funding, and atomic tender #4 while preserving owners/threshold. |
+| Generic Safe frontend release | Verified | Agent | 2026-07-27 | Production deployment `dpl_HCFBAXRiSpm8nePzKutQ7kzQhSsr` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, keyboard navigation, release bindings, and bundled factory address checks passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
