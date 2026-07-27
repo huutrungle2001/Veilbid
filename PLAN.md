@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Sepolia and product
-- Status: In progress
-- Next action: Complete and verify the connected-wallet Safe funding flow,
-  compact Safe Funds UI, fixed unwrap recipient, and tender-scoped setup.
+- Current phase: Phase 7 — Submission
+- Status: Waiting for approval
+- Next action: Record the four-minute demo, publish the X post, and complete
+  the DoraHacks submission when the user is ready.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T20:19:01+07:00
+- Last updated: 2026-07-27T20:29:11+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,7 +45,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
@@ -85,6 +85,7 @@ Only one phase may be `In progress`.
 | Safe confidential asset exits | Verified | Agent | 2026-07-27 | Adapter `0x779b…9ff9` has exact Sourcify creation/runtime mappings and canonical-wrapper binding. Sepolia E2E funded the release Safe, executed atomic partial preparation/unwrap with replay protection, finalized the exact partial amount in memory, then full-unwrapped/finalized the remainder while preserving owners and threshold. |
 | Safe confidential frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_2R1QhA9CSF6VLUnGRoBcRYVQVgmS` is aliased to `https://veilbid-three.vercel.app`; three production routes, desktop/mobile browser capture, canonical Sepolia state, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed without wallet or confidential data access. |
 | Consolidated Safe controls release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_Eq5LN1QzBrTjDbN9GofRcGfgFhXV` merges setup/funding into `SELECTED SAFE`, replaces Full/Custom tabs with one custom amount field plus a Full shortcut, and renumbers tender creation to step 2. Production route, desktop/mobile, keyboard, sticky-layout, canonical-state, and 198 Docs contrast checks passed. |
+| Connected-wallet Safe funds release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj` deposits vcUSDC to the selected Safe from the connected wallet, fixes unwrap output to that wallet, compacts `SAFE FUNDS`, and moves one-time setup into tender creation. The full repository gate, production route/desktop/mobile smoke, keyboard navigation, and 198 Docs contrast checks passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

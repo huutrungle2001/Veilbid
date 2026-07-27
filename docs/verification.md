@@ -1,7 +1,8 @@
 # VeilBid Verification Plan and Evidence Ledger
 
 > Status: Feasibility Gates A–E, canonical Sepolia release verification, the
-> two-vendor release lifecycle, and production frontend smoke passed.
+> two-vendor release lifecycle, and the connected-wallet Safe frontend release
+> passed.
 
 ## 1. Evidence rules
 
@@ -147,6 +148,7 @@ pnpm evidence:validate
 | 2026-07-27 | Safe confidential unwrap | `c2d61e0` | `evidence/sepolia/safe-unwrap.json` | PASS — canonical Safe funded vcUSDC, partial preparation and wrapper consumption executed atomically with nonce/handle replay protection, partial and full public-proof finalizations released exact in-memory amounts, and Safe owners/threshold remained unchanged |
 | 2026-07-27 | Safe confidential frontend release | `bbbdfe6` | `evidence/sepolia/production-smoke.json`, `evidence/sepolia/production-keyboard.json` | PASS — Vercel deployment `dpl_2R1QhA9CSF6VLUnGRoBcRYVQVgmS` served all canonical routes, rendered desktop/mobile state, bundled the verified release, preserved keyboard navigation/sticky layouts, and passed 198 Docs contrast checks |
 | 2026-07-27 | Consolidated Safe controls release | `a58448a` | `evidence/sepolia/production-smoke.json`, `evidence/sepolia/production-keyboard.json` | PASS — Vercel deployment `dpl_Eq5LN1QzBrTjDbN9GofRcGfgFhXV` served the merged Selected Safe/setup/funding UI and single amount-plus-Full unwrap control; canonical routes, desktop/mobile rendering, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed |
+| 2026-07-27 | Connected-wallet Safe funds release | `9f65164` | `evidence/sepolia/production-smoke.json`, `evidence/sepolia/production-keyboard.json` | PASS — Vercel deployment `dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj` served the compact Safe Funds and tender-scoped setup release; full tests/lint/build, canonical routes, desktop/mobile rendering, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed |
 | 2026-07-27 | iExec Nox Hello World | `4193975` | `evidence/sepolia/hackathon-hello-world.json` | PASS — journey wallet deployed the confidential Piggy Bank, submitted encrypted deposit/withdrawal, and decrypted both resulting owner-authorized balances |
 | 2026-07-26 | Tender Room public explorer | `a83527e` | Tender Room unit/build checks and live 1440×1000 / 390×844 smoke | PASS — five finalized Sepolia tenders loaded without a wallet; loading/error paths expose no mock fallback or confidential fields |
 | 2026-07-26 | Tender Room wallet and writes | `f864a13` | 18 Tender Room tests plus Vite/vinext builds | PARTIAL — explicit EIP-6963 selection, network/account clearing, exactly funded Buyer orchestration, and encrypted Vendor orchestration pass unit/build gates; fresh-wallet browser E2E pending |
