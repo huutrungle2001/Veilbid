@@ -37,6 +37,24 @@ a {
   font: inherit;
 }
 
+button:not(:disabled),
+a.primary-button,
+a.secondary-button {
+  transition:
+    filter 90ms ease,
+    box-shadow 90ms ease,
+    transform 90ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled):active,
+a.primary-button:active,
+a.secondary-button:active {
+  box-shadow: inset 0 0 0 1px var(--color-ink-72);
+  filter: brightness(0.88) saturate(1.08);
+  transform: translateY(2px) scale(0.985);
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -4118,5 +4136,12 @@ footer p {
   *::after {
     animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  button:not(:disabled):active,
+  a.primary-button:active,
+  a.secondary-button:active {
+    transform: none;
   }
 }
