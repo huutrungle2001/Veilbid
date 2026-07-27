@@ -246,6 +246,7 @@ function SafeConfigurationCard({
   revealPending,
   onRefresh,
   onToggleReveal,
+  preparationControl,
   unwrapControl,
 }: {
   configuration: SafeAccountConfiguration;
@@ -254,6 +255,7 @@ function SafeConfigurationCard({
   revealPending: boolean;
   onRefresh: () => void;
   onToggleReveal: () => void;
+  preparationControl: ReactNode;
   unwrapControl: ReactNode;
 }) {
   const checks = [
@@ -353,7 +355,6 @@ function SafeConfigurationCard({
           )}
         </button>
       </div>
-      {unwrapControl}
       <dl className="safe-handoff-evidence">
         <div>
           <dt>Owners</dt>
@@ -375,15 +376,88 @@ function SafeConfigurationCard({
           </li>
         ))}
       </ul>
+      {preparationControl}
+      {unwrapControl}
     </section>
   );
 }
 
-type SafeUnwrapMode = "full" | "custom";
+function SafePreparationControl({
+  configuration,
+  amount,
+  busy,
+  onAmountChange,
+  onSetup,
+  onFund,
+}: {
+  configuration: SafeAccountConfiguration;
+  amount: string;
+  busy: boolean;
+  onAmountChange: (amount: string) => void;
+  onSetup: () => void;
+  onFund: () => void;
+}) {
+  return (
+    <section
+      className="safe-inline-prepare"
+      aria-label="Prepare selected Safe for VeilBid"
+    >
+      <div className="safe-inline-prepare-heading">
+        <div>
+          <p className="eyebrow">SAFE PREPARATION</p>
+          <h3>
+            {configuration.ready
+              ? "Safe is ready"
+              : "One-time VeilBid setup"}
+          </h3>
+          <p>
+            {configuration.ready
+              ? "The module and settlement authority are active. Add confidential funding when needed."
+              : "Setup deploys this Safe’s module, enables it, binds the Market, and grants settlement authority in one proposal."}
+          </p>
+        </div>
+        {!configuration.ready && (
+          <button
+            className="primary-button"
+            type="button"
+            disabled={busy || !configuration.module}
+            onClick={onSetup}
+          >
+            CONFIGURE THIS SAFE →
+          </button>
+        )}
+      </div>
+      {!configuration.module && (
+        <p className="inline-error">
+          Generic Safe setup is unavailable until the module factory is
+          deployed in the release configuration.
+        </p>
+      )}
+      <div className="safe-inline-funding">
+        <label>
+          <span>vcUSDC amount</span>
+          <input
+            value={amount}
+            onChange={(event) => onAmountChange(event.target.value)}
+            inputMode="decimal"
+          />
+        </label>
+        <button
+          className="secondary-button"
+          type="button"
+          disabled={busy}
+          onClick={onFund}
+        >
+          ADD TEST vcUSDC →
+        </button>
+      </div>
+    </section>
+  );
+}
 
 function SafeUnwrapControl({
   configuration,
-  mode,
+  fullBalance,
   amount,
   recipient,
   revealedBalance,
@@ -391,7 +465,7 @@ function SafeUnwrapControl({
   finalization,
   busy,
   finalizing,
-  onModeChange,
+  onFullBalance,
   onAmountChange,
   onRecipientChange,
   onReveal,
@@ -399,7 +473,7 @@ function SafeUnwrapControl({
   onFinalize,
 }: {
   configuration: SafeAccountConfiguration;
-  mode: SafeUnwrapMode;
+  fullBalance: boolean;
   amount: string;
   recipient: string;
   revealedBalance: bigint | null;
@@ -407,7 +481,7 @@ function SafeUnwrapControl({
   finalization: SafeUnwrapFinalization | null;
   busy: boolean;
   finalizing: boolean;
-  onModeChange: (mode: SafeUnwrapMode) => void;
+  onFullBalance: () => void;
   onAmountChange: (amount: string) => void;
   onRecipientChange: (recipient: string) => void;
   onReveal: () => void;
@@ -416,7 +490,7 @@ function SafeUnwrapControl({
 }) {
   const hasConfidentialBalance =
     configuration.balances.confidential === "encrypted";
-  const customReady = mode === "custom" && revealedBalance !== null;
+  const customReady = revealedBalance !== null;
   return (
     <section className="safe-unwrap-action" aria-label="Unwrap Safe vcUSDC">
       <div className="safe-unwrap-heading">
@@ -424,49 +498,33 @@ function SafeUnwrapControl({
           <p className="eyebrow">CONFIDENTIAL → PUBLIC</p>
           <h3>Unwrap vcUSDC</h3>
           <p>
-            Full uses the encrypted balance directly. Custom reveals the current
-            balance privately first, then encrypts only the selected amount.
+            Enter a custom amount after privately revealing the balance, or use
+            Full to consume the encrypted balance directly without revealing it.
           </p>
-        </div>
-        <div
-          className="safe-unwrap-mode"
-          role="group"
-          aria-label="Unwrap amount mode"
-        >
-          {(["full", "custom"] as const).map((option) => (
-            <button
-              type="button"
-              key={option}
-              aria-pressed={mode === option}
-              onClick={() => onModeChange(option)}
-            >
-              {option.toUpperCase()}
-            </button>
-          ))}
         </div>
       </div>
       <div className="safe-unwrap-fields">
-        {mode === "custom" && (
-          <label>
-            <span>vcUSDC amount</span>
-            <div className="safe-amount-input">
-              <input
-                value={amount}
-                onChange={(event) => onAmountChange(event.target.value)}
-                inputMode="decimal"
-                placeholder="0.00"
-                disabled={!customReady}
-              />
-              <button
-                type="button"
-                onClick={() => onModeChange("full")}
-                title="Use the encrypted full balance without revealing it"
-              >
-                FULL
-              </button>
-            </div>
-          </label>
-        )}
+        <label>
+          <span>vcUSDC amount</span>
+          <div className="safe-amount-input">
+            <input
+              value={fullBalance ? "FULL BALANCE" : amount}
+              onChange={(event) => onAmountChange(event.target.value)}
+              inputMode="decimal"
+              placeholder="0.00"
+              disabled={!customReady || fullBalance}
+              aria-label="Custom vcUSDC unwrap amount"
+            />
+            <button
+              type="button"
+              aria-pressed={fullBalance}
+              onClick={onFullBalance}
+              title="Use the encrypted full balance without revealing it"
+            >
+              {fullBalance ? "FULL ✓" : "FULL"}
+            </button>
+          </div>
+        </label>
         <label>
           <span>Public vUSDC recipient</span>
           <input
@@ -476,7 +534,7 @@ function SafeUnwrapControl({
           />
         </label>
       </div>
-      {mode === "custom" && revealedBalance === null && (
+      {!fullBalance && revealedBalance === null && (
         <div className="safe-unwrap-reveal">
           <span>
             Custom amount needs the current balance revealed in this browser
@@ -494,7 +552,7 @@ function SafeUnwrapControl({
           </button>
         </div>
       )}
-      {customReady && (
+      {!fullBalance && customReady && (
         <p className="safe-unwrap-available">
           Available privately: {formatUnits(revealedBalance, 6)} vcUSDC
         </p>
@@ -512,11 +570,11 @@ function SafeUnwrapControl({
         disabled={
           busy ||
           !hasConfidentialBalance ||
-          (mode === "custom" && !customReady)
+          (!fullBalance && !customReady)
         }
         onClick={onRequest}
       >
-        PROPOSE {mode === "full" ? "FULL" : "CUSTOM"} UNWRAP →
+        PROPOSE {fullBalance ? "FULL" : "CUSTOM"} UNWRAP →
       </button>
       {request && (
         <div className="safe-unwrap-finalize">
@@ -602,7 +660,7 @@ export function SafeTreasuryWorkspace({
     value: bigint;
   } | null>(null);
   const [revealPending, setRevealPending] = useState(false);
-  const [unwrapMode, setUnwrapMode] = useState<SafeUnwrapMode>("full");
+  const [unwrapFullBalance, setUnwrapFullBalance] = useState(false);
   const [unwrapAmount, setUnwrapAmount] = useState("");
   const [unwrapRecipient, setUnwrapRecipient] = useState("");
   const [unwrapRequest, setUnwrapRequest] =
@@ -702,7 +760,7 @@ export function SafeTreasuryWorkspace({
     setSafeReadWarning(null);
     setRevealedSafeBalance(null);
     setRevealPending(false);
-    setUnwrapMode("full");
+    setUnwrapFullBalance(false);
     setUnwrapAmount("");
     setUnwrapRecipient("");
     setUnwrapRequest(null);
@@ -1030,7 +1088,7 @@ export function SafeTreasuryWorkspace({
         : null;
     try {
       recipient = unwrapRecipientAddress();
-      if (unwrapMode === "custom") {
+      if (!unwrapFullBalance) {
         if (revealedBalance === null) {
           throw new Error("Reveal the current vcUSDC balance first.");
         }
@@ -1049,9 +1107,9 @@ export function SafeTreasuryWorkspace({
     setUnwrapRequestSafe(null);
     setUnwrapFinalization(null);
     const completed = await runAction(
-      `UNWRAP ${unwrapMode.toUpperCase()} SAFE vcUSDC`,
+      `UNWRAP ${unwrapFullBalance ? "FULL" : "CUSTOM"} SAFE vcUSDC`,
       (onStage) =>
-        unwrapMode === "full"
+        unwrapFullBalance
           ? unwrapFullSafeConfidentialBalance({
               configuration,
               recipient,
@@ -1449,10 +1507,20 @@ export function SafeTreasuryWorkspace({
               )
             }
             onToggleReveal={toggleBalanceReveal}
+            preparationControl={
+              <SafePreparationControl
+                configuration={configuration}
+                amount={fundAmount}
+                busy={stage !== null}
+                onAmountChange={setFundAmount}
+                onSetup={() => void setup()}
+                onFund={() => void fund()}
+              />
+            }
             unwrapControl={
               <SafeUnwrapControl
                 configuration={configuration}
-                mode={unwrapMode}
+                fullBalance={unwrapFullBalance}
                 amount={unwrapAmount}
                 recipient={unwrapRecipient}
                 revealedBalance={currentRevealedBalance}
@@ -1460,11 +1528,14 @@ export function SafeTreasuryWorkspace({
                 finalization={unwrapFinalization}
                 busy={stage !== null || unwrapStage !== null}
                 finalizing={unwrapStage !== null}
-                onModeChange={(mode) => {
-                  setUnwrapMode(mode);
+                onFullBalance={() => {
+                  setUnwrapFullBalance((current) => !current);
                   setError(null);
                 }}
-                onAmountChange={setUnwrapAmount}
+                onAmountChange={(amount) => {
+                  setUnwrapFullBalance(false);
+                  setUnwrapAmount(amount);
+                }}
                 onRecipientChange={setUnwrapRecipient}
                 onReveal={toggleBalanceReveal}
                 onRequest={() => void requestUnwrap()}
@@ -1498,62 +1569,18 @@ export function SafeTreasuryWorkspace({
               onApprove={() => void approveProposal()}
             />
           )}
-          <section className="write-form">
-            <div className="form-heading">
-              <p className="eyebrow">2 / PREPARE TREASURY</p>
-              <h2>
-                {configuration.ready
-                  ? "Safe is ready"
-                  : "One-time VeilBid setup"}
-              </h2>
-              <p>
-                Setup deploys this Safe’s dedicated module, enables it, binds the
-                Market, and grants settlement authority in one Safe proposal.
-              </p>
-            </div>
-            {!configuration.ready && (
-              <button
-                className="primary-button"
-                disabled={stage !== null || !configuration.module}
-                onClick={() => void setup()}
-              >
-                CONFIGURE THIS SAFE →
-              </button>
-            )}
-            {!configuration.module && (
-              <p className="inline-error">
-                Generic Safe setup is unavailable until the module factory is
-                deployed in the release configuration.
-              </p>
-            )}
-            <label>
-              <span>Test vcUSDC amount</span>
-              <input
-                value={fundAmount}
-                onChange={(event) => setFundAmount(event.target.value)}
-                inputMode="decimal"
-              />
-            </label>
-            <button
-              className="secondary-button"
-              disabled={stage !== null}
-              onClick={() => void fund()}
-            >
-              ADD TEST vcUSDC →
-            </button>
-            {preparationResult && (
-              <SafeActionHandoff
-                result={preparationResult}
-                busy={stage !== null}
-                onRefresh={() => void refreshProposal()}
-                onApprove={() => void approveProposal()}
-              />
-            )}
-          </section>
+          {preparationResult && (
+            <SafeActionHandoff
+              result={preparationResult}
+              busy={stage !== null}
+              onRefresh={() => void refreshProposal()}
+              onApprove={() => void approveProposal()}
+            />
+          )}
 
           <section className="write-form">
             <div className="form-heading">
-              <p className="eyebrow">3 / ATOMIC SAFE BATCH</p>
+              <p className="eyebrow">2 / ATOMIC SAFE BATCH</p>
               <h2>Create a Safe-owned tender</h2>
               <p>
                 VeilBid generates a fresh preparation nonce automatically. No
