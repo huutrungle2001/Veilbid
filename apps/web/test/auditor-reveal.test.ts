@@ -22,7 +22,7 @@ describe("authorized auditor reveal", () => {
         bidId: 2n,
         account,
       }),
-    ).resolves.toEqual({ value: "123", solidityType: "uint256" });
+    ).resolves.toEqual({ value: "0.000123", solidityType: "uint256" });
     expect(readContract).toHaveBeenCalledTimes(2);
     expect(decrypt).toHaveBeenCalledWith(handle);
   });

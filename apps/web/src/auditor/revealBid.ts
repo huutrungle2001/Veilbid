@@ -3,6 +3,7 @@ import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
   createPublicClient,
+  formatUnits,
   http,
   type Abi,
   type Address,
@@ -88,7 +89,7 @@ export async function revealBidWithClients({
   return {
     value:
       typeof revealed.value === "bigint"
-        ? revealed.value.toString()
+        ? formatUnits(revealed.value, 6)
         : String(revealed.value),
     solidityType: revealed.solidityType,
   };
