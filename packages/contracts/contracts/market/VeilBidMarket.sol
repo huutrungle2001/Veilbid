@@ -45,6 +45,7 @@ contract VeilBidMarket is ReentrancyGuard {
 
     struct Tender {
         address buyer;
+        address reviewViewer;
         bytes32 metadataHash;
         uint256 publicCeiling;
         uint64 bidDeadline;
@@ -68,6 +69,7 @@ contract VeilBidMarket is ReentrancyGuard {
 
     struct TenderView {
         address buyer;
+        address reviewViewer;
         address paymentToken;
         bytes32 metadataHash;
         uint256 publicCeiling;
@@ -131,6 +133,7 @@ contract VeilBidMarket is ReentrancyGuard {
         address indexed buyer,
         bytes32 indexed metadataHash,
         address paymentToken,
+        address reviewViewer,
         uint256 publicCeiling,
         uint64 bidDeadline,
         uint8 approvedVendorCount
@@ -175,6 +178,7 @@ contract VeilBidMarket is ReentrancyGuard {
     ) external nonReentrant returns (uint256 tenderId) {
         tenderId = _initializeTender(
             msg.sender,
+            msg.sender,
             metadataHash,
             publicCeiling,
             bidDeadline,
@@ -190,6 +194,7 @@ contract VeilBidMarket is ReentrancyGuard {
         uint256 publicCeiling,
         uint64 bidDeadline,
         address[] calldata approvedVendors,
+        address reviewViewer,
         IVeilBidSafePreparationModule module,
         uint256 nonce
     ) external nonReentrant returns (uint256 tenderId) {
@@ -202,6 +207,7 @@ contract VeilBidMarket is ReentrancyGuard {
 
         bytes32 actionDataHash = hashTenderAction(
             msg.sender,
+            reviewViewer,
             metadataHash,
             publicCeiling,
             bidDeadline,
@@ -211,6 +217,7 @@ contract VeilBidMarket is ReentrancyGuard {
 
         tenderId = _initializeTender(
             msg.sender,
+            reviewViewer,
             metadataHash,
             publicCeiling,
             bidDeadline,
@@ -328,6 +335,7 @@ contract VeilBidMarket is ReentrancyGuard {
         );
         if (proofDerivedWinnerBidId == 0) {
             tender.status = TenderStatus.Refunded;
+            _grantAutomaticReviewAccess(tenderId, tender);
             Nox.allowTransient(
                 tender.escrowedBudget,
                 address(paymentToken)
@@ -351,6 +359,7 @@ contract VeilBidMarket is ReentrancyGuard {
         tender.status = TenderStatus.Awarded;
         tender.winnerBidId = proofDerivedWinnerBidId;
         tender.winner = winningBid.vendor;
+        _grantAutomaticReviewAccess(tenderId, tender);
 
         Nox.allowTransient(
             winningBid.encryptedPrice,
@@ -422,6 +431,7 @@ contract VeilBidMarket is ReentrancyGuard {
 
     function hashTenderAction(
         address buyer,
+        address reviewViewer,
         bytes32 metadataHash,
         uint256 publicCeiling,
         uint64 bidDeadline,
@@ -431,6 +441,7 @@ contract VeilBidMarket is ReentrancyGuard {
             keccak256(
                 abi.encode(
                     buyer,
+                    reviewViewer,
                     metadataHash,
                     publicCeiling,
                     bidDeadline,
@@ -445,6 +456,7 @@ contract VeilBidMarket is ReentrancyGuard {
         Tender storage tender = _requireTender(tenderId);
         view_ = TenderView({
             buyer: tender.buyer,
+            reviewViewer: tender.reviewViewer,
             paymentToken: address(paymentToken),
             metadataHash: tender.metadataHash,
             publicCeiling: tender.publicCeiling,
@@ -538,12 +550,14 @@ contract VeilBidMarket is ReentrancyGuard {
 
     function _initializeTender(
         address buyer,
+        address reviewViewer,
         bytes32 metadataHash,
         uint256 publicCeiling,
         uint64 bidDeadline,
         address[] calldata approvedVendors
     ) internal returns (uint256 tenderId) {
         if (buyer == address(0)) revert InvalidBuyer();
+        if (reviewViewer == address(0)) revert InvalidViewer();
         if (metadataHash == bytes32(0)) revert InvalidMetadata();
         if (publicCeiling == 0 || publicCeiling == type(uint256).max) {
             revert InvalidCeiling();
@@ -559,6 +573,7 @@ contract VeilBidMarket is ReentrancyGuard {
         tenderId = ++tenderCount;
         Tender storage tender = _tenders[tenderId];
         tender.buyer = buyer;
+        tender.reviewViewer = reviewViewer;
         tender.metadataHash = metadataHash;
         tender.publicCeiling = publicCeiling;
         tender.bidDeadline = bidDeadline;
@@ -583,10 +598,29 @@ contract VeilBidMarket is ReentrancyGuard {
             buyer,
             metadataHash,
             address(paymentToken),
+            reviewViewer,
             publicCeiling,
             bidDeadline,
             uint8(approvedVendors.length)
         );
+    }
+
+    function _grantAutomaticReviewAccess(
+        uint256 tenderId,
+        Tender storage tender
+    ) internal {
+        for (uint256 bidId = 1; bidId <= tender.bidCount; ++bidId) {
+            Nox.addViewer(
+                _bids[tenderId][bidId].encryptedPrice,
+                tender.reviewViewer
+            );
+            emit ViewerGranted(
+                tenderId,
+                bidId,
+                tender.reviewViewer,
+                tender.buyer
+            );
+        }
     }
 
     function _attemptFunding(

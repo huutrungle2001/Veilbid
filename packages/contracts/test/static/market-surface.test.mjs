@@ -102,6 +102,36 @@ describe("VeilBidMarket production surface", () => {
     assert.ok(components.includes("approvedVendorCount"));
   });
 
+  it("binds one review wallet at creation and grants it only after finalization", () => {
+    const authorized = abiFunction("createTenderAuthorized");
+    assert.ok(authorized);
+    assert.deepEqual(
+      authorized.inputs.map(({ type }) => type),
+      ["bytes32", "uint256", "uint64", "address[]", "address", "address", "uint256"],
+    );
+    const getTender = abiFunction("getTender");
+    assert.ok(
+      getTender.outputs[0].components.some(
+        ({ name, type }) => name === "reviewViewer" && type === "address",
+      ),
+    );
+    const submit = source.slice(
+      source.indexOf("function submitBid"),
+      source.indexOf("function closeTender"),
+    );
+    assert.doesNotMatch(submit, /reviewViewer/);
+    const finalize = source.slice(
+      source.indexOf("function finalizeTender"),
+      source.indexOf("function cancelTender"),
+    );
+    assert.match(finalize, /TenderStatus\.Refunded;\s*_grantAutomaticReviewAccess/);
+    assert.match(finalize, /TenderStatus\.Awarded;[\s\S]*?_grantAutomaticReviewAccess/);
+    assert.match(
+      source,
+      /Nox\.addViewer\([\s\S]*?tender\.reviewViewer[\s\S]*?ViewerGranted/,
+    );
+  });
+
   it("exposes no administrator, arbitrary withdrawal, or Safe execution path", () => {
     const forbidden = new Set([
       "admin",
