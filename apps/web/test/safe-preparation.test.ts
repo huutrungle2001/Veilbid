@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
 import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
 import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
-import { decodeFunctionData, type Abi, type Address, type Hex } from "viem";
 import {
+  decodeFunctionData,
+  keccak256,
+  toHex,
+  type Abi,
+  type Address,
+  type Hex,
+} from "viem";
+import {
+  assertSafeBatchExecution,
   buildFullSafeUnwrapTransaction,
   buildSafeBalanceViewerTransaction,
   buildSafeEthWithdrawalTransaction,
@@ -73,6 +81,30 @@ describe("Safe preparation terms", () => {
     expect(safeTransactionServiceUrl).toBe(
       "https://safe-transaction-sepolia.safe.global/api",
     );
+  });
+
+  it("requires the Safe's internal execution success event", () => {
+    const successTopic = keccak256(
+      toHex("ExecutionSuccess(bytes32,uint256)"),
+    );
+    const failureTopic = keccak256(
+      toHex("ExecutionFailure(bytes32,uint256)"),
+    );
+    expect(() =>
+      assertSafeBatchExecution(safe, [
+        { address: safe, topics: [successTopic] },
+      ]),
+    ).not.toThrow();
+    expect(() =>
+      assertSafeBatchExecution(safe, [
+        { address: safe, topics: [failureTopic] },
+      ]),
+    ).toThrow(/rejected the internal batch/i);
+    expect(() =>
+      assertSafeBatchExecution(safe, [
+        { address: recipient, topics: [successTopic] },
+      ]),
+    ).toThrow(/could not be confirmed/i);
   });
 
   it("builds exact threshold-authorized treasury calls", () => {

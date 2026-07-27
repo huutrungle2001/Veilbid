@@ -107,6 +107,12 @@ const noxAclAbi = [
     outputs: [{ type: "bool" }],
   },
 ] as const;
+const safeExecutionSuccessTopic = keccak256(
+  toHex("ExecutionSuccess(bytes32,uint256)"),
+);
+const safeExecutionFailureTopic = keccak256(
+  toHex("ExecutionFailure(bytes32,uint256)"),
+);
 
 type ReleaseContracts = typeof deployment.contracts & {
   VeilBidSafeModuleFactory?: { address?: string };
@@ -131,6 +137,11 @@ export interface SafeBatchTransaction {
   to: Address;
   value: string;
   data: Hex;
+}
+
+export interface SafeExecutionLog {
+  address: Address;
+  topics: readonly Hex[];
 }
 
 export type SafeActionKind =
@@ -201,6 +212,33 @@ export interface PersonalSafeDeployment {
 
 export function safeWalletUrl(safe: Address) {
   return `https://app.safe.global/home?safe=sep:${safe}`;
+}
+
+export function assertSafeBatchExecution(
+  safe: Address,
+  logs: readonly SafeExecutionLog[],
+) {
+  const safeLogs = logs.filter(
+    (log) => log.address.toLowerCase() === safe.toLowerCase(),
+  );
+  if (
+    safeLogs.some(
+      (log) =>
+        log.topics[0]?.toLowerCase() ===
+        safeExecutionFailureTopic.toLowerCase(),
+    )
+  ) {
+    throw new Error("Safe rejected the internal batch execution.");
+  }
+  if (
+    !safeLogs.some(
+      (log) =>
+        log.topics[0]?.toLowerCase() ===
+        safeExecutionSuccessTopic.toLowerCase(),
+    )
+  ) {
+    throw new Error("Safe execution result could not be confirmed.");
+  }
 }
 
 export function configuredFactoryAddress(): Address | null {
@@ -602,6 +640,7 @@ async function proposeSafeBatch({
       hash: executionTransactionHash,
     });
     if (receipt.status !== "success") throw new Error("Safe batch reverted.");
+    assertSafeBatchExecution(safe, receipt.logs);
   }
 
   return {
