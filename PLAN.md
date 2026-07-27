@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-27T21:46:00+07:00
+- Last updated: 2026-07-28T01:28:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -90,8 +90,9 @@ Only one phase may be `In progress`.
 | Automatic review upgrade | Verified | Agent | 2026-07-27 | Market `0x720ac8Ae5dE78590FF5184E53130460033228afc` binds a public review wallet at creation, denies it cross-bid access while Open, and automatically grants per-bid ACL after proof-derived finalization. Sepolia Safe tender #1 verified the full two-vendor lifecycle without a manual Buyer grant transaction. |
 | Automatic review frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_DgfAxLWdc4cfVzhtVntjEn4g4uHj` is aliased to `https://veilbid-three.vercel.app`; the primary navigation is Public/Safe Buyer/Private Bids/Activity, EOA Buyer is advanced, Vendor/review actions are consolidated, and production route, desktop/mobile, keyboard, contrast, canonical Market, and wallet-free tender checks passed. |
 | First-class EOA Buyer restoration | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_8b9MuiqWoBb7cWt5aRU1K1ohfXAS` restores EOA Buyer directly to the primary workspace bar alongside Safe Buyer. Its full direct-wallet funding/tender flow uses the current automatic-review Market; all repository tests/lint/build plus production routes, desktop/mobile, keyboard, contrast, and canonical tender checks passed. |
-| Direct funding confirmation UX | Approved for next web polish | User | 2026-07-28 | After tender creation, the web should poll the Nox funding proof and guide the connected wallet through `confirmTenderFunding` so `FundingPending → Open` completes in roughly 25–30 seconds. Railway/GitHub relay remains a background fallback for closed tabs, rejected signatures, or unavailable browsers. |
-| Vendor expired-tender guard | Approved for next web polish | User | 2026-07-28 | Vendor Bid must only list `Open` tenders whose `bidDeadline` is still in the future, refresh/remove entries as they expire, and re-check the deadline before encryption/simulation. Show the deadline and a clear remaining-time/`Expired` state in the Vendor selector; public dossier timestamps remain explicitly labeled UTC (with local-time context where useful). The contract remains the final enforcement layer. |
+| Direct funding and Safe balance UX | Verified | Agent | 2026-07-28 | EOA and executed Safe creation now poll the Nox exact-funding proof and guide the connected wallet through permissionless `confirmTenderFunding`; Activity and Railway remain recoverable fallbacks. Safe tender creation requires the current balance handle to be revealed, rejects a ceiling above that session balance, and chains a newly executed viewer grant directly into decryption without a second click. |
+| Vendor deadline and error guard | Verified | Agent | 2026-07-28 | Private Bids only lists `Open`, unexpired tenders, removes selections as they expire, rechecks before encryption, and shows local time, canonical UTC, and a live countdown. Contract/RPC errors are reduced to actionable messages without rendering calldata, handles, proofs, or request bodies. |
+| Direct workflow production release | Verified | Agent | 2026-07-28 | Vercel deployment `dpl_EJfwApT4Ry9s3hBEUQECVFmFyqmH` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, canonical release checks, keyboard navigation, sticky layouts, and 201 Docs contrast checks passed. Railway deployment `7f1b2460-4c00-4fb9-82c9-05e8d8708f94` was uploaded from source commit `cd79636`, reached `SUCCESS`, and returned verified Sepolia readiness from `/health`. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
