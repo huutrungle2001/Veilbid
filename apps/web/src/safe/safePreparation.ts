@@ -1437,6 +1437,7 @@ export async function approveAndExecuteSafeProposal({
       hash: executionTransactionHash,
     });
     if (receipt.status !== "success") throw new Error("Safe batch reverted.");
+    assertSafeBatchExecution(safe, receipt.logs);
     return {
       safeTxHash,
       threshold: transaction.confirmationsRequired,
