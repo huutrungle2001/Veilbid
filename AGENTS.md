@@ -64,8 +64,8 @@ record the resolution in `docs/important-notes.md`.
 
 VeilBid uses a compact monorepo layout:
 
-- `apps/web/`: landing page and Buyer, Vendor, Public, Activity, Auditor, and
-  Safe Treasury interface.
+- `apps/web/`: landing page and Public, Safe Buyer, EOA Buyer, Private Bids,
+  Activity, and Safe Treasury interface.
 - `apps/relay/`: stateless close, public-decryption, finalize, and refund
   automation.
 - `apps/console/`: MCP stdio tools and local procurement CLI; read-only by
@@ -103,8 +103,9 @@ remain independently identifiable inside the same pinned toolchain.
   the encrypted winner ID. Every proof is verified on-chain and replay-protected.
 - Finalizers and MCP clients cannot decrypt vendor bids unless separately
   authorized as viewers.
-- Auditor access is per-handle and does not imply token operator, Safe signer, or
-  protocol administration authority.
+- Review access is per-handle and does not imply token operator, Safe signer, or
+  protocol administration authority. The creation-bound review wallet receives
+  stored-bid access only after finalization.
 - There is no success fallback using mock data when Nox, RPC, or indexing fails.
 
 ## 6. Change rules
@@ -137,6 +138,12 @@ npm test
 npm run lint
 npm run build
 ```
+
+For simple documentation, copy, spacing, or presentation-only changes that do
+not alter data flow, state, contract calls, generated bindings, or security
+boundaries, a focused diff/format check and direct visual inspection are
+sufficient unless the user requests broader validation. Do not run the full
+test suite mechanically for those changes.
 
 Contract or deployment changes also require the compile, artifact synchronization,
 local Nox, Sepolia E2E, and deployment-verification commands defined during
