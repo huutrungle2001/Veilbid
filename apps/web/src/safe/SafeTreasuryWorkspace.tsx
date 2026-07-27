@@ -118,6 +118,8 @@ export function SafeActionHandoff({
 }) {
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
 
+  if (result.executed) return null;
+
   async function copy(label: string, value: string) {
     try {
       if (!navigator.clipboard) throw new Error("clipboard-unavailable");
@@ -968,6 +970,16 @@ export function SafeTreasuryWorkspace({
       });
       setResult(completed);
       remember(completed);
+      setStoredStatuses((current) => ({
+        ...current,
+        [completed.safeTxHash]: {
+          safeTxHash: completed.safeTxHash,
+          threshold: completed.threshold,
+          confirmations: completed.confirmations,
+          executed: completed.executed,
+          executionTransactionHash: completed.executionTransactionHash,
+        },
+      }));
       toasts.succeed(
         toastId,
         completed.executed
@@ -1302,7 +1314,11 @@ export function SafeTreasuryWorkspace({
 
   const pendingProposals = storedProposals.filter((proposal) => {
     const status = storedStatuses[proposal.safeTxHash];
-    return status && !status.executed;
+    return (
+      status &&
+      !status.executed &&
+      proposal.safeTxHash !== result?.safeTxHash
+    );
   });
   const historicalProposals = storedProposals.filter((proposal) => {
     const status = storedStatuses[proposal.safeTxHash];

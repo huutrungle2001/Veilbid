@@ -601,7 +601,7 @@ textarea:focus-visible {
 }
 
 .sidebar-balances .balance-wrap-toggle {
-  background: var(--color-paper-white);
+  background: var(--color-veil-green);
 }
 
 .sidebar-balances .balance-faucet:disabled,
@@ -643,7 +643,7 @@ textarea:focus-visible {
 
 .balance-wrap-form > div button,
 .balance-wrap-confirm {
-  background: var(--color-paper-white);
+  background: var(--color-veil-green);
   border: 1px solid var(--color-ink-black);
   color: var(--color-ink-black);
   cursor: pointer;
@@ -2375,7 +2375,7 @@ main {
 
 .safe-vendor-row > button,
 .safe-vendor-add {
-  background: var(--color-paper-white);
+  background: var(--color-veil-green);
   border: 1px solid var(--color-ink-black);
   color: var(--color-ink-black);
   cursor: pointer;
@@ -2927,7 +2927,7 @@ main {
 }
 
 .secondary-button {
-  background: var(--color-paper-white);
+  background: var(--color-veil-green);
   border: 1px solid var(--color-ink-black);
   border-radius: 25px;
   color: var(--color-ink-black);
@@ -2935,6 +2935,17 @@ main {
   min-height: 44px;
   padding: 10px 24px;
   text-decoration: none;
+}
+
+.secondary-button:hover:not(:disabled),
+.secondary-button:focus-visible {
+  background: color-mix(in srgb, var(--color-veil-green) 72%, var(--color-ink-black));
+}
+
+.secondary-button:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-ink-muted);
+  cursor: not-allowed;
 }
 
 footer {
