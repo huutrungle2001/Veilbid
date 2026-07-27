@@ -128,6 +128,16 @@ export function GrantedAccessPanel({
             Finalized tenders automatically authorize their review wallet.
             Vendors may also share their own bid with another address.
           </p>
+          <ContextHelp
+            compact
+            label="Help for granted bid access"
+            title="HOW TO USE GRANTED ACCESS"
+            steps={[
+              "Select a tender and bid reference.",
+              "Check the on-chain viewer permission before decrypting.",
+              "Reveal only the authorized handle; the plaintext is cleared when the wallet session changes.",
+            ]}
+          />
         </div>
         <label>
           <span>Public bid reference</span>

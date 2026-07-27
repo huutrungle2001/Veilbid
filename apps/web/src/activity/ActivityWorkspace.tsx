@@ -196,6 +196,16 @@ export function ActivityWorkspace({
             <p className="eyebrow">RECOVERABLE CHECKPOINTS</p>
             <h2>{records.length} pending</h2>
           </div>
+          <ContextHelp
+            compact
+            label="Help for recoverable checkpoints"
+            title="HOW TO USE RECOVERABLE CHECKPOINTS"
+            steps={[
+              "These records are public transaction checkpoints saved in this browser.",
+              "Resume rereads the canonical tender state and continues a permissionless lifecycle action.",
+              "The list disappears after the checkpoint is resolved; it is not a bidder or treasury history.",
+            ]}
+          />
           <button className="icon-button" onClick={reload} aria-label="Refresh recovery records">
             ↻
           </button>
@@ -241,6 +251,16 @@ export function ActivityWorkspace({
             <p className="eyebrow">MANUAL RELAY FALLBACK</p>
             <h2>{trackable.length} ready</h2>
           </div>
+          <ContextHelp
+            compact
+            label="Help for manual relay fallback"
+            title="WHEN TO USE MANUAL CLOSE"
+            steps={[
+              "Use this only when the hosted relay has not advanced a ready tender.",
+              "Close or track proof is permissionless and does not spend Safe funds.",
+              "After finalization, no vendor Resume step is required; the public dossier shows Awarded or Refunded.",
+            ]}
+          />
         </header>
         {trackable.length === 0 ? (
           <p className="empty-activity">

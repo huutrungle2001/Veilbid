@@ -135,35 +135,49 @@ function TenderCard({
   onSelect: () => void;
 }) {
   return (
-    <button
-      className={`tender-card ${selected ? "selected" : ""}`}
-      onClick={onSelect}
-      aria-pressed={selected}
-    >
-      <span className="card-kicker">TENDER / {tender.tenderId.toString()}</span>
-      <span className="card-title">
-        Confidential procurement #{tender.tenderId.toString()}
-      </span>
-      <span className="card-facts">
-        <span>
-          <strong>{formatUnits(tender.publicCeiling, 6)} vUSDC</strong>
-          Public ceiling
+    <div className="tender-card-shell">
+      <button
+        className={`tender-card ${selected ? "selected" : ""}`}
+        type="button"
+        onClick={onSelect}
+        aria-pressed={selected}
+      >
+        <span className="card-kicker">TENDER / {tender.tenderId.toString()}</span>
+        <span className="card-title">
+          Confidential procurement #{tender.tenderId.toString()}
         </span>
-        <span>
-          <strong>{tender.bidCount}/{tender.approvedVendorCount}</strong>
-          Bids received
+        <span className="card-facts">
+          <span>
+            <strong>{formatUnits(tender.publicCeiling, 6)} vUSDC</strong>
+            Public ceiling
+          </span>
+          <span>
+            <strong>{tender.bidCount}/{tender.approvedVendorCount}</strong>
+            Bids received
+          </span>
         </span>
-      </span>
-      <span className="card-deadline">
-        Deadline · <TenderDeadline timestamp={tender.bidDeadline} />
-      </span>
-      <span className="card-footer">
-        <StatusBadge status={tender.status} />
-        <span className="card-arrow" aria-hidden="true">
-          →
+        <span className="card-deadline">
+          Deadline · <TenderDeadline timestamp={tender.bidDeadline} />
         </span>
-      </span>
-    </button>
+        <span className="card-footer">
+          <StatusBadge status={tender.status} />
+          <span className="card-arrow" aria-hidden="true">
+            →
+          </span>
+        </span>
+      </button>
+      <ContextHelp
+        compact
+        label={`Help for public tender ${tender.tenderId.toString()}`}
+        title={`HOW TO READ TENDER ${tender.tenderId.toString()}`}
+        steps={[
+          "Select this dossier to open its public terms and lifecycle.",
+          "The ceiling, vendor count, deadline, and status are public coordination data.",
+          "Bid prices remain encrypted; only a proof-derived winner becomes public after close.",
+        ]}
+        note="The countdown uses your local timezone; the detail panel also shows canonical UTC."
+      />
+    </div>
   );
 }
 
@@ -262,6 +276,16 @@ function TenderDetail({
           <p className="eyebrow">PUBLIC DOSSIER / TENDER {tender.tenderId.toString()}</p>
           <h2>Procurement terms stay public. Prices stay sealed.</h2>
         </div>
+        <ContextHelp
+          compact
+          label={`Help for tender ${tender.tenderId.toString()} detail`}
+          title="HOW TO READ THIS DOSSIER"
+          steps={[
+            "Read the lifecycle and readiness strip to see whether funding, bidding, closing, or proof is pending.",
+            "Public metadata and the winner address do not reveal bid prices.",
+            "After Awarded, inspect the non-transferable receipt and finalization transaction here.",
+          ]}
+        />
         <StatusBadge status={tender.status} />
       </header>
 

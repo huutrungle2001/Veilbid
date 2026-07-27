@@ -14,6 +14,7 @@ import {
   remainingTimeLabel,
 } from "../time/tenderTime";
 import { transactionErrorMessage } from "../transactions/errors";
+import { ContextHelp } from "../shell/ContextHelp";
 
 const stageLabels: Record<VendorBidStage, string> = {
   checking: "Checking admission",
@@ -129,6 +130,16 @@ export function VendorBidForm({
       <div className="form-heading">
         <p className="eyebrow">SEALED BID</p>
         <h2>Encrypt and submit one immutable price.</h2>
+        <ContextHelp
+          compact
+          label="Help for sealed bid submission"
+          title="HOW TO SUBMIT A SEALED BID"
+          steps={[
+            "Choose an Open, unexpired tender approved for this wallet.",
+            "Enter the private price; it is encrypted in this browser session.",
+            "Simulate and sign one bid transaction. The contract prevents duplicates and late bids.",
+          ]}
+        />
       </div>
       <label>
         Active tender

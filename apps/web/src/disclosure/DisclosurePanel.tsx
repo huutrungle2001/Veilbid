@@ -8,6 +8,7 @@ import {
   type ViewerGrantStage,
 } from "./grantViewer";
 import { useToasts } from "../shell/ToastProvider";
+import { ContextHelp } from "../shell/ContextHelp";
 
 export function eligibleDisclosureBids(
   role: InteractiveRole,
@@ -152,6 +153,16 @@ export function DisclosurePanel({
             ? "Manage your stored bid."
             : "Reveal or grant one stored bid."}
         </h2>
+        <ContextHelp
+          compact
+          label="Help for stored bid disclosure"
+          title="HOW TO REVEAL A STORED BID"
+          steps={[
+            "Select a public tender/bid reference that this wallet is allowed to view.",
+            "Reveal decrypts only the selected handle in this browser session.",
+            "A Vendor may grant only its own bid to another address; review wallets receive automatic access after finalization.",
+          ]}
+        />
       </div>
       <label>
         Eligible bid

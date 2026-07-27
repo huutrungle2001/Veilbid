@@ -906,6 +906,20 @@ main {
   gap: 12px;
 }
 
+.tender-card-shell {
+  position: relative;
+}
+
+.tender-card-shell > .context-help {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+}
+
+.tender-card-shell > .context-help .context-help-trigger {
+  background: var(--color-paper-white);
+}
+
 .dossier-list > header {
   align-items: center;
   display: flex;
@@ -1062,6 +1076,10 @@ main {
   border: 1px solid var(--color-ink-black);
   border-radius: 25px;
   overflow: hidden;
+}
+
+.detail-header > .context-help {
+  margin-left: auto;
 }
 
 .detail-header {
@@ -1508,6 +1526,16 @@ main {
   margin: 0;
 }
 
+.form-heading {
+  position: relative;
+}
+
+.form-heading > .context-help {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .write-form label {
   display: flex;
   flex-direction: column;
@@ -1952,6 +1980,11 @@ main {
   justify-content: space-between;
 }
 
+.safe-funds-heading > .context-help,
+.safe-unwrap-heading > .context-help {
+  margin-left: auto;
+}
+
 .safe-funds-heading h3 {
   font-size: 1.35rem;
   margin: 5px 0 0;
@@ -2179,6 +2212,27 @@ main {
   padding: 16px;
 }
 
+.safe-inline-heading {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.safe-inline-heading > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.safe-inline-heading strong {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.safe-inline-heading > .context-help {
+  margin-left: auto;
+}
+
 .safe-inline-deposit p {
   color: var(--color-ink-muted);
   font-family: var(--font-mono);
@@ -2224,6 +2278,14 @@ main {
 
 .safe-tender-setup-heading > div {
   max-width: 680px;
+  position: relative;
+}
+
+.safe-tender-setup-heading > div > .context-help,
+.safe-tender-setup.is-ready > div > .context-help {
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .safe-tender-setup h3 {
@@ -3729,6 +3791,22 @@ footer p {
     font-size: 0.66rem;
     min-height: 42px;
   }
+
+  .dossier-list {
+    align-content: start;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding-right: 6px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .detail-panel {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    position: sticky;
+    top: 24px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -4158,6 +4236,15 @@ footer p {
 
   .dossier-list {
     grid-template-columns: 1fr;
+    max-height: none;
+    overflow: visible;
+    position: static;
+  }
+
+  .detail-panel {
+    max-height: none;
+    overflow: hidden;
+    position: static;
   }
 
   .detail-header,

@@ -11,6 +11,7 @@ import {
 } from "../transactions/tenderFunding";
 import { transactionErrorMessage } from "../transactions/errors";
 import type { Hex } from "viem";
+import { ContextHelp } from "../shell/ContextHelp";
 
 const labels: Record<BuyerTenderStage, string> = {
   faucet: "Acquiring test USDC",
@@ -145,6 +146,17 @@ export function BuyerTenderForm({
       <div className="form-heading">
         <p className="eyebrow">EXACTLY FUNDED TENDER</p>
         <h2>Create public terms and confidential escrow.</h2>
+        <ContextHelp
+          compact
+          label="Help for EOA tender creation"
+          title="HOW TO CREATE AN EOA TENDER"
+          steps={[
+            "Enter public terms, ceiling, deadline, and approved vendors.",
+            "The connected wallet acquires/wraps the exact ceiling and creates the tender.",
+            "Confirm the funding proof so the tender becomes Open.",
+          ]}
+          note="If the browser stops after creation, Activity or the relay can recover funding confirmation."
+        />
       </div>
       <label>
         Public metadata

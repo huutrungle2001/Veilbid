@@ -304,6 +304,16 @@ function SafeConfigurationCard({
             {configuration.owners.length} owner(s) · threshold{" "}
             {configuration.threshold}
           </p>
+          <ContextHelp
+            compact
+            label="Help for selected Safe"
+            title="HOW TO READ SELECTED SAFE"
+            steps={[
+              "This card shows the Safe currently used for VeilBid treasury actions.",
+              "The owner count and threshold determine how many Safe approvals are required.",
+              "Use Refresh or Open Safe to verify the public on-chain account.",
+            ]}
+          />
         </div>
         <div className="safe-section-actions">
           <button
@@ -330,6 +340,16 @@ function SafeConfigurationCard({
             <p className="eyebrow">SAFE FUNDS</p>
             <h3>Confidential tender funds</h3>
           </div>
+          <ContextHelp
+            compact
+            label="Help for Safe funds"
+            title="HOW TO USE SAFE FUNDS"
+            steps={[
+              "The vcUSDC amount stays masked until this owner authorizes a private reveal.",
+              "Deposit uses public vUSDC from the connected wallet and mints vcUSDC to this Safe.",
+              "The eye only reveals the value in this browser session; it does not make the balance public on-chain.",
+            ]}
+          />
           <dl className="safe-funds-balance">
             <div>
               <dt>vcUSDC</dt>
@@ -400,6 +420,23 @@ function SafeDepositControl({
       className="safe-inline-deposit"
       aria-label="Deposit vcUSDC to selected Safe"
     >
+      <div className="safe-inline-heading">
+        <div>
+          <p className="eyebrow">SAFE DEPOSIT</p>
+          <strong>Move public vUSDC into this treasury</strong>
+        </div>
+        <ContextHelp
+          compact
+          label="Help for Safe deposit"
+          title="HOW TO DEPOSIT TO SAFE"
+          steps={[
+            "Enter the public vUSDC amount available in the connected wallet.",
+            "Approve the wrapper if needed, then confirm the deposit transaction.",
+            "The resulting vcUSDC is held by the Safe and can fund a tender.",
+          ]}
+          note="This action uses the connected EOA wallet, not a Safe owner proposal."
+        />
+      </div>
       <div className="safe-inline-funding">
         <label>
           <span>vcUSDC amount</span>
@@ -444,6 +481,16 @@ function SafeTenderSetup({
         <div>
           <p className="eyebrow">TENDER SETUP</p>
           <strong>Module enabled · Market bound · Settlement authorized</strong>
+          <ContextHelp
+            compact
+            label="Help for completed Safe setup"
+            title="SAFE SETUP COMPLETE"
+            steps={[
+              "The dedicated module is deployed and enabled for this Safe.",
+              "The VeilBid Market is bound and can receive Safe-owned tender preparation calls.",
+              "No setup proposal is needed again unless the Safe or deployment changes.",
+            ]}
+          />
         </div>
         <span className="safe-ready-badge">SAFE READY ✓</span>
       </section>
@@ -466,6 +513,16 @@ function SafeTenderSetup({
             enables the dedicated module, binds the Market, and grants
             settlement authority in one Safe proposal.
           </p>
+          <ContextHelp
+            compact
+            label="Help for Safe tender setup"
+            title="WHY CONFIGURE THIS SAFE"
+            steps={[
+              "Run this once before the Safe creates its first tender.",
+              "The proposal deploys/enables the Safe module, binds Market, and grants settlement authority.",
+              "After execution, the CREATE WITH SAFE action becomes available.",
+            ]}
+          />
         </div>
         <button
           className="primary-button"
@@ -539,6 +596,17 @@ function SafeUnwrapControl({
             Unwrap releases public vUSDC to your connected wallet.
           </p>
         </div>
+        <ContextHelp
+          compact
+          label="Help for Safe vcUSDC unwrap"
+          title="HOW TO UNWRAP vcUSDC"
+          steps={[
+            "Choose FULL to consume the encrypted balance, or reveal privately before entering a custom amount.",
+            "Propose the Safe action and complete its threshold approvals.",
+            "After execution, finalize the public proof to release vUSDC to the connected wallet.",
+          ]}
+          note="Only the finalized amount and recipient become public; remaining vcUSDC stays confidential."
+        />
       </div>
       <div className="safe-unwrap-fields">
         <label>
@@ -1650,6 +1718,16 @@ export function SafeTreasuryWorkspace({
               Select a card to inspect its live configuration. VeilBid does not
               open or read full Safe details until you choose one.
             </p>
+            <ContextHelp
+              compact
+              label="Help for Safe selection"
+              title="HOW TO SELECT A SAFE"
+              steps={[
+                "Choose a discovered Safe owned by the connected wallet.",
+                "Use CHECK SAFE only for an address that is not listed; ownership is verified on-chain.",
+                "After selection, the live Safe funds and VeilBid readiness cards appear below.",
+              ]}
+            />
           </div>
           {ownerSafes.length > 0 && (
             <div className="safe-choice-list" aria-label="Owned Safe treasuries">
@@ -1878,6 +1956,17 @@ export function SafeTreasuryWorkspace({
                   Define the public terms and approve one confidential funding
                   batch through this Safe.
                 </p>
+                <ContextHelp
+                  compact
+                  label="Help for Safe tender creation"
+                  title="HOW TO CREATE A SAFE TENDER"
+                  steps={[
+                    "Confirm setup is READY, reveal the Safe balance, and keep the public ceiling within it.",
+                    "Enter public terms and approved vendor addresses.",
+                    "Create the Safe proposal, approve/execute it, then confirm exact funding to open bidding.",
+                  ]}
+                  note="Tender creation uses Safe threshold approval plus a public funding confirmation transaction."
+                />
               </div>
               <div className="safe-tender-context">
                 <span>SELECTED SAFE</span>
