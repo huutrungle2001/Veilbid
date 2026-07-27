@@ -10,7 +10,6 @@ import {
   getAddress,
   isAddress,
   parseUnits,
-  zeroAddress,
   type Address,
   type Hex,
 } from "viem";
@@ -246,7 +245,7 @@ function SafeConfigurationCard({
   revealPending,
   onRefresh,
   onToggleReveal,
-  preparationControl,
+  depositControl,
   unwrapControl,
 }: {
   configuration: SafeAccountConfiguration;
@@ -255,15 +254,9 @@ function SafeConfigurationCard({
   revealPending: boolean;
   onRefresh: () => void;
   onToggleReveal: () => void;
-  preparationControl: ReactNode;
+  depositControl: ReactNode;
   unwrapControl: ReactNode;
 }) {
-  const checks = [
-    ["Module contract", configuration.moduleDeployed],
-    ["Module enabled", configuration.moduleEnabled],
-    ["Market configured", configuration.marketConfigured],
-    ["Settlement authority", configuration.marketAuthorized],
-  ] as const;
   const hasConfidentialBalance =
     configuration.balances.confidential === "encrypted";
   const confidentialBalanceLabel =
@@ -304,135 +297,82 @@ function SafeConfigurationCard({
           </a>
         </div>
       </div>
-      <div className="safe-selected-confidential">
-        <div>
-          <span>vcUSDC BALANCE</span>
-          <strong>{confidentialBalanceLabel}</strong>
-          <small>
-            {revealedConfidentialBalance !== null
-              ? "Visible in this browser session only"
-              : configuration.confidentialViewerAuthorized
-                ? "Private viewer authorized for the current handle"
-                : hasConfidentialBalance
-                  ? "First reveal requires Safe approval"
-                  : "Confidential tender asset"}
-          </small>
+      <section className="safe-funds" aria-label="Selected Safe funds">
+        <div className="safe-funds-heading">
+          <div>
+            <p className="eyebrow">SAFE FUNDS</p>
+            <h3>Confidential tender funds</h3>
+          </div>
+          <dl className="safe-funds-balance">
+            <div>
+              <dt>vcUSDC</dt>
+              <dd>
+                <span className="confidential-balance">
+                  <span>{confidentialBalanceLabel}</span>
+                  <button
+                    className="balance-reveal safe-balance-eye"
+                    type="button"
+                    onClick={onToggleReveal}
+                    disabled={!hasConfidentialBalance || busy || revealPending}
+                    aria-label={
+                      !hasConfidentialBalance
+                        ? "No confidential vcUSDC balance to reveal"
+                        : !configuration.confidentialViewerAuthorized
+                          ? "Authorize and reveal confidential Safe balance"
+                          : revealedConfidentialBalance === null
+                            ? "Reveal confidential Safe balance"
+                            : "Hide confidential Safe balance"
+                    }
+                    title={
+                      !hasConfidentialBalance
+                        ? "No vcUSDC balance"
+                        : !configuration.confidentialViewerAuthorized
+                          ? "Authorize this owner for the current balance handle"
+                          : revealedConfidentialBalance === null
+                            ? "Reveal vcUSDC"
+                            : "Hide vcUSDC"
+                    }
+                  >
+                    {revealedConfidentialBalance === null ? (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+                        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                        <circle cx="12" cy="12" r="2.5" />
+                      </svg>
+                    ) : (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+                        <path d="m4 4 16 16" />
+                        <path d="M10.6 6.1A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-2.2 2.9M14.4 17.7A10 10 0 0 1 12 18c-6 0-9.5-6-9.5-6a17 17 0 0 1 3.1-3.7" />
+                      </svg>
+                    )}
+                  </button>
+                </span>
+              </dd>
+            </div>
+          </dl>
         </div>
-        <button
-          className="balance-reveal safe-balance-eye"
-          type="button"
-          onClick={onToggleReveal}
-          disabled={!hasConfidentialBalance || busy || revealPending}
-          aria-label={
-            !hasConfidentialBalance
-              ? "No confidential vcUSDC balance to reveal"
-              : !configuration.confidentialViewerAuthorized
-                ? "Authorize and reveal confidential Safe balance"
-                : revealedConfidentialBalance === null
-                  ? "Reveal confidential Safe balance"
-                  : "Hide confidential Safe balance"
-          }
-          title={
-            !hasConfidentialBalance
-              ? "No vcUSDC balance"
-              : !configuration.confidentialViewerAuthorized
-                ? "Authorize this owner for the current balance handle"
-                : revealedConfidentialBalance === null
-                  ? "Reveal vcUSDC"
-                  : "Hide vcUSDC"
-          }
-        >
-          {revealedConfidentialBalance === null ? (
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-              <circle cx="12" cy="12" r="2.5" />
-            </svg>
-          ) : (
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="m4 4 16 16" />
-              <path d="M10.6 6.1A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-2.2 2.9M14.4 17.7A10 10 0 0 1 12 18c-6 0-9.5-6-9.5-6a17 17 0 0 1 3.1-3.7" />
-            </svg>
-          )}
-        </button>
-      </div>
-      <dl className="safe-handoff-evidence">
-        <div>
-          <dt>Owners</dt>
-          <dd>{configuration.owners.join(", ")}</dd>
-        </div>
-        <div>
-          <dt>Required approvals</dt>
-          <dd>{configuration.threshold} / {configuration.owners.length}</dd>
-        </div>
-        <div>
-          <dt>Preparation module</dt>
-          <dd>{configuration.module ?? "Factory unavailable"}</dd>
-        </div>
-      </dl>
-      <ul className="safe-readiness-list">
-        {checks.map(([label, passed]) => (
-          <li key={label} data-ready={passed}>
-            <span aria-hidden="true">{passed ? "✓" : "○"}</span> {label}
-          </li>
-        ))}
-      </ul>
-      {preparationControl}
-      {unwrapControl}
+        {depositControl}
+        {unwrapControl}
+      </section>
     </section>
   );
 }
 
-function SafePreparationControl({
-  configuration,
+function SafeDepositControl({
   amount,
   busy,
   onAmountChange,
-  onSetup,
   onFund,
 }: {
-  configuration: SafeAccountConfiguration;
   amount: string;
   busy: boolean;
   onAmountChange: (amount: string) => void;
-  onSetup: () => void;
   onFund: () => void;
 }) {
   return (
     <section
-      className="safe-inline-prepare"
-      aria-label="Prepare selected Safe for VeilBid"
+      className="safe-inline-deposit"
+      aria-label="Deposit vcUSDC to selected Safe"
     >
-      <div className="safe-inline-prepare-heading">
-        <div>
-          <p className="eyebrow">SAFE PREPARATION</p>
-          <h3>
-            {configuration.ready
-              ? "Safe is ready"
-              : "One-time VeilBid setup"}
-          </h3>
-          <p>
-            {configuration.ready
-              ? "The module and settlement authority are active. Deposit confidential funding from your connected wallet when needed."
-              : "Setup deploys this Safe’s module, enables it, binds the Market, and grants settlement authority in one proposal."}
-          </p>
-        </div>
-        {!configuration.ready && (
-          <button
-            className="primary-button"
-            type="button"
-            disabled={busy || !configuration.module}
-            onClick={onSetup}
-          >
-            CONFIGURE THIS SAFE →
-          </button>
-        )}
-      </div>
-      {!configuration.module && (
-        <p className="inline-error">
-          Generic Safe setup is unavailable until the module factory is
-          deployed in the release configuration.
-        </p>
-      )}
       <div className="safe-inline-funding">
         <label>
           <span>vcUSDC amount</span>
@@ -459,6 +399,65 @@ function SafePreparationControl({
   );
 }
 
+function SafeTenderSetup({
+  configuration,
+  busy,
+  onSetup,
+}: {
+  configuration: SafeAccountConfiguration;
+  busy: boolean;
+  onSetup: () => void;
+}) {
+  const checks = [
+    ["Module contract", configuration.moduleDeployed],
+    ["Module enabled", configuration.moduleEnabled],
+    ["Market configured", configuration.marketConfigured],
+    ["Settlement authority", configuration.marketAuthorized],
+  ] as const;
+  return (
+    <section className="safe-tender-setup" aria-label="Safe tender setup">
+      <div className="safe-tender-setup-heading">
+        <div>
+          <p className="eyebrow">TENDER SETUP</p>
+          <h3>{configuration.ready ? "Safe ready" : "One-time VeilBid setup"}</h3>
+          <p>
+            {configuration.ready
+              ? "This Safe can prepare confidential funding and create a tender."
+              : "Required only for Safe-owned tender creation. Setup deploys and enables the dedicated module, binds the Market, and grants settlement authority in one Safe proposal."}
+          </p>
+        </div>
+        {configuration.ready ? (
+          <strong className="safe-ready-badge">SAFE READY ✓</strong>
+        ) : (
+          <button
+            className="primary-button"
+            type="button"
+            disabled={busy || !configuration.module}
+            onClick={onSetup}
+          >
+            CONFIGURE THIS SAFE →
+          </button>
+        )}
+      </div>
+      {!configuration.module && (
+        <p className="inline-error">
+          Generic Safe setup is unavailable until the module factory is
+          deployed in the release configuration.
+        </p>
+      )}
+      {!configuration.ready && (
+        <ul className="safe-readiness-list">
+          {checks.map(([label, passed]) => (
+            <li key={label} data-ready={passed}>
+              <span aria-hidden="true">{passed ? "✓" : "○"}</span> {label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function SafeUnwrapControl({
   configuration,
   fullBalance,
@@ -471,7 +470,6 @@ function SafeUnwrapControl({
   finalizing,
   onFullBalance,
   onAmountChange,
-  onRecipientChange,
   onReveal,
   onRequest,
   onFinalize,
@@ -479,7 +477,7 @@ function SafeUnwrapControl({
   configuration: SafeAccountConfiguration;
   fullBalance: boolean;
   amount: string;
-  recipient: string;
+  recipient: Address;
   revealedBalance: bigint | null;
   request: SafeUnwrapRequest | null;
   finalization: SafeUnwrapFinalization | null;
@@ -487,7 +485,6 @@ function SafeUnwrapControl({
   finalizing: boolean;
   onFullBalance: () => void;
   onAmountChange: (amount: string) => void;
-  onRecipientChange: (recipient: string) => void;
   onReveal: () => void;
   onRequest: () => void;
   onFinalize: () => void;
@@ -504,6 +501,7 @@ function SafeUnwrapControl({
           <p>
             Enter a custom amount after privately revealing the balance, or use
             Full to consume the encrypted balance directly without revealing it.
+            Unwrap releases public vUSDC to your connected wallet.
           </p>
         </div>
       </div>
@@ -529,14 +527,11 @@ function SafeUnwrapControl({
             </button>
           </div>
         </label>
-        <label>
-          <span>Public vUSDC recipient</span>
-          <input
-            value={recipient}
-            onChange={(event) => onRecipientChange(event.target.value)}
-            placeholder="0x…"
-          />
-        </label>
+        <div className="safe-unwrap-recipient">
+          <span>PUBLIC vUSDC RECIPIENT</span>
+          <strong>{shortAddress(recipient)}</strong>
+          <small>Connected wallet · fixed for this proposal</small>
+        </div>
       </div>
       {!fullBalance && revealedBalance === null && (
         <div className="safe-unwrap-reveal">
@@ -666,7 +661,6 @@ export function SafeTreasuryWorkspace({
   const [revealPending, setRevealPending] = useState(false);
   const [unwrapFullBalance, setUnwrapFullBalance] = useState(false);
   const [unwrapAmount, setUnwrapAmount] = useState("");
-  const [unwrapRecipient, setUnwrapRecipient] = useState("");
   const [unwrapRequest, setUnwrapRequest] =
     useState<SafeUnwrapRequest | null>(null);
   const [unwrapRequestSafe, setUnwrapRequestSafe] =
@@ -766,7 +760,6 @@ export function SafeTreasuryWorkspace({
     setRevealPending(false);
     setUnwrapFullBalance(false);
     setUnwrapAmount("");
-    setUnwrapRecipient("");
     setUnwrapRequest(null);
     setUnwrapRequestSafe(null);
     setUnwrapFinalization(null);
@@ -780,7 +773,6 @@ export function SafeTreasuryWorkspace({
     if (!connected) return;
     let cancelled = false;
     const account = wallet.state.account!;
-    setUnwrapRecipient(account);
     setDiscoveryStage("Finding Sepolia Safes owned by this wallet…");
     void (async () => {
       const remembered = loadRememberedOwnerSafes(account);
@@ -1092,20 +1084,9 @@ export function SafeTreasuryWorkspace({
     }
   }
 
-  function unwrapRecipientAddress() {
-    if (!isAddress(unwrapRecipient)) {
-      throw new Error("Enter a valid Sepolia recipient address.");
-    }
-    const recipient = getAddress(unwrapRecipient);
-    if (recipient === zeroAddress) {
-      throw new Error("Recipient cannot be the zero address.");
-    }
-    return recipient;
-  }
-
   async function requestUnwrap() {
     if (!connected || !configuration) return;
-    let recipient: Address;
+    const recipient = wallet.state.account!;
     let customAmount: bigint | null = null;
     const revealedBalance =
       revealedSafeBalance?.handle ===
@@ -1113,7 +1094,6 @@ export function SafeTreasuryWorkspace({
         ? revealedSafeBalance.value
         : null;
     try {
-      recipient = unwrapRecipientAddress();
       if (!unwrapFullBalance) {
         if (revealedBalance === null) {
           throw new Error("Reveal the current vcUSDC balance first.");
@@ -1323,7 +1303,7 @@ export function SafeTreasuryWorkspace({
   const balanceResult =
     result?.kind === "view-balance" ? result : null;
   const preparationResult =
-    result && ["setup", "fund"].includes(result.kind) ? result : null;
+    result?.kind === "setup" ? result : null;
   const tenderResult = result?.kind === "tender" ? result : null;
   const unwrapResult = result?.kind === "unwrap" ? result : null;
   const currentRevealedBalance =
@@ -1534,13 +1514,11 @@ export function SafeTreasuryWorkspace({
               )
             }
             onToggleReveal={toggleBalanceReveal}
-            preparationControl={
-              <SafePreparationControl
-                configuration={configuration}
+            depositControl={
+              <SafeDepositControl
                 amount={fundAmount}
                 busy={stage !== null}
                 onAmountChange={setFundAmount}
-                onSetup={() => void setup()}
                 onFund={() => void fund()}
               />
             }
@@ -1549,7 +1527,7 @@ export function SafeTreasuryWorkspace({
                 configuration={configuration}
                 fullBalance={unwrapFullBalance}
                 amount={unwrapAmount}
-                recipient={unwrapRecipient}
+                recipient={wallet.state.account!}
                 revealedBalance={currentRevealedBalance}
                 request={currentUnwrapRequest}
                 finalization={unwrapFinalization}
@@ -1563,7 +1541,6 @@ export function SafeTreasuryWorkspace({
                   setUnwrapFullBalance(false);
                   setUnwrapAmount(amount);
                 }}
-                onRecipientChange={setUnwrapRecipient}
                 onReveal={toggleBalanceReveal}
                 onRequest={() => void requestUnwrap()}
                 onFinalize={() => void finalizeUnwrap()}
@@ -1596,24 +1573,28 @@ export function SafeTreasuryWorkspace({
               onApprove={() => void approveProposal()}
             />
           )}
-          {preparationResult && (
-            <SafeActionHandoff
-              result={preparationResult}
-              busy={stage !== null}
-              onRefresh={() => void refreshProposal()}
-              onApprove={() => void approveProposal()}
-            />
-          )}
-
           <section className="write-form">
             <div className="form-heading">
-              <p className="eyebrow">2 / ATOMIC SAFE BATCH</p>
+              <p className="eyebrow">2 / CREATE TENDER</p>
               <h2>Create a Safe-owned tender</h2>
               <p>
                 VeilBid generates a fresh preparation nonce automatically. No
                 extra owner input is required.
               </p>
             </div>
+            <SafeTenderSetup
+              configuration={configuration}
+              busy={stage !== null}
+              onSetup={() => void setup()}
+            />
+            {preparationResult && (
+              <SafeActionHandoff
+                result={preparationResult}
+                busy={stage !== null}
+                onRefresh={() => void refreshProposal()}
+                onApprove={() => void approveProposal()}
+              />
+            )}
             {[
               ["metadata", "Public metadata"],
               ["ceiling", "Public ceiling (6 decimals)"],

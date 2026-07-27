@@ -1890,54 +1890,68 @@ main {
   justify-content: space-between;
 }
 
-.safe-selected-confidential {
+.safe-funds {
+  border-top: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.safe-funds-heading {
   align-items: center;
-  background: var(--color-ink-black);
-  color: var(--color-paper-white);
-  display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 20px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
 }
 
-.safe-selected-confidential > div {
-  display: grid;
-  gap: 6px;
+.safe-funds-heading h3 {
+  font-size: 1.35rem;
+  margin: 5px 0 0;
 }
 
-.safe-selected-confidential span,
-.safe-selected-confidential strong,
-.safe-selected-confidential small {
+.safe-funds-balance {
+  border: 1px solid var(--color-ink-black);
+  margin: 0;
+  min-width: 230px;
+  padding: 12px 14px;
+}
+
+.safe-funds-balance > div {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.safe-funds-balance dt,
+.safe-funds-balance dd {
   font-family: var(--font-mono);
-}
-
-.safe-selected-confidential span {
   font-size: 0.64rem;
+}
+
+.safe-funds-balance dt {
+  color: var(--color-ink-muted);
+  letter-spacing: 0.06em;
+}
+
+.safe-funds-balance dd {
   font-weight: 700;
-  letter-spacing: 0.05em;
-}
-
-.safe-selected-confidential strong {
-  font-size: 1.8rem;
-  overflow-wrap: anywhere;
-}
-
-.safe-selected-confidential small {
-  color: #c8c8c8;
-  font-size: 0.62rem;
-  line-height: 1.4;
+  margin: 0;
 }
 
 .safe-balance-eye {
   align-items: center;
   background: transparent;
-  border: 1px solid var(--color-paper-white);
-  color: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  color: var(--color-ink-black);
   cursor: pointer;
   display: inline-flex;
-  height: 44px;
+  height: 25px;
   justify-content: center;
-  width: 44px;
+  min-height: 25px;
+  padding: 0;
+  width: 25px;
 }
 
 .safe-balance-eye:hover:not(:disabled),
@@ -2089,7 +2103,7 @@ main {
   background: var(--color-veil-green);
 }
 
-.safe-inline-prepare label,
+.safe-inline-deposit label,
 .safe-unwrap-action label {
   display: grid;
   font-size: 0.7rem;
@@ -2099,7 +2113,7 @@ main {
   text-transform: uppercase;
 }
 
-.safe-inline-prepare input,
+.safe-inline-deposit input,
 .safe-unwrap-action input {
   background: var(--color-paper-white);
   border: 1px solid var(--color-ink-black);
@@ -2110,33 +2124,58 @@ main {
   padding: 12px;
 }
 
-.safe-inline-prepare {
+.safe-inline-deposit {
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.safe-inline-deposit p {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.safe-tender-setup {
+  background: var(--color-surface-muted);
   border: 1px solid var(--color-ink-black);
   display: grid;
   gap: 16px;
   padding: 20px;
 }
 
-.safe-inline-prepare-heading {
+.safe-tender-setup-heading {
   align-items: start;
   display: flex;
   gap: 20px;
   justify-content: space-between;
 }
 
-.safe-inline-prepare h3 {
+.safe-tender-setup-heading > div {
+  max-width: 680px;
+}
+
+.safe-tender-setup h3 {
   font-size: 1.35rem;
   margin: 5px 0 8px;
 }
 
-.safe-inline-prepare p:not(.eyebrow, .inline-error) {
+.safe-tender-setup p:not(.eyebrow, .inline-error) {
   font-size: 0.76rem;
   line-height: 1.45;
   margin: 0;
 }
 
-.safe-inline-prepare-heading > div {
-  max-width: 650px;
+.safe-ready-badge {
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 10px 12px;
+  white-space: nowrap;
 }
 
 .safe-inline-funding {
@@ -2184,6 +2223,34 @@ main {
   display: grid;
   gap: 12px;
   grid-template-columns: minmax(180px, 0.55fr) minmax(280px, 1fr);
+}
+
+.safe-unwrap-recipient {
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 5px;
+  padding: 11px 12px;
+}
+
+.safe-unwrap-recipient span,
+.safe-unwrap-recipient strong,
+.safe-unwrap-recipient small {
+  font-family: var(--font-mono);
+}
+
+.safe-unwrap-recipient span {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.safe-unwrap-recipient strong {
+  font-size: 0.76rem;
+}
+
+.safe-unwrap-recipient small {
+  color: var(--color-ink-muted);
+  font-size: 0.58rem;
 }
 
 .safe-amount-input {
@@ -3497,7 +3564,8 @@ footer p {
 
   .safe-section-heading,
   .safe-selected-heading,
-  .safe-inline-prepare-heading,
+  .safe-funds-heading,
+  .safe-tender-setup-heading,
   .safe-unwrap-heading,
   .safe-unwrap-reveal,
   .safe-unwrap-finalize {
@@ -3507,6 +3575,11 @@ footer p {
 
   .safe-selected-heading .safe-section-actions {
     justify-content: start;
+  }
+
+  .safe-funds-balance {
+    min-width: 0;
+    width: 100%;
   }
 
   .safe-section-actions {
