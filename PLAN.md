@@ -5,14 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Sepolia and product
-- Status: In progress
-- Next action: Run the full release gate, deploy the updated web bundle, and
-  repeat production desktop/mobile smoke before submission media.
+- Current phase: Phase 7 — Submission
+- Status: Waiting for approval
+- Next action: Record the four-minute demo, publish the X post, and complete
+  the DoraHacks submission when the user is ready.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T19:31:00+07:00
+- Last updated: 2026-07-27T19:35:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,7 +45,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
@@ -83,6 +83,7 @@ Only one phase may be `In progress`.
 | Safe treasury management | Superseded | Agent | 2026-07-27 | The broader ETH/vUSDC withdrawal surface was locally verified, then intentionally removed after product review so VeilBid remains focused on confidential vcUSDC and delegates general public-asset management to Safe Wallet. |
 | Safe Buyer confidential focus | Approved | User | 2026-07-27 | Keep only vcUSDC and its private reveal control inside `SELECTED SAFE`; omit public ETH/vUSDC balances and general withdrawals because Safe Wallet already owns that surface. Remove the old Treasury Actions panel before implementing the separately verified full/custom unwrap experience. |
 | Safe confidential asset exits | Verified | Agent | 2026-07-27 | Adapter `0x779b…9ff9` has exact Sourcify creation/runtime mappings and canonical-wrapper binding. Sepolia E2E funded the release Safe, executed atomic partial preparation/unwrap with replay protection, finalized the exact partial amount in memory, then full-unwrapped/finalized the remainder while preserving owners and threshold. |
+| Safe confidential frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_2R1QhA9CSF6VLUnGRoBcRYVQVgmS` is aliased to `https://veilbid-three.vercel.app`; three production routes, desktop/mobile browser capture, canonical Sepolia state, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed without wallet or confidential data access. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
