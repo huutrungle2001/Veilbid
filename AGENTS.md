@@ -124,6 +124,9 @@ remain independently identifiable inside the same pinned toolchain.
 - Do not change deployed addresses or canonical artifacts without completing the
   deployment and synchronization workflow.
 - Update `PLAN.md` when phase, status, blocker, or next action changes.
+- After completing and validating a requested change, create one or more small,
+  logically scoped Git commits by default. Do not commit only when the user
+  explicitly asks to leave the work uncommitted.
 
 ## 7. Validation
 
