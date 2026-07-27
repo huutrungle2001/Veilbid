@@ -191,7 +191,7 @@ export function DocsPage() {
               { title: "Select and configure", copy: "Select a Safe card or paste an address. A one-time threshold batch deploys/enables its deterministic preparation module and binds the canonical Market." },
               { title: "Fund confidentially", copy: "ADD TEST vcUSDC faucets public test funds when needed, then approves and wraps into the selected Safe in one threshold-authorized batch." },
               { title: "Reveal only when needed", copy: "The eye grants the connected owner viewer access to the current balance handle, then decrypts only in this browser session. A new handle requires a new grant." },
-              { title: "Choose Full or Custom unwrap", copy: "Full uses the encrypted balance directly. Custom first reveals the current balance privately, then encrypts the selected amount for an atomic preparation + wrapper batch." },
+              { title: "Enter an amount or use Full", copy: "The Full shortcut uses the encrypted balance directly without reveal. A custom amount first reveals the current balance privately, then encrypts only that amount for an atomic preparation + wrapper batch." },
               { title: "Finalize the public exit", copy: "After the Safe executes, FINALIZE UNWRAP completes the permissionless public proof. The amount and recipient become public; remaining vcUSDC and bid values stay confidential." },
             ]} />
             <div className="docs-callout">

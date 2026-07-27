@@ -300,13 +300,14 @@ must be repeated after the balance changes. Revealed values are never stored in
 logs, URLs, local storage, or evidence.
 
 The same card provides an explicit vcUSDC exit without becoming a general Safe
-asset manager. `FULL` unwrap consumes the current encrypted balance directly
-and does not require reveal. `CUSTOM` first requires the owner to reveal the
-current balance in the browser, then encrypts the chosen amount for a dedicated
-preparation adapter. The adapter validates the owner proof, current balance
-handle, and fresh nonce inside the same threshold-authorized Safe batch as the
-wrapper call. A second permissionless transaction finalizes the public proof;
-that finalization makes the unwrapped amount and recipient public.
+asset manager. Its single amount field supports a `FULL` shortcut that consumes
+the current encrypted balance directly without reveal. Entering a custom amount
+first requires the owner to reveal the current balance in the browser, then
+encrypts only that chosen amount for a dedicated preparation adapter. The
+adapter validates the owner proof, current balance handle, and fresh nonce
+inside the same threshold-authorized Safe batch as the wrapper call. A second
+permissionless transaction finalizes the public proof; that finalization makes
+the unwrapped amount and recipient public.
 
 Public ETH and vUSDC are intentionally omitted from the VeilBid Safe surface.
 They remain visible and transferable in the standard Safe Wallet; VeilBid does
@@ -354,9 +355,9 @@ screenshots, logs, or evidence.
 3. Faucet/wrap test vUSDC into the Safe through a normal Safe batch if needed.
 4. Use the eye beside vcUSDC to threshold-authorize and privately reveal the
    current Safe balance handle when needed.
-5. To exit vcUSDC, choose `FULL` without reveal or `CUSTOM` after reveal, review
-   the public recipient, satisfy the Safe threshold, then finalize the public
-   unwrap proof.
+5. To exit vcUSDC, use the amount field after reveal or press its `FULL`
+   shortcut without reveal, review the public recipient, satisfy the Safe
+   threshold, then finalize the public unwrap proof.
 6. Enter public terms; VeilBid allocates the internal nonce and creates one
    atomic preparation/tender batch.
 7. Satisfy the Safe's normal threshold. Pending multisig approvals remain

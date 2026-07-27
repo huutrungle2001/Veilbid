@@ -101,7 +101,7 @@ same risk as that wallet.
 | Browser recovers pending Safe proposals | Local storage contains only public Safe address, Safe transaction hash, action kind, and timestamp | Browser compromise can observe public workflow metadata |
 | Safe owner requests confidential balance reveal | Safe threshold grants viewer access only to the connected owner and current balance handle | Viewer access is irreversible for that handle; a compromised authorized owner can decrypt it |
 | Safe vcUSDC unwrap targets the wrong recipient | UI validates and displays the public recipient; normal Safe threshold remains mandatory | Owners can still approve an incorrect recipient |
-| Safe vcUSDC unwrap changes privacy | UI separates Full and Custom modes, requires private balance reveal only for Custom, and warns before the Safe proposal | Finalized unwrap amount and recipient are public by wrapper design |
+| Safe vcUSDC unwrap changes privacy | UI uses one amount field with an explicit Full shortcut, requires private balance reveal only for a custom amount, and warns before the Safe proposal | Finalized unwrap amount and recipient are public by wrapper design |
 | Partial unwrap proof is replayed or prepared against stale funds | Adapter binds the owner proof to the calling Safe, fresh nonce, one-time handle, current balance handle, and transaction-scoped Nox access | Nox, wrapper, adapter, or Safe bugs remain unaudited |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |

@@ -185,7 +185,7 @@ lặp lại cho mỗi tender.
 
 ### 4.3. Nạp confidential vUSDC cho Safe
 
-1. Nhập số lượng vào `Test vcUSDC amount`.
+1. Nhập số lượng vào `vcUSDC amount`.
 2. Bấm `ADD TEST vcUSDC`.
 3. Proposal sẽ tự thêm faucet call khi public vUSDC của Safe chưa đủ, sau đó
    `approve` wrapper và `wrap` vào chính Safe.
@@ -212,18 +212,22 @@ Viewer grant là per-handle, không cấp operator, signer hoặc quyền xem bi
 Khối `UNWRAP vcUSDC` nằm ngay trong card `SELECTED SAFE`, không mở lại bảng
 quản lý ETH/public vUSDC.
 
-#### Full
+Giao diện không còn hai tab Full/Custom. Chỉ có một ô amount và nút `FULL`
+ngay bên cạnh.
 
-1. Giữ chế độ `FULL`.
+#### Rút toàn bộ
+
+1. Bấm `FULL`; nút chuyển thành `FULL ✓` và ô amount hiển thị
+   `FULL BALANCE`.
 2. Kiểm tra `Public vUSDC recipient`; mặc định là EOA owner đang kết nối.
 3. Bấm `PROPOSE FULL UNWRAP`.
 4. Full dùng balance handle mã hóa hiện tại, nên không cần bấm con mắt hoặc
    reveal balance trước.
 5. Ký/thu thập đủ threshold cho Safe transaction.
 
-#### Custom
+#### Rút lượng tùy chỉnh
 
-1. Chọn `CUSTOM`.
+1. Nếu `FULL ✓` đang được chọn, bấm lại nút đó để quay về nhập amount.
 2. Nếu balance chưa reveal, bấm `AUTHORIZE BALANCE VIEW`, chờ Safe proposal
    execute, rồi bấm `REVEAL BALANCE`.
 3. Nhập số vcUSDC nhỏ hơn balance vừa reveal. Muốn rút hết thì chuyển về
@@ -240,8 +244,8 @@ thứ hai dùng public-decryption proof để trả public vUSDC cho recipient.
 
 Kết quả mong đợi:
 
-- `FULL` không yêu cầu reveal balance.
-- `CUSTOM` yêu cầu reveal để web chặn amount bằng 0, bằng full balance hoặc lớn
+- Nút `FULL` không yêu cầu reveal balance.
+- Amount tùy chỉnh yêu cầu reveal để web chặn amount bằng 0, bằng full balance hoặc lớn
   hơn balance; contract còn chặn balance handle cũ và replay nonce/handle.
 - Khi finalize, amount unwrap và recipient trở thành công khai.
 - Phần vcUSDC còn lại và mọi bid value vẫn confidential.
