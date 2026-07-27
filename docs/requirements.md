@@ -28,7 +28,7 @@
 | PRD-007 | Winner ID is publicly decrypted and proof-verified | Must | Proof and replay tests |
 | PRD-008 | Winner payment and buyer refund are confidential | Must | Authorized deltas asserted and redacted |
 | PRD-009 | Buyer/vendor can reveal authorized terms | Must | Wallet EIP-712 authorization |
-| PRD-010 | Auditor receives selective viewer ACL | Must | ACL index and authorized reveal |
+| PRD-010 | Creation-bound review wallet receives selective ACL only after finalization | Must | Open-state denial, automatic terminal grant, ACL index, and authorized reveal |
 | PRD-011 | Safe can own and authorize a procurement budget | Must | Restricted module and live Safe flow |
 | PRD-012 | Public tender explorer works wallet-free | Must | Event-derived lifecycle UI |
 | PRD-013 | Finalization survives indexing/proof delay | Must | Recoverable activity item and retry |

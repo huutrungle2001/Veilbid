@@ -51,7 +51,7 @@ One-sentence value:
 - ERC-7984 performs confidential payment and remainder refund.
 - Safe remains treasury authority.
 - Permissionless finalizers provide liveness without private access.
-- Buyer/vendor/auditor roles create a product, not only a contract demo.
+- Safe Buyer/Private Bids/reviewer roles create a product, not only a contract demo.
 
 ## 6. User decisions
 

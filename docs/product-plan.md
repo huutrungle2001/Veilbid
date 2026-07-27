@@ -25,7 +25,7 @@ VeilBid combines:
 - Confidential on-chain winner selection.
 - Proof-derived public award.
 - Confidential payment and refund.
-- Selective disclosure to buyer, vendor, or auditor.
+- Post-finalization review through a creation-bound wallet and vendor-controlled selective disclosure.
 
 ## 3. Users
 
@@ -36,7 +36,7 @@ VeilBid combines:
 
 ### Secondary
 
-- Auditors who need scoped access to selected bids.
+- Review wallets that need scoped access after finalization.
 - Permissionless finalizers who maintain protocol liveness.
 - Judges and public observers verifying the lifecycle without a wallet.
 
@@ -51,6 +51,7 @@ VeilBid combines:
 | Data | Visibility |
 |---|---|
 | Tender ID, buyer, metadata URI/hash | Public |
+| Creation-bound review wallet | Public |
 | Payment token and public ceiling | Public |
 | Approved vendor addresses | Public |
 | Bid deadline | Public |
@@ -68,11 +69,11 @@ Disclosure policy:
 - A vendor receives viewer access to its own stored bid handle.
 - The buyer is not an automatic viewer of vendor bid prices while the tender is
   `Open`.
-- After close, the buyer may grant viewer access one bid handle at a time to
-  itself or an auditor.
+- After proof-derived finalization, the contract automatically grants the
+  creation-bound review wallet access to each stored bid handle.
 - A vendor may grant a viewer access to its own bid at any time.
-- Viewer grants are per-handle and irreversible for that handle. There is no
-  tender-wide or future-bid grant in the MVP.
+- All grants remain per-handle and irreversible for that handle. There is no
+  access to accumulator, payment, refund, or unrelated balance handles.
 
 ## 6. Core user journeys
 
@@ -87,7 +88,8 @@ Disclosure policy:
 6. Close after the deadline or immediately when all approved vendors have bid;
    the settlement relay performs this permissionlessly.
 7. Verify the proof-derived winner and confidential settlement.
-8. Reveal authorized data or grant an auditor.
+8. Review stored bids after finalization through the automatically authorized
+   EOA review wallet.
 
 ### Safe buyer
 
@@ -101,10 +103,13 @@ Disclosure policy:
    selected Safe is not ready.
 5. Safe Buyer prepares a target-bound budget handle and tender creation in one
    threshold-authorized batch through the restricted preparation module.
+   The connected owner is explicitly bound as the tender's review wallet in
+   the same approved calldata.
 6. Execute tender creation/funding as a normal Safe transaction satisfying the
    configured owner threshold.
 7. Confirm the public exact-funding proof before the tender opens.
 8. Settle/refund to the Safe; the browser owner does not become custodian.
+   Finalization automatically authorizes that review wallet for stored bids.
 9. Exit confidential treasury funds with either a full-handle unwrap or an
    owner-encrypted custom amount to the connected wallet. Both require the
    normal Safe threshold and a separate permissionless public-proof
@@ -144,7 +149,7 @@ Disclosure policy:
 - [x] Encrypted best-price and winner-ID accumulation.
 - [x] Permissionless close and proof-based finalize/refund.
 - [x] Confidential winner payment and buyer remainder.
-- [x] Buyer/vendor authorized reveal and auditor ACL.
+- [x] Vendor-controlled reveal and automatic post-finalization review-wallet ACL.
 - [x] Wallet-free event-derived tender explorer.
 - [x] Award receipt and activity/recovery UI.
 - [x] Stateless finalizer with dry-run and bounded actions.
@@ -153,7 +158,7 @@ Disclosure policy:
 
 ### Should have
 
-- [ ] Batch Safe input/viewer preparation.
+- [x] Threshold-bound Safe review-wallet selection at tender creation.
 - [ ] Public finalizer health surfaced in the UI.
 - [x] Read-only MCP tools for tender and proof inspection.
 - [ ] Strict-schema Strategy Assistant for public tender drafting.
@@ -209,7 +214,7 @@ Use a pre-funded Safe and two prepared vendor wallets:
 3. Submit one live encrypted bid; show another confirmed bid.
 4. Close and finalize the proof-derived winner.
 5. Reveal winner payment only to an authorized account.
-6. Show auditor ACL, receipt, source/runtime mapping, and sanitized lifecycle
+6. Show automatic post-finalization review ACL, receipt, source/runtime mapping, and sanitized lifecycle
    evidence.
 
 ## 12. Approval gate

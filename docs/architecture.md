@@ -52,7 +52,8 @@ Canonical tender and bid state:
 - Marks only winner ID publicly decryptable at close.
 - Verifies the public-decryption proof at finalize.
 - Coordinates confidential payout/refund.
-- Grants scoped buyer/vendor/auditor ACL.
+- Grants vendor ACL on submission and automatic review-wallet ACL only after
+  terminal finalization.
 
 ### Custody decision
 
@@ -176,7 +177,7 @@ buyer refund during a Nox outage.
 - Wallet discovery and provider-specific reconnect.
 - Public event index with bounded RPC ranges, immediate confirmed-state display,
   and a separately labeled 12-block finality checkpoint.
-- Buyer, Vendor, Public, Auditor, Activity, and Safe workspaces.
+- Public, Safe Buyer, Private Bids, Activity, and advanced EOA Buyer workspaces.
 - Safe Transaction Service discovery with a manual-address fallback.
 - Connected-wallet approve/wrap deposits into the selected Safe, tender-scoped
   one-time module setup, automatic preparation nonce allocation, and
@@ -225,6 +226,7 @@ Optional, non-authoritative, and not implemented in this release:
 | Confidential values | Nox handles and ACL |
 | Public lifecycle index | Rebuildable client/finalizer cache |
 | Revealed plaintext | Browser session only |
+| Tender review wallet | Public, immutable tender field; selected at creation |
 | Safe authority | Safe owners and threshold |
 | Pending Safe proposal recovery | Browser local storage: public Safe address, transaction hash, action kind, timestamp only |
 | Safe confidential balance viewer | Nox per-handle ACL granted by a normal threshold-authorized Safe transaction |
@@ -242,6 +244,8 @@ There is no application database or authentication server.
 - Proof delay: persist the close/proof request and resume without reclosing; the
   escrow remains locked while Nox public decryption is unavailable.
 - Competing finalizer: reread status and simulate; treat stale race as benign.
+- Automatic bid review: the review wallet remains denied while `Open`; a
+  successful terminal finalize grants it only the stored bid handles.
 - Safe balance viewer: reread the current balance handle; a grant for an older
   handle never authorizes a new balance after funding, transfer, or unwrap.
 - Safe unwrap: recover the request handle from the confirmed Safe execution and

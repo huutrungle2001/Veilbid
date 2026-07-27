@@ -2,8 +2,8 @@
 
 Tài liệu này hướng dẫn kiểm tra release VeilBid hiện tại trên Ethereum Sepolia:
 Safe Buyer tạo tender bằng một Safe batch nguyên tử, hai Vendor gửi bid mã hóa,
-relay công khai xác nhận funding/đóng/finalize, và Auditor chỉ reveal bid đã
-được cấp quyền.
+relay công khai xác nhận funding/đóng/finalize, và review wallet chỉ được tự
+động cấp quyền xem bid sau finalization.
 
 Luồng chính là `SAFE BUYER`. `EOA BUYER` vẫn tồn tại như một phương án nâng cao
 để thử nghiệm hoặc phục hồi, không phải câu chuyện demo chính.
@@ -36,14 +36,14 @@ corepack pnpm --filter @veilbid/tender-room dev
 | --- | --- |
 | Safe owner / Buyer | `0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E` |
 | Vendor 1 | `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` |
-| Vendor 2 kiêm Auditor | `0xA4565608e096CFEf7da36eB19a57Da6d277D942f` |
+| Vendor 2 | `0xA4565608e096CFEf7da36eB19a57Da6d277D942f` |
 
 Import các tài khoản test vào MetaMask bằng private key tương ứng trong
 `.env.local`:
 
 - Buyer: `SEPOLIA_PRIVATE_KEY`
 - Vendor 1: `SEPOLIA_TEST_VENDOR_PRIVATE_KEY`
-- Vendor 2/Auditor: `SEPOLIA_TEST_AUDITOR_PRIVATE_KEY`
+- Vendor 2: `SEPOLIA_TEST_AUDITOR_PRIVATE_KEY`
 
 `SEPOLIA_VENDOR_PRIVATE_KEY` thuộc vendor của canonical release lifecycle
 (`0x4d2809486012076B2212C829742BD95eF5992dB0`), không phải Vendor 1 trong
@@ -54,9 +54,9 @@ Release hiện tại dùng:
 | Thành phần | Địa chỉ |
 | --- | --- |
 | Demo Safe 1.4.1 | `0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0` |
-| Legacy demo Safe module | `0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401` |
-| Per-Safe module factory | `0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4` |
-| VeilBid Market | `0x969F93642054130e87AFC8D380eec850617A6048` |
+| Canonical Safe module | `0x60a3ed162b13E7Fd8b0139547Aa1B38F41a774C0` |
+| Per-Safe module factory | `0x6C09f72FF67eE0bfAD7D45DFFde5bd06228050BE` |
+| VeilBid Market | `0x720ac8Ae5dE78590FF5184E53130460033228afc` |
 
 `SAFE BUYER` hoạt động với bất kỳ Safe đã deploy trên Ethereum Sepolia nếu ví
 đang kết nối là một owner. Web tự tìm Safe theo owner qua Safe Transaction
@@ -68,8 +68,8 @@ CREATE2. Thiết lập lần đầu vẫn là một Safe proposal và phải đ�
 của Safe. Factory không thể enable module, đổi owner, hạ threshold hoặc thực thi
 giao dịch thay Safe.
 
-Canonical demo Safe hiện có threshold `1/1` và tiếp tục dùng legacy module đã
-được xác minh. Safe mới có thể faucet và wrap trực tiếp bằng batch
+Canonical demo Safe hiện có threshold `1/1` và dùng canonical module đã được
+xác minh. Safe mới có thể faucet và wrap trực tiếp bằng batch
 `FAUCET + WRAP WITH SAFE`; không cần chuyển vcUSDC từ EOA.
 
 Không sao chép private key vào tài liệu, ảnh chụp, terminal output hoặc Git.
@@ -93,6 +93,7 @@ Chỉ dùng các ví này trên testnet.
    - Public ceiling.
    - Deadline.
    - Buyer.
+   - Review wallet.
    - Số bid trên tổng số Vendor được approve.
    - Lifecycle và trạng thái.
    - Transaction fingerprint.
@@ -308,6 +309,8 @@ Kết quả mong đợi:
 - Chỉ Safe transaction đạt threshold mới có thể chuyển confidential budget.
 - Tender chỉ mở sau khi exact funding được chứng minh.
 - Buyer của tender là địa chỉ Safe đã chọn, không phải EOA owner.
+- Review wallet là EOA owner đang kết nối và đã được Safe threshold chấp thuận
+  trong chính calldata tạo tender.
 - Public ceiling là `10 vUSDC`.
 - Hai địa chỉ Vendor là metadata công khai.
 - Safe owner không tự động thấy plaintext bid của Vendor.
@@ -321,7 +324,7 @@ Kết quả mong đợi:
 0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55
 ```
 
-2. Mở workspace `VENDOR`.
+2. Mở workspace `PRIVATE BIDS`.
 3. Chọn tender vừa tạo.
 4. Nhập private bid:
 
@@ -349,7 +352,7 @@ Kết quả mong đợi: Public biết Vendor đã gửi bid nhưng không hiể
 0xA4565608e096CFEf7da36eB19a57Da6d277D942f
 ```
 
-2. Mở workspace `VENDOR`.
+2. Mở workspace `PRIVATE BIDS`.
 3. Chọn cùng tender.
 4. Nhập private bid:
 
@@ -370,39 +373,25 @@ Kết quả mong đợi:
 - Vendor không nằm trong allowlist không thể gửi bid.
 - `2 / 2` Vendor đã gửi là điều kiện close hợp lệ trước deadline.
 
-## 7. Test Selective Disclosure và Auditor
+## 7. Test review wallet tự động
 
-### Vendor 1 cấp quyền
+Review wallet của tender Safe là EOA owner đã được bind ở lúc tạo. Không có nút
+Buyer grant thủ công và không cần thêm Safe proposal.
 
-1. Chuyển lại tài khoản Vendor 1.
-2. Mở workspace `VENDOR`.
-3. Tại `SELECTIVE DISCLOSURE`, chọn bid của Vendor 1.
-4. Nhập Viewer address:
+1. Khi tender vẫn `Open`, chuyển về Safe owner.
+2. Mở workspace `PRIVATE BIDS`, chọn bid của Vendor 2 và bấm
+   `CHECK VIEWER ACCESS`.
+3. Xác nhận review wallet chưa được phép reveal bid đó.
+4. Hoàn tất bước relay/finalize tại mục 8.
+5. Khi tender đã `Awarded` hoặc `Refunded`, vẫn bằng Safe owner, kiểm tra lại
+   đúng bid trong `PRIVATE BIDS`.
+6. Xác nhận ACL đã được cấp tự động rồi bấm reveal trong session.
+7. Đổi tài khoản hoặc reload và xác nhận plaintext bị xóa.
 
-```text
-0xA4565608e096CFEf7da36eB19a57Da6d277D942f
-```
-
-5. Bấm `GRANT THIS BID`.
-6. Theo dõi toast qua simulate, chờ ký và chờ confirmation.
-7. Xác nhận giao dịch.
-
-### Auditor kiểm tra và reveal
-
-1. Chuyển sang tài khoản Vendor 2/Auditor.
-2. Mở workspace `AUDITOR`.
-3. Chọn đúng Tender ID và Bid ID của Vendor 1.
-4. Bấm `CHECK VIEWER ACCESS`.
-5. Xác nhận thông báo `Authorized for this bid only`.
-6. Bấm `REVEAL IN SESSION`.
-7. Xác nhận yêu cầu ví.
-8. Kiểm tra giá bid của Vendor 1 được reveal trong phiên.
-9. Đổi tài khoản hoặc reload và xác nhận plaintext bị xóa.
-
-Không chụp hoặc lưu giá reveal vào public evidence.
-
-Kết quả mong đợi: quyền chỉ áp dụng cho đúng bid đã grant; Auditor không có
-quyền token operator, Buyer, Vendor khác, Safe signer hoặc protocol admin.
+Không chụp hoặc lưu giá reveal vào public evidence. Quyền review chỉ áp dụng
+cho các bid handle của tender đã finalize; không cấp token operator, Buyer,
+Vendor, Safe signer hoặc protocol admin. Vendor vẫn có thể chủ động share bid
+của chính mình nếu có nhu cầu riêng.
 
 ## 8. Relay tự động close, proof và settlement
 
@@ -495,6 +484,7 @@ Kết quả mong đợi:
 - Tender vẫn phải đi qua `FundingPending` trước khi `Open`.
 - EOA Buyer không được cung cấp winner và không tự động xem bid khi tender đang
   mở.
+- EOA Buyer được bind làm review wallet và tự nhận per-bid ACL sau finalization.
 - Đây là fallback; video submission nên ưu tiên Safe Buyer để giữ đúng định vị
   “Confidential procurement for Safe treasuries”.
 
@@ -537,8 +527,8 @@ Thực hiện thêm các trường hợp:
 - [ ] Tender chuyển sang `Open`.
 - [ ] Hai Vendor gửi hai bid mã hóa.
 - [ ] Public hiển thị `2 / 2` Vendor đã bid và không lộ giá.
-- [ ] Viewer grant chỉ áp dụng cho một bid.
-- [ ] Auditor check ACL và reveal đúng bid.
+- [ ] Review wallet bị từ chối khi Open và tự có ACL sau finalization.
+- [ ] Private Bids check ACL và reveal đúng bid trong session.
 - [ ] Relay close sớm khi đủ Vendor và finalize proof thành công.
 - [ ] Optional: Activity manual fallback/checkpoint recovery hoạt động.
 - [ ] Vendor 2 thắng với bid thấp nhất.

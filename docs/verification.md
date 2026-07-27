@@ -29,13 +29,13 @@
 | Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
 | Reentrancy | Token callbacks cannot corrupt lifecycle | PARTIAL — all lifecycle writes are guarded and terminal state precedes token calls; callback adversarial runtime test pending |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PASS — proof-derived Sepolia mint plus unit transfer/approval rejection; market uses non-callback mint |
-| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PASS — vendor-only Open ACL, post-close EOA buyer grant, and threshold-authorized Safe-to-viewer grant verified |
+| Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PASS — vendor-only Open ACL, creation-bound review wallet denial while Open, and automatic post-finalization review access verified on Sepolia tender #1 |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PASS — planner/runner/configuration/health tests pass; relay-originated funding confirmation, early close, and proof-finalize writes pass on Sepolia tender #3 |
 | MCP read-only | Public queries, strict schemas, no signer/write/reveal | PASS — five stdio tools query finalized tender/readiness/settlement/receipt/ACL state; seven tests and static policy inspection exclude signer, writes, decryption, handles, and raw errors |
 | Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — browser, relay, and MCP share provider-compatible 1,000-block Sepolia RPC pagination; the browser displays latest confirmed events with an explicit 12-block finality boundary while relay/MCP retain finalized indexing; deterministic rebuild/dedupe/guards and live reads pass, with a provider reorg drill still pending |
-| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PASS — 72 tests cover wallet/session clearing, Buyer/Vendor validation, multi-vendor entry, status filtering, latest-confirmed/finality labeling, standalone routes, shared public pagination, public dossiers/receipts, canonical release labeling, recovery, disclosure filters, Auditor ACL-before-decrypt, Safe discovery/cache/RPC failover, connected-wallet deposit targeting, exact treasury calldata, atomic Safe batch handoff, and Safe proposal threshold status |
+| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PASS — 72 tests cover wallet/session clearing, Buyer/Vendor validation, multi-vendor entry, status filtering, latest-confirmed/finality labeling, standalone routes, shared public pagination, public dossiers/receipts, canonical release labeling, recovery, Private Bids ACL-before-decrypt, Safe discovery/cache/RPC failover, connected-wallet deposit targeting, exact treasury calldata, atomic Safe batch handoff, and Safe proposal threshold status |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PASS — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible focus, reduced-motion handling, and live regions; production Chrome verified forward/reverse traversal, Enter activation, persistent route state, and hash-target clearance below the sticky header |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, canonical creation bytecode, and current-ABI constructor arguments verified |
@@ -67,8 +67,10 @@
 18. Vendor can view its own bid; unrelated accounts and the open-tender buyer
     cannot.
 19. Vendor grants affect only its selected bid handle.
-20. Buyer grants are rejected while open and accepted per handle after close.
-21. A Safe viewer grant requires normal threshold authorization.
+20. The creation-bound review wallet is denied cross-bid access while open.
+21. Finalization automatically grants that wallet only the stored bid handles;
+    Safe selection of the wallet requires normal threshold authorization at
+    tender creation.
 22. Buyer cancellation is allowed only under specified pre-bid conditions.
 23. Safe preparation cannot execute or spend, and wrong action/consumer/nonce
     or replay fails.
@@ -163,6 +165,7 @@ pnpm evidence:validate
 | 2026-07-26 | Canonical release source publication | `1c0d990` | `evidence/sepolia/source-publication.release.json` | PASS — exact Sourcify top-level creation/runtime mappings and embedded receipt runtime/parent creation mapping verified from pinned Standard JSON inputs |
 | 2026-07-26 | Canonical release deployment consistency | `edd3c52` | `evidence/sepolia/deployment-consistency.release.json` | PASS — constructor calldata, receipts, runtime bytecode, wiring, Safe/module/operator state, and source mappings verified before `verified=true` promotion |
 | 2026-07-26 | Canonical release two-vendor lifecycle | `94bcfc8` | `evidence/sepolia/release-two-vendor.json` | PASS — Safe funding, two distinct encrypted bids, per-vendor ACL/decryption, proof-derived lower second winner, confidential settlement, receipt, replay rejection, threshold cross-bid grant, and preserved release state verified |
+| 2026-07-27 | Automatic review Market release | `a57d8db` | `evidence/sepolia/source-publication.release.json`, `evidence/sepolia/deployment-consistency.release.json`, `evidence/sepolia/release-two-vendor.json` | PASS — Market `0x720a…8afc` and its receipt/module/factory passed exact source/runtime verification; Safe tender #1 bound the owner review wallet, denied it the second vendor bid while Open, then automatically granted scoped access after proof-derived finalization while preserving confidential settlement and Safe authority |
 | 2026-07-26 | Repository secret scan | `a7afecc` | `evidence/local/secret-scan.json` | PASS — tracked local environment excluded; no private-key assignment, seed/PEM material, provider token, or credential URL pattern found across 206 tracked files |
 | 2026-07-26 | Full-history secret scan | `705e16b` | `evidence/local/secret-scan.json` | PASS — ignored environments remain untracked; no credential pattern or historical environment file found across 207 current files and 546 historical blobs |
 | 2026-07-26 | Canonical release gate | `0f8b9db` | `evidence/local/release-gate.json` | PASS — all workspace tests, typed lint, compile, Vite/vinext builds, binding/source/deployment checks, verified relay health/dry-run, secret scan, and evidence validation passed |

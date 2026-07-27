@@ -58,7 +58,7 @@ VeilBid combines:
 - Public proof verification for the winning bid identifier.
 - Confidential ERC-7984 payment and buyer remainder.
 - Safe threshold authority for treasury actions.
-- Per-bid selective disclosure for vendors, buyers, and auditors.
+- Per-bid vendor disclosure plus automatic post-finalization review access.
 - A non-transferable award receipt for the public winner.
 - Permissionless, recoverable close and finalization.
 
@@ -169,7 +169,7 @@ the buyer to invalidate a legitimate award.
 flowchart LR
     Buyer["Buyer EOA / Safe"] --> Web["React + Vite web app"]
     Vendor["Approved vendors"] --> Web
-    Auditor["Scoped auditor"] --> Web
+    Reviewer["Bound review wallet"] --> Web
 
     Web -->|Handle SDK encryption / reveal| Nox["iExec Nox services"]
     Web -->|public reads and wallet-signed writes| Market["VeilBidMarket"]
@@ -203,8 +203,8 @@ flowchart LR
 
 ### Off-chain components
 
-- **Web application:** public explorer plus Buyer, Vendor, Activity, Auditor,
-  and Safe Treasury workspaces.
+- **Web application:** public explorer plus Safe Buyer, Private Bids, Activity,
+  and an advanced EOA Buyer fallback.
 - **Settlement relay:** stateless public readiness discovery and bounded
   close/finalize automation.
 - **Operator console:** five strict-schema, read-only public query tools exposed
@@ -264,7 +264,7 @@ security, or mainnet readiness.
    Records inside the 12-block finality window are labeled as pending finality;
    missing RPC/indexer data is shown as unavailable with no mock fallback.
 
-### Buyer
+### EOA Buyer — advanced fallback
 
 1. Connect an injected EIP-6963 wallet and switch to Sepolia.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor
@@ -280,7 +280,8 @@ security, or mainnet readiness.
 8. Close after the deadline, or as soon as every approved vendor has bid; a
    permissionless settlement relay can perform the write.
 9. Resume an interrupted proof request from Activity.
-10. After close, optionally grant an auditor access to one specific bid handle.
+10. After proof-derived finalization, use the same EOA as the automatically
+    authorized review wallet; it receives no cross-bid access while `Open`.
 
 Long-running wallet actions update a bottom-right notification instead of
 appearing idle. The same notification advances through the operation’s actual
@@ -313,7 +314,7 @@ Public ETH and vUSDC are intentionally omitted from the VeilBid Safe surface.
 They remain visible and transferable in the standard Safe Wallet; VeilBid does
 not duplicate general-purpose treasury management.
 
-### Vendor
+### Private Bids — vendor and reviewer
 
 1. Connect an address included in the tender’s public vendor allowlist.
 2. Verify the ceiling, deadline, buyer, and admission status.
@@ -325,6 +326,8 @@ not duplicate general-purpose treasury management.
    handle.
 
 Each approved vendor has one immutable bid slot. There is no edit path.
+The same workspace lets a tender's public review wallet check ACL and reveal
+stored bids after finalization. The value remains session-only.
 
 ### Activity / finalizer
 
@@ -334,17 +337,6 @@ Each approved vendor has one immutable bid slot. There is no edit path.
 4. Finalize once the proof is available.
 5. Confirm either `Awarded` with a receipt or `Refunded` for the zero-winner
    outcome.
-
-### Auditor
-
-1. Connect the exact viewer address that received a per-handle grant.
-2. Select the public tender and bid reference.
-3. Verify viewer ACL before requesting decryption.
-4. Reveal only in the active browser session.
-
-Viewer access does not grant token operator, buyer, vendor, Safe signer, or
-protocol-administrator authority. Do not capture revealed values in public
-screenshots, logs, or evidence.
 
 ### Safe treasury
 
@@ -361,12 +353,18 @@ screenshots, logs, or evidence.
    selected Safe is not ready. This deploys/enables its deterministic module,
    binds the Market, and authorizes settlement.
 6. Enter public terms; VeilBid allocates the internal nonce and creates one
-   atomic preparation/tender batch.
+   atomic preparation/tender batch. The connected owner is bound in that same
+   threshold-approved calldata as the public review wallet.
 7. Satisfy the Safe's normal threshold. Pending multisig approvals remain
    actionable; executed actions move into collapsed transaction history.
+8. After proof-derived finalization, the bound review wallet receives scoped
+   access to every stored bid automatically; no extra Safe proposal is needed.
 
 Preparation is not execution. The module contains no
 `execTransactionFromModule` or arbitrary-call path.
+Review access does not grant token operator, buyer, vendor, Safe signer, or
+protocol-administrator authority. Do not capture revealed values in public
+screenshots, logs, or evidence.
 
 ## Run locally
 
@@ -556,7 +554,7 @@ implementation. Standard output is reserved for MCP JSON-RPC.
 ```text
 Veilbid/
 ├── apps/
-│   ├── web/                 # Landing, Docs, Public, Buyer, Vendor, Activity, Auditor, Safe
+│   ├── web/                 # Landing, Docs, Public, Safe Buyer, Private Bids, Activity
 │   ├── relay/               # Stateless close/proof/finalize automation
 │   └── console/             # Read-only local CLI and MCP stdio tools
 ├── packages/
@@ -594,7 +592,8 @@ rules.
   availability boundary.
 - A Nox proof outage can keep a closed escrow locked until recovery; there is no
   timeout-refund escape after close.
-- Per-handle viewer grants are irreversible for the current handle.
+- Per-handle viewer grants are irreversible for the current handle; the bound
+  review wallet receives them only after terminal finalization.
 - The public index has deterministic rebuild and deduplication coverage, but a
   full live reorg rollback test remains pending.
 - Contract callback protections are statically and structurally tested; a

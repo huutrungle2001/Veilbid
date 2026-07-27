@@ -109,6 +109,7 @@ Public validation:
 - Ceiling within demo bounds.
 - Bid deadline is in the future.
 - One to eight unique, nonzero approved vendor addresses are fixed at creation.
+- A nonzero review wallet is fixed at creation and is public tender metadata.
 - Only an approved vendor can submit, exactly once; bids are immutable.
 - The escrow transfer attempt is atomic with tender creation, but the tender
   remains `FundingPending`.
@@ -145,10 +146,11 @@ Viewer grants:
 
 - Always target one stored bid handle; there is no tender-wide grant.
 - The bid vendor may grant a nonzero viewer access to its own bid at any time.
-- The tender buyer may grant a nonzero viewer only after the tender leaves
-  `Open`.
-- A Safe buyer must authorize the grant through a normal threshold-approved Safe
-  transaction.
+- The tender review wallet receives no cross-bid access while `Open`.
+- `finalizeTender` automatically grants the fixed review wallet access to each
+  stored bid only after the tender enters `Awarded` or `Refunded`.
+- An EOA tender binds its buyer as review wallet. A Safe tender binds the chosen
+  owner address inside the normal threshold-approved creation calldata.
 - The function cannot grant access to accumulator, budget, payment, or refund
   handles.
 - Grants are irreversible for the current handle and emit `ViewerGranted`.
@@ -172,6 +174,8 @@ Viewer grants:
 - Uses stored vendor only; ignores caller-supplied addresses.
 - Settles confidential winning price and remainder, or full refund for zero ID.
 - Updates terminal status before external token callbacks.
+- Grants the creation-bound review wallet per-bid viewer ACL after terminal
+  state is established; this does not reveal plaintext on-chain.
 - Mints one non-transferable receipt to the stored winning vendor only for
   `Awarded`, using a non-callback mint.
 
@@ -190,6 +194,7 @@ award fairness over fund liveness during a Nox outage.
 - Equal valid bids preserve deterministic first-submission priority.
 - Only approved vendors have bid slots, and each can submit at most once.
 - Public finalizers cannot cancel, change terms, or decrypt prices.
+- The review wallet cannot inspect another vendor's bid before finalization.
 - Module preparation alone cannot transfer Safe funds.
 - No module function can execute a transaction from the Safe.
 - Award receipt ownership always equals the stored winning vendor; transfers and

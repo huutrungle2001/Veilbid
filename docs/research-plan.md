@@ -55,7 +55,7 @@ Every finding must include a source or be labelled as inference.
 - Capture the exact DoraHacks cutoff time; its public page currently presents a
   WAF challenge to this environment.
 - Record gas/runtime behavior for up to eight encrypted bids.
-- Validate the buyer, vendor, public-finalizer, and auditor journeys with target
+- Validate the Safe Buyer, Private Bids, public-finalizer, and review journeys with target
   users or realistic walkthroughs.
 
 ## 6. Feasibility handoff

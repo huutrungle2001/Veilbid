@@ -61,8 +61,9 @@ Generated directories such as `node_modules`, `dist`, `artifacts`, `cache`,
 ### `apps/web`
 
 The browser product. It owns the landing page, documentation route, public
-tender explorer, injected-wallet selection, Buyer and Vendor forms, Activity
-recovery, Auditor disclosure, and Safe preparation interface.
+tender explorer, injected-wallet selection, Safe Buyer and advanced EOA forms,
+Activity recovery, combined Private Bids disclosure, and Safe preparation
+interface.
 
 It reads canonical public state through `@veilbid/chain-bindings`; it does not
 calculate or submit a plaintext winner.

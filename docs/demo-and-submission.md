@@ -40,14 +40,14 @@ finalize. Explain that the UI never supplies a favored winner.
 
 ### 2:25–3:05 — Confidential settlement
 
-Show the public winner and receipt. Authorized winner/buyer reveal proves the
+Show the public winner and receipt. Authorized vendor/review-wallet reveal proves the
 confidential payment/refund; do not display plaintext values in public
 repository evidence.
 
-### 3:05–3:35 — Safe and selective audit
+### 3:05–3:35 — Safe and automatic review
 
-Show Safe ownership/module restriction and an auditor viewer ACL without spend
-authority.
+Show Safe ownership/module restriction, the creation-bound review wallet, and
+its automatic post-finalization ACL without spend authority.
 
 ### 3:35–3:55 — Evidence and close
 

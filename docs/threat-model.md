@@ -20,7 +20,7 @@ VeilBid aims to:
 
 | Asset/data | Visibility | Authorized controller/viewer |
 |---|---|---|
-| Vendor price | Encrypted handle public; value private | Vendor, market computation, explicit per-handle viewers |
+| Vendor price | Encrypted handle public; value private | Vendor, market computation, vendor-granted viewers, and creation-bound review wallet after finalization |
 | Best price | Encrypted | Market and intended settlement contracts |
 | Winner bid ID before close | Encrypted | Market |
 | Winner bid ID after close | Publicly decryptable | Everyone after valid proof |
@@ -28,6 +28,7 @@ VeilBid aims to:
 | ERC-7984 balances/payments | Handle public; value private | Holder and explicit viewers |
 | Tender metadata/ceiling/deadlines | Public | Everyone |
 | Approved vendor addresses | Public | Everyone |
+| Tender review wallet | Public | Everyone |
 | Bidder addresses/timing/count | Public | Everyone |
 | Safe owners/threshold/module | Public | Everyone |
 | Revealed plaintext | Browser session | Authorizing wallet/browser |
@@ -93,8 +94,8 @@ same risk as that wallet.
 | Double settlement/replay | Terminal state before external calls and proof binding | Unaudited contract bugs |
 | Malicious token callback | Canonical wrapper allowlist, guard, checks-effects-interactions | Wrapper/Nox compromise |
 | Finalizer logs confidential material | Sanitized schema excludes handles/proofs/plaintext/keys | Host compromise |
-| Buyer inspects bids before close | Buyer is not an automatic bid viewer while `Open` | Vendor can voluntarily disclose its own bid |
-| ACL grant leaks a bid | Role- and lifecycle-gated per-handle grant with confirmation | Grants are irreversible for the current handle |
+| Buyer/reviewer inspects bids before finalize | Review wallet receives no cross-bid ACL while `Open` or `Closed` | Vendor can voluntarily disclose its own bid |
+| Automatic review ACL leaks a bid too early | Review wallet is fixed at creation; ACL is added only after verified terminal state | Grants are irreversible and the chosen review wallet may later be compromised |
 | Indexing delay appears as failure | Bounded retry and recoverable pending state | Extended service outage |
 | Buyer Safe module overreach | Preparation-only API, fixed Safe/consumer/action binding, one-time nonce, and no Safe execution call | Handle ACL leakage or owner compromise |
 | Attacker deploys a module for another Safe | Factory deployment is deterministic but inert until that Safe enables/configures it through its own threshold | Address squatting is prevented by CREATE2; factory/bytecode bugs remain unaudited |
@@ -112,9 +113,9 @@ same risk as that wallet.
 ## 5. Compromise impact
 
 - Vendor wallet: attacker can submit/reveal as that vendor and spend its assets.
-- Buyer wallet: attacker can create/cancel where allowed and grant post-close
-  access to individual bids; cannot inspect bids through buyer authority while
-  `Open` or override the proof-derived winner.
+- Buyer/review wallet: attacker can create/cancel where allowed and inspect bids
+  after finalization; cannot inspect cross-vendor bids through review authority
+  before finalization or override the proof-derived winner.
 - Safe owner: one compromised owner can prepare inputs but cannot move Safe
   assets unless the Safe threshold is also satisfied.
 - Market owner/admin: must not have arbitrary withdrawal or winner override;

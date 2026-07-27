@@ -40,7 +40,7 @@ VeilBid fits because:
 - Safe is an existing open-source protocol and remains the treasury authority.
 - Nox privately evaluates vendor prices rather than decorating a public flow.
 - ERC-7984 settles the winning price without exposing it.
-- A complete web application is central to buyer/vendor/auditor usability.
+- A complete web application is central to Safe Buyer, Vendor, and review usability.
 
 Multiple submissions are treated as allowed based on direct user confirmation
 on 2026-07-25. Store organizer evidence when available.
