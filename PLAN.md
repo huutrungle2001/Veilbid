@@ -5,14 +5,15 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Sepolia and product
-- Status: In progress
-- Next action: Restore EOA Buyer as a first-class workspace, validate, deploy,
-  and record the updated production evidence.
-- Current blocker: None. The previous release is recoverable from GitHub and
-  local branch `backup/pre-auto-review-20260727`.
-- Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T21:47:00+07:00
+- Current phase: Phase 7 — Submission
+- Status: Waiting for approval
+- Next action: Record the demo video, publish the X post, and complete the
+  DoraHacks submission using the verified production release.
+- Current blocker: Product engineering is complete; submission media and final
+  publication remain user-controlled. Previous releases remain recoverable
+  from GitHub and local branch `backup/pre-auto-review-20260727`.
+- Awaiting approval from: User for final submission media/publication.
+- Last updated: 2026-07-27T21:46:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -45,7 +46,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
@@ -88,6 +89,7 @@ Only one phase may be `In progress`.
 | Connected-wallet Safe funds release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj` deposits vcUSDC to the selected Safe from the connected wallet, fixes unwrap output to that wallet, compacts `SAFE FUNDS`, and moves one-time setup into tender creation. The full repository gate, production route/desktop/mobile smoke, keyboard navigation, and 198 Docs contrast checks passed. |
 | Automatic review upgrade | Verified | Agent | 2026-07-27 | Market `0x720ac8Ae5dE78590FF5184E53130460033228afc` binds a public review wallet at creation, denies it cross-bid access while Open, and automatically grants per-bid ACL after proof-derived finalization. Sepolia Safe tender #1 verified the full two-vendor lifecycle without a manual Buyer grant transaction. |
 | Automatic review frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_DgfAxLWdc4cfVzhtVntjEn4g4uHj` is aliased to `https://veilbid-three.vercel.app`; the primary navigation is Public/Safe Buyer/Private Bids/Activity, EOA Buyer is advanced, Vendor/review actions are consolidated, and production route, desktop/mobile, keyboard, contrast, canonical Market, and wallet-free tender checks passed. |
+| First-class EOA Buyer restoration | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_8b9MuiqWoBb7cWt5aRU1K1ohfXAS` restores EOA Buyer directly to the primary workspace bar alongside Safe Buyer. Its full direct-wallet funding/tender flow uses the current automatic-review Market; all repository tests/lint/build plus production routes, desktop/mobile, keyboard, contrast, and canonical tender checks passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
