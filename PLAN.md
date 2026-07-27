@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T01:28:00+07:00
+- Last updated: 2026-07-28T02:05:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -94,9 +94,10 @@ Only one phase may be `In progress`.
 | Vendor deadline and error guard | Verified | Agent | 2026-07-28 | Private Bids only lists `Open`, unexpired tenders, removes selections as they expire, rechecks before encryption, and shows local time, canonical UTC, and a live countdown. Contract/RPC errors are reduced to actionable messages without rendering calldata, handles, proofs, or request bodies. |
 | Direct workflow production release | Verified | Agent | 2026-07-28 | Vercel deployment `dpl_EJfwApT4Ry9s3hBEUQECVFmFyqmH` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, canonical release checks, keyboard navigation, sticky layouts, and 201 Docs contrast checks passed. Railway deployment `7f1b2460-4c00-4fb9-82c9-05e8d8708f94` was uploaded from source commit `cd79636`, reached `SUCCESS`, and returned verified Sepolia readiness from `/health`. |
 | Compact Safe tender balance | Verified | Agent | 2026-07-28 | Replaced the large balance-validation card inside Safe tender terms with one compact `vcUSDC` value and eye control beside `TENDER TERMS / Public procurement rules`; reveal-required and ceiling-within-balance validation remain enforced. |
-| Combined buyer/private-bids navigation | Implemented, pending release | Agent | 2026-07-28 | Merged Safe Buyer + EOA Buyer under one `BUYER` workspace and split Private Bids into sticky `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` views. Legacy role URLs normalize to the new views and selected subsections persist in query parameters. |
+| Combined buyer/private-bids navigation | Verified | Agent | 2026-07-28 | Merged Safe Buyer + EOA Buyer under one `BUYER` workspace and split Private Bids into sticky `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` views. Legacy role URLs normalize to the new views and selected subsections persist in query parameters. Web tests (85/85), lint/build, production route/desktop/mobile smoke, and keyboard/contrast smoke passed. |
 | Contextual workflow guidance | Verified | Agent | 2026-07-28 | Added per-card hover/focus `?` help across Public, EOA/Vendor/Disclosure/Auditor, Safe treasury actions, and Activity recovery cards; Public now keeps the dossier list and selected detail independently visible on desktop. Confidential bid reveals format six-decimal vUSDC units instead of raw micro-units. Web tests (85/85), lint/build, production route/desktop/mobile smoke, and keyboard/contrast smoke passed. |
 | Contextual guidance frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_BAYihyHS4hBHT3p4ms7ZcmwF21we` is aliased to `https://veilbid-three.vercel.app`; production smoke and keyboard smoke passed for the contextual UI release, followed by a CSS-only alignment deployment from source commit `788b0f8`. |
+| Combined workspace frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_Db42an8dLTHNMruP1i2WXevRz7Uh` is aliased to `https://veilbid-three.vercel.app`; production smoke and real-browser keyboard smoke passed against source commit `1a39d1d`. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
