@@ -1,9 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   formatUnits,
   getAddress,
   isAddress,
   parseUnits,
+  zeroAddress,
   type Address,
   type Hex,
 } from "viem";
@@ -15,6 +22,8 @@ import {
   authorizeSafeBalanceViewer,
   deployPersonalSafe,
   discoverOwnerSafes,
+  finalizeSafeUnwrap,
+  findSafeUnwrapRequest,
   fundSafeForVeilBid,
   getSafeProposalStatus,
   inspectSafeConfiguration,
@@ -25,11 +34,15 @@ import {
   safeWalletUrl,
   serializeSafeTransactionHandoff,
   setupSafeForVeilBid,
+  unwrapFullSafeConfidentialBalance,
+  unwrapPartialSafeConfidentialBalance,
   verifyOwnedSafes,
   type SafeAccountConfiguration,
   type SafePreparationResult,
   type SafeProposalStatus,
   type SafeTenderInput,
+  type SafeUnwrapFinalization,
+  type SafeUnwrapRequest,
 } from "./safePreparation";
 import {
   loadSafeProposals,
@@ -233,6 +246,7 @@ function SafeConfigurationCard({
   revealPending,
   onRefresh,
   onToggleReveal,
+  unwrapControl,
 }: {
   configuration: SafeAccountConfiguration;
   revealedConfidentialBalance: bigint | null;
@@ -240,6 +254,7 @@ function SafeConfigurationCard({
   revealPending: boolean;
   onRefresh: () => void;
   onToggleReveal: () => void;
+  unwrapControl: ReactNode;
 }) {
   const checks = [
     ["Module contract", configuration.moduleDeployed],
@@ -338,6 +353,7 @@ function SafeConfigurationCard({
           )}
         </button>
       </div>
+      {unwrapControl}
       <dl className="safe-handoff-evidence">
         <div>
           <dt>Owners</dt>
@@ -359,6 +375,178 @@ function SafeConfigurationCard({
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+type SafeUnwrapMode = "full" | "custom";
+
+function SafeUnwrapControl({
+  configuration,
+  mode,
+  amount,
+  recipient,
+  revealedBalance,
+  request,
+  finalization,
+  busy,
+  finalizing,
+  onModeChange,
+  onAmountChange,
+  onRecipientChange,
+  onReveal,
+  onRequest,
+  onFinalize,
+}: {
+  configuration: SafeAccountConfiguration;
+  mode: SafeUnwrapMode;
+  amount: string;
+  recipient: string;
+  revealedBalance: bigint | null;
+  request: SafeUnwrapRequest | null;
+  finalization: SafeUnwrapFinalization | null;
+  busy: boolean;
+  finalizing: boolean;
+  onModeChange: (mode: SafeUnwrapMode) => void;
+  onAmountChange: (amount: string) => void;
+  onRecipientChange: (recipient: string) => void;
+  onReveal: () => void;
+  onRequest: () => void;
+  onFinalize: () => void;
+}) {
+  const hasConfidentialBalance =
+    configuration.balances.confidential === "encrypted";
+  const customReady = mode === "custom" && revealedBalance !== null;
+  return (
+    <section className="safe-unwrap-action" aria-label="Unwrap Safe vcUSDC">
+      <div className="safe-unwrap-heading">
+        <div>
+          <p className="eyebrow">CONFIDENTIAL → PUBLIC</p>
+          <h3>Unwrap vcUSDC</h3>
+          <p>
+            Full uses the encrypted balance directly. Custom reveals the current
+            balance privately first, then encrypts only the selected amount.
+          </p>
+        </div>
+        <div
+          className="safe-unwrap-mode"
+          role="group"
+          aria-label="Unwrap amount mode"
+        >
+          {(["full", "custom"] as const).map((option) => (
+            <button
+              type="button"
+              key={option}
+              aria-pressed={mode === option}
+              onClick={() => onModeChange(option)}
+            >
+              {option.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="safe-unwrap-fields">
+        {mode === "custom" && (
+          <label>
+            <span>vcUSDC amount</span>
+            <div className="safe-amount-input">
+              <input
+                value={amount}
+                onChange={(event) => onAmountChange(event.target.value)}
+                inputMode="decimal"
+                placeholder="0.00"
+                disabled={!customReady}
+              />
+              <button
+                type="button"
+                onClick={() => onModeChange("full")}
+                title="Use the encrypted full balance without revealing it"
+              >
+                FULL
+              </button>
+            </div>
+          </label>
+        )}
+        <label>
+          <span>Public vUSDC recipient</span>
+          <input
+            value={recipient}
+            onChange={(event) => onRecipientChange(event.target.value)}
+            placeholder="0x…"
+          />
+        </label>
+      </div>
+      {mode === "custom" && revealedBalance === null && (
+        <div className="safe-unwrap-reveal">
+          <span>
+            Custom amount needs the current balance revealed in this browser
+            session to prevent an invalid overdraw.
+          </span>
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={!hasConfidentialBalance || busy}
+            onClick={onReveal}
+          >
+            {configuration.confidentialViewerAuthorized
+              ? "REVEAL BALANCE"
+              : "AUTHORIZE BALANCE VIEW"}
+          </button>
+        </div>
+      )}
+      {customReady && (
+        <p className="safe-unwrap-available">
+          Available privately: {formatUnits(revealedBalance, 6)} vcUSDC
+        </p>
+      )}
+      <div className="safe-unwrap-warning">
+        <strong>PRIVACY CHANGE</strong>
+        <span>
+          Finalization makes the unwrapped amount and recipient public.
+          Remaining vcUSDC and all bid values stay confidential.
+        </span>
+      </div>
+      <button
+        className="primary-button safe-unwrap-submit"
+        type="button"
+        disabled={
+          busy ||
+          !hasConfidentialBalance ||
+          (mode === "custom" && !customReady)
+        }
+        onClick={onRequest}
+      >
+        PROPOSE {mode === "full" ? "FULL" : "CUSTOM"} UNWRAP →
+      </button>
+      {request && (
+        <div className="safe-unwrap-finalize">
+          <div>
+            <strong>UNWRAP REQUEST READY</strong>
+            <small>Receiver {shortAddress(request.receiver)}</small>
+          </div>
+          {finalization ? (
+            <a
+              className="secondary-button"
+              href={`https://sepolia.etherscan.io/tx/${finalization.transactionHash}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {formatUnits(finalization.plaintextAmount, 6)} vUSDC RELEASED ↗
+            </a>
+          ) : request.finalized ? (
+            <strong>ALREADY FINALIZED ON-CHAIN</strong>
+          ) : (
+            <button
+              className="primary-button"
+              type="button"
+              disabled={busy || finalizing}
+              onClick={onFinalize}
+            >
+              {finalizing ? "FINALIZING…" : "FINALIZE UNWRAP →"}
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 }
@@ -405,6 +593,7 @@ export function SafeTreasuryWorkspace({
     Record<string, SafeAccountConfiguration>
   >({});
   const inspectionRequestId = useRef(0);
+  const recoveredUnwrapTransactions = useRef(new Set<string>());
   const [lastUsedSafe, setLastUsedSafe] = useState<Address | null>(null);
   const [loadingSafe, setLoadingSafe] = useState<Address | null>(null);
   const [safeReadWarning, setSafeReadWarning] = useState<string | null>(null);
@@ -413,6 +602,16 @@ export function SafeTreasuryWorkspace({
     value: bigint;
   } | null>(null);
   const [revealPending, setRevealPending] = useState(false);
+  const [unwrapMode, setUnwrapMode] = useState<SafeUnwrapMode>("full");
+  const [unwrapAmount, setUnwrapAmount] = useState("");
+  const [unwrapRecipient, setUnwrapRecipient] = useState("");
+  const [unwrapRequest, setUnwrapRequest] =
+    useState<SafeUnwrapRequest | null>(null);
+  const [unwrapRequestSafe, setUnwrapRequestSafe] =
+    useState<Address | null>(null);
+  const [unwrapFinalization, setUnwrapFinalization] =
+    useState<SafeUnwrapFinalization | null>(null);
+  const [unwrapStage, setUnwrapStage] = useState<string | null>(null);
   const [discoveryStage, setDiscoveryStage] = useState<string | null>(null);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -503,6 +702,14 @@ export function SafeTreasuryWorkspace({
     setSafeReadWarning(null);
     setRevealedSafeBalance(null);
     setRevealPending(false);
+    setUnwrapMode("full");
+    setUnwrapAmount("");
+    setUnwrapRecipient("");
+    setUnwrapRequest(null);
+    setUnwrapRequestSafe(null);
+    setUnwrapFinalization(null);
+    setUnwrapStage(null);
+    recoveredUnwrapTransactions.current.clear();
     setOwnerSafes([]);
     setStoredProposals([]);
     configurationCacheRef.current = {};
@@ -511,6 +718,7 @@ export function SafeTreasuryWorkspace({
     if (!connected) return;
     let cancelled = false;
     const account = wallet.state.account!;
+    setUnwrapRecipient(account);
     setDiscoveryStage("Finding Sepolia Safes owned by this wallet…");
     void (async () => {
       const remembered = loadRememberedOwnerSafes(account);
@@ -574,9 +782,34 @@ export function SafeTreasuryWorkspace({
         return next;
       });
 
+      let retryUnwrapRecovery = false;
+      for (const { proposal, status } of settled) {
+        const executionHash = status?.executionTransactionHash;
+        if (
+          proposal.kind !== "unwrap" ||
+          !status?.executed ||
+          !executionHash ||
+          recoveredUnwrapTransactions.current.has(executionHash)
+        ) {
+          continue;
+        }
+        recoveredUnwrapTransactions.current.add(executionHash);
+        try {
+          const request = await findSafeUnwrapRequest(executionHash);
+          if (cancelled) return;
+          setUnwrapRequest(request);
+          setUnwrapRequestSafe(proposal.safe);
+          setUnwrapFinalization(null);
+        } catch {
+          recoveredUnwrapTransactions.current.delete(executionHash);
+          retryUnwrapRecovery = true;
+        }
+      }
+
       if (
         !cancelled &&
-        settled.some(({ status }) => !status || !status.executed)
+        (retryUnwrapRecovery ||
+          settled.some(({ status }) => !status || !status.executed))
       ) {
         timer = window.setTimeout(() => void readStatuses(), 12_000);
       }
@@ -764,6 +997,129 @@ export function SafeTreasuryWorkspace({
     }
   }
 
+  function toggleBalanceReveal() {
+    if (!configuration) return;
+    if (!configuration.confidentialViewerAuthorized) {
+      void authorizeBalanceViewer();
+    } else if (revealedSafeBalance === null) {
+      void revealBalance();
+    } else {
+      setRevealedSafeBalance(null);
+    }
+  }
+
+  function unwrapRecipientAddress() {
+    if (!isAddress(unwrapRecipient)) {
+      throw new Error("Enter a valid Sepolia recipient address.");
+    }
+    const recipient = getAddress(unwrapRecipient);
+    if (recipient === zeroAddress) {
+      throw new Error("Recipient cannot be the zero address.");
+    }
+    return recipient;
+  }
+
+  async function requestUnwrap() {
+    if (!connected || !configuration) return;
+    let recipient: Address;
+    let customAmount: bigint | null = null;
+    const revealedBalance =
+      revealedSafeBalance?.handle ===
+      configuration.balances.confidentialHandle
+        ? revealedSafeBalance.value
+        : null;
+    try {
+      recipient = unwrapRecipientAddress();
+      if (unwrapMode === "custom") {
+        if (revealedBalance === null) {
+          throw new Error("Reveal the current vcUSDC balance first.");
+        }
+        customAmount = parseUnits(unwrapAmount, 6);
+        if (customAmount <= 0n) {
+          throw new Error(
+            "Enter a positive custom amount with at most 6 decimals.",
+          );
+        }
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Invalid unwrap input.");
+      return;
+    }
+    setUnwrapRequest(null);
+    setUnwrapRequestSafe(null);
+    setUnwrapFinalization(null);
+    const completed = await runAction(
+      `UNWRAP ${unwrapMode.toUpperCase()} SAFE vcUSDC`,
+      (onStage) =>
+        unwrapMode === "full"
+          ? unwrapFullSafeConfidentialBalance({
+              configuration,
+              recipient,
+              provider: wallet.state.selectedProvider!.provider,
+              account: wallet.state.account!,
+              onStage,
+            })
+          : unwrapPartialSafeConfidentialBalance({
+              configuration,
+              recipient,
+              amount: customAmount!,
+              revealedBalance: revealedBalance!,
+              walletClient: wallet.state.walletClient!,
+              provider: wallet.state.selectedProvider!.provider,
+              account: wallet.state.account!,
+              onStage,
+            }),
+    );
+    if (!completed?.executed || !completed.executionTransactionHash) return;
+    try {
+      const request = await findSafeUnwrapRequest(
+        completed.executionTransactionHash,
+      );
+      setUnwrapRequest(request);
+      setUnwrapRequestSafe(completed.safe);
+      setUnwrapFinalization(null);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Could not recover the unwrap request.",
+      );
+    }
+  }
+
+  async function finalizeUnwrap() {
+    if (!connected || !configuration || !unwrapRequest) return;
+    const toastId = toasts.start(
+      "FINALIZE UNWRAP",
+      "Waiting for the public decryption proof…",
+    );
+    setError(null);
+    try {
+      const finalized = await finalizeSafeUnwrap({
+        requestHandle: unwrapRequest.requestHandle,
+        walletClient: wallet.state.walletClient!,
+        account: wallet.state.account!,
+        onStage: (nextStage) => {
+          setUnwrapStage(nextStage);
+          toasts.update(toastId, nextStage);
+        },
+      });
+      setUnwrapFinalization(finalized);
+      toasts.succeed(
+        toastId,
+        `${formatUnits(finalized.plaintextAmount, 6)} vUSDC released.`,
+      );
+      await refreshConfiguration(configuration.safe, wallet.state.account!);
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Unwrap finalization failed.";
+      setError(message);
+      toasts.fail(toastId, message);
+    } finally {
+      setUnwrapStage(null);
+    }
+  }
+
   async function prepare() {
     if (!connected || !configuration) return;
     try {
@@ -824,6 +1180,30 @@ export function SafeTreasuryWorkspace({
           ? "Safe batch executed."
           : `${status.confirmations}/${status.threshold} approvals collected.`,
       );
+      const actionKind =
+        result?.safeTxHash === safeTxHash
+          ? result.kind
+          : storedProposals.find(
+              (proposal) => proposal.safeTxHash === safeTxHash,
+            )?.kind;
+      if (
+        status.executed &&
+        status.executionTransactionHash &&
+        actionKind === "unwrap"
+      ) {
+        try {
+          const request = await findSafeUnwrapRequest(
+            status.executionTransactionHash,
+          );
+          setUnwrapRequest(request);
+          setUnwrapRequestSafe(safe);
+          setUnwrapFinalization(null);
+        } catch {
+          setError(
+            "Safe executed the unwrap, but its request is still being indexed.",
+          );
+        }
+      }
       if (status.executed && wallet.state.account) {
         await refreshConfiguration(safe, wallet.state.account);
       }
@@ -861,6 +1241,20 @@ export function SafeTreasuryWorkspace({
   const preparationResult =
     result && ["setup", "fund"].includes(result.kind) ? result : null;
   const tenderResult = result?.kind === "tender" ? result : null;
+  const unwrapResult = result?.kind === "unwrap" ? result : null;
+  const currentRevealedBalance =
+    revealedSafeBalance &&
+    configuration &&
+    revealedSafeBalance.handle ===
+      configuration.balances.confidentialHandle
+      ? revealedSafeBalance.value
+      : null;
+  const currentUnwrapRequest =
+    unwrapRequestSafe &&
+    configuration &&
+    unwrapRequestSafe.toLowerCase() === configuration.safe.toLowerCase()
+      ? unwrapRequest
+      : null;
 
   return (
     <main className="role-workspace safe-workspace" id="main-content">
@@ -1042,7 +1436,11 @@ export function SafeTreasuryWorkspace({
                 ? revealedSafeBalance.value
                 : null
             }
-            busy={loadingSafe !== null || stage !== null}
+            busy={
+              loadingSafe !== null ||
+              stage !== null ||
+              unwrapStage !== null
+            }
             revealPending={revealPending}
             onRefresh={() =>
               void refreshConfiguration(
@@ -1050,15 +1448,29 @@ export function SafeTreasuryWorkspace({
                 wallet.state.account!,
               )
             }
-            onToggleReveal={() => {
-              if (!configuration.confidentialViewerAuthorized) {
-                void authorizeBalanceViewer();
-              } else if (revealedSafeBalance === null) {
-                void revealBalance();
-              } else {
-                setRevealedSafeBalance(null);
-              }
-            }}
+            onToggleReveal={toggleBalanceReveal}
+            unwrapControl={
+              <SafeUnwrapControl
+                configuration={configuration}
+                mode={unwrapMode}
+                amount={unwrapAmount}
+                recipient={unwrapRecipient}
+                revealedBalance={currentRevealedBalance}
+                request={currentUnwrapRequest}
+                finalization={unwrapFinalization}
+                busy={stage !== null || unwrapStage !== null}
+                finalizing={unwrapStage !== null}
+                onModeChange={(mode) => {
+                  setUnwrapMode(mode);
+                  setError(null);
+                }}
+                onAmountChange={setUnwrapAmount}
+                onRecipientChange={setUnwrapRecipient}
+                onReveal={toggleBalanceReveal}
+                onRequest={() => void requestUnwrap()}
+                onFinalize={() => void finalizeUnwrap()}
+              />
+            }
           />
           {stage && (
             <p className="progress-line safe-action-feedback" aria-live="polite">
@@ -1073,6 +1485,14 @@ export function SafeTreasuryWorkspace({
           {balanceResult && (
             <SafeActionHandoff
               result={balanceResult}
+              busy={stage !== null}
+              onRefresh={() => void refreshProposal()}
+              onApprove={() => void approveProposal()}
+            />
+          )}
+          {unwrapResult && (
+            <SafeActionHandoff
+              result={unwrapResult}
               busy={stage !== null}
               onRefresh={() => void refreshProposal()}
               onApprove={() => void approveProposal()}
