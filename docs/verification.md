@@ -114,6 +114,7 @@ pnpm build
 pnpm finalizer:health
 pnpm finalizer:dry
 pnpm test:ui
+pnpm --filter @veilbid/auction-house deploy:safe-factory -- --dry-run
 pnpm verify:deployment:release
 pnpm test:production https://veilbid-three.vercel.app
 pnpm test:keyboard https://veilbid-three.vercel.app
@@ -142,6 +143,7 @@ pnpm evidence:validate
 | 2026-07-26 | Production properties/adversarial guards | `5eb30d8` | Auction House property/static tests | PASS — 10,000 bid sets, deterministic ties, lifecycle monotonicity, conservation, Nox operation order, admission bounds, reentrancy/CEI, and forbidden escape surfaces |
 | 2026-07-26 | E2E deployment consistency | `0f2b309` | `evidence/sepolia/deployment-consistency.test.json` | PASS — receipts, masked-immutable runtime bytecode, immutable wiring, Safe configuration, and cleanup state verified; manifest remains explicitly unverified |
 | 2026-07-26 | Production Safe viewer authority | `ca5bc69` | `evidence/sepolia/market-safe-viewer.json` | PASS — Safe-owned award, Open-state denial, proof-derived settlement, direct-owner denial, threshold viewer grant/decryption, preserved authority, and cleanup verified |
+| 2026-07-27 | Generic Safe onboarding | Working tree | `evidence/sepolia/generic-safe-onboarding.json` | PASS — deterministic per-Safe module, threshold-authorized setup, Safe-owned faucet/wrap, atomic tender creation, dynamic Safe buyer, and preserved owners/threshold |
 | 2026-07-26 | Tender Room public explorer | `a83527e` | Tender Room unit/build checks and live 1440×1000 / 390×844 smoke | PASS — five finalized Sepolia tenders loaded without a wallet; loading/error paths expose no mock fallback or confidential fields |
 | 2026-07-26 | Tender Room wallet and writes | `f864a13` | 18 Tender Room tests plus Vite/vinext builds | PARTIAL — explicit EIP-6963 selection, network/account clearing, exactly funded Buyer orchestration, and encrypted Vendor orchestration pass unit/build gates; fresh-wallet browser E2E pending |
 | 2026-07-26 | Tender Room Activity recovery | `5afffa9` | 26 Tender Room tests, Vite/vinext builds, and live desktop/mobile smoke | PARTIAL — public-only checkpoints, bounded proof polling, fresh-handle resume, terminal-race cleanup, and close tracking pass unit/build gates; fresh-wallet live recovery remains pending |

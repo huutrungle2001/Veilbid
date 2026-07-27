@@ -76,7 +76,8 @@ No transition leaves a terminal state.
 ### Safe module
 
 - `prepareInput(encryptedInput, proof, consumer, actionHash, nonce)`
-- `consumePreparedInput(actionHash, nonce)`
+- `prepareInputForSafe(encryptedInput, proof, inputOwner, consumer, actionDataHash, actionHash, nonce)`
+- `consumePreparedInput(actionHash)`
 - `configureMarket(market)`
 - `computeActionHash(...)`
 - no Safe execution function and no arbitrary `execute(address,bytes)`
@@ -86,6 +87,19 @@ consumer, the intended action hash, and an unused nonce. Preparation alone
 cannot call the Safe or transfer tokens. The prepared input is consumed once by
 the intended market action inside a normal threshold-authorized Safe
 transaction.
+
+### Safe module factory
+
+- `deployModule(safe)` — permissionless and idempotent CREATE2 deployment.
+- `predictModule(safe)` — deterministic address for the canonical
+  Safe/Market/chain tuple.
+- `moduleOf(safe)` — deployed canonical module, or zero before deployment.
+- `isCanonicalModule(safe, module)` — discovery check only.
+- no Safe execution, module enablement/configuration, token-operator, owner, or
+  threshold mutation function.
+
+Deploying a module grants no authority. The target Safe must enable and
+configure it through a normal transaction satisfying its own threshold.
 
 ## 4. Validation
 

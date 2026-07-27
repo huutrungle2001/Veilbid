@@ -73,6 +73,14 @@ const artifactDefinitions = [
       deployment.contracts.VeilBidDemoSafe.address,
     ],
   },
+  {
+    name: "VeilBidSafeModuleFactory",
+    artifact:
+      "artifacts/contracts/safe/VeilBidSafeModuleFactory.sol/VeilBidSafeModuleFactory.json",
+    constructorArgs: (deployment) => [
+      deployment.contracts.VeilBidMarket.address,
+    ],
+  },
 ];
 
 const evidence = {
@@ -411,6 +419,12 @@ async function main() {
     abi: artifacts.get("VeilBidSafePreparationModule").abi,
     client: publicClient,
   });
+  const moduleFactory = getContract({
+    address:
+      deployment.contracts.VeilBidSafeModuleFactory.address,
+    abi: artifacts.get("VeilBidSafeModuleFactory").abi,
+    client: publicClient,
+  });
   evidence.assertions.marketRelationshipsVerified =
     getAddress(
       await retry(
@@ -467,6 +481,12 @@ async function main() {
       await retry(
         () => module.read.market(),
         "MODULE_MARKET_UNAVAILABLE",
+      ),
+    ) === getAddress(deployment.contracts.VeilBidMarket.address) &&
+    getAddress(
+      await retry(
+        () => moduleFactory.read.market(),
+        "MODULE_FACTORY_MARKET_UNAVAILABLE",
       ),
     ) === getAddress(deployment.contracts.VeilBidMarket.address);
   assert.equal(
@@ -610,7 +630,8 @@ async function main() {
     deployment.evidence = [...evidencePaths];
     deployment.notes = deployment.notes.filter(
       (note) =>
-        !note.startsWith("Source verification remains pending"),
+        !note.startsWith("Source verification remains pending") &&
+        !note.startsWith("Exact top-level creation/runtime mappings"),
     );
     deployment.notes.push(
       "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion.",

@@ -57,11 +57,17 @@ assets.
 
 ### Safe module
 
-The module is a preparation-only boundary (including a Safe-only atomic
-preparation entrypoint) and has no Safe execution function. A
-compromise can prepare or leak incorrectly scoped handles, but cannot move Safe
-assets without a normal transaction satisfying the Safe threshold. The Safe
-remains the spending authority.
+Each factory-created module is bound to one Safe and the canonical Market. The
+module is a preparation-only boundary (including a Safe-only atomic preparation
+entrypoint) and has no Safe execution function. A compromise can prepare or
+leak incorrectly scoped handles, but cannot move Safe assets without a normal
+transaction satisfying the Safe threshold. The Safe remains the spending
+authority.
+
+The factory is permissionless because deployment itself grants no authority.
+It can deploy only the reviewed module bytecode at the deterministic address
+for a given Safe/Market pair. It cannot enable/configure the module, authorize
+the Market, execute from the Safe, or alter Safe ownership/threshold.
 
 ### RPC and finalizer
 
@@ -91,6 +97,8 @@ same risk as that wallet.
 | ACL grant leaks a bid | Role- and lifecycle-gated per-handle grant with confirmation | Grants are irreversible for the current handle |
 | Indexing delay appears as failure | Bounded retry and recoverable pending state | Extended service outage |
 | Buyer Safe module overreach | Preparation-only API, fixed Safe/consumer/action binding, one-time nonce, and no Safe execution call | Handle ACL leakage or owner compromise |
+| Attacker deploys a module for another Safe | Factory deployment is deterministic but inert until that Safe enables/configures it through its own threshold | Address squatting is prevented by CREATE2; factory/bytecode bugs remain unaudited |
+| Browser recovers pending Safe proposals | Local storage contains only public Safe address, Safe transaction hash, action kind, and timestamp | Browser compromise can observe public workflow metadata |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
 | Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
 | Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |

@@ -1666,6 +1666,84 @@ main {
   text-transform: uppercase;
 }
 
+.safe-selector,
+.safe-account-card,
+.safe-recovery {
+  margin-top: 24px;
+}
+
+.safe-choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.safe-choice-list .active {
+  background: var(--color-veil-green);
+}
+
+.safe-account-card {
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 20px;
+  padding: 28px;
+}
+
+.safe-account-card .safe-handoff-evidence {
+  width: 100%;
+}
+
+.safe-readiness-list {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.safe-readiness-list li {
+  border: 1px solid var(--color-ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 10px;
+  text-transform: uppercase;
+}
+
+.safe-readiness-list li[data-ready="true"] {
+  background: var(--color-veil-green);
+}
+
+.safe-recovery > ul {
+  display: grid;
+  gap: 10px;
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.safe-recovery > ul > li {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.safe-recovery li > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.safe-recovery span,
+.safe-recovery small {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
 .progress-line {
   align-items: center;
   display: flex;
@@ -2731,6 +2809,15 @@ footer p {
 
   .safe-handoff-evidence > div {
     grid-template-columns: 1fr;
+  }
+
+  .safe-readiness-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .safe-recovery > ul > li {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .activity-card {

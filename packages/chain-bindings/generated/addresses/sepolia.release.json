@@ -46,6 +46,11 @@
       "deploymentTransaction": "0x25f91a3c60b35452c361d1c3416e6ff248284fa87fe82fd0b243c4df1b204d0a",
       "deploymentBlock": "11356274",
       "enabled": true
+    },
+    "VeilBidSafeModuleFactory": {
+      "address": "0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4",
+      "deploymentTransaction": "0x671219beda00ed983074e05465f4bcd4216e584e4fc79aa022271fa3e6f6fcf1",
+      "deploymentBlock": "11359691"
     }
   },
   "configurationTransactions": {
@@ -65,7 +70,7 @@
   "sourceVerification": {
     "provider": "sourcify-v2",
     "status": "verified",
-    "checkedAt": "2026-07-26T18:13:35.404Z",
+    "checkedAt": "2026-07-27T05:55:24.097Z",
     "evidence": "evidence/sepolia/deployment-consistency.release.json"
   },
   "blockers": [],
@@ -76,6 +81,8 @@
   "notes": [
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",
     "The threshold-1 Safe is the documented browser-demo configuration; all Safe-owned spending still requires a normal Safe transaction.",
+    "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion.",
+    "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold.",
     "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion."
   ]
 }

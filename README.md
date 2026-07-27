@@ -81,6 +81,7 @@ configuration, and canonical addresses.
 | Non-transferable award receipt | [`0xb31206898CdED553011012110E7aAFFe681C127f`](https://sepolia.etherscan.io/address/0xb31206898CdED553011012110E7aAFFe681C127f) |
 | Demo Safe 1.4.1 | [`0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0`](https://sepolia.etherscan.io/address/0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0) |
 | Safe preparation module | [`0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401`](https://sepolia.etherscan.io/address/0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401) |
+| Per-Safe module factory | [`0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4`](https://sepolia.etherscan.io/address/0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4) |
 
 The release has completed a real two-vendor Safe-funded lifecycle on Sepolia.
 The winner was selected through Nox computation and a public winner proof;
@@ -90,6 +91,7 @@ committed output.
 Key public evidence:
 
 - [Canonical two-vendor lifecycle](evidence/sepolia/release-two-vendor.json)
+- [Generic Safe onboarding and tender](evidence/sepolia/generic-safe-onboarding.json)
 - [Release deployment consistency](evidence/sepolia/deployment-consistency.release.json)
 - [Source publication mapping](evidence/sepolia/source-publication.release.json)
 - [Production frontend smoke](evidence/sepolia/production-smoke.json)
@@ -133,24 +135,28 @@ stateDiagram-v2
 
 1. The buyer fixes a public ceiling, future deadline, metadata hash, payment
    token, and one to eight unique approved vendor addresses.
-2. Safe Buyer prepares the Nox funding handle and tender creation in one Safe
-   transaction batch; the EOA path remains available as an advanced fallback.
-3. A public equality proof must establish that encrypted escrow equals the
+2. Safe Buyer discovers any Sepolia Safe owned by the connected wallet. A
+   one-time threshold-authorized batch deploys/enables that Safe's deterministic
+   preparation module and configures settlement authority.
+3. The Safe can faucet/wrap test assets in its own batch; tender creation then
+   prepares the Nox funding handle and creates the tender atomically. The EOA
+   path remains available as an advanced fallback.
+4. A public equality proof must establish that encrypted escrow equals the
    public ceiling before the tender becomes `Open`.
-4. Each approved vendor may submit one immutable encrypted price.
-5. Nox checks whether the bid is nonzero and within the ceiling. Invalid bids
+5. Each approved vendor may submit one immutable encrypted price.
+6. Nox checks whether the bid is nonzero and within the ceiling. Invalid bids
    become an encrypted sentinel rather than revealing why they are invalid.
-6. `Nox.lt` and `Nox.select` update the encrypted best-price and winner-ID
+7. `Nox.lt` and `Nox.select` update the encrypted best-price and winner-ID
    accumulators together. Equal valid bids preserve first-submission priority.
-7. After the deadline, or immediately once every approved vendor has submitted,
+8. After the deadline, or immediately once every approved vendor has submitted,
    anyone may call `closeTender`. Only the encrypted winner ID becomes publicly
    decryptable.
-8. A Nox public-decryption proof binds the result to the stored winner handle.
+9. A Nox public-decryption proof binds the result to the stored winner handle.
    `finalizeTender` maps the proven bid ID to its stored vendor.
-9. The winner receives the confidential bid amount, while the buyer receives
+10. The winner receives the confidential bid amount, while the buyer receives
    the confidential remainder. A zero winner produces a full confidential
    refund.
-10. An awarded tender mints one non-transferable receipt to the stored winning
+11. An awarded tender mints one non-transferable receipt to the stored winning
     vendor.
 
 There is no timeout refund after close. If proof infrastructure is temporarily
@@ -168,7 +174,8 @@ flowchart LR
     Web -->|Handle SDK encryption / reveal| Nox["iExec Nox services"]
     Web -->|public reads and wallet-signed writes| Market["VeilBidMarket"]
 
-    SafeOwner["Safe owner"] -->|prepare target-bound input| Module["Safe preparation module"]
+    Factory["CREATE2 module factory"] --> Module["Per-Safe preparation module"]
+    SafeOwner["Safe owner"] -->|threshold-authorized setup| Module
     Module -.->|handle ACL only| Market
     Safe["Safe threshold"] -->|authorized transaction| Market
 
@@ -324,11 +331,15 @@ screenshots, logs, or evidence.
 
 ### Safe treasury
 
-1. Connect an owner of the configured Safe.
-2. Review Safe owners, threshold, module, market, and action terms.
-3. Prepare a target-bound confidential input through the restricted module.
-4. Submit the generated action through the Safe interface.
-5. Satisfy the normal Safe threshold to create/fund the tender.
+1. Connect a Sepolia Safe owner and select a discovered Safe or paste its
+   address.
+2. For a new Safe, approve one setup proposal that deploys/enables its
+   deterministic module, binds the Market, and authorizes settlement.
+3. Faucet/wrap test vUSDC into the Safe through a normal Safe batch if needed.
+4. Enter public terms; VeilBid allocates the internal nonce and creates one
+   atomic preparation/tender batch.
+5. Satisfy the Safe's normal threshold and recover pending proposals by their
+   public Safe transaction hashes.
 
 Preparation is not execution. The module contains no
 `execTransactionFromModule` or arbitrary-call path.

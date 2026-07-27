@@ -32,6 +32,11 @@ const contracts = [
       "artifacts/contracts/safe/VeilBidSafePreparationModule.sol/VeilBidSafePreparationModule.json",
   },
   {
+    name: "VeilBidSafeModuleFactory",
+    artifact:
+      "artifacts/contracts/safe/VeilBidSafeModuleFactory.sol/VeilBidSafeModuleFactory.json",
+  },
+  {
     name: "VeilBidTestUSDC",
     artifact:
       "artifacts/contracts/test-assets/VeilBidTestAssets.sol/VeilBidTestUSDC.json",

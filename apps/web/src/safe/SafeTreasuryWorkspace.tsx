@@ -1,25 +1,54 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  formatEther,
+  formatUnits,
+  getAddress,
+  isAddress,
+  parseUnits,
+  type Address,
+  type Hex,
+} from "viem";
+import { ContextHelp } from "../shell/ContextHelp";
+import { useToasts } from "../shell/ToastProvider";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import {
   approveAndExecuteSafeProposal,
+  discoverOwnerSafes,
+  fundSafeForVeilBid,
   getSafeProposalStatus,
+  inspectSafeConfiguration,
   parseSafeTenderInput,
   prepareSafeTender,
-  safeReleaseConfiguration,
+  safeWalletUrl,
   serializeSafeTransactionHandoff,
+  setupSafeForVeilBid,
+  type SafeAccountConfiguration,
   type SafePreparationResult,
+  type SafeProposalStatus,
   type SafeTenderInput,
 } from "./safePreparation";
-import { ContextHelp } from "../shell/ContextHelp";
-import { useToasts } from "../shell/ToastProvider";
+import {
+  loadSafeProposals,
+  rememberSafeProposal,
+  type StoredSafeProposal,
+} from "./safeProposalStore";
 
 const emptyInput: SafeTenderInput = {
   metadata: "",
   ceiling: "",
   deadline: "",
   vendors: "",
-  nonce: "1",
 };
+
+function shortAddress(value: Address) {
+  return `${value.slice(0, 8)}…${value.slice(-6)}`;
+}
+
+function safeActionTitle(result: SafePreparationResult) {
+  if (result.kind === "setup") return "Safe setup";
+  if (result.kind === "fund") return "Safe funding";
+  return "Tender batch";
+}
 
 export function SafeActionHandoff({
   result,
@@ -48,10 +77,12 @@ export function SafeActionHandoff({
     <section className="safe-handoff" aria-label="Safe transaction handoff">
       <div>
         <p className="eyebrow">SAFE TRANSACTION SERVICE</p>
-        <h3>{result.executed ? "Safe batch executed" : "Safe proposal published"}</h3>
+        <h3>
+          {safeActionTitle(result)} {result.executed ? "executed" : "published"}
+        </h3>
         <p>
-          Preparation and tender creation are one atomic Safe batch. The raw
-          calls below remain available as a recovery handoff.
+          The proposal is recoverable from its public Safe transaction hash.
+          Raw calls remain available as a manual handoff.
         </p>
       </div>
       <label>
@@ -66,7 +97,7 @@ export function SafeActionHandoff({
         COPY TARGET
       </button>
       <label className="safe-calldata-field">
-        <span>Transaction calldata</span>
+        <span>Last transaction calldata</span>
         <textarea
           readOnly
           value={result.safeTransactionData}
@@ -77,9 +108,7 @@ export function SafeActionHandoff({
         <button
           className="secondary-button"
           type="button"
-          onClick={() =>
-            void copy("Calldata", result.safeTransactionData)
-          }
+          onClick={() => void copy("Calldata", result.safeTransactionData)}
         >
           COPY CALLDATA
         </button>
@@ -94,7 +123,7 @@ export function SafeActionHandoff({
         </button>
         <a
           className="secondary-button"
-          href={safeReleaseConfiguration.walletUrl}
+          href={safeWalletUrl(result.safe)}
           target="_blank"
           rel="noreferrer"
         >
@@ -106,10 +135,12 @@ export function SafeActionHandoff({
           <dt>Safe</dt>
           <dd>{result.safe}</dd>
         </div>
-        <div>
-          <dt>Action hash</dt>
-          <dd>{result.actionHash}</dd>
-        </div>
+        {result.actionHash && (
+          <div>
+            <dt>Action hash</dt>
+            <dd>{result.actionHash}</dd>
+          </div>
+        )}
         <div>
           <dt>Safe transaction hash</dt>
           <dd>{result.safeTxHash}</dd>
@@ -152,6 +183,62 @@ export function SafeActionHandoff({
   );
 }
 
+function SafeConfigurationCard({
+  configuration,
+}: {
+  configuration: SafeAccountConfiguration;
+}) {
+  const checks = [
+    ["Module contract", configuration.moduleDeployed],
+    ["Module enabled", configuration.moduleEnabled],
+    ["Market configured", configuration.marketConfigured],
+    ["Settlement authority", configuration.marketAuthorized],
+  ] as const;
+  return (
+    <section className="safe-account-card" aria-label="Selected Safe status">
+      <div className="form-heading">
+        <p className="eyebrow">SELECTED SAFE</p>
+        <h2>{shortAddress(configuration.safe)}</h2>
+        <p>
+          {configuration.owners.length} owner(s) · threshold{" "}
+          {configuration.threshold}
+        </p>
+      </div>
+      <dl className="safe-handoff-evidence">
+        <div>
+          <dt>Safe ETH balance</dt>
+          <dd>{Number(formatEther(configuration.balances.eth)).toFixed(4)} ETH</dd>
+        </div>
+        <div>
+          <dt>Public Test USDC</dt>
+          <dd>{formatUnits(configuration.balances.testUsdc, 6)} vUSDC</dd>
+        </div>
+        <div>
+          <dt>Confidential vUSDC</dt>
+          <dd>
+            {configuration.balances.confidential === "encrypted"
+              ? "Encrypted balance present"
+              : configuration.balances.confidential === "none"
+                ? "No encrypted balance"
+                : "Status unavailable"}
+          </dd>
+        </div>
+        <div>
+          <dt>Preparation module</dt>
+          <dd>{configuration.module ?? "Factory unavailable"}</dd>
+        </div>
+      </dl>
+      <ul className="safe-readiness-list">
+        {checks.map(([label, passed]) => (
+          <li key={label} data-ready={passed}>
+            <span aria-hidden="true">{passed ? "✓" : "○"}</span> {label}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function SafeTreasuryWorkspace({
   wallet,
 }: {
@@ -159,56 +246,193 @@ export function SafeTreasuryWorkspace({
 }) {
   const toasts = useToasts();
   const [input, setInput] = useState(emptyInput);
+  const [ownerSafes, setOwnerSafes] = useState<Address[]>([]);
+  const [safeInput, setSafeInput] = useState("");
+  const [selectedSafe, setSelectedSafe] = useState<Address | null>(null);
+  const [configuration, setConfiguration] =
+    useState<SafeAccountConfiguration | null>(null);
+  const [discoveryStage, setDiscoveryStage] = useState<string | null>(null);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SafePreparationResult | null>(null);
+  const [fundAmount, setFundAmount] = useState("100");
+  const [storedProposals, setStoredProposals] = useState<StoredSafeProposal[]>([]);
+  const [storedStatuses, setStoredStatuses] = useState<
+    Record<string, SafeProposalStatus>
+  >({});
   const connected =
     wallet.state.status === "connected" &&
     wallet.state.account &&
     wallet.state.walletClient;
 
+  const refreshConfiguration = useCallback(async (
+    safe: Address,
+    account: Address,
+  ) => {
+    setDiscoveryStage("Checking Safe ownership and VeilBid configuration…");
+    setError(null);
+    try {
+      const inspected = await inspectSafeConfiguration({ safe, account });
+      setSelectedSafe(safe);
+      setSafeInput(safe);
+      setConfiguration(inspected);
+      setStoredProposals(
+        loadSafeProposals().filter(
+          (proposal) => proposal.safe.toLowerCase() === safe.toLowerCase(),
+        ),
+      );
+    } catch (cause) {
+      setConfiguration(null);
+      setError(cause instanceof Error ? cause.message : "Safe inspection failed.");
+    } finally {
+      setDiscoveryStage(null);
+    }
+  }, []);
+
   useEffect(() => {
     setStage(null);
     setError(null);
     setResult(null);
-  }, [wallet.state.sessionRevision]);
-
-  async function prepare() {
+    setConfiguration(null);
+    setSelectedSafe(null);
+    setOwnerSafes([]);
+    setStoredProposals([]);
     if (!connected) return;
-    const toastId = toasts.start(
-      "PREPARE SAFE ACTION",
-      "Validating Safe-bound tender input…",
+    let cancelled = false;
+    const account = wallet.state.account!;
+    setDiscoveryStage("Finding Sepolia Safes owned by this wallet…");
+    void discoverOwnerSafes(account)
+      .then(async (safes) => {
+        if (cancelled) return;
+        setOwnerSafes(safes);
+        if (safes.length === 1) {
+          await refreshConfiguration(safes[0], account);
+        } else {
+          setDiscoveryStage(null);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setDiscoveryStage(null);
+        setError(
+          "Safe discovery service is unavailable. Paste a Sepolia Safe address below.",
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wallet.state.sessionRevision, connected, refreshConfiguration]);
+
+  function remember(resultToStore: SafePreparationResult) {
+    rememberSafeProposal({
+      kind: resultToStore.kind,
+      safe: resultToStore.safe,
+      safeTxHash: resultToStore.safeTxHash,
+      createdAt: new Date().toISOString(),
+    });
+    setStoredProposals(
+      loadSafeProposals().filter(
+        (proposal) =>
+          proposal.safe.toLowerCase() === resultToStore.safe.toLowerCase(),
+      ),
     );
+  }
+
+  async function selectSafe() {
+    if (!connected) return;
+    if (!isAddress(safeInput)) {
+      setError("Enter a valid Sepolia Safe address.");
+      return;
+    }
+    await refreshConfiguration(
+      getAddress(safeInput),
+      wallet.state.account!,
+    );
+  }
+
+  async function runAction(
+    label: string,
+    action: (onStage: (next: string) => void) => Promise<SafePreparationResult>,
+  ) {
+    const toastId = toasts.start(label, "Building a threshold-authorized Safe action…");
     setError(null);
     setResult(null);
     try {
-      parseSafeTenderInput(input);
-      const prepared = await prepareSafeTender({
-        input,
-        walletClient: wallet.state.walletClient!,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage: (nextStage) => {
-          setStage(nextStage);
-          toasts.update(toastId, nextStage);
-        },
+      const completed = await action((nextStage) => {
+        setStage(nextStage);
+        toasts.update(toastId, nextStage);
       });
-      setResult(prepared);
+      setResult(completed);
+      remember(completed);
       toasts.succeed(
         toastId,
-        prepared.executed
-          ? "Safe tender batch executed. Relay will confirm funding automatically."
+        completed.executed
+          ? "Safe batch executed on Sepolia."
           : "Safe proposal published for the remaining approvals.",
       );
+      if (completed.executed && wallet.state.account) {
+        await refreshConfiguration(completed.safe, wallet.state.account);
+      }
     } catch (cause) {
-      toasts.fail(
-        toastId,
-        "Safe preparation stopped. Review the input and module status.",
-      );
-      setError(cause instanceof Error ? cause.message : "Safe preparation failed.");
+      const message = cause instanceof Error ? cause.message : "Safe action failed.";
+      setError(message);
+      toasts.fail(toastId, message);
     } finally {
       setStage(null);
     }
+  }
+
+  async function setup() {
+    if (!connected || !configuration) return;
+    await runAction("CONFIGURE SAFE", (onStage) =>
+      setupSafeForVeilBid({
+        configuration,
+        provider: wallet.state.selectedProvider!.provider,
+        account: wallet.state.account!,
+        onStage,
+      }),
+    );
+  }
+
+  async function fund() {
+    if (!connected || !configuration) return;
+    let amount: bigint;
+    try {
+      amount = parseUnits(fundAmount, 6);
+      if (amount <= 0n) throw new Error();
+    } catch {
+      setError("Enter a positive funding amount with at most 6 decimals.");
+      return;
+    }
+    await runAction("FUND SAFE", (onStage) =>
+      fundSafeForVeilBid({
+        configuration,
+        amount,
+        provider: wallet.state.selectedProvider!.provider,
+        account: wallet.state.account!,
+        onStage,
+      }),
+    );
+  }
+
+  async function prepare() {
+    if (!connected || !configuration) return;
+    try {
+      parseSafeTenderInput(input);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Invalid tender input.");
+      return;
+    }
+    await runAction("CREATE SAFE TENDER", (onStage) =>
+      prepareSafeTender({
+        input,
+        configuration,
+        walletClient: wallet.state.walletClient!,
+        provider: wallet.state.selectedProvider!.provider,
+        account: wallet.state.account!,
+        onStage,
+      }),
+    );
   }
 
   async function refreshProposal() {
@@ -223,13 +447,17 @@ export function SafeTreasuryWorkspace({
     }
   }
 
-  async function approveProposal() {
-    if (!result || !connected) return;
+  async function approveProposal(
+    safe = result?.safe,
+    safeTxHash = result?.safeTxHash,
+  ) {
+    if (!safe || !safeTxHash || !connected) return;
     const toastId = toasts.start("SAFE APPROVAL", "Checking proposal status…");
     setStage("Checking proposal status");
     try {
       const status = await approveAndExecuteSafeProposal({
-        safeTxHash: result.safeTxHash,
+        safe,
+        safeTxHash,
         provider: wallet.state.selectedProvider!.provider,
         account: wallet.state.account!,
         onStage: (nextStage) => {
@@ -237,17 +465,37 @@ export function SafeTreasuryWorkspace({
           toasts.update(toastId, nextStage);
         },
       });
-      setResult((current) => current ? { ...current, ...status } : current);
+      if (result?.safeTxHash === safeTxHash) {
+        setResult((current) => current ? { ...current, ...status } : current);
+      }
+      setStoredStatuses((current) => ({ ...current, [safeTxHash]: status }));
       toasts.succeed(
         toastId,
         status.executed
-          ? "Safe batch executed. Relay will continue the public lifecycle."
+          ? "Safe batch executed."
           : `${status.confirmations}/${status.threshold} approvals collected.`,
       );
-    } catch {
-      toasts.fail(toastId, "Safe approval or execution did not complete.");
+      if (status.executed && wallet.state.account) {
+        await refreshConfiguration(safe, wallet.state.account);
+      }
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Safe approval failed.";
+      setError(message);
+      toasts.fail(toastId, message);
     } finally {
       setStage(null);
+    }
+  }
+
+  async function refreshStored(proposal: StoredSafeProposal) {
+    try {
+      const status = await getSafeProposalStatus(proposal.safeTxHash);
+      setStoredStatuses((current) => ({
+        ...current,
+        [proposal.safeTxHash]: status,
+      }));
+    } catch {
+      setError("Could not recover that proposal from Safe Transaction Service.");
     }
   }
 
@@ -258,82 +506,240 @@ export function SafeTreasuryWorkspace({
           label="Help for Safe Buyer workspace"
           title="HOW TO USE SAFE BUYER"
           steps={[
-            "Connect an owner of the configured Safe on Sepolia.",
-            "Enter the public terms, ceiling, deadline, approved vendors, and a fresh one-time nonce.",
-            "Approve one atomic Safe batch containing preparation and tender creation.",
-            "For a multi-owner Safe, collect the displayed threshold; VeilBid executes once it is met.",
+            "Connect any owner of a deployed Sepolia Safe.",
+            "Choose the discovered Safe, or paste its address.",
+            "Run the one-time VeilBid setup and fund confidential vUSDC if needed.",
+            "Enter tender terms and approve the atomic preparation + creation batch.",
           ]}
-          note="The relay automatically handles public funding confirmation, eligible close, and proof-based finalize. Safe threshold authorization remains mandatory."
+          note="Setup, funding, and tender creation are normal Safe proposals. Multi-owner Safes retain their configured threshold."
         />
         <p className="eyebrow">SAFE BUYER / PRIMARY WORKFLOW</p>
-        <h1>Approve once. Track the threshold.</h1>
+        <h1>Use your own Safe treasury.</h1>
         <p>
-          VeilBid batches encrypted input preparation and tender creation. Safe
-          owners retain custody; the permissionless relay handles later public steps.
+          VeilBid discovers Safe accounts owned by the connected wallet,
+          configures a dedicated preparation module, and preserves the Safe
+          threshold for every treasury action.
         </p>
       </section>
       <WalletPanel wallet={wallet} />
-      <p className="workspace-notice">
-        RELEASE MODULE: {safeReleaseConfiguration.moduleEnabled ? "ENABLED" : "DISABLED"}
-        {" · "}LIVE MODULE STATE IS RECHECKED BEFORE PREPARATION.
-      </p>
-      <section className="write-form">
-        <div className="form-heading">
-          <p className="eyebrow">ATOMIC SAFE BATCH</p>
-          <h2>Create a Safe-owned tender</h2>
-        </div>
-        {[
-          ["metadata", "Public metadata"],
-          ["ceiling", "Public ceiling (6 decimals)"],
-          ["deadline", "Bid deadline"],
-          ["nonce", "One-time nonce"],
-        ].map(([name, label]) => (
-          <label key={name}>
-            <span>{label}</span>
+
+      {connected && (
+        <section className="write-form safe-selector">
+          <div className="form-heading">
+            <p className="eyebrow">1 / SELECT TREASURY</p>
+            <h2>Choose a Sepolia Safe</h2>
+          </div>
+          {ownerSafes.length > 0 && (
+            <div className="safe-choice-list">
+              {ownerSafes.map((safe) => (
+                <button
+                  className={
+                    selectedSafe?.toLowerCase() === safe.toLowerCase()
+                      ? "secondary-button active"
+                      : "secondary-button"
+                  }
+                  type="button"
+                  key={safe}
+                  onClick={() => {
+                    setSafeInput(safe);
+                    void refreshConfiguration(safe, wallet.state.account!);
+                  }}
+                >
+                  {shortAddress(safe)}
+                </button>
+              ))}
+            </div>
+          )}
+          <label>
+            <span>Safe address</span>
             <input
-              type={name === "deadline" ? "datetime-local" : "text"}
-              value={input[name as keyof SafeTenderInput]}
-              onChange={(event) =>
-                setInput((current) => ({ ...current, [name]: event.target.value }))
-              }
+              value={safeInput}
+              onChange={(event) => setSafeInput(event.target.value)}
+              placeholder="0x…"
             />
           </label>
-        ))}
-        <label>
-          <span>Approved vendors</span>
-          <textarea
-            value={input.vendors}
-            onChange={(event) =>
-              setInput((current) => ({ ...current, vendors: event.target.value }))
-            }
-            placeholder="One address per line"
-          />
-        </label>
-        <div className="privacy-confirmation">
-          <strong>AUTHORITY BOUNDARY</strong>
-          <span>
-            Expected for the threshold-1 demo: one Safe approval and one on-chain
-            execution confirmation. Funding proof, close, and finalize require no Buyer signature.
-          </span>
-        </div>
-        <button
-          className="primary-button"
-          disabled={!connected || stage !== null}
-          onClick={() => void prepare()}
-        >
-          CREATE WITH SAFE →
-        </button>
-        {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
-        {error && <p className="inline-error" role="alert">{error}</p>}
-        {result && (
-          <SafeActionHandoff
-            result={result}
-            busy={stage !== null}
-            onRefresh={() => void refreshProposal()}
-            onApprove={() => void approveProposal()}
-          />
-        )}
-      </section>
+          <button
+            className="secondary-button"
+            disabled={discoveryStage !== null}
+            onClick={() => void selectSafe()}
+          >
+            CHECK SAFE →
+          </button>
+          {discoveryStage && (
+            <p className="progress-line" aria-live="polite">{discoveryStage}</p>
+          )}
+        </section>
+      )}
+
+      {configuration && (
+        <>
+          <SafeConfigurationCard configuration={configuration} />
+          <section className="write-form">
+            <div className="form-heading">
+              <p className="eyebrow">2 / PREPARE TREASURY</p>
+              <h2>
+                {configuration.ready
+                  ? "Safe is ready"
+                  : "One-time VeilBid setup"}
+              </h2>
+              <p>
+                Setup deploys this Safe’s dedicated module, enables it, binds the
+                Market, and grants settlement authority in one Safe proposal.
+              </p>
+            </div>
+            {!configuration.ready && (
+              <button
+                className="primary-button"
+                disabled={stage !== null || !configuration.module}
+                onClick={() => void setup()}
+              >
+                CONFIGURE THIS SAFE →
+              </button>
+            )}
+            {!configuration.module && (
+              <p className="inline-error">
+                Generic Safe setup is unavailable until the module factory is
+                deployed in the release configuration.
+              </p>
+            )}
+            <label>
+              <span>Confidential funding amount (vUSDC)</span>
+              <input
+                value={fundAmount}
+                onChange={(event) => setFundAmount(event.target.value)}
+                inputMode="decimal"
+              />
+            </label>
+            <button
+              className="secondary-button"
+              disabled={stage !== null}
+              onClick={() => void fund()}
+            >
+              FAUCET + WRAP WITH SAFE →
+            </button>
+          </section>
+
+          <section className="write-form">
+            <div className="form-heading">
+              <p className="eyebrow">3 / ATOMIC SAFE BATCH</p>
+              <h2>Create a Safe-owned tender</h2>
+              <p>
+                VeilBid generates a fresh preparation nonce automatically. No
+                extra owner input is required.
+              </p>
+            </div>
+            {[
+              ["metadata", "Public metadata"],
+              ["ceiling", "Public ceiling (6 decimals)"],
+              ["deadline", "Bid deadline"],
+            ].map(([name, label]) => (
+              <label key={name}>
+                <span>{label}</span>
+                <input
+                  type={name === "deadline" ? "datetime-local" : "text"}
+                  value={input[name as keyof SafeTenderInput]}
+                  onChange={(event) =>
+                    setInput((current) => ({ ...current, [name]: event.target.value }))
+                  }
+                />
+              </label>
+            ))}
+            <label>
+              <span>Approved vendors</span>
+              <textarea
+                value={input.vendors}
+                onChange={(event) =>
+                  setInput((current) => ({ ...current, vendors: event.target.value }))
+                }
+                placeholder="One address per line"
+              />
+            </label>
+            <div className="privacy-confirmation">
+              <strong>AUTHORITY BOUNDARY</strong>
+              <span>
+                Safe threshold approval remains mandatory. The relay only handles
+                later permissionless lifecycle actions and cannot spend the Safe.
+              </span>
+            </div>
+            <button
+              className="primary-button"
+              disabled={!configuration.ready || stage !== null}
+              onClick={() => void prepare()}
+            >
+              CREATE WITH SAFE →
+            </button>
+            {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
+            {error && <p className="inline-error" role="alert">{error}</p>}
+            {result && (
+              <SafeActionHandoff
+                result={result}
+                busy={stage !== null}
+                onRefresh={() => void refreshProposal()}
+                onApprove={() => void approveProposal()}
+              />
+            )}
+          </section>
+
+          {storedProposals.length > 0 && (
+            <section className="write-form safe-recovery">
+              <div className="form-heading">
+                <p className="eyebrow">RECOVERY</p>
+                <h2>Recent Safe proposals</h2>
+                <p>
+                  Only public Safe addresses, transaction hashes, action types,
+                  and timestamps are stored in this browser.
+                </p>
+              </div>
+              <ul>
+                {storedProposals.map((proposal) => {
+                  const status = storedStatuses[proposal.safeTxHash];
+                  return (
+                    <li key={proposal.safeTxHash}>
+                      <div>
+                        <strong>{proposal.kind.toUpperCase()}</strong>
+                        <span>{shortAddress(proposal.safeTxHash as Address)}</span>
+                        <small>{new Date(proposal.createdAt).toLocaleString()}</small>
+                        {status && (
+                          <small>
+                            {status.executed
+                              ? "Executed"
+                              : `${status.confirmations}/${status.threshold} approvals`}
+                          </small>
+                        )}
+                      </div>
+                      <div className="safe-handoff-actions">
+                        <button
+                          className="secondary-button"
+                          onClick={() => void refreshStored(proposal)}
+                        >
+                          REFRESH
+                        </button>
+                        {!status?.executed && (
+                          <button
+                            className="secondary-button"
+                            disabled={stage !== null}
+                            onClick={() =>
+                              void approveProposal(
+                                proposal.safe,
+                                proposal.safeTxHash,
+                              )
+                            }
+                          >
+                            APPROVE
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+        </>
+      )}
+      {!configuration && error && (
+        <p className="inline-error" role="alert">{error}</p>
+      )}
     </main>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from "../src/safe/safePreparation";
 
 const result = {
+  kind: "tender",
   actionHash: `0x${"11".repeat(32)}`,
   safe: safeReleaseConfiguration.safe,
   target: "0x4444444444444444444444444444444444444444",
@@ -53,7 +54,7 @@ describe("Safe transaction handoff", () => {
     );
     expect(screen.getByRole("link", { name: /open safe/i })).toHaveAttribute(
       "href",
-      safeReleaseConfiguration.walletUrl,
+      expect.stringContaining(result.safe),
     );
 
     fireEvent.click(

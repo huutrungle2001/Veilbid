@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "release-source-publication",
-  "recordedAt": "2026-07-26T18:11:46.380Z",
+  "recordedAt": "2026-07-27T05:54:32.838Z",
   "environment": {
     "network": "ethereum-sepolia",
     "chainId": 11155111,
@@ -14,7 +14,7 @@
         "contractIdentifier": "project/contracts/test-assets/VeilBidTestAssets.sol:VeilBidTestUSDC",
         "compilerVersion": "0.8.35+commit.47b9dedd",
         "buildInputSha256": "8cfa8e46b1c9791b0068019d7eae2eb26e31401a01de3d5e697e7b97c82ffa17",
-        "verificationId": "ed0af4ba-7018-4e05-af0e-d494782bae11",
+        "verificationId": null,
         "creationMatch": "exact_match",
         "runtimeMatch": "exact_match",
         "repositoryUrl": "https://repo.sourcify.dev/11155111/0xeE9A2B02C8700596b4814923c4086786c63A9D01"
@@ -24,7 +24,7 @@
         "contractIdentifier": "project/contracts/test-assets/VeilBidTestAssets.sol:VeilBidConfidentialUSDC",
         "compilerVersion": "0.8.35+commit.47b9dedd",
         "buildInputSha256": "8cfa8e46b1c9791b0068019d7eae2eb26e31401a01de3d5e697e7b97c82ffa17",
-        "verificationId": "e4b9a195-36ca-4120-ae37-193dff9be6ce",
+        "verificationId": null,
         "creationMatch": "exact_match",
         "runtimeMatch": "exact_match",
         "repositoryUrl": "https://repo.sourcify.dev/11155111/0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1"
@@ -34,7 +34,7 @@
         "contractIdentifier": "project/contracts/market/VeilBidMarket.sol:VeilBidMarket",
         "compilerVersion": "0.8.35+commit.47b9dedd",
         "buildInputSha256": "4321a802f9efd5596fcdaef2555f99fe6edf424f30862bdccf8db81d8cb9e728",
-        "verificationId": "62a631e6-f2a7-46e9-8d88-b97e96d35c5d",
+        "verificationId": null,
         "creationMatch": "exact_match",
         "runtimeMatch": "exact_match",
         "repositoryUrl": "https://repo.sourcify.dev/11155111/0x969F93642054130e87AFC8D380eec850617A6048"
@@ -54,10 +54,20 @@
         "contractIdentifier": "project/contracts/safe/VeilBidSafePreparationModule.sol:VeilBidSafePreparationModule",
         "compilerVersion": "0.8.35+commit.47b9dedd",
         "buildInputSha256": "f05e49e7bf78aaafcc0090419a6ff88ea3f9e2e50e12940066be2293a1db7506",
-        "verificationId": "5b05c1c5-3d44-4ea2-9277-252559a3d4ab",
+        "verificationId": null,
         "creationMatch": "exact_match",
         "runtimeMatch": "exact_match",
         "repositoryUrl": "https://repo.sourcify.dev/11155111/0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401"
+      },
+      "VeilBidSafeModuleFactory": {
+        "address": "0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4",
+        "contractIdentifier": "project/contracts/safe/VeilBidSafeModuleFactory.sol:VeilBidSafeModuleFactory",
+        "compilerVersion": "0.8.35+commit.47b9dedd",
+        "buildInputSha256": "3c75247475238edd6ace7bf8d1bbc5ca8677aae80a93733d4ddeb9d935053e7c",
+        "verificationId": "fc6996e5-d223-4026-8720-48dbf6d31d7c",
+        "creationMatch": "exact_match",
+        "runtimeMatch": "exact_match",
+        "repositoryUrl": "https://repo.sourcify.dev/11155111/0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4"
       }
     }
   },

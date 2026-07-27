@@ -1,14 +1,24 @@
 # Hướng dẫn test đầy đủ VeilBid
 
-Tài liệu này hướng dẫn kiểm tra toàn bộ luồng VeilBid trên Ethereum Sepolia,
-từ cấp test token, tạo tender, gửi hai bid mã hóa, chọn người thắng, selective
-disclosure đến kiểm tra các giới hạn Safe.
+Tài liệu này hướng dẫn kiểm tra release VeilBid hiện tại trên Ethereum Sepolia:
+Safe Buyer tạo tender bằng một Safe batch nguyên tử, hai Vendor gửi bid mã hóa,
+relay công khai xác nhận funding/đóng/finalize, và Auditor chỉ reveal bid đã
+được cấp quyền.
+
+Luồng chính là `SAFE BUYER`. `EOA BUYER` vẫn tồn tại như một phương án nâng cao
+để thử nghiệm hoặc phục hồi, không phải câu chuyện demo chính.
 
 ## 1. Chuẩn bị
 
 ### Chạy web local
 
-Mở:
+Có thể kiểm tra production tại:
+
+```text
+https://veilbid-three.vercel.app
+```
+
+Để chạy local, dùng Node.js `>=24 <25`, sau đó mở:
 
 ```text
 http://localhost:5173
@@ -20,11 +30,11 @@ Nếu web chưa chạy:
 corepack pnpm --filter @veilbid/tender-room dev
 ```
 
-### Chuẩn bị ba tài khoản MetaMask
+### Chuẩn bị ba tài khoản MetaMask và một Safe
 
 | Vai trò | Địa chỉ |
 | --- | --- |
-| Buyer | `0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E` |
+| Safe owner / Buyer | `0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E` |
 | Vendor 1 | `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` |
 | Vendor 2 kiêm Auditor | `0xA4565608e096CFEf7da36eB19a57Da6d277D942f` |
 
@@ -39,6 +49,29 @@ Import các tài khoản test vào MetaMask bằng private key tương ứng tro
 (`0x4d2809486012076B2212C829742BD95eF5992dB0`), không phải Vendor 1 trong
 hướng dẫn test ba trình duyệt này.
 
+Release hiện tại dùng:
+
+| Thành phần | Địa chỉ |
+| --- | --- |
+| Demo Safe 1.4.1 | `0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0` |
+| Legacy demo Safe module | `0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401` |
+| Per-Safe module factory | `0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4` |
+| VeilBid Market | `0x969F93642054130e87AFC8D380eec850617A6048` |
+
+`SAFE BUYER` hoạt động với bất kỳ Safe đã deploy trên Ethereum Sepolia nếu ví
+đang kết nối là một owner. Web tự tìm Safe theo owner qua Safe Transaction
+Service; người dùng cũng có thể dán địa chỉ Safe thủ công khi dịch vụ discovery
+chậm. Nếu owner chỉ có đúng một Safe, web tự chọn Safe đó.
+
+Mỗi Safe mới có một preparation module riêng được factory triển khai bằng
+CREATE2. Thiết lập lần đầu vẫn là một Safe proposal và phải đạt đúng threshold
+của Safe. Factory không thể enable module, đổi owner, hạ threshold hoặc thực thi
+giao dịch thay Safe.
+
+Canonical demo Safe hiện có threshold `1/1` và tiếp tục dùng legacy module đã
+được xác minh. Safe mới có thể faucet và wrap trực tiếp bằng batch
+`FAUCET + WRAP WITH SAFE`; không cần chuyển vcUSDC từ EOA.
+
 Không sao chép private key vào tài liệu, ảnh chụp, terminal output hoặc Git.
 Chỉ dùng các ví này trên testnet.
 
@@ -47,31 +80,37 @@ Chỉ dùng các ví này trên testnet.
 1. Chọn mạng Ethereum Sepolia trong MetaMask.
 2. Kết nối đúng tài khoản với VeilBid.
 3. Kiểm tra chỉ báo trên thanh đầu trang hiển thị `SEPOLIA`.
-4. Vendor 1 và Vendor 2 phải có khoảng `0.1 Sepolia ETH` để trả gas.
+4. Safe owner, Vendor 1 và Vendor 2 phải có Sepolia ETH để trả gas.
+5. Xác nhận EOA đang kết nối là owner của Safe muốn dùng.
 
 ## 2. Kiểm tra Public và giao diện cơ bản
 
 1. Mở workspace `PUBLIC` khi chưa kết nối ví.
 2. Xác nhận danh sách tender được đọc từ Sepolia, không xuất hiện mock data.
-3. Chọn một tender và kiểm tra:
+3. Nếu danh sách có nhiều tender, dùng bộ lọc trạng thái để chọn dossier cần
+   kiểm tra.
+4. Chọn một tender và kiểm tra:
    - Public ceiling.
    - Deadline.
    - Buyer.
-   - Bid count.
+   - Số bid trên tổng số Vendor được approve.
    - Lifecycle và trạng thái.
    - Transaction fingerprint.
-4. Hover hoặc focus vào dấu `?` ở góc trên bên phải.
-5. Xác nhận tooltip không bị cắt và có hướng dẫn đúng workspace.
-6. Thu nhỏ cửa sổ để kiểm tra thanh điều hướng và nội dung không đè nhau.
+   - Nhãn `CONFIRMED / FINALITY PENDING` nếu transaction chưa qua finality
+     window.
+5. Hover hoặc focus vào dấu `?` ở góc trên bên phải.
+6. Xác nhận tooltip không bị cắt và có hướng dẫn đúng workspace.
+7. Thu nhỏ cửa sổ để kiểm tra thanh điều hướng và nội dung không đè nhau.
 
 Kết quả mong đợi: Public hoạt động không cần ví và không hiển thị giá bid hay
 số dư bí mật.
 
-## 3. Kiểm tra Balances, faucet, wrap và reveal
+## 3. Kiểm tra Balances, faucet, wrap và reveal của EOA
 
-Thực hiện bằng ví Buyer.
+Phần này kiểm tra tiện ích ví của EOA và có thể bỏ qua khi chỉ demo Safe Buyer.
+Nó không cấp vốn cho Safe; Safe có batch funding riêng trong mục 4.
 
-1. Kết nối Buyer trên Sepolia.
+1. Kết nối một EOA test trên Sepolia.
 2. Trong `BALANCES`, kiểm tra:
    - `SEP ETH`.
    - `TEST USDC`.
@@ -103,10 +142,61 @@ Kết quả mong đợi:
 - Khi có vcUSDC, biểu tượng mắt hoạt động.
 - Giá trị rõ không xuất hiện trong URL, local storage, log hoặc Public.
 - Refresh, đổi tài khoản hoặc đổi mạng phải xóa giá trị đã reveal.
+- Số dư vừa faucet/wrap thuộc EOA đang kết nối, không tự chuyển sang Safe.
 
-## 4. Buyer tạo tender
+## 4. Safe Buyer: chọn Safe, thiết lập, funding và tạo tender
 
-Chuyển sang workspace `BUYER` và dùng dữ liệu mẫu:
+Kết nối một Safe owner và chuyển sang workspace `SAFE BUYER`.
+
+### 4.1. Chọn Safe
+
+1. Chờ web tìm các Safe Sepolia của owner.
+2. Nếu chỉ có một Safe, web tự chọn và đọc cấu hình.
+3. Nếu có nhiều Safe, bấm Safe muốn dùng.
+4. Nếu discovery không khả dụng, dán địa chỉ Safe rồi bấm `CHECK SAFE`.
+5. Xác nhận thẻ `SELECTED SAFE` hiển thị:
+   - Safe address.
+   - Số owner và threshold.
+   - ETH, public Test USDC và trạng thái confidential vUSDC của chính Safe.
+   - Địa chỉ preparation module riêng của Safe.
+
+Web chỉ hiển thị `Encrypted balance present`, `No encrypted balance` hoặc trạng
+thái unavailable cho confidential balance của Safe. Web không giả vờ biết
+plaintext balance và không dùng EOA balance thay cho Safe balance.
+
+### 4.2. Thiết lập một lần cho Safe mới
+
+Nếu cả bốn readiness check đã xanh, bỏ qua bước này. Nếu chưa:
+
+1. Bấm `CONFIGURE THIS SAFE`.
+2. Kiểm tra Safe proposal gồm tối đa bốn call:
+   - Factory deploy module riêng cho Safe nếu chưa tồn tại.
+   - Safe tự enable module.
+   - Safe gọi module để bind canonical Market.
+   - Safe cấp Market làm confidential-token operator.
+3. Ký proposal bằng owner hiện tại.
+4. Với Safe threshold `1/1`, web tự gửi execution sau chữ ký.
+5. Với multisig, mở Safe hoặc dùng `APPROVE / EXECUTE` để các owner còn lại
+   ký; web chỉ execute khi đủ threshold.
+6. Refresh và xác nhận bốn readiness check đều xanh.
+
+Đây là bước duy nhất được thêm cho một Safe chưa từng dùng VeilBid. Nó không
+lặp lại cho mỗi tender.
+
+### 4.3. Nạp confidential vUSDC cho Safe
+
+1. Nhập số lượng vào `Confidential funding amount`.
+2. Bấm `FAUCET + WRAP WITH SAFE`.
+3. Proposal sẽ tự thêm faucet call khi public vUSDC của Safe chưa đủ, sau đó
+   `approve` wrapper và `wrap` vào chính Safe.
+4. Ký/thu thập đủ threshold.
+5. Xác nhận thẻ Safe chuyển sang `Encrypted balance present`.
+
+EOA owner trả gas cho transaction thực thi; tài sản được mint/wrap thuộc Safe.
+
+### 4.4. Tạo tender
+
+Dùng dữ liệu mẫu:
 
 | Trường | Giá trị mẫu |
 | --- | --- |
@@ -125,26 +215,43 @@ Approved vendors:
 Các bước:
 
 1. Kiểm tra deadline còn đủ thời gian để gửi hai bid.
-2. Bấm `PREPARE & FUND TENDER`.
-3. Xác nhận từng yêu cầu MetaMask theo thứ tự.
-4. Theo dõi toast cho các bước:
-   - Kiểm tra/cấp Test USDC nếu thiếu.
-   - Approve wrapper.
-   - Wrap confidential token.
-   - Authorize market operator.
-   - Create tender.
-   - Chờ exact-funding proof.
-   - Confirm funding.
-5. Không đóng tab khi proof đang được xử lý.
-6. Khi hoàn tất, ghi lại Tender ID.
-7. Sang `PUBLIC`, refresh và xác nhận tender có trạng thái `OPEN`.
+2. Bấm `CREATE WITH SAFE`.
+3. Theo dõi toast qua các giai đoạn:
+   - Tự tạo và kiểm tra một nonce nội bộ chưa từng dùng. Người dùng không phải
+     nhập nonce.
+   - Mã hóa confidential budget cho module riêng của Safe.
+   - Tạo một atomic Safe batch gồm `prepareInputForSafe` và
+     `createTenderAuthorized`.
+   - Chờ Safe owner ký approval.
+   - Publish proposal lên Safe Transaction Service.
+   - Khi threshold đạt đủ, gửi transaction thực thi batch lên Sepolia.
+4. Với Safe threshold `1/1`, xác nhận một chữ ký Safe và một
+   transaction thực thi trong MetaMask.
+5. Kiểm tra phần kết quả hiển thị:
+   - Safe transaction hash.
+   - Threshold progress đúng với Safe đã chọn.
+   - Link `Confirmed on Sepolia`.
+6. Nếu Safe Transaction Service chưa cập nhật, bấm `REFRESH SIGNATURES`.
+   `COPY BATCH JSON` và `OPEN SAFE` chỉ là handoff phục hồi, không phải bước
+   bắt buộc của luồng threshold `1/1`.
+7. Nếu reload hoặc đóng tab giữa chừng, dùng `RECENT SAFE PROPOSALS`; browser
+   chỉ lưu Safe address, Safe transaction hash, loại action và timestamp công
+   khai, không lưu handle, proof, chữ ký hoặc plaintext.
+8. Ghi lại Tender ID từ `PUBLIC` sau khi transaction được index.
+9. Tender ban đầu có thể ở `FundingPending`. Relay sẽ lấy public
+    exact-funding proof và gọi confirmation mà không cần Buyer ký thêm.
+10. Refresh `PUBLIC` cho đến khi tender chuyển sang `Open`.
 
 Kết quả mong đợi:
 
+- Preparation và tạo tender nằm trong cùng một Safe transaction nguyên tử.
+- Chỉ Safe transaction đạt threshold mới có thể chuyển confidential budget.
 - Tender chỉ mở sau khi exact funding được chứng minh.
+- Buyer của tender là địa chỉ Safe đã chọn, không phải EOA owner.
 - Public ceiling là `10 vUSDC`.
 - Hai địa chỉ Vendor là metadata công khai.
-- Buyer không thấy plaintext bid của Vendor.
+- Safe owner không tự động thấy plaintext bid của Vendor.
+- Relay funding không nhận plaintext amount, handle hay proof từ người dùng.
 
 ## 5. Vendor 1 gửi bid
 
@@ -193,12 +300,15 @@ Kết quả mong đợi: Public biết Vendor đã gửi bid nhưng không hiể
 5. Bấm `ENCRYPT, SIMULATE & SUBMIT`.
 6. Xác nhận giao dịch và chờ toast thành công.
 7. Sang `PUBLIC`, refresh và kiểm tra bid count tăng lên `2`.
+8. Khi cả hai Vendor đã gửi bid, tender đủ điều kiện đóng sớm mà không cần chờ
+   deadline. Relay có thể xử lý ngay.
 
 Kết quả mong đợi:
 
 - Giá `7` và `8` đều không xuất hiện trong Public.
 - Mỗi Vendor chỉ gửi được một bid bất biến cho tender.
 - Vendor không nằm trong allowlist không thể gửi bid.
+- `2 / 2` Vendor đã gửi là điều kiện close hợp lệ trước deadline.
 
 ## 7. Test Selective Disclosure và Auditor
 
@@ -234,29 +344,47 @@ Không chụp hoặc lưu giá reveal vào public evidence.
 Kết quả mong đợi: quyền chỉ áp dụng cho đúng bid đã grant; Auditor không có
 quyền token operator, Buyer, Vendor khác, Safe signer hoặc protocol admin.
 
-## 8. Close, proof và settlement trong Activity
+## 8. Relay tự động close, proof và settlement
 
-1. Chờ qua bid deadline.
-2. Kết nối một ví có Sepolia ETH; có thể dùng Buyer.
-3. Mở workspace `ACTIVITY`.
-4. Tại `PERMISSIONLESS ACTIONS`, tìm tender vừa test.
-5. Bấm `CLOSE & TRACK`.
-6. Xác nhận giao dịch close và chờ confirmation.
-7. Kiểm tra checkpoint xuất hiện trong `RECOVERABLE CHECKPOINTS`.
-8. Bấm `RESUME`.
-9. Chờ Nox xử lý encrypted argmin và public winner-ID proof.
-10. Xác nhận giao dịch finalize khi MetaMask yêu cầu.
-11. Nếu proof chưa sẵn sàng, giữ checkpoint và thử `RESUME` lại; không tạo
-    tender mới và không cung cấp winner từ client.
-12. Sang `PUBLIC`, refresh trạng thái.
+Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đã có đủ bid:
+
+1. Sau bid thứ hai, mở `PUBLIC` và refresh.
+2. Theo dõi tender đi qua:
+   - `Open`.
+   - `Closed`.
+   - `Awarded` hoặc `Refunded`.
+3. Relay sẽ:
+   - Reread trạng thái công khai.
+   - Close tender khi đủ Vendor đã bid hoặc deadline đã qua.
+   - Chỉ yêu cầu public decryption cho encrypted winner ID.
+   - Gửi proof lên `finalizeTender`.
+4. Không nhập winner address hoặc bid value vào relay hay UI.
+5. Nếu Nox proof chưa sẵn sàng, tender phải ở lại `Closed`; không được hiển thị
+   mock success hoặc tự refund theo timeout.
+
+### Activity chỉ dùng khi relay chậm hoặc cần phục hồi
+
+1. Mở workspace `ACTIVITY`.
+2. Kiểm tra phần `RECOVERABLE CHECKPOINTS`. Nếu một thao tác browser trước đó
+   bị gián đoạn, kết nối đúng ví và bấm `RESUME`.
+3. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, kết nối một ví có
+   Sepolia ETH và xem `MANUAL RELAY FALLBACK`.
+4. Với tender đang `Open` và đã đủ điều kiện, bấm `CLOSE & TRACK`.
+5. Với tender đã `Closed`, bấm `TRACK PROOF`.
+6. Xác nhận transaction cần thiết trong MetaMask.
+7. Nếu proof chưa sẵn sàng, checkpoint vẫn phải còn trong
+   `RECOVERABLE CHECKPOINTS`; thử `RESUME` sau, không tạo tender mới.
+8. Sang `PUBLIC` và refresh trạng thái.
 
 Kết quả mong đợi:
 
-- Tender kết thúc ở `AWARDED`.
+- Tender kết thúc ở `Awarded`.
 - Winner là Vendor 2 vì bid `7` thấp hơn bid `8`.
 - Chỉ địa chỉ winner trở thành public; hai giá bid vẫn bí mật.
 - Award receipt được mint cho winner.
 - Finalization không nhận winner plaintext do client cung cấp.
+- Relay hoặc người gọi fallback chỉ trả gas; họ không chọn winner và không có
+  quyền decrypt bid price.
 
 ## 9. Kiểm tra kết quả cuối
 
@@ -274,24 +402,41 @@ Trong `PUBLIC`, kiểm tra:
 5. Bid count vẫn là `2`.
 6. Không có plaintext bid hoặc confidential balance.
 
-Trong `BALANCES`, refresh và kiểm tra số dư confidential thay đổi phù hợp với
-settlement. Chỉ reveal bằng đúng ví có quyền.
+Sidebar `BALANCES` hiển thị EOA đang kết nối; thẻ `SELECTED SAFE` trong Safe
+Buyer mới hiển thị tài sản của Safe. Cả hai chỉ hiển thị trạng thái encrypted
+cho confidential balance trừ khi chính holder thực hiện reveal được cho phép.
+Confidential payment và remainder được assert trong bộ test Sepolia và không
+lưu plaintext vào evidence công khai.
 
-## 10. Kiểm tra Safe Treasury
+## 10. EOA Buyer — fallback nâng cao
 
-1. Mở workspace `SAFE TREASURY`.
-2. Kiểm tra dấu `?` mô tả rõ preparation không phải execution.
-3. Nhập thử metadata, ceiling, deadline, hai Vendor và nonce dương.
-4. Bấm `PREPARE INPUT ONLY`.
+Chỉ dùng workspace `EOA BUYER` khi cần thử luồng ví cá nhân hoặc khi không có
+Safe mà ví hiện tại sở hữu.
 
-Kết quả hiện tại được chấp nhận:
+1. Kết nối EOA trên Sepolia.
+2. Bảo đảm EOA có Sepolia ETH. App có thể tự lấy Test USDC và wrap đúng public
+   ceiling khi tạo tender.
+3. Nhập public metadata, ceiling, deadline và 1–8 Vendor.
+4. Bấm `PREPARE & FUND TENDER`.
+5. Xác nhận lần lượt các transaction cần thiết:
+   - Faucet Test USDC nếu thiếu.
+   - Approve wrapper.
+   - Wrap sang confidential vcUSDC.
+   - Authorize Market operator.
+   - Create và fund tender.
+6. Khi toast báo tender đã submit, không chờ browser tự lấy funding proof như
+   phiên bản cũ. Relay sẽ confirm exact funding và mở tender.
+7. Nếu relay chậm hoặc thao tác bị gián đoạn, mở `ACTIVITY` và dùng checkpoint
+   funding tương ứng.
 
-- Release manifest canonical ghi preparation module đang enabled; giao diện vẫn
-  kiểm tra lại trạng thái live trước mỗi lần chuẩn bị.
-- UI phải hiển thị lỗi rõ ràng thay vì giả lập thành công.
-- Module không được tự gọi Safe execution hoặc di chuyển tiền của Safe.
-- Nếu module bị revoke trong tương lai, muốn bật lại phải dùng giao dịch Safe
-  đạt threshold bình thường.
+Kết quả mong đợi:
+
+- Tender Buyer là EOA đang kết nối.
+- Tender vẫn phải đi qua `FundingPending` trước khi `Open`.
+- EOA Buyer không được cung cấp winner và không tự động xem bid khi tender đang
+  mở.
+- Đây là fallback; video submission nên ưu tiên Safe Buyer để giữ đúng định vị
+  “Confidential procurement for Safe treasuries”.
 
 ## 11. Kiểm tra lỗi và session
 
@@ -308,23 +453,38 @@ Thực hiện thêm các trường hợp:
 8. Reload Public khi RPC lỗi: hiển thị lỗi và nút retry, không dùng mock data.
 9. Hover/focus dấu `?` của từng workspace và Balances.
 10. Kiểm tra toast không che nút chính ở desktop và mobile.
+11. Dùng ví không phải owner trong `SAFE BUYER`: UI phải báo lỗi, không tạo
+    proposal giả.
+12. Tạo nhiều tender liên tiếp: web phải tự chọn nonce mới; contract vẫn phải
+    từ chối một nonce đã consume nếu raw calldata bị replay.
+13. Khi Safe Transaction Service lỗi, UI phải giữ raw batch handoff; không được
+    báo đã execute nếu chưa có transaction Sepolia.
+14. Tắt hoặc revoke module: bước chuẩn bị phải dừng trước khi chuyển tiền.
 
 ## 12. Checklist hoàn tất
 
 - [ ] Public hoạt động không cần ví.
 - [ ] Ba tài khoản kết nối đúng trên Sepolia.
-- [ ] Faucet và manual wrap hoạt động.
-- [ ] vcUSDC reveal chỉ tồn tại trong session.
-- [ ] Buyer tạo và exact-fund tender thành công.
-- [ ] Tender chuyển sang Open.
+- [ ] Safe owner, Safe đã chọn, Market và module/factory đúng canonical release.
+- [ ] Safe discovery hoặc nhập địa chỉ thủ công hoạt động.
+- [ ] Safe mới hoàn tất one-time setup qua đúng threshold.
+- [ ] Safe funding batch tạo confidential budget thành công.
+- [ ] Optional: faucet/manual wrap của EOA hoạt động.
+- [ ] Optional: EOA vcUSDC reveal chỉ tồn tại trong session.
+- [ ] Safe Buyer tạo atomic preparation/create batch thành công.
+- [ ] Safe transaction đạt threshold và được execute trên Sepolia.
+- [ ] Relay confirm exact funding thành công.
+- [ ] Tender chuyển sang `Open`.
 - [ ] Hai Vendor gửi hai bid mã hóa.
-- [ ] Public bid count là 2 và không lộ giá.
+- [ ] Public hiển thị `2 / 2` Vendor đã bid và không lộ giá.
 - [ ] Viewer grant chỉ áp dụng cho một bid.
 - [ ] Auditor check ACL và reveal đúng bid.
-- [ ] Activity close, resume proof và finalize thành công.
+- [ ] Relay close sớm khi đủ Vendor và finalize proof thành công.
+- [ ] Optional: Activity manual fallback/checkpoint recovery hoạt động.
 - [ ] Vendor 2 thắng với bid thấp nhất.
 - [ ] Award receipt được tạo.
 - [ ] Toast hiển thị đúng từng giai đoạn và không bị treo.
-- [ ] Safe preparation không vượt qua Safe threshold.
+- [ ] Module preparation không có quyền tự execute từ Safe.
+- [ ] Safe owner EOA không thay thế Buyer Safe hoặc vượt qua threshold.
 - [ ] Không có private key, plaintext bid, confidential balance, handle hoặc
       proof trong log/evidence.

@@ -330,15 +330,14 @@ describe("Tender Room public explorer", () => {
       </MemoryRouter>,
     );
     expect(
-      screen.getByRole("heading", { name: "Approve once. Track the threshold." }),
+      screen.getByRole("heading", { name: "Use your own Safe treasury." }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
         name: "Help for Safe Buyer workspace",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/permissionless relay handles later public steps/i)).toBeInTheDocument();
-    expect(screen.getByText(/RELEASE MODULE: ENABLED/i)).toBeInTheDocument();
+    expect(screen.getByText(/discovers Safe accounts owned by/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "SAFE BUYER" }),
     ).toBeEnabled();

@@ -23,7 +23,8 @@ flowchart LR
     Web -->|Handle SDK| NoxServices["Nox Gateway / KMS / runner / indexer"]
     Web -->|reads and signed writes| Chain["Ethereum Sepolia"]
 
-    Safe["Safe treasury"] --> Module["Restricted VeilBid module"]
+    Factory["Per-Safe module factory"] --> Module["Restricted per-Safe module"]
+    Safe["Any Sepolia Safe treasury"] --> Module
     Module --> Chain
 
     Finalizer["Stateless settlement relay"] -->|confirm funding / close / finalize| Chain
@@ -64,7 +65,7 @@ failed when that grant was omitted. It provided no measured security or
 maintainability benefit in the spike, so its extra call and ACL failure surface
 is not accepted for the MVP.
 
-### `VeilBidSafeModule`
+### `VeilBidSafePreparationModule`
 
 Gate E verified this boundary against a separate Safe v1.4.1 on Sepolia:
 preparation did not move funds, normal Safe threshold execution funded the
@@ -84,6 +85,20 @@ and the test module/operator permissions were removed afterward.
 - A normal Safe transaction satisfying the current threshold must consume the
   prepared input and create/fund the tender.
 - Does not alter Safe owners, threshold, fallback handler, or guard.
+
+### `VeilBidSafeModuleFactory`
+
+- Deploys one deterministic `VeilBidSafePreparationModule` per Safe and
+  canonical Market using CREATE2.
+- Accepts only deployed contract addresses as Safe targets.
+- Is permissionless and idempotent: anyone may pay to deploy the canonical
+  module, but deployment grants no Safe authority.
+- Cannot enable a module, configure its Market, authorize a token operator,
+  execute a Safe transaction, or change Safe owners/threshold.
+- A Safe must approve its own one-time setup batch before the module becomes
+  usable.
+- The original verified demo Safe module remains supported as a legacy release
+  module; newly selected Safes use factory-created modules.
 
 ### `VeilBidAwardReceipt`
 
@@ -162,6 +177,9 @@ buyer refund during a Nox outage.
 - Public event index with bounded RPC ranges, immediate confirmed-state display,
   and a separately labeled 12-block finality checkpoint.
 - Buyer, Vendor, Public, Auditor, Activity, and Safe workspaces.
+- Safe Transaction Service discovery with a manual-address fallback.
+- One-time per-Safe module setup, Safe-owned faucet/wrap funding, automatic
+  preparation nonce allocation, and public-hash-only proposal recovery.
 - Handle encryption/decryption, ACL views, and public proof recovery.
 - Persistent progress UI for wallet, chain, indexing, proof, and refresh stages.
 
@@ -207,6 +225,7 @@ Optional, non-authoritative, and not implemented in this release:
 | Public lifecycle index | Rebuildable client/finalizer cache |
 | Revealed plaintext | Browser session only |
 | Safe authority | Safe owners and threshold |
+| Pending Safe proposal recovery | Browser local storage: public Safe address, transaction hash, action kind, timestamp only |
 | Deployment addresses/ABIs | Contract workspace canonical artifact |
 | Assistant draft | Browser session only |
 

@@ -91,14 +91,19 @@ Disclosure policy:
 
 ### Safe buyer
 
-1. Connect a configured Safe owner.
-2. Inspect owners, threshold, module, operator, and confidential balance.
-3. Safe Buyer prepares a target-bound budget handle and tender creation in one
+1. Connect a Sepolia Safe owner and select one of its discovered Safes.
+2. Inspect owners, threshold, dedicated module, operator, and confidential
+   balance status.
+3. For a new Safe, approve the one-time module deployment/enablement,
+   Market-binding, and operator setup through the existing threshold.
+4. Faucet/wrap test funding into the Safe through a threshold-authorized batch
+   when needed.
+5. Safe Buyer prepares a target-bound budget handle and tender creation in one
    threshold-authorized batch through the restricted preparation module.
-4. Execute tender creation/funding as a normal Safe transaction satisfying the
+6. Execute tender creation/funding as a normal Safe transaction satisfying the
    configured owner threshold.
-5. Confirm the public exact-funding proof before the tender opens.
-6. Settle/refund to the Safe; the browser owner does not become custodian.
+7. Confirm the public exact-funding proof before the tender opens.
+8. Settle/refund to the Safe; the browser owner does not become custodian.
 
 ### Vendor
 
