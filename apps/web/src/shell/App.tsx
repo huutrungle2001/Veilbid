@@ -394,11 +394,13 @@ export function ExplorerView({
           {([
             ["PUBLIC", "PUBLIC"],
             ["SAFE TREASURY", "SAFE BUYER"],
+            ["BUYER", "EOA BUYER"],
             ["VENDOR", "PRIVATE BIDS"],
             ["ACTIVITY", "ACTIVITY"],
           ] as const).map(([role, label]) => {
               const interactive =
                 role === "PUBLIC" ||
+                role === "BUYER" ||
                 role === "VENDOR" ||
                 role === "ACTIVITY" ||
                 role === "SAFE TREASURY";
@@ -424,17 +426,6 @@ export function ExplorerView({
             },
           )}
         </div>
-        <details className="rolebar-advanced">
-          <summary>ADVANCED</summary>
-          <button
-            type="button"
-            className={activeRole === "BUYER" ? "active" : ""}
-            disabled={!wallet}
-            onClick={() => wallet && onRoleChange?.("BUYER")}
-          >
-            EOA BUYER
-          </button>
-        </details>
         {wallet && <WalletBalancePanel wallet={wallet} />}
       </div>
 

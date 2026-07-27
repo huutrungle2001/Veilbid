@@ -14,6 +14,12 @@ const workspaces = [
     action: "OPEN SAFE BUYER",
   },
   {
+    title: "EOA BUYER",
+    copy: "Create an exactly funded tender directly from the connected wallet, with the same confidential bidding and automatic post-finalization review policy.",
+    to: "/room?role=buyer",
+    action: "OPEN EOA BUYER",
+  },
+  {
     title: "PRIVATE BIDS",
     copy: "Submit and manage your own sealed Vendor bid, or privately reveal a bid granted to this review wallet after finalization.",
     to: "/room?role=vendor",
@@ -94,7 +100,7 @@ export function LandingPage() {
 
         <section className="workspace-showcase">
           <header>
-            <p className="eyebrow">ONE APP / FOUR FOCUSED VIEWS</p>
+            <p className="eyebrow">ONE APP / FIVE FOCUSED VIEWS</p>
             <h2>Follow the lifecycle from either side.</h2>
             <p>
               Start in Public mode to inspect the release. Connect a compatible
@@ -165,7 +171,7 @@ export function LandingPage() {
           <div>
             <details>
               <summary>Do I need a wallet to inspect VeilBid?</summary>
-              <p>No. Public tender state is wallet-free. Connect only for Safe Buyer, Private Bids, Activity, or advanced EOA Buyer actions.</p>
+              <p>No. Public tender state is wallet-free. Connect only for Safe Buyer, EOA Buyer, Private Bids, or Activity actions.</p>
             </details>
             <details>
               <summary>Which wallets work?</summary>

@@ -230,8 +230,18 @@ describe("Tender Room public explorer", () => {
     expect(retry).toHaveBeenCalledOnce();
   });
 
-  it("keeps non-public role workspaces visibly unavailable", () => {
+  it("keeps every primary workspace visible and wallet actions unavailable", () => {
     view(state());
+    const workspaceButtons = Array.from(
+      screen.getByLabelText("Tender workspaces").querySelectorAll("button"),
+    ).map((button) => button.textContent);
+    expect(workspaceButtons).toEqual([
+      "PUBLIC",
+      "SAFE BUYER",
+      "EOA BUYER",
+      "PRIVATE BIDS",
+      "ACTIVITY",
+    ]);
     expect(screen.getByRole("button", { name: "PUBLIC" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "EOA BUYER" })).toBeDisabled();
     expect(

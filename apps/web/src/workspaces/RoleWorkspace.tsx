@@ -49,7 +49,7 @@ export function RoleWorkspace({
               : "Each approved vendor submits one immutable encrypted bid before the deadline."
           }
         />
-        <p className="eyebrow">{buyer ? "EOA BUYER / ADVANCED FALLBACK" : "PRIVATE BIDS / VENDOR & REVIEWER"}</p>
+        <p className="eyebrow">{buyer ? "EOA BUYER / DIRECT WALLET" : "PRIVATE BIDS / VENDOR & REVIEWER"}</p>
         <h1>
           {buyer ? "Fund public terms." : "Submit or privately review bids."}
         </h1>
