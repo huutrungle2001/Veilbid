@@ -540,10 +540,14 @@ export function parseSafeTenderInput(input: SafeTenderInput) {
   if (!metadata) throw new Error("Metadata is required.");
   const publicCeiling = parseUnits(input.ceiling, 6);
   if (publicCeiling <= 0n) throw new Error("Ceiling must be positive.");
-  const bidDeadline = BigInt(Math.floor(new Date(input.deadline).getTime() / 1_000));
-  if (bidDeadline <= BigInt(Math.floor(Date.now() / 1_000))) {
-    throw new Error("Deadline must be in the future.");
+  const bidDeadlineMilliseconds = new Date(input.deadline).getTime();
+  if (
+    !Number.isFinite(bidDeadlineMilliseconds) ||
+    bidDeadlineMilliseconds <= Date.now() + 60_000
+  ) {
+    throw new Error("Deadline must be at least one minute in the future.");
   }
+  const bidDeadline = BigInt(Math.floor(bidDeadlineMilliseconds / 1_000));
   const approvedVendors = input.vendors
     .split(/[\n,]/)
     .map((value) => value.trim())
@@ -563,6 +567,22 @@ export function parseSafeTenderInput(input: SafeTenderInput) {
     bidDeadline,
     approvedVendors: approvedVendors as Address[],
   };
+}
+
+export function assertSafeCeilingWithinRevealedBalance(
+  publicCeiling: bigint,
+  revealedBalance: bigint | null,
+) {
+  if (revealedBalance === null) {
+    throw new Error(
+      "Reveal the current Safe vcUSDC balance before creating a tender.",
+    );
+  }
+  if (publicCeiling > revealedBalance) {
+    throw new Error(
+      "Public ceiling exceeds the available Safe vcUSDC balance.",
+    );
+  }
 }
 
 async function unusedPreparationNonce({

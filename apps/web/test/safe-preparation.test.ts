@@ -12,6 +12,7 @@ import {
 } from "viem";
 import {
   assertSafeBatchExecution,
+  assertSafeCeilingWithinRevealedBalance,
   buildFullSafeUnwrapTransaction,
   buildPartialSafeUnwrapTransactions,
   buildSafeBalanceViewerTransaction,
@@ -67,6 +68,29 @@ describe("Safe preparation terms", () => {
         vendors: `${vendor}\n${vendor}`,
       }),
     ).toThrow(/unique vendor/i);
+  });
+
+  it("leaves enough time to finish exact-funding confirmation", () => {
+    expect(() =>
+      parseSafeTenderInput({
+        metadata: "Public procurement",
+        ceiling: "10",
+        deadline: new Date(Date.now() + 30_000).toISOString(),
+        vendors: vendor,
+      }),
+    ).toThrow(/at least one minute/i);
+  });
+
+  it("requires a revealed balance and keeps the ceiling within it", () => {
+    expect(() =>
+      assertSafeCeilingWithinRevealedBalance(10_000_000n, null),
+    ).toThrow(/reveal/i);
+    expect(() =>
+      assertSafeCeilingWithinRevealedBalance(10_000_001n, 10_000_000n),
+    ).toThrow(/exceeds/i);
+    expect(() =>
+      assertSafeCeilingWithinRevealedBalance(10_000_000n, 10_000_000n),
+    ).not.toThrow();
   });
 
   it("reflects the canonical enabled module and serializes an atomic Safe batch", () => {

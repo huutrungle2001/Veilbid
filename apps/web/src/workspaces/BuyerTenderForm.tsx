@@ -5,6 +5,12 @@ import {
 } from "../transactions/buyerTender";
 import type { WalletController } from "../wallet/WalletPanel";
 import { useToasts } from "../shell/ToastProvider";
+import {
+  confirmCreatedTenderFunding,
+  type FundingConfirmationStage,
+} from "../transactions/tenderFunding";
+import { transactionErrorMessage } from "../transactions/errors";
+import type { Hex } from "viem";
 
 const labels: Record<BuyerTenderStage, string> = {
   faucet: "Acquiring test USDC",
@@ -12,11 +18,21 @@ const labels: Record<BuyerTenderStage, string> = {
   wrap: "Wrapping confidential vUSDC",
   "approve-market": "Authorizing market operator",
   create: "Creating and funding tender",
-  confirmed: "Tender submitted; relay will verify funding",
+  confirmed: "Tender created; preparing exact-funding verification",
+};
+
+const fundingLabels: Record<FundingConfirmationStage, string> = {
+  reading: "Reading the new tender funding state",
+  "requesting-proof": "Waiting for the public Nox funding proof",
+  simulating: "Simulating exact-funding confirmation",
+  signing: "Confirm funding in your wallet",
+  confirming: "Waiting for Sepolia to open the tender",
+  open: "Exact funding confirmed; tender is Open",
+  cancelled: "Funding was insufficient; tender is Cancelled",
 };
 
 function minimumLocalDeadline() {
-  const deadline = new Date(Date.now() + 60_000);
+  const deadline = new Date(Date.now() + 120_000);
   deadline.setMinutes(
     deadline.getMinutes() - deadline.getTimezoneOffset(),
   );
@@ -35,10 +51,10 @@ export function BuyerTenderForm({
   const [ceiling, setCeiling] = useState("");
   const [deadline, setDeadline] = useState("");
   const [vendors, setVendors] = useState([""]);
-  const [stage, setStage] = useState<BuyerTenderStage | null>(null);
+  const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
-  const pending = stage !== null && stage !== "confirmed";
+  const pending = stage !== null;
   const connected =
     wallet.state.status === "connected" &&
     wallet.state.account &&
@@ -57,8 +73,13 @@ export function BuyerTenderForm({
       "CREATE TENDER",
       "Validating public terms and test balances…",
     );
+    setStage("Validating public terms and test balances");
     setError(null);
     setResult(null);
+    let createdTender: {
+      tenderId: bigint;
+      transactionHash: Hex;
+    } | null = null;
     try {
       const created = await createBuyerTender({
         walletClient: wallet.state.walletClient!,
@@ -70,28 +91,51 @@ export function BuyerTenderForm({
           vendorInput: vendors.join("\n"),
         },
         onStage: (nextStage) => {
-          setStage(nextStage);
-          if (nextStage === "confirmed") {
-            toasts.succeed(toastId, labels[nextStage]);
-          } else {
-            toasts.update(toastId, labels[nextStage]);
-          }
+          const nextLabel = labels[nextStage];
+          setStage(nextLabel);
+          toasts.update(toastId, nextLabel);
         },
       });
+      createdTender = created;
       setResult(
-        `Tender ${created.tenderId.toString()} submitted on Sepolia; relay opening is automatic`,
+        `Tender ${created.tenderId.toString()} created; verifying exact funding…`,
       );
+      onConfirmed();
+      const funding = await confirmCreatedTenderFunding({
+        tenderId: created.tenderId,
+        triggerTransactionHash: created.transactionHash,
+        walletClient: wallet.state.walletClient!,
+        account: wallet.state.account!,
+        onStage: (nextStage) => {
+          const nextLabel = fundingLabels[nextStage];
+          setStage(nextLabel);
+          toasts.update(toastId, nextLabel);
+        },
+      });
+      if (funding.status === "cancelled") {
+        throw new Error(
+          "The tender was cancelled because the wallet could not escrow the full public ceiling.",
+        );
+      }
+      setResult(`Tender ${created.tenderId.toString()} is Open and accepting bids.`);
+      setStage(null);
+      toasts.succeed(toastId, fundingLabels.open);
       onConfirmed();
     } catch (cause) {
       setStage(null);
       toasts.fail(
         toastId,
-        "Tender creation stopped. Review the form or wallet request.",
+        createdTender
+          ? "Tender was created, but direct funding confirmation stopped. The relay fallback can finish it."
+          : "Tender creation stopped. Review the form or wallet request.",
       );
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Tender creation stopped before confirmation.",
+        transactionErrorMessage(
+          cause,
+          createdTender
+            ? "Tender creation succeeded, but funding confirmation is still pending. Resume from Activity or allow the relay fallback to finish."
+            : "Tender creation stopped before confirmation.",
+        ),
       );
     }
   }
@@ -215,7 +259,7 @@ export function BuyerTenderForm({
       {stage && (
         <p className="progress-line" aria-live="polite">
           <span className="signal-dot" aria-hidden="true" />
-          {labels[stage]}
+          {stage}
         </p>
       )}
       {error && <p className="inline-error" role="alert">{error}</p>}

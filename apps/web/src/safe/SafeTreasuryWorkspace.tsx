@@ -18,6 +18,7 @@ import { useToasts } from "../shell/ToastProvider";
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import {
   approveAndExecuteSafeProposal,
+  assertSafeCeilingWithinRevealedBalance,
   authorizeSafeBalanceViewer,
   depositWalletTestUsdcToSafe,
   deployPersonalSafe,
@@ -52,6 +53,12 @@ import {
   loadRememberedOwnerSafes,
   rememberOwnerSafe,
 } from "./safeAccountStore";
+import {
+  confirmCreatedTenderFunding,
+  findCreatedTenderId,
+  type FundingConfirmationStage,
+} from "../transactions/tenderFunding";
+import { transactionErrorMessage } from "../transactions/errors";
 
 const emptyInput: SafeTenderInput = {
   metadata: "",
@@ -59,6 +66,24 @@ const emptyInput: SafeTenderInput = {
   deadline: "",
   vendors: "",
 };
+
+const fundingStageLabel: Record<FundingConfirmationStage, string> = {
+  reading: "Reading the new tender funding state",
+  "requesting-proof": "Waiting for the public Nox funding proof",
+  simulating: "Simulating exact-funding confirmation",
+  signing: "Confirm funding in your wallet",
+  confirming: "Waiting for Sepolia to open the tender",
+  open: "Exact funding confirmed; tender is Open",
+  cancelled: "Funding was insufficient; tender is Cancelled",
+};
+
+function minimumSafeDeadline() {
+  const deadline = new Date(Date.now() + 120_000);
+  deadline.setMinutes(
+    deadline.getMinutes() - deadline.getTimezoneOffset(),
+  );
+  return deadline.toISOString().slice(0, 16);
+}
 
 function shortAddress(value: Address) {
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
@@ -643,8 +668,10 @@ function SafeConfigurationSkeleton({ safe }: { safe: Address }) {
 
 export function SafeTreasuryWorkspace({
   wallet,
+  onRefresh,
 }: {
   wallet: WalletController;
+  onRefresh: () => void;
 }) {
   const toasts = useToasts();
   const [input, setInput] = useState(emptyInput);
@@ -715,7 +742,7 @@ export function SafeTreasuryWorkspace({
     setSafeReadWarning(null);
     try {
       const inspected = await inspectSafeConfiguration({ safe, account });
-      if (inspectionRequestId.current !== requestId) return;
+      if (inspectionRequestId.current !== requestId) return null;
 
       configurationCacheRef.current = {
         ...configurationCacheRef.current,
@@ -735,13 +762,15 @@ export function SafeTreasuryWorkspace({
           ? current
           : [...current, safe],
       );
+      return inspected;
     } catch (cause) {
-      if (inspectionRequestId.current !== requestId) return;
+      if (inspectionRequestId.current !== requestId) return null;
       if (cached && isTemporaryRpcError(cause)) {
         setConfiguration(cached);
         setSafeReadWarning(
           "Live Sepolia refresh failed after trying backup RPCs. Showing the last successful read.",
         );
+        return cached;
       } else {
         setConfiguration(null);
         setError(
@@ -751,6 +780,7 @@ export function SafeTreasuryWorkspace({
               ? cause.message
               : "Safe inspection failed.",
         );
+        return null;
       }
     } finally {
       if (inspectionRequestId.current === requestId) {
@@ -950,8 +980,7 @@ export function SafeTreasuryWorkspace({
         "Personal Safe created. Complete the one-time VeilBid setup next.",
       );
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "Safe deployment failed.";
+      const message = transactionErrorMessage(cause, "Safe deployment failed.");
       setError(message);
       toasts.fail(toastId, message);
     } finally {
@@ -962,45 +991,82 @@ export function SafeTreasuryWorkspace({
   async function runAction(
     label: string,
     action: (onStage: (next: string) => void) => Promise<SafePreparationResult>,
+    options: {
+      refreshAfter?: boolean;
+      afterExecution?: (
+        completed: SafePreparationResult,
+        onStage: (next: string) => void,
+      ) => Promise<string | null>;
+    } = {},
   ) {
     const toastId = toasts.startStack(
       label,
       "Building a threshold-authorized Safe action…",
     );
+    setStage("Building a threshold-authorized Safe action");
     setError(null);
     setResult(null);
+    let completed: SafePreparationResult | null = null;
     try {
-      const completed = await action((nextStage) => {
+      const actionResult = await action((nextStage) => {
         setStage(nextStage);
         toasts.update(toastId, nextStage);
       });
-      setResult(completed);
-      remember(completed);
+      completed = actionResult;
+      setResult(actionResult);
+      remember(actionResult);
       setStoredStatuses((current) => ({
         ...current,
-        [completed.safeTxHash]: {
-          safeTxHash: completed.safeTxHash,
-          threshold: completed.threshold,
-          confirmations: completed.confirmations,
-          executed: completed.executed,
-          executionTransactionHash: completed.executionTransactionHash,
+        [actionResult.safeTxHash]: {
+          safeTxHash: actionResult.safeTxHash,
+          threshold: actionResult.threshold,
+          confirmations: actionResult.confirmations,
+          executed: actionResult.executed,
+          executionTransactionHash: actionResult.executionTransactionHash,
         },
       }));
+      let completionMessage: string | null = null;
+      if (actionResult.executed && options.afterExecution) {
+        completionMessage = await options.afterExecution(
+          actionResult,
+          (nextStage) => {
+            setStage(nextStage);
+            toasts.update(toastId, nextStage);
+          },
+        );
+      }
       toasts.succeed(
         toastId,
-        completed.executed
+        completionMessage ?? (actionResult.executed
           ? "Safe batch executed on Sepolia."
-          : "Safe proposal published for the remaining approvals.",
+          : "Safe proposal published for the remaining approvals."),
       );
-      if (completed.executed && wallet.state.account) {
+      if (
+        actionResult.executed &&
+        wallet.state.account &&
+        options.refreshAfter !== false
+      ) {
+        await refreshConfiguration(actionResult.safe, wallet.state.account);
+      }
+      return actionResult;
+    } catch (cause) {
+      const message = transactionErrorMessage(cause, "Safe action failed.");
+      setError(
+        completed?.executed
+          ? `The Safe action executed, but its follow-up stopped. ${message}`
+          : message,
+      );
+      toasts.fail(
+        toastId,
+        completed?.executed
+          ? "Safe action executed; the recoverable follow-up stopped."
+          : message,
+      );
+      if (completed?.executed && wallet.state.account) {
         await refreshConfiguration(completed.safe, wallet.state.account);
       }
+      if (completed?.kind === "tender") onRefresh();
       return completed;
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Safe action failed.";
-      setError(message);
-      toasts.fail(toastId, message);
-      return null;
     } finally {
       setStage(null);
     }
@@ -1052,8 +1118,7 @@ export function SafeTreasuryWorkspace({
       setFundAmount("");
       await refreshConfiguration(configuration.safe, wallet.state.account!);
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "Safe deposit failed.";
+      const message = transactionErrorMessage(cause, "Safe deposit failed.");
       setError(message);
       toasts.fail(toastId, message);
     } finally {
@@ -1063,18 +1128,62 @@ export function SafeTreasuryWorkspace({
 
   async function authorizeBalanceViewer() {
     if (!connected || !configuration) return;
-    await runAction("AUTHORIZE BALANCE VIEW", (onStage) =>
-      authorizeSafeBalanceViewer({
-        configuration,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
-    );
+    setRevealPending(true);
+    try {
+      await runAction(
+        "REVEAL SAFE BALANCE",
+        (onStage) => authorizeSafeBalanceViewer({
+          configuration,
+          provider: wallet.state.selectedProvider!.provider,
+          account: wallet.state.account!,
+          onStage,
+        }),
+        {
+          refreshAfter: false,
+          afterExecution: async (completed, onStage) => {
+            onStage("Refreshing balance-view authorization");
+            const refreshed = await waitForBalanceViewerConfiguration(
+              completed.safe,
+            );
+            if (!refreshed?.confidentialViewerAuthorized) {
+              throw new Error(
+                "Balance-view authorization is still being indexed. Refresh and try again.",
+              );
+            }
+            onStage("Confirm the private balance reveal in your wallet");
+            const value = await revealSafeConfidentialBalance({
+              configuration: refreshed,
+              walletClient: wallet.state.walletClient!,
+            });
+            const handle = refreshed.balances.confidentialHandle;
+            if (handle) setRevealedSafeBalance({ handle, value });
+            return "Safe vcUSDC balance decrypted for this session.";
+          },
+        },
+      );
+    } finally {
+      setRevealPending(false);
+    }
   }
 
-  async function revealBalance() {
-    if (!connected || !configuration) return;
+  async function waitForBalanceViewerConfiguration(safe: Address) {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const refreshed = await refreshConfiguration(
+        safe,
+        wallet.state.account!,
+      );
+      if (refreshed?.confidentialViewerAuthorized) return refreshed;
+      if (attempt < 3) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1_500));
+      }
+    }
+    return null;
+  }
+
+  async function revealBalance(
+    targetConfiguration = configuration,
+  ) {
+    if (!connected || !targetConfiguration) return;
     const toastId = toasts.start(
       "REVEAL SAFE BALANCE",
       "Requesting private access for the current vcUSDC handle…",
@@ -1083,15 +1192,14 @@ export function SafeTreasuryWorkspace({
     setError(null);
     try {
       const value = await revealSafeConfidentialBalance({
-        configuration,
+        configuration: targetConfiguration,
         walletClient: wallet.state.walletClient!,
       });
-      const handle = configuration.balances.confidentialHandle;
+      const handle = targetConfiguration.balances.confidentialHandle;
       if (handle) setRevealedSafeBalance({ handle, value });
       toasts.succeed(toastId, "Safe vcUSDC balance decrypted for this session.");
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "Balance reveal failed.";
+      const message = transactionErrorMessage(cause, "Balance reveal failed.");
       setError(message);
       toasts.fail(toastId, message);
     } finally {
@@ -1170,9 +1278,10 @@ export function SafeTreasuryWorkspace({
       setUnwrapFinalization(null);
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Could not recover the unwrap request.",
+        transactionErrorMessage(
+          cause,
+          "Could not recover the unwrap request.",
+        ),
       );
     }
   }
@@ -1201,8 +1310,10 @@ export function SafeTreasuryWorkspace({
       );
       await refreshConfiguration(configuration.safe, wallet.state.account!);
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "Unwrap finalization failed.";
+      const message = transactionErrorMessage(
+        cause,
+        "Unwrap finalization failed.",
+      );
       setError(message);
       toasts.fail(toastId, message);
     } finally {
@@ -1226,7 +1337,11 @@ export function SafeTreasuryWorkspace({
       return;
     }
     try {
-      parseSafeTenderInput(input);
+      const terms = parseSafeTenderInput(input);
+      assertSafeCeilingWithinRevealedBalance(
+        terms.publicCeiling,
+        currentRevealedBalance,
+      );
     } catch (cause) {
       setTenderValidationError(
         cause instanceof Error ? cause.message : "Check the tender details and try again.",
@@ -1234,15 +1349,40 @@ export function SafeTreasuryWorkspace({
       return;
     }
     setTenderValidationError(null);
-    await runAction("CREATE SAFE TENDER", (onStage) =>
-      prepareSafeTender({
-        input,
-        configuration,
-        walletClient: wallet.state.walletClient!,
-        provider: wallet.state.selectedProvider!.provider,
-        account: wallet.state.account!,
-        onStage,
-      }),
+    await runAction(
+      "CREATE SAFE TENDER",
+      (onStage) => prepareSafeTender({
+          input,
+          configuration,
+          walletClient: wallet.state.walletClient!,
+          provider: wallet.state.selectedProvider!.provider,
+          account: wallet.state.account!,
+          onStage,
+        }),
+      {
+        afterExecution: async (completed, onStage) => {
+          if (!completed.executionTransactionHash) return null;
+          onStage("Finding the created tender on Sepolia");
+          const tenderId = await findCreatedTenderId(
+            completed.executionTransactionHash,
+          );
+          onRefresh();
+          const funding = await confirmCreatedTenderFunding({
+            tenderId,
+            triggerTransactionHash: completed.executionTransactionHash,
+            walletClient: wallet.state.walletClient!,
+            account: wallet.state.account!,
+            onStage: (nextStage) => onStage(fundingStageLabel[nextStage]),
+          });
+          onRefresh();
+          if (funding.status === "cancelled") {
+            throw new Error(
+              "The tender was cancelled because the Safe could not escrow the full public ceiling.",
+            );
+          }
+          return `Tender ${tenderId.toString()} is Open and accepting bids.`;
+        },
+      },
     );
   }
 
@@ -1283,18 +1423,45 @@ export function SafeTreasuryWorkspace({
         setResult((current) => current ? { ...current, ...status } : current);
       }
       setStoredStatuses((current) => ({ ...current, [safeTxHash]: status }));
-      toasts.succeed(
-        toastId,
-        status.executed
-          ? "Safe batch executed."
-          : `${status.confirmations}/${status.threshold} approvals collected.`,
-      );
       const actionKind =
         result?.safeTxHash === safeTxHash
           ? result.kind
           : storedProposals.find(
               (proposal) => proposal.safeTxHash === safeTxHash,
             )?.kind;
+      let successMessage = status.executed
+        ? "Safe batch executed."
+        : `${status.confirmations}/${status.threshold} approvals collected.`;
+      if (
+        status.executed &&
+        status.executionTransactionHash &&
+        actionKind === "tender"
+      ) {
+        setStage("Finding the created tender on Sepolia");
+        toasts.update(toastId, "Finding the created tender on Sepolia");
+        const tenderId = await findCreatedTenderId(
+          status.executionTransactionHash,
+        );
+        onRefresh();
+        const funding = await confirmCreatedTenderFunding({
+          tenderId,
+          triggerTransactionHash: status.executionTransactionHash,
+          walletClient: wallet.state.walletClient!,
+          account: wallet.state.account!,
+          onStage: (nextStage) => {
+            const nextLabel = fundingStageLabel[nextStage];
+            setStage(nextLabel);
+            toasts.update(toastId, nextLabel);
+          },
+        });
+        onRefresh();
+        if (funding.status === "cancelled") {
+          throw new Error(
+            "The tender was cancelled because the Safe could not escrow the full public ceiling.",
+          );
+        }
+        successMessage = `Tender ${tenderId.toString()} is Open and accepting bids.`;
+      }
       if (
         status.executed &&
         status.executionTransactionHash &&
@@ -1313,14 +1480,48 @@ export function SafeTreasuryWorkspace({
           );
         }
       }
+      let refreshedConfiguration: SafeAccountConfiguration | null = null;
       if (status.executed && wallet.state.account) {
-        await refreshConfiguration(safe, wallet.state.account);
+        refreshedConfiguration = await refreshConfiguration(
+          safe,
+          wallet.state.account,
+        );
       }
+      if (
+        status.executed &&
+        actionKind === "view-balance" &&
+        !refreshedConfiguration?.confidentialViewerAuthorized
+      ) {
+        refreshedConfiguration = await waitForBalanceViewerConfiguration(safe);
+      }
+      if (
+        status.executed &&
+        actionKind === "view-balance" &&
+        refreshedConfiguration?.confidentialViewerAuthorized
+      ) {
+        setRevealPending(true);
+        const nextLabel = "Confirm the private balance reveal in your wallet";
+        setStage(nextLabel);
+        toasts.update(toastId, nextLabel);
+        const value = await revealSafeConfidentialBalance({
+          configuration: refreshedConfiguration,
+          walletClient: wallet.state.walletClient!,
+        });
+        const handle = refreshedConfiguration.balances.confidentialHandle;
+        if (handle) setRevealedSafeBalance({ handle, value });
+        successMessage = "Safe vcUSDC balance decrypted for this session.";
+      } else if (status.executed && actionKind === "view-balance") {
+        throw new Error(
+          "Balance-view authorization is still being indexed. Refresh and try again.",
+        );
+      }
+      toasts.succeed(toastId, successMessage);
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Safe approval failed.";
+      const message = transactionErrorMessage(cause, "Safe approval failed.");
       setError(message);
       toasts.fail(toastId, message);
     } finally {
+      setRevealPending(false);
       setStage(null);
     }
   }
@@ -1362,6 +1563,14 @@ export function SafeTreasuryWorkspace({
       configuration.balances.confidentialHandle
       ? revealedSafeBalance.value
       : null;
+  const ceilingExceedsBalance = (() => {
+    if (currentRevealedBalance === null || !input.ceiling.trim()) return false;
+    try {
+      return parseUnits(input.ceiling.trim(), 6) > currentRevealedBalance;
+    } catch {
+      return false;
+    }
+  })();
   const currentUnwrapRequest =
     unwrapRequestSafe &&
     configuration &&
@@ -1417,7 +1626,8 @@ export function SafeTreasuryWorkspace({
             "Choose the discovered Safe, or paste its address.",
             "Deposit vcUSDC from the connected wallet when the Safe needs funds.",
             "Run the one-time VeilBid setup from the tender form if required.",
-            "Enter tender terms and approve the atomic preparation + creation batch.",
+            "Reveal the current Safe balance and keep the public ceiling within it.",
+            "Approve the atomic creation batch, then confirm the funding proof to open bidding.",
           ]}
           note="Depositing signs with the connected wallet. Setup, tender creation, balance-view authorization, and unwrap remain normal Safe proposals that preserve the configured threshold."
         />
@@ -1730,15 +1940,58 @@ export function SafeTreasuryWorkspace({
                     inputMode="decimal"
                     placeholder="100"
                     aria-invalid={Boolean(
-                      tenderValidationError && !input.ceiling.trim(),
+                      ceilingExceedsBalance ||
+                        (tenderValidationError && !input.ceiling.trim()),
                     )}
                   />
                 </label>
+                <div
+                  className="safe-tender-balance-check"
+                  data-ready={currentRevealedBalance !== null}
+                >
+                  <span>
+                    <small>AVAILABLE SAFE vcUSDC</small>
+                    <strong>
+                      {currentRevealedBalance !== null
+                        ? formatUnits(currentRevealedBalance, 6)
+                        : configuration.balances.confidential === "encrypted"
+                          ? "••••••"
+                          : "0"}
+                    </strong>
+                  </span>
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    disabled={
+                      configuration.balances.confidential !== "encrypted" ||
+                      stage !== null ||
+                      revealPending
+                    }
+                    onClick={toggleBalanceReveal}
+                  >
+                    {currentRevealedBalance !== null
+                      ? "HIDE BALANCE"
+                      : "REVEAL BALANCE"}
+                  </button>
+                  <small>
+                    {currentRevealedBalance !== null
+                      ? "Private session value used to validate the public ceiling."
+                      : configuration.balances.confidential === "encrypted"
+                        ? "Reveal the Safe balance to validate your public ceiling."
+                        : "Deposit vcUSDC into this Safe before creating a tender."}
+                  </small>
+                </div>
+                {ceilingExceedsBalance && (
+                  <p className="inline-error safe-ceiling-error" role="alert">
+                    Public ceiling exceeds the available Safe vcUSDC balance.
+                  </p>
+                )}
                 <label>
                   <span>Bid deadline</span>
                   <input
                     type="datetime-local"
                     value={input.deadline}
+                    min={minimumSafeDeadline()}
                     onChange={(event) => {
                       setTenderValidationError(null);
                       setInput((current) => ({
@@ -1750,6 +2003,9 @@ export function SafeTreasuryWorkspace({
                       tenderValidationError && !input.deadline.trim(),
                     )}
                   />
+                  <small className="field-hint">
+                    Local machine time; choose at least one minute from now.
+                  </small>
                 </label>
               </section>
 
@@ -1832,7 +2088,12 @@ export function SafeTreasuryWorkspace({
               </div>
               <button
                 className="primary-button"
-                disabled={!configuration.ready || stage !== null}
+                disabled={
+                  !configuration.ready ||
+                  stage !== null ||
+                  currentRevealedBalance === null ||
+                  ceilingExceedsBalance
+                }
                 onClick={() => void prepare()}
               >
                 CREATE WITH SAFE →

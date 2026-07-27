@@ -1007,9 +1007,18 @@ main {
 }
 
 .card-deadline {
+  display: grid;
+  gap: 3px;
   font-family: var(--font-mono);
   font-size: 0.67rem;
   margin-top: 16px;
+}
+
+.card-deadline small {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
 }
 
 .card-footer {
@@ -2334,6 +2343,86 @@ main {
 .safe-tender-metadata,
 .safe-tender-section-heading {
   grid-column: 1 / -1;
+}
+
+.safe-tender-balance-check {
+  align-items: center;
+  background: var(--color-paper-warm);
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 8px 12px;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 12px;
+}
+
+.safe-tender-balance-check[data-ready="true"] {
+  background: rgb(190 255 70 / 18%);
+}
+
+.safe-tender-balance-check > span {
+  display: grid;
+  gap: 3px;
+}
+
+.safe-tender-balance-check small,
+.safe-tender-balance-check strong {
+  font-family: var(--font-mono);
+}
+
+.safe-tender-balance-check > span small {
+  color: var(--color-ink-muted);
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+}
+
+.safe-tender-balance-check > span strong {
+  font-size: 0.88rem;
+}
+
+.safe-tender-balance-check > small {
+  color: var(--color-ink-muted);
+  font-size: 0.62rem;
+  grid-column: 1 / -1;
+  line-height: 1.4;
+}
+
+.safe-ceiling-error {
+  grid-column: 1 / -1;
+  margin: -7px 0 0;
+}
+
+.vendor-deadline-summary {
+  align-items: center;
+  background: rgb(190 255 70 / 18%);
+  border: 1px solid var(--color-ink-black);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.vendor-deadline-summary span {
+  display: grid;
+  gap: 3px;
+}
+
+.vendor-deadline-summary strong,
+.vendor-deadline-summary span,
+.vendor-deadline-summary small {
+  font-family: var(--font-mono);
+}
+
+.vendor-deadline-summary strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vendor-deadline-summary span,
+.vendor-deadline-summary small {
+  font-size: 0.66rem;
 }
 
 .safe-tender-section-heading {

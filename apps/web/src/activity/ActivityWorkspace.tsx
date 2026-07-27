@@ -16,6 +16,7 @@ import {
 import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
+import { transactionErrorMessage } from "../transactions/errors";
 
 const stageLabel: Record<RecoveryStage, string> = {
   reading: "Reading canonical state",
@@ -117,7 +118,7 @@ export function ActivityWorkspace({
         "Recovery stopped. The public checkpoint remains available.",
       );
       setError(
-        cause instanceof Error ? cause.message : "Recovery attempt failed.",
+        transactionErrorMessage(cause, "Recovery attempt failed."),
       );
     } finally {
       setActiveKey(null);
@@ -157,7 +158,7 @@ export function ActivityWorkspace({
         "Tender close or proof tracking stopped. Retry from Activity.",
       );
       setError(
-        cause instanceof Error ? cause.message : "Tender close failed.",
+        transactionErrorMessage(cause, "Tender close failed."),
       );
     } finally {
       setActiveKey(null);
@@ -172,8 +173,8 @@ export function ActivityWorkspace({
           label="Help for Activity workspace"
           title="HOW TO USE ACTIVITY"
           steps={[
-            "The hosted relay automatically confirms funding, closes eligible tenders, and finalizes public proofs.",
-            "Connect the wallet that started an interrupted manual operation only when recovery is needed.",
+            "The web normally confirms funding immediately; the hosted relay remains a fallback and continues later lifecycle actions.",
+            "Connect any Sepolia wallet with gas only when recovery is needed; these lifecycle writes are permissionless.",
             "Use Resume on a saved funding or winner-proof checkpoint; the app rereads required handles and proofs.",
             "Use manual Close & Track only if relay health is unavailable or delayed.",
           ]}
@@ -182,8 +183,9 @@ export function ActivityWorkspace({
         <p className="eyebrow">ACTIVITY / AUTOMATION & RECOVERY</p>
         <h1>Automatic by default. Recoverable by design.</h1>
         <p>
-          The relay performs permissionless lifecycle writes. Manual recovery
-          stores public IDs and transaction hashes only—never plaintext bids.
+          The web and relay can perform permissionless lifecycle writes. Manual
+          recovery stores public IDs and transaction hashes only—never plaintext
+          bids.
         </p>
       </section>
       <WalletPanel wallet={wallet} />
