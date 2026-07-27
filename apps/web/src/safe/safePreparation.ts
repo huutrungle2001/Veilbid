@@ -9,10 +9,9 @@ import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
 import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
-  createPublicClient,
+  decodeEventLog,
   encodeFunctionData,
   getAddress,
-  http,
   isAddress,
   keccak256,
   maxUint48,
@@ -26,6 +25,7 @@ import {
   type WalletClient,
 } from "viem";
 import { sepolia } from "viem/chains";
+import { createResilientSepoliaClient } from "../chain/sepoliaRpc";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
 import {
   readWalletBalances,
@@ -41,11 +41,13 @@ const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
 const tokenAddress = deployment.contracts.VeilBidTestUSDC.address as Address;
 const wrapperAddress = deployment.contracts
   .VeilBidConfidentialUSDC.address as Address;
+export const noxComputeAddress =
+  "0x24Ef36Ec5b626D7DCD09a98F3083c2758F0F77bF" as Address;
 const legacyModuleAddress =
   deployment.contracts.VeilBidSafePreparationModule.address as Address;
 const demoSafeAddress = deployment.contracts.VeilBidDemoSafe.address as Address;
-const legacySafeTransactionServiceUrl =
-  "https://safe-transaction-sepolia.safe.global";
+export const safeTransactionServiceUrl =
+  "https://safe-transaction-sepolia.safe.global/api";
 const safeReadAbi = [
   {
     type: "function",
@@ -83,6 +85,28 @@ const safeReadAbi = [
     outputs: [],
   },
 ] as const;
+const noxAclAbi = [
+  {
+    type: "function",
+    name: "addViewer",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "handle", type: "bytes32" },
+      { name: "viewer", type: "address" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "isViewer",
+    stateMutability: "view",
+    inputs: [
+      { name: "handle", type: "bytes32" },
+      { name: "viewer", type: "address" },
+    ],
+    outputs: [{ type: "bool" }],
+  },
+] as const;
 
 type ReleaseContracts = typeof deployment.contracts & {
   VeilBidSafeModuleFactory?: { address?: string };
@@ -105,11 +129,18 @@ export interface SafeTenderInput {
 
 export interface SafeBatchTransaction {
   to: Address;
-  value: "0";
+  value: string;
   data: Hex;
 }
 
-export type SafeActionKind = "setup" | "fund" | "tender";
+export type SafeActionKind =
+  | "setup"
+  | "fund"
+  | "tender"
+  | "view-balance"
+  | "withdraw-eth"
+  | "withdraw-usdc"
+  | "unwrap";
 
 export interface SafePreparationResult {
   kind: SafeActionKind;
@@ -147,7 +178,25 @@ export interface SafeAccountConfiguration {
   marketAuthorized: boolean;
   legacyModule: boolean;
   balances: WalletBalances;
+  confidentialViewerAuthorized: boolean;
   ready: boolean;
+}
+
+export interface SafeUnwrapRequest {
+  executionTransactionHash: Hex;
+  receiver: Address;
+  requestHandle: Hex;
+  finalized: boolean;
+}
+
+export interface SafeUnwrapFinalization {
+  transactionHash: Hex;
+  plaintextAmount: bigint;
+}
+
+export interface PersonalSafeDeployment {
+  safe: Address;
+  deploymentTransactionHash: Hex;
 }
 
 export function safeWalletUrl(safe: Address) {
@@ -170,7 +219,7 @@ export async function createSafeApiKit() {
       ? { chainId: BigInt(sepolia.id), apiKey }
       : {
           chainId: BigInt(sepolia.id),
-          txServiceUrl: legacySafeTransactionServiceUrl,
+          txServiceUrl: safeTransactionServiceUrl,
         },
   );
 }
@@ -188,11 +237,107 @@ async function protocolKit(
   });
 }
 
+export async function deployPersonalSafe({
+  provider,
+  walletClient,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  provider: EIP1193Provider;
+  walletClient: WalletClient;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}): Promise<PersonalSafeDeployment> {
+  const { default: Safe } = await import("@safe-global/protocol-kit");
+  const entropy = crypto.getRandomValues(new Uint8Array(32));
+  const saltNonce = BigInt(toHex(entropy)).toString();
+  onStage("Predicting a new Safe 1/1 address");
+  const predictedSafe = await Safe.init({
+    provider: provider as SafeEip1193Provider,
+    signer: account,
+    predictedSafe: {
+      safeAccountConfig: {
+        owners: [account],
+        threshold: 1,
+      },
+      safeDeploymentConfig: {
+        safeVersion: "1.4.1",
+        saltNonce,
+      },
+    },
+  });
+  const safe = getAddress(await predictedSafe.getAddress());
+  const existingClient = createResilientSepoliaClient(rpcUrl);
+  const existingCode = await existingClient.getBytecode({ address: safe });
+  if (existingCode && existingCode !== "0x") {
+    throw new Error("Predicted Safe address is already deployed. Try again.");
+  }
+
+  onStage("Awaiting wallet approval to deploy the Safe");
+  const deploymentTransaction =
+    await predictedSafe.createSafeDeploymentTransaction();
+  const deploymentTransactionHash = await walletClient.sendTransaction({
+    account,
+    chain: sepolia,
+    data: deploymentTransaction.data as Hex,
+    to: getAddress(deploymentTransaction.to),
+    value: BigInt(deploymentTransaction.value),
+  });
+  onStage("Waiting for the Safe deployment confirmation");
+  const receipt = await existingClient.waitForTransactionReceipt({
+    hash: deploymentTransactionHash,
+  });
+  if (receipt.status !== "success") {
+    throw new Error("Safe deployment transaction reverted.");
+  }
+  const deployedCode = await existingClient.getBytecode({ address: safe });
+  if (!deployedCode || deployedCode === "0x") {
+    throw new Error("Safe deployment confirmed without runtime code.");
+  }
+  return { safe, deploymentTransactionHash };
+}
+
 export async function discoverOwnerSafes(account: Address): Promise<Address[]> {
   const response = await (await createSafeApiKit()).getSafesByOwner(account);
   return response.safes
     .filter((safe) => isAddress(safe))
     .map((safe) => getAddress(safe));
+}
+
+export async function verifyOwnedSafes({
+  account,
+  safes,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  account: Address;
+  safes: readonly Address[];
+  rpcUrl?: string;
+}): Promise<Address[]> {
+  const client = createResilientSepoliaClient(rpcUrl);
+  const uniqueSafes = [...new Map(
+    safes.map((safe) => [safe.toLowerCase(), getAddress(safe)]),
+  ).values()];
+  const ownership = await Promise.all(
+    uniqueSafes.map(async (safe) => {
+      try {
+        const [code, isOwner] = await Promise.all([
+          client.getBytecode({ address: safe }),
+          client.readContract({
+            address: safe,
+            abi: safeReadAbi,
+            functionName: "isOwner",
+            args: [account],
+          }),
+        ]);
+        return code && code !== "0x" && isOwner ? safe : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return ownership.filter((safe): safe is Address => safe !== null);
 }
 
 export async function inspectSafeConfiguration({
@@ -204,10 +349,7 @@ export async function inspectSafeConfiguration({
   account: Address;
   rpcUrl?: string;
 }): Promise<SafeAccountConfiguration> {
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const bytecode = await client.getBytecode({ address: safe });
   if (!bytecode || bytecode === "0x") {
     throw new Error("The selected address is not a deployed Sepolia Safe.");
@@ -305,6 +447,14 @@ export async function inspectSafeConfiguration({
       : [false, zeroAddress, false] as const;
   const marketConfigured =
     configuredMarket.toLowerCase() === marketAddress.toLowerCase();
+  const confidentialViewerAuthorized = balances.confidentialHandle
+    ? await client.readContract({
+        address: noxComputeAddress,
+        abi: noxAclAbi,
+        functionName: "isViewer",
+        args: [balances.confidentialHandle, account],
+      }).catch(() => false)
+    : false;
 
   return {
     safe,
@@ -319,6 +469,7 @@ export async function inspectSafeConfiguration({
     marketAuthorized,
     legacyModule,
     balances,
+    confidentialViewerAuthorized,
     ready:
       moduleDeployed &&
       moduleEnabled &&
@@ -364,10 +515,7 @@ async function unusedPreparationNonce({
   module: Address;
   rpcUrl: string;
 }) {
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const client = createResilientSepoliaClient(rpcUrl);
   const seed = BigInt(`0x${crypto.getRandomValues(new Uint8Array(16))
     .reduce((hex, byte) => `${hex}${byte.toString(16).padStart(2, "0")}`, "")}`);
   for (let offset = 0n; offset < 16n; offset += 1n) {
@@ -449,10 +597,7 @@ async function proposeSafeBatch({
     const execution = await safeKit.executeTransaction(signedTransaction);
     executionTransactionHash = execution.hash as Hex;
     onStage("Safe batch submitted; waiting for Sepolia confirmation");
-    const publicClient = createPublicClient({
-      chain: sepolia,
-      transport: http(rpcUrl),
-    });
+    const publicClient = createResilientSepoliaClient(rpcUrl);
     const receipt = await publicClient.waitForTransactionReceipt({
       hash: executionTransactionHash,
     });
@@ -570,10 +715,7 @@ export async function fundSafeForVeilBid({
   if (amount <= 0n) throw new Error("Funding amount must be positive.");
   const transactions: SafeBatchTransaction[] = [];
   if (configuration.balances.testUsdc < amount) {
-    const publicClient = createPublicClient({
-      chain: sepolia,
-      transport: http(rpcUrl),
-    });
+    const publicClient = createResilientSepoliaClient(rpcUrl);
     const faucetAmount = await publicClient.readContract({
       address: tokenAddress,
       abi: tokenAbi,
@@ -631,6 +773,309 @@ export async function fundSafeForVeilBid({
   });
 }
 
+export async function authorizeSafeBalanceViewer({
+  configuration,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  configuration: SafeAccountConfiguration;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}) {
+  const handle = configuration.balances.confidentialHandle;
+  if (!handle) throw new Error("This Safe has no confidential balance handle.");
+  if (configuration.confidentialViewerAuthorized) {
+    throw new Error("Connected owner can already view this balance handle.");
+  }
+  const transaction = buildSafeBalanceViewerTransaction(handle, account);
+  return proposeSafeBatch({
+    kind: "view-balance",
+    safe: configuration.safe,
+    transactions: [transaction],
+    provider,
+    account,
+    onStage,
+    target: noxComputeAddress,
+    safeTransactionData: transaction.data,
+    rpcUrl,
+  });
+}
+
+export async function revealSafeConfidentialBalance({
+  configuration,
+  walletClient,
+}: {
+  configuration: SafeAccountConfiguration;
+  walletClient: WalletClient;
+}) {
+  const handle = configuration.balances.confidentialHandle;
+  if (!handle) throw new Error("This Safe has no confidential balance handle.");
+  if (!configuration.confidentialViewerAuthorized) {
+    throw new Error(
+      "Authorize this owner as a viewer for the current balance handle first.",
+    );
+  }
+  const handles = await createViemHandleClient(walletClient);
+  const revealed = await handles.decrypt(handle as never);
+  if (typeof revealed.value !== "bigint") {
+    throw new Error("Confidential Safe balance response is malformed.");
+  }
+  return revealed.value;
+}
+
+export function buildSafeBalanceViewerTransaction(
+  handle: Hex,
+  viewer: Address,
+): SafeBatchTransaction {
+  return {
+    to: noxComputeAddress,
+    value: "0",
+    data: encodeFunctionData({
+      abi: noxAclAbi,
+      functionName: "addViewer",
+      args: [handle, viewer],
+    }),
+  };
+}
+
+export function buildSafeEthWithdrawalTransaction(
+  recipient: Address,
+  amount: bigint,
+): SafeBatchTransaction {
+  return { to: recipient, value: amount.toString(), data: "0x" };
+}
+
+export function buildSafeTestUsdcWithdrawalTransaction(
+  recipient: Address,
+  amount: bigint,
+): SafeBatchTransaction {
+  return {
+    to: tokenAddress,
+    value: "0",
+    data: encodeFunctionData({
+      abi: tokenAbi,
+      functionName: "transfer",
+      args: [recipient, amount],
+    }),
+  };
+}
+
+export function buildFullSafeUnwrapTransaction(
+  safe: Address,
+  recipient: Address,
+  handle: Hex,
+): SafeBatchTransaction {
+  return {
+    to: wrapperAddress,
+    value: "0",
+    data: encodeFunctionData({
+      abi: wrapperAbi,
+      functionName: "unwrap",
+      args: [safe, recipient, handle],
+    }),
+  };
+}
+
+export async function withdrawSafeEth({
+  configuration,
+  recipient,
+  amount,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  configuration: SafeAccountConfiguration;
+  recipient: Address;
+  amount: bigint;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}) {
+  if (amount <= 0n) throw new Error("ETH withdrawal amount must be positive.");
+  if (amount > configuration.balances.eth) {
+    throw new Error("ETH withdrawal exceeds the Safe balance.");
+  }
+  return proposeSafeBatch({
+    kind: "withdraw-eth",
+    safe: configuration.safe,
+    transactions: [buildSafeEthWithdrawalTransaction(recipient, amount)],
+    provider,
+    account,
+    onStage,
+    target: recipient,
+    safeTransactionData: "0x",
+    rpcUrl,
+  });
+}
+
+export async function withdrawSafeTestUsdc({
+  configuration,
+  recipient,
+  amount,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  configuration: SafeAccountConfiguration;
+  recipient: Address;
+  amount: bigint;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}) {
+  if (amount <= 0n) throw new Error("vUSDC withdrawal amount must be positive.");
+  if (amount > configuration.balances.testUsdc) {
+    throw new Error("vUSDC withdrawal exceeds the Safe balance.");
+  }
+  const transaction = buildSafeTestUsdcWithdrawalTransaction(recipient, amount);
+  return proposeSafeBatch({
+    kind: "withdraw-usdc",
+    safe: configuration.safe,
+    transactions: [transaction],
+    provider,
+    account,
+    onStage,
+    target: tokenAddress,
+    safeTransactionData: transaction.data,
+    rpcUrl,
+  });
+}
+
+export async function unwrapFullSafeConfidentialBalance({
+  configuration,
+  recipient,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  configuration: SafeAccountConfiguration;
+  recipient: Address;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}) {
+  const handle = configuration.balances.confidentialHandle;
+  if (!handle) throw new Error("This Safe has no confidential balance to unwrap.");
+  const transaction = buildFullSafeUnwrapTransaction(
+    configuration.safe,
+    recipient,
+    handle,
+  );
+  return proposeSafeBatch({
+    kind: "unwrap",
+    safe: configuration.safe,
+    transactions: [transaction],
+    provider,
+    account,
+    onStage,
+    target: wrapperAddress,
+    safeTransactionData: transaction.data,
+    rpcUrl,
+  });
+}
+
+export async function findSafeUnwrapRequest(
+  executionTransactionHash: Hex,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+): Promise<SafeUnwrapRequest> {
+  const client = createResilientSepoliaClient(rpcUrl);
+  const receipt = await client.getTransactionReceipt({
+    hash: executionTransactionHash,
+  });
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== wrapperAddress.toLowerCase()) continue;
+    try {
+      const decoded = decodeEventLog({
+        abi: wrapperAbi,
+        data: log.data,
+        topics: log.topics,
+      });
+      if (decoded.eventName !== "UnwrapRequested") continue;
+      const args = decoded.args as unknown as {
+        receiver: Address;
+        amount: Hex;
+      };
+      const requester = await client.readContract({
+        address: wrapperAddress,
+        abi: wrapperAbi,
+        functionName: "unwrapRequester",
+        args: [args.amount],
+      });
+      return {
+        executionTransactionHash,
+        receiver: getAddress(args.receiver),
+        requestHandle: args.amount,
+        finalized:
+          (requester as Address).toLowerCase() === zeroAddress.toLowerCase(),
+      };
+    } catch {
+      // Ignore unrelated wrapper events in the Safe execution receipt.
+    }
+  }
+  throw new Error("The executed Safe transaction has no unwrap request event.");
+}
+
+export async function finalizeSafeUnwrap({
+  requestHandle,
+  walletClient,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  requestHandle: Hex;
+  walletClient: WalletClient;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}): Promise<SafeUnwrapFinalization> {
+  const client = createResilientSepoliaClient(rpcUrl);
+  const requester = await client.readContract({
+    address: wrapperAddress,
+    abi: wrapperAbi,
+    functionName: "unwrapRequester",
+    args: [requestHandle],
+  });
+  if ((requester as Address).toLowerCase() === zeroAddress.toLowerCase()) {
+    throw new Error("This unwrap request has already been finalized.");
+  }
+  onStage("Waiting for the public unwrap proof");
+  const handles = await createViemHandleClient(walletClient);
+  const revealed = await handles.publicDecrypt(requestHandle as never);
+  if (typeof revealed.value !== "bigint") {
+    throw new Error("Public unwrap amount response is malformed.");
+  }
+  onStage("Awaiting wallet confirmation to finalize the unwrap");
+  const simulation = await client.simulateContract({
+    account,
+    address: wrapperAddress,
+    abi: wrapperAbi,
+    functionName: "finalizeUnwrap",
+    args: [requestHandle, revealed.decryptionProof],
+  });
+  const transactionHash = await walletClient.writeContract(simulation.request);
+  onStage("Waiting for the unwrap finalization confirmation");
+  const receipt = await client.waitForTransactionReceipt({
+    hash: transactionHash,
+  });
+  if (receipt.status !== "success") {
+    throw new Error("Unwrap finalization reverted.");
+  }
+  return {
+    transactionHash,
+    plaintextAmount: revealed.value,
+  };
+}
+
 export async function prepareSafeTender({
   input,
   configuration,
@@ -652,10 +1097,7 @@ export async function prepareSafeTender({
     throw new Error("Configure this Safe for VeilBid before creating a tender.");
   }
   const terms = parseSafeTenderInput(input);
-  const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const publicClient = createResilientSepoliaClient(rpcUrl);
   const nonce = await unusedPreparationNonce({
     module: configuration.module,
     rpcUrl,
@@ -787,10 +1229,7 @@ export async function approveAndExecuteSafeProposal({
     onStage("Threshold reached; awaiting the execution transaction");
     const execution = await safeKit.executeTransaction(transaction);
     const executionTransactionHash = execution.hash as Hex;
-    const publicClient = createPublicClient({
-      chain: sepolia,
-      transport: http(rpcUrl),
-    });
+    const publicClient = createResilientSepoliaClient(rpcUrl);
     const receipt = await publicClient.waitForTransactionReceipt({
       hash: executionTransactionHash,
     });

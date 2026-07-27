@@ -42,4 +42,20 @@ describe("Safe proposal recovery store", () => {
     storage.setItem("veilbid.safe-proposals.v1", "not-json");
     expect(loadSafeProposals(storage)).toEqual([]);
   });
+
+  it("recovers treasury proposals without storing private amounts", () => {
+    const storage = memoryStorage();
+    const proposal = {
+      kind: "unwrap" as const,
+      safe,
+      safeTxHash,
+      createdAt: "2026-07-27T00:00:00.000Z",
+    };
+    rememberSafeProposal(proposal, storage);
+    const serialized = JSON.stringify(loadSafeProposals(storage));
+    expect(loadSafeProposals(storage)).toEqual([proposal]);
+    expect(serialized).not.toContain("amount");
+    expect(serialized).not.toContain("recipient");
+    expect(serialized).not.toContain("handle");
+  });
 });

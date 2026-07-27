@@ -1,11 +1,33 @@
 import { describe, expect, it } from "vitest";
+import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
+import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
+import { decodeFunctionData, type Abi, type Address, type Hex } from "viem";
 import {
+  buildFullSafeUnwrapTransaction,
+  buildSafeBalanceViewerTransaction,
+  buildSafeEthWithdrawalTransaction,
+  buildSafeTestUsdcWithdrawalTransaction,
+  noxComputeAddress,
   parseSafeTenderInput,
   safeReleaseConfiguration,
+  safeTransactionServiceUrl,
   serializeSafeTransactionHandoff,
 } from "../src/safe/safePreparation";
 
 const vendor = "0x1111111111111111111111111111111111111111";
+const safe = "0x2222222222222222222222222222222222222222" as Address;
+const recipient = "0x3333333333333333333333333333333333333333" as Address;
+const handle = `0x${"44".repeat(32)}` as Hex;
+const noxViewerAbi = [{
+  type: "function",
+  name: "addViewer",
+  stateMutability: "nonpayable",
+  inputs: [
+    { name: "handle", type: "bytes32" },
+    { name: "viewer", type: "address" },
+  ],
+  outputs: [],
+}] as const;
 
 describe("Safe preparation terms", () => {
   it("binds normalized full tender terms without asking for an internal nonce", () => {
@@ -45,5 +67,46 @@ describe("Safe preparation terms", () => {
         }),
       ),
     ).toEqual([{ to: vendor, value: "0", data: "0x1234" }]);
+  });
+
+  it("uses the Safe API v1 base path expected by API Kit", () => {
+    expect(safeTransactionServiceUrl).toBe(
+      "https://safe-transaction-sepolia.safe.global/api",
+    );
+  });
+
+  it("builds exact threshold-authorized treasury calls", () => {
+    const viewer = buildSafeBalanceViewerTransaction(handle, recipient);
+    expect(viewer.to).toBe(noxComputeAddress);
+    expect(viewer.value).toBe("0");
+    expect(decodeFunctionData({ abi: noxViewerAbi, data: viewer.data }))
+      .toMatchObject({
+        functionName: "addViewer",
+        args: [handle, recipient],
+      });
+
+    expect(buildSafeEthWithdrawalTransaction(recipient, 123n)).toEqual({
+      to: recipient,
+      value: "123",
+      data: "0x",
+    });
+
+    const usdc = decodeFunctionData({
+      abi: tokenAbiJson as Abi,
+      data: buildSafeTestUsdcWithdrawalTransaction(recipient, 456n).data,
+    });
+    expect(usdc).toMatchObject({
+      functionName: "transfer",
+      args: [recipient, 456n],
+    });
+
+    const unwrap = decodeFunctionData({
+      abi: wrapperAbiJson as Abi,
+      data: buildFullSafeUnwrapTransaction(safe, recipient, handle).data,
+    });
+    expect(unwrap).toMatchObject({
+      functionName: "unwrap",
+      args: [safe, recipient, handle],
+    });
   });
 });

@@ -23,7 +23,11 @@ function isStoredProposal(value: unknown): value is StoredSafeProposal {
   return (
     (candidate.kind === "setup" ||
       candidate.kind === "fund" ||
-      candidate.kind === "tender") &&
+      candidate.kind === "tender" ||
+      candidate.kind === "view-balance" ||
+      candidate.kind === "withdraw-eth" ||
+      candidate.kind === "withdraw-usdc" ||
+      candidate.kind === "unwrap") &&
     typeof candidate.safe === "string" &&
     isAddress(candidate.safe) &&
     typeof candidate.safeTxHash === "string" &&
