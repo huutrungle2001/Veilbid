@@ -237,16 +237,12 @@ describe("Tender Room public explorer", () => {
     ).map((button) => button.textContent);
     expect(workspaceButtons).toEqual([
       "PUBLIC",
-      "SAFE BUYER",
-      "EOA BUYER",
+      "BUYER",
       "PRIVATE BIDS",
       "ACTIVITY",
     ]);
     expect(screen.getByRole("button", { name: "PUBLIC" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "EOA BUYER" })).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "SAFE BUYER" }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "BUYER" })).toBeDisabled();
   });
 
   it("opens Activity recovery without requiring a connected account", () => {
@@ -280,20 +276,17 @@ describe("Tender Room public explorer", () => {
           state={state()}
           onRetry={vi.fn()}
           wallet={disconnectedWallet}
-          activeRole="VENDOR"
+          activeRole="PRIVATE BIDS"
           onRoleChange={vi.fn()}
+          privateSection="granted-access"
+          onPrivateSectionChange={vi.fn()}
         />
       </MemoryRouter>,
     );
-    expect(
-      screen.getByRole("heading", { name: "Submit or privately review bids." }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Reveal a bid shared with this wallet." }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/No confirmed bid references are indexed yet/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /SUBMIT BID/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /MY BID/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /GRANTED ACCESS/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Reveal a bid shared with this wallet." })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PRIVATE BIDS" })).toBeEnabled();
   });
 
@@ -316,8 +309,10 @@ describe("Tender Room public explorer", () => {
           state={inactive}
           onRetry={vi.fn()}
           wallet={disconnectedWallet}
-          activeRole="VENDOR"
+          activeRole="PRIVATE BIDS"
           onRoleChange={vi.fn()}
+          privateSection="submit"
+          onPrivateSectionChange={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -325,9 +320,7 @@ describe("Tender Room public explorer", () => {
     expect(
       screen.getByText(/No confirmed, unexpired tender is accepting bids/i),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/has not submitted a bid/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /No active tenders/i })).toBeInTheDocument();
   });
 
   it("removes expired Open tenders from the Vendor selector", () => {
@@ -348,8 +341,10 @@ describe("Tender Room public explorer", () => {
           state={expired}
           onRetry={vi.fn()}
           wallet={disconnectedWallet}
-          activeRole="VENDOR"
+          activeRole="PRIVATE BIDS"
           onRoleChange={vi.fn()}
+          privateSection="submit"
+          onPrivateSectionChange={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -368,8 +363,10 @@ describe("Tender Room public explorer", () => {
           state={state()}
           onRetry={vi.fn()}
           wallet={disconnectedWallet}
-          activeRole="SAFE TREASURY"
+          activeRole="BUYER"
           onRoleChange={vi.fn()}
+          buyerSection="safe"
+          onBuyerSectionChange={vi.fn()}
         />
       </MemoryRouter>,
     );
@@ -382,8 +379,6 @@ describe("Tender Room public explorer", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(/discovers Safe accounts owned by/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "SAFE BUYER" }),
-    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: /SAFE BUYER/ })).toBeInTheDocument();
   });
 });

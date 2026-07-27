@@ -13,7 +13,6 @@ import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
 import { WalletBalancePanel } from "../wallet/WalletBalancePanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
-import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
 import { PrimaryNavigation } from "./PrimaryNavigation";
@@ -23,15 +22,19 @@ import {
   formatUtcDeadline,
   remainingTimeLabel,
 } from "../time/tenderTime";
+import type { PrivateBidsSection } from "../workspaces/RoleWorkspace";
 import {
-  RoleWorkspace,
-  type InteractiveRole,
-} from "../workspaces/RoleWorkspace";
+  BuyerWorkspace,
+  PrivateBidsWorkspace,
+  type BuyerSection,
+} from "../workspaces/CombinedWorkspaces";
 
 type RoomRole =
   | "PUBLIC"
-  | InteractiveRole
+  | "BUYER"
+  | "PRIVATE BIDS"
   | "ACTIVITY"
+  | "VENDOR"
   | "SAFE TREASURY";
 
 type PublicTenderFilter =
@@ -390,12 +393,20 @@ export function ExplorerView({
   onRetry,
   activeRole = "PUBLIC",
   onRoleChange,
+  buyerSection,
+  onBuyerSectionChange,
+  privateSection,
+  onPrivateSectionChange,
   wallet,
 }: {
   state: PublicMarketState;
   onRetry: () => void;
   activeRole?: RoomRole;
   onRoleChange?: (role: RoomRole) => void;
+  buyerSection?: BuyerSection;
+  onBuyerSectionChange?: (section: BuyerSection) => void;
+  privateSection?: PrivateBidsSection;
+  onPrivateSectionChange?: (section: PrivateBidsSection) => void;
   wallet?: WalletController;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -443,17 +454,15 @@ export function ExplorerView({
         <div className="rolebar-links">
           {([
             ["PUBLIC", "PUBLIC"],
-            ["SAFE TREASURY", "SAFE BUYER"],
-            ["BUYER", "EOA BUYER"],
-            ["VENDOR", "PRIVATE BIDS"],
+            ["BUYER", "BUYER"],
+            ["PRIVATE BIDS", "PRIVATE BIDS"],
             ["ACTIVITY", "ACTIVITY"],
           ] as const).map(([role, label]) => {
               const interactive =
                 role === "PUBLIC" ||
                 role === "BUYER" ||
-                role === "VENDOR" ||
                 role === "ACTIVITY" ||
-                role === "SAFE TREASURY";
+                role === "PRIVATE BIDS";
               const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
               return (
                 <button
@@ -486,15 +495,21 @@ export function ExplorerView({
             tenders={index.tenders}
             onRefresh={onRetry}
           />
-        ) : activeRole === "SAFE TREASURY" && wallet ? (
-          <SafeTreasuryWorkspace wallet={wallet} onRefresh={onRetry} />
-        ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
-          <RoleWorkspace
-            role={activeRole}
+        ) : activeRole === "BUYER" && wallet ? (
+          <BuyerWorkspace
+            wallet={wallet}
+            onRefresh={onRetry}
+            section={buyerSection ?? "safe"}
+            onSectionChange={onBuyerSectionChange ?? (() => undefined)}
+          />
+        ) : activeRole === "PRIVATE BIDS" && wallet ? (
+          <PrivateBidsWorkspace
             wallet={wallet}
             tenders={index.tenders}
             bids={index.bids}
             onRefresh={onRetry}
+            section={privateSection ?? "submit"}
+            onSectionChange={onPrivateSectionChange ?? (() => undefined)}
           />
         ) : (
           <main id="main-content">
@@ -656,19 +671,44 @@ function TenderRoomApp({ wallet }: { wallet: WalletController }) {
   const { state, refresh } = usePublicMarket();
   const [roomParams, setRoomParams] = useSearchParams();
   const requestedRole = roomParams.get("role")?.toUpperCase();
+  const buyerSection: BuyerSection =
+    roomParams.get("buyer") === "eoa" ? "eoa" : "safe";
+  const privateSection: PrivateBidsSection =
+    requestedRole === "AUDITOR" || roomParams.get("private") === "granted-access"
+      ? "granted-access"
+      : roomParams.get("private") === "my-bid"
+      ? "my-bid"
+        : "submit";
   const activeRole: RoomRole =
-    requestedRole === "BUYER" ||
-    requestedRole === "VENDOR" ||
-    requestedRole === "ACTIVITY" ||
-    requestedRole === "SAFE TREASURY"
-      ? requestedRole
-      : requestedRole === "AUDITOR"
-        ? "VENDOR"
-      : "PUBLIC";
+    requestedRole === "BUYER" || requestedRole === "SAFE TREASURY"
+      ? "BUYER"
+      : requestedRole === "PRIVATE BIDS" ||
+          requestedRole === "VENDOR" ||
+          requestedRole === "AUDITOR"
+        ? "PRIVATE BIDS"
+        : requestedRole === "ACTIVITY"
+          ? "ACTIVITY"
+          : "PUBLIC";
   const setActiveRole = (role: RoomRole) => {
     const next = new URLSearchParams(roomParams);
     if (role === "PUBLIC") next.delete("role");
+    else if (role === "VENDOR") next.set("role", "private-bids");
+    else if (role === "SAFE TREASURY") next.set("role", "buyer");
     else next.set("role", role.toLowerCase());
+    setRoomParams(next);
+  };
+  const setBuyerSection = (section: BuyerSection) => {
+    const next = new URLSearchParams(roomParams);
+    if (section === "safe") next.delete("buyer");
+    else next.set("buyer", section);
+    next.set("role", "buyer");
+    setRoomParams(next);
+  };
+  const setPrivateSection = (section: PrivateBidsSection) => {
+    const next = new URLSearchParams(roomParams);
+    if (section === "submit") next.delete("private");
+    else next.set("private", section);
+    next.set("role", "private-bids");
     setRoomParams(next);
   };
   return (
@@ -677,6 +717,10 @@ function TenderRoomApp({ wallet }: { wallet: WalletController }) {
       onRetry={() => void refresh()}
       activeRole={activeRole}
       onRoleChange={setActiveRole}
+      buyerSection={buyerSection}
+      onBuyerSectionChange={setBuyerSection}
+      privateSection={privateSection}
+      onPrivateSectionChange={setPrivateSection}
       wallet={wallet}
     />
   );

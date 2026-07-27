@@ -7,6 +7,7 @@ import { ContextHelp } from "../shell/ContextHelp";
 import { GrantedAccessPanel } from "../auditor/AuditorWorkspace";
 
 export type InteractiveRole = "BUYER" | "VENDOR";
+export type PrivateBidsSection = "submit" | "my-bid" | "granted-access";
 
 export function RoleWorkspace({
   role,
@@ -14,14 +15,17 @@ export function RoleWorkspace({
   tenders,
   bids,
   onRefresh,
+  privateSection,
 }: {
   role: InteractiveRole;
   wallet: WalletController;
   tenders: readonly PublicTender[];
   bids: readonly PublicBid[];
   onRefresh: () => void;
+  privateSection?: PrivateBidsSection;
 }) {
   const buyer = role === "BUYER";
+  const privateSectionToRender = privateSection ?? "submit";
   return (
     <main className="role-workspace" id="main-content">
       <section className="workspace-intro">
@@ -63,15 +67,14 @@ export function RoleWorkspace({
       {buyer && (
         <BuyerTenderForm wallet={wallet} onConfirmed={onRefresh} />
       )}
-      {!buyer && (
+      {!buyer && privateSectionToRender === "submit" && (
         <VendorBidForm
           wallet={wallet}
           tenders={tenders}
           onConfirmed={onRefresh}
         />
       )}
-      {!buyer && (
-        <>
+      {!buyer && privateSectionToRender === "my-bid" && (
           <DisclosurePanel
             role={role}
             wallet={wallet}
@@ -79,8 +82,9 @@ export function RoleWorkspace({
             bids={bids}
             onConfirmed={onRefresh}
           />
-          <GrantedAccessPanel wallet={wallet} tenders={tenders} bids={bids} />
-        </>
+      )}
+      {!buyer && privateSectionToRender === "granted-access" && (
+        <GrantedAccessPanel wallet={wallet} tenders={tenders} bids={bids} />
       )}
       <section className="journey-preview">
         <p className="eyebrow">TRANSACTION STAGES</p>
