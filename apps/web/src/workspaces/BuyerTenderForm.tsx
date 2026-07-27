@@ -53,7 +53,7 @@ export function BuyerTenderForm({
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!connected) return;
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "CREATE TENDER",
       "Validating public terms and test balances…",
     );

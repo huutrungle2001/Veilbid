@@ -91,7 +91,7 @@ export function ActivityWorkspace({
 
   async function resume(record: RecoveryRecord) {
     if (!connected) return;
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "RESUME RECOVERY",
       "Reading the saved public checkpoint…",
     );
@@ -127,7 +127,7 @@ export function ActivityWorkspace({
 
   async function close(tender: PublicTender) {
     if (!connected) return;
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "CLOSE TENDER",
       "Checking canonical tender readiness…",
     );

@@ -413,7 +413,7 @@ export function WalletBalancePanel({
     }
     const requestId = walletActionRequestId.current + 1;
     walletActionRequestId.current = requestId;
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "WRAP TO vcUSDC",
       wrapToastLabel.checking,
     );

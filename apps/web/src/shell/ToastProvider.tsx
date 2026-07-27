@@ -13,6 +13,8 @@ type ToastStatus = "loading" | "success" | "error";
 
 interface ToastItem {
   id: string;
+  groupId: string;
+  stacked: boolean;
   title: string;
   message: string;
   status: ToastStatus;
@@ -20,6 +22,7 @@ interface ToastItem {
 
 interface ToastApi {
   start: (title: string, message: string) => string;
+  startStack: (title: string, message: string) => string;
   update: (id: string, message: string) => void;
   succeed: (id: string, message: string) => void;
   fail: (id: string, message: string) => void;
@@ -28,6 +31,7 @@ interface ToastApi {
 
 const fallbackApi: ToastApi = {
   start: () => "toast-unmounted",
+  startStack: () => "toast-unmounted",
   update: () => undefined,
   succeed: () => undefined,
   fail: () => undefined,
@@ -50,52 +54,95 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const dismiss = useCallback(
-    (id: string) => {
-      clearTimer(id);
-      setItems((current) => current.filter((item) => item.id !== id));
+    (groupId: string) => {
+      clearTimer(groupId);
+      setItems((current) =>
+        current.filter((item) => item.groupId !== groupId),
+      );
     },
     [clearTimer],
   );
 
-  const start = useCallback(
-    (title: string, message: string) => {
+  const startToast = useCallback(
+    (title: string, message: string, stacked: boolean) => {
       sequence.current += 1;
       const id = `toast-${sequence.current}`;
       setItems((current) => [
-        ...current.slice(-3),
-        { id, title, message, status: "loading" },
+        ...current,
+        { id, groupId: id, stacked, title, message, status: "loading" },
       ]);
       return id;
     },
     [],
   );
 
+  const start = useCallback(
+    (title: string, message: string) => startToast(title, message, false),
+    [startToast],
+  );
+
+  const startStack = useCallback(
+    (title: string, message: string) => startToast(title, message, true),
+    [startToast],
+  );
+
   const update = useCallback(
-    (id: string, message: string) => {
-      clearTimer(id);
-      setItems((current) =>
-        current.map((item) =>
-          item.id === id
-            ? { ...item, message, status: "loading" }
-            : item,
-        ),
-      );
+    (groupId: string, message: string) => {
+      clearTimer(groupId);
+      setItems((current) => {
+        const group = current.filter((item) => item.groupId === groupId);
+        const latest = group.at(-1);
+        if (!latest) return current;
+        if (!latest.stacked) {
+          return current.map((item) =>
+            item.groupId === groupId
+              ? { ...item, message, status: "loading" }
+              : item,
+          );
+        }
+        if (latest.message === message && latest.status === "loading") {
+          return current;
+        }
+        sequence.current += 1;
+        return [
+          ...current.map((item) =>
+            item.id === latest.id && item.status === "loading"
+              ? { ...item, status: "success" as const }
+              : item,
+          ),
+          {
+            id: `toast-${sequence.current}`,
+            groupId,
+            stacked: true,
+            title: latest.title,
+            message,
+            status: "loading",
+          },
+        ];
+      });
     },
     [clearTimer],
   );
 
   const settle = useCallback(
-    (id: string, message: string, status: "success" | "error") => {
-      clearTimer(id);
-      setItems((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, message, status } : item,
-        ),
-      );
+    (groupId: string, message: string, status: "success" | "error") => {
+      clearTimer(groupId);
+      setItems((current) => {
+        const group = current.filter((item) => item.groupId === groupId);
+        const latest = group.at(-1);
+        if (!latest) return current;
+        return current.map((item) => {
+          if (item.groupId !== groupId) return item;
+          if (item.id === latest.id) return { ...item, message, status };
+          return item.stacked && item.status === "loading"
+            ? { ...item, status: "success" as const }
+            : item;
+        });
+      });
       timers.current.set(
-        id,
+        groupId,
         window.setTimeout(
-          () => dismiss(id),
+          () => dismiss(groupId),
           status === "success" ? 4_000 : 7_000,
         ),
       );
@@ -116,13 +163,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const api = useMemo<ToastApi>(
     () => ({
       start,
+      startStack,
       update,
       succeed: (id, message) => settle(id, message, "success"),
       fail: (id, message) => settle(id, message, "error"),
       dismiss,
     }),
-    [dismiss, settle, start, update],
+    [dismiss, settle, start, startStack, update],
   );
+
+  const groups = items.reduce<ToastItem[][]>((result, item) => {
+    const existing = result.find(
+      (group) => group[0]?.groupId === item.groupId,
+    );
+    if (existing) existing.push(item);
+    else result.push([item]);
+    return result;
+  }, []);
 
   return (
     <ToastContext.Provider value={api}>
@@ -131,33 +188,56 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="toast-viewport"
         aria-label="Transaction notifications"
       >
-        {items.map((item) => (
-          <section
-            className={`transaction-toast ${item.status}`}
-            key={item.id}
-            role={item.status === "error" ? "alert" : "status"}
-            aria-live={item.status === "error" ? "assertive" : "polite"}
-          >
-            <span className="toast-status-mark" aria-hidden="true">
-              {item.status === "loading"
-                ? ""
-                : item.status === "success"
-                  ? "✓"
-                  : "!"}
-            </span>
-            <span className="toast-copy">
-              <strong>{item.title}</strong>
-              <span>{item.message}</span>
-            </span>
-            <button
-              type="button"
-              onClick={() => dismiss(item.id)}
-              aria-label={`Dismiss ${item.title} notification`}
+        {groups.map((group) => {
+          const groupId = group[0]?.groupId ?? "";
+          const isStacked = group[0]?.stacked ?? false;
+          return (
+            <div
+              className={`toast-group${isStacked ? " stacked" : ""}`}
+              key={groupId}
             >
-              ×
-            </button>
-          </section>
-        ))}
+              {group.map((item, index) => {
+                const isLast = index === group.length - 1;
+                return (
+                  <section
+                    className={`transaction-toast ${item.status}`}
+                    key={item.id}
+                    role={item.status === "error" ? "alert" : "status"}
+                    aria-live={item.status === "error" ? "assertive" : "polite"}
+                  >
+                    <span className="toast-status-mark" aria-hidden="true">
+                      {item.status === "loading"
+                        ? ""
+                        : item.status === "success"
+                          ? "✓"
+                          : "!"}
+                    </span>
+                    <span className="toast-copy">
+                      <strong>
+                        {item.title}
+                        {isStacked ? ` · Step ${index + 1}` : ""}
+                      </strong>
+                      <span>{item.message}</span>
+                    </span>
+                    {isLast ? (
+                      <button
+                        type="button"
+                        onClick={() => dismiss(groupId)}
+                        aria-label={`Dismiss ${item.title} notification${
+                          isStacked ? " group" : ""
+                        }`}
+                      >
+                        ×
+                      </button>
+                    ) : (
+                      <span className="toast-close-placeholder" aria-hidden="true" />
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          );
+        })}
       </aside>
     </ToastContext.Provider>
   );

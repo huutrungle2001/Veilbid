@@ -918,7 +918,7 @@ export function SafeTreasuryWorkspace({
 
   async function createSafe() {
     if (!connected) return;
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "CREATE PERSONAL SAFE",
       "Preparing a new one-owner Safe on Sepolia…",
     );
@@ -963,7 +963,10 @@ export function SafeTreasuryWorkspace({
     label: string,
     action: (onStage: (next: string) => void) => Promise<SafePreparationResult>,
   ) {
-    const toastId = toasts.start(label, "Building a threshold-authorized Safe action…");
+    const toastId = toasts.startStack(
+      label,
+      "Building a threshold-authorized Safe action…",
+    );
     setError(null);
     setResult(null);
     try {
@@ -1025,7 +1028,7 @@ export function SafeTreasuryWorkspace({
       setError("Enter a positive funding amount with at most 6 decimals.");
       return;
     }
-    const toastId = toasts.start(
+    const toastId = toasts.startStack(
       "DEPOSIT TO SAFE",
       "Checking connected-wallet vUSDC…",
     );
@@ -1260,7 +1263,10 @@ export function SafeTreasuryWorkspace({
     safeTxHash = result?.safeTxHash,
   ) {
     if (!safe || !safeTxHash || !connected) return;
-    const toastId = toasts.start("SAFE APPROVAL", "Checking proposal status…");
+    const toastId = toasts.startStack(
+      "SAFE APPROVAL",
+      "Checking proposal status…",
+    );
     setStage("Checking proposal status");
     try {
       const status = await approveAndExecuteSafeProposal({
