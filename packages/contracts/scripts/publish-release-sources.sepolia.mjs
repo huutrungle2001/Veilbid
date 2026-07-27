@@ -53,6 +53,11 @@ const sourceDefinitions = [
     artifact:
       "artifacts/contracts/safe/VeilBidSafeModuleFactory.sol/VeilBidSafeModuleFactory.json",
   },
+  {
+    name: "VeilBidSafeUnwrapPreparation",
+    artifact:
+      "artifacts/contracts/safe/VeilBidSafeUnwrapPreparation.sol/VeilBidSafeUnwrapPreparation.json",
+  },
 ];
 
 const evidence = {

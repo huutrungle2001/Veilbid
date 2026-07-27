@@ -50,6 +50,12 @@ const artifactDefinitions = [
   {
     path: "artifacts/contracts/safe/VeilBidSafePreparationModule.sol/VeilBidSafePreparationModule.json",
   },
+  {
+    path: "artifacts/contracts/safe/VeilBidSafeModuleFactory.sol/VeilBidSafeModuleFactory.json",
+  },
+  {
+    path: "artifacts/contracts/safe/VeilBidSafeUnwrapPreparation.sol/VeilBidSafeUnwrapPreparation.json",
+  },
 ];
 
 const evidence = {

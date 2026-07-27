@@ -81,6 +81,14 @@ const artifactDefinitions = [
       deployment.contracts.VeilBidMarket.address,
     ],
   },
+  {
+    name: "VeilBidSafeUnwrapPreparation",
+    artifact:
+      "artifacts/contracts/safe/VeilBidSafeUnwrapPreparation.sol/VeilBidSafeUnwrapPreparation.json",
+    constructorArgs: (deployment) => [
+      deployment.contracts.VeilBidConfidentialUSDC.address,
+    ],
+  },
 ];
 
 const evidence = {
@@ -113,6 +121,7 @@ const evidence = {
     marketRelationshipsVerified: false,
     wrapperConfigurationVerified: false,
     moduleConfigurationVerified: false,
+    unwrapPreparationConfigurationVerified: false,
     safeConfigurationVerified: false,
     releaseOperationalStateVerified: false,
     topLevelSourceMappingsExact: false,
@@ -425,6 +434,12 @@ async function main() {
     abi: artifacts.get("VeilBidSafeModuleFactory").abi,
     client: publicClient,
   });
+  const unwrapPreparation = getContract({
+    address:
+      deployment.contracts.VeilBidSafeUnwrapPreparation.address,
+    abi: artifacts.get("VeilBidSafeUnwrapPreparation").abi,
+    client: publicClient,
+  });
   evidence.assertions.marketRelationshipsVerified =
     getAddress(
       await retry(
@@ -491,6 +506,18 @@ async function main() {
     ) === getAddress(deployment.contracts.VeilBidMarket.address);
   assert.equal(
     evidence.assertions.moduleConfigurationVerified,
+    true,
+  );
+  evidence.assertions.unwrapPreparationConfigurationVerified =
+    getAddress(
+      await retry(
+        () => unwrapPreparation.read.wrapper(),
+        "UNWRAP_PREPARATION_WRAPPER_UNAVAILABLE",
+      ),
+    ) ===
+    getAddress(deployment.contracts.VeilBidConfidentialUSDC.address);
+  assert.equal(
+    evidence.assertions.unwrapPreparationConfigurationVerified,
     true,
   );
 

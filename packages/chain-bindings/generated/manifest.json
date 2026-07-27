@@ -23,6 +23,11 @@
       "sha256": "ef249f0a31701b2993649979095b5d6ad819ab3403101149dc0aa834b4a7b9ae"
     },
     {
+      "contractName": "VeilBidSafeUnwrapPreparation",
+      "abi": "abis/VeilBidSafeUnwrapPreparation.json",
+      "sha256": "cef7270059f4bd355adfc231f696e66fa505eb59a06a6ec12d04c9adfeadf3f6"
+    },
+    {
       "contractName": "VeilBidTestUSDC",
       "abi": "abis/VeilBidTestUSDC.json",
       "sha256": "8e2a1c558cfc734750c0dcd19d433b07beaaf2136118039febdda263e9e17d14"
