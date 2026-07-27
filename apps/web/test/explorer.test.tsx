@@ -263,26 +263,28 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
   });
 
-  it("opens the selective-disclosure Auditor workspace", () => {
+  it("combines Vendor and granted access in Private Bids", () => {
     render(
       <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
           state={state()}
           onRetry={vi.fn()}
           wallet={disconnectedWallet}
-          activeRole="AUDITOR"
+          activeRole="VENDOR"
           onRoleChange={vi.fn()}
         />
       </MemoryRouter>,
     );
     expect(
-      screen.getByRole("heading", { name: "Reveal one granted bid." }),
+      screen.getByRole("heading", { name: "Submit or privately review bids." }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/does not confer token/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Reveal a bid shared with this wallet." }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/No confirmed bid references are indexed yet/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "AUDITOR" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "PRIVATE BIDS" })).toBeEnabled();
   });
 
   it("explains empty Vendor actions instead of leaving disabled controls ambiguous", () => {

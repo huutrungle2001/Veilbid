@@ -146,8 +146,12 @@ export function DisclosurePanel({
   return (
     <section className="write-form disclosure-panel">
       <div className="form-heading">
-        <p className="eyebrow">SELECTIVE DISCLOSURE</p>
-        <h2>Reveal or grant one stored bid.</h2>
+        <p className="eyebrow">{role === "VENDOR" ? "MY BID" : "SELECTIVE DISCLOSURE"}</p>
+        <h2>
+          {role === "VENDOR"
+            ? "Manage your stored bid."
+            : "Reveal or grant one stored bid."}
+        </h2>
       </div>
       <label>
         Eligible bid

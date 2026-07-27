@@ -13,7 +13,6 @@ import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
 import { WalletBalancePanel } from "../wallet/WalletBalancePanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
-import { AuditorWorkspace } from "../auditor/AuditorWorkspace";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
@@ -28,7 +27,6 @@ type RoomRole =
   | "PUBLIC"
   | InteractiveRole
   | "ACTIVITY"
-  | "AUDITOR"
   | "SAFE TREASURY";
 
 type PublicTenderFilter =
@@ -392,17 +390,13 @@ export function ExplorerView({
           {([
             ["PUBLIC", "PUBLIC"],
             ["SAFE TREASURY", "SAFE BUYER"],
-            ["VENDOR", "VENDOR"],
+            ["VENDOR", "PRIVATE BIDS"],
             ["ACTIVITY", "ACTIVITY"],
-            ["AUDITOR", "AUDITOR"],
-            ["BUYER", "EOA BUYER"],
           ] as const).map(([role, label]) => {
               const interactive =
                 role === "PUBLIC" ||
-                role === "BUYER" ||
                 role === "VENDOR" ||
                 role === "ACTIVITY" ||
-                role === "AUDITOR" ||
                 role === "SAFE TREASURY";
               const enabled = role === "PUBLIC" || (interactive && Boolean(wallet));
               return (
@@ -426,6 +420,17 @@ export function ExplorerView({
             },
           )}
         </div>
+        <details className="rolebar-advanced">
+          <summary>ADVANCED</summary>
+          <button
+            type="button"
+            className={activeRole === "BUYER" ? "active" : ""}
+            disabled={!wallet}
+            onClick={() => wallet && onRoleChange?.("BUYER")}
+          >
+            EOA BUYER
+          </button>
+        </details>
         {wallet && <WalletBalancePanel wallet={wallet} />}
       </div>
 
@@ -435,12 +440,6 @@ export function ExplorerView({
             wallet={wallet}
             tenders={index.tenders}
             onRefresh={onRetry}
-          />
-        ) : activeRole === "AUDITOR" && wallet ? (
-          <AuditorWorkspace
-            wallet={wallet}
-            tenders={index.tenders}
-            bids={index.bids}
           />
         ) : activeRole === "SAFE TREASURY" && wallet ? (
           <SafeTreasuryWorkspace wallet={wallet} />
@@ -616,9 +615,10 @@ function TenderRoomApp({ wallet }: { wallet: WalletController }) {
     requestedRole === "BUYER" ||
     requestedRole === "VENDOR" ||
     requestedRole === "ACTIVITY" ||
-    requestedRole === "AUDITOR" ||
     requestedRole === "SAFE TREASURY"
       ? requestedRole
+      : requestedRole === "AUDITOR"
+        ? "VENDOR"
       : "PUBLIC";
   const setActiveRole = (role: RoomRole) => {
     const next = new URLSearchParams(roomParams);

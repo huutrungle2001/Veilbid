@@ -8,34 +8,22 @@ const workspaces = [
     action: "EXPLORE PUBLIC STATE",
   },
   {
-    title: "BUYER",
-    copy: "Define public terms, approve vendors, wrap test vUSDC, prove exact funding, and open a confidentially funded tender.",
-    to: "/room?role=buyer",
-    action: "OPEN BUYER WORKSPACE",
+    title: "SAFE BUYER",
+    copy: "Select any owned Safe, deposit confidential funds, approve public terms through its threshold, and create a Safe-owned tender.",
+    to: "/room?role=safe%20treasury",
+    action: "OPEN SAFE BUYER",
   },
   {
-    title: "VENDOR",
-    copy: "Check admission, encrypt a price for the market, simulate the transaction, and submit one immutable sealed bid.",
+    title: "PRIVATE BIDS",
+    copy: "Submit and manage your own sealed Vendor bid, or privately reveal a bid granted to this review wallet after finalization.",
     to: "/room?role=vendor",
-    action: "OPEN VENDOR WORKSPACE",
+    action: "OPEN PRIVATE BIDS",
   },
   {
     title: "ACTIVITY",
     copy: "Close eligible tenders and safely resume interrupted funding or winner-proof requests from public checkpoints.",
     to: "/room?role=activity",
     action: "OPEN ACTIVITY",
-  },
-  {
-    title: "AUDITOR",
-    copy: "Check a per-bid viewer grant and reveal only that authorized bid inside the current wallet session.",
-    to: "/room?role=auditor",
-    action: "OPEN AUDITOR",
-  },
-  {
-    title: "SAFE TREASURY",
-    copy: "Prepare authority-bound calldata while leaving execution and asset movement to the Safe’s normal threshold.",
-    to: "/room?role=safe%20treasury",
-    action: "OPEN SAFE WORKSPACE",
   },
 ];
 
@@ -106,7 +94,7 @@ export function LandingPage() {
 
         <section className="workspace-showcase">
           <header>
-            <p className="eyebrow">ONE APP / SIX PURPOSE-BUILT VIEWS</p>
+            <p className="eyebrow">ONE APP / FOUR FOCUSED VIEWS</p>
             <h2>Follow the lifecycle from either side.</h2>
             <p>
               Start in Public mode to inspect the release. Connect a compatible

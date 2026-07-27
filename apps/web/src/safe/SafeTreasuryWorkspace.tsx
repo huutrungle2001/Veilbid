@@ -1626,6 +1626,9 @@ export function SafeTreasuryWorkspace({
               <span>
                 Safe threshold approval remains mandatory. The relay only handles
                 later permissionless lifecycle actions and cannot spend the Safe.
+                The connected wallet {shortAddress(wallet.state.account!)} is
+                bound as review wallet and receives private bid access only
+                after finalization.
               </span>
             </div>
             <button

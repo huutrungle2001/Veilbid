@@ -9,7 +9,7 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
 
-export function AuditorWorkspace({
+export function GrantedAccessPanel({
   wallet,
   tenders,
   bids,
@@ -120,28 +120,15 @@ export function AuditorWorkspace({
   }
 
   return (
-    <main className="role-workspace auditor-workspace" id="main-content">
-      <section className="workspace-intro">
-        <ContextHelp
-          label="Help for Auditor workspace"
-          title="HOW TO USE AUDITOR"
-          steps={[
-            "Connect the auditor wallet on Sepolia.",
-            "Select one public tender and bid reference.",
-            "Check the on-chain per-bid viewer permission before attempting a reveal.",
-            "Reveal only after access is confirmed; the plaintext is cleared when the wallet session changes.",
-          ]}
-          note="Viewer access applies only to the granted handle and provides no token, Safe signer, buyer, vendor, or administrator authority."
-        />
-        <p className="eyebrow">AUDITOR / SELECTIVE DISCLOSURE</p>
-        <h1>Reveal one granted bid.</h1>
-        <p>
-          Access is checked per stored bid. A viewer grant does not confer token,
-          Safe signer, buyer, vendor, or protocol authority.
-        </p>
-      </section>
-      <WalletPanel wallet={wallet} />
-      <section className="write-form auditor-form">
+      <section className="write-form auditor-form" aria-label="Granted bid access">
+        <div className="form-heading">
+          <p className="eyebrow">GRANTED ACCESS</p>
+          <h2>Reveal a bid shared with this wallet.</h2>
+          <p>
+            Finalized tenders automatically authorize their review wallet.
+            Vendors may also share their own bid with another address.
+          </p>
+        </div>
         <label>
           <span>Public bid reference</span>
           <select
@@ -196,6 +183,33 @@ export function AuditorWorkspace({
           </section>
         )}
       </section>
+  );
+}
+
+export function AuditorWorkspace(props: {
+  wallet: WalletController;
+  tenders: readonly PublicTender[];
+  bids: readonly PublicBid[];
+}) {
+  return (
+    <main className="role-workspace auditor-workspace" id="main-content">
+      <section className="workspace-intro">
+        <ContextHelp
+          label="Help for granted bid access"
+          title="HOW TO REVEAL GRANTED BIDS"
+          steps={[
+            "Connect the exact Sepolia wallet configured as review wallet or granted by a Vendor.",
+            "Select one public tender and bid reference.",
+            "Check the on-chain per-bid viewer permission.",
+            "Reveal only after access is confirmed; plaintext clears when the wallet session changes.",
+          ]}
+          note="Viewer access provides no token, Safe signer, buyer, vendor, or administrator authority."
+        />
+        <p className="eyebrow">PRIVATE BIDS / GRANTED ACCESS</p>
+        <h1>Reveal one granted bid.</h1>
+      </section>
+      <WalletPanel wallet={props.wallet} />
+      <GrantedAccessPanel {...props} />
     </main>
   );
 }

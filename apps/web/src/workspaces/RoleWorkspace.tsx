@@ -4,6 +4,7 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { BuyerTenderForm } from "./BuyerTenderForm";
 import { VendorBidForm } from "./VendorBidForm";
 import { ContextHelp } from "../shell/ContextHelp";
+import { GrantedAccessPanel } from "../auditor/AuditorWorkspace";
 
 export type InteractiveRole = "BUYER" | "VENDOR";
 
@@ -25,8 +26,8 @@ export function RoleWorkspace({
     <main className="role-workspace" id="main-content">
       <section className="workspace-intro">
         <ContextHelp
-          label={`Help for ${buyer ? "EOA Buyer" : "Vendor"} workspace`}
-          title={buyer ? "HOW TO USE EOA BUYER" : "HOW TO USE VENDOR"}
+          label={`Help for ${buyer ? "EOA Buyer" : "Private Bids"} workspace`}
+          title={buyer ? "HOW TO USE EOA BUYER" : "HOW TO USE PRIVATE BIDS"}
           steps={
             buyer
               ? [
@@ -39,7 +40,7 @@ export function RoleWorkspace({
                   "Connect the exact Sepolia account approved by the buyer.",
                   "Select an Open tender and enter a private price no higher than its public ceiling.",
                   "Confirm encryption, simulation, and the bid transaction; the plaintext stays in this browser session.",
-                  "Use Selective Disclosure only when you intentionally want to reveal or grant access to your stored bid.",
+                  "Use My Bid to reveal or share your own bid, and Granted Access for bids shared with this wallet.",
                 ]
           }
           note={
@@ -48,14 +49,14 @@ export function RoleWorkspace({
               : "Each approved vendor submits one immutable encrypted bid before the deadline."
           }
         />
-        <p className="eyebrow">{buyer ? "EOA BUYER / ADVANCED FALLBACK" : "VENDOR / SEPOLIA TEST WORKSPACE"}</p>
+        <p className="eyebrow">{buyer ? "EOA BUYER / ADVANCED FALLBACK" : "PRIVATE BIDS / VENDOR & REVIEWER"}</p>
         <h1>
-          {buyer ? "Fund public terms." : "Submit a sealed price."}
+          {buyer ? "Fund public terms." : "Submit or privately review bids."}
         </h1>
         <p>
           {buyer
             ? "Create an exactly funded tender without gaining access to open vendor prices."
-            : "Encrypt the bid in your wallet session for the selected market target before any transaction is signed."}
+            : "Vendors manage their own sealed bid here. Review wallets reveal only bids authorized after finalization or explicitly shared by a Vendor."}
         </p>
       </section>
       <WalletPanel wallet={wallet} />
@@ -69,13 +70,18 @@ export function RoleWorkspace({
           onConfirmed={onRefresh}
         />
       )}
-      <DisclosurePanel
-        role={role}
-        wallet={wallet}
-        tenders={tenders}
-        bids={bids}
-        onConfirmed={onRefresh}
-      />
+      {!buyer && (
+        <>
+          <DisclosurePanel
+            role={role}
+            wallet={wallet}
+            tenders={tenders}
+            bids={bids}
+            onConfirmed={onRefresh}
+          />
+          <GrantedAccessPanel wallet={wallet} tenders={tenders} bids={bids} />
+        </>
+      )}
       <section className="journey-preview">
         <p className="eyebrow">TRANSACTION STAGES</p>
         <ol>

@@ -207,7 +207,9 @@ export function BuyerTenderForm({
         <strong>Authority boundary</strong>
         <span>
           This EOA path signs normal wallet transactions. It never grants the
-          buyer access to vendor bid values while the tender is open.
+          buyer access to vendor bid values while the tender is open. After
+          finalization, this same wallet automatically receives private review
+          access to the stored bids.
         </span>
       </div>
       {stage && (
