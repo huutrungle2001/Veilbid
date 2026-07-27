@@ -5,6 +5,7 @@ import type {
 import factoryAbiJson from "@veilbid/chain-bindings/abis/VeilBidSafeModuleFactory";
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
 import moduleAbiJson from "@veilbid/chain-bindings/abis/VeilBidSafePreparationModule";
+import unwrapPreparationAbiJson from "@veilbid/chain-bindings/abis/VeilBidSafeUnwrapPreparation";
 import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
 import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
@@ -35,6 +36,7 @@ import {
 const factoryAbi = factoryAbiJson as Abi;
 const marketAbi = marketAbiJson as Abi;
 const moduleAbi = moduleAbiJson as Abi;
+const unwrapPreparationAbi = unwrapPreparationAbiJson as Abi;
 const tokenAbi = tokenAbiJson as Abi;
 const wrapperAbi = wrapperAbiJson as Abi;
 const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
@@ -116,6 +118,7 @@ const safeExecutionFailureTopic = keccak256(
 
 type ReleaseContracts = typeof deployment.contracts & {
   VeilBidSafeModuleFactory?: { address?: string };
+  VeilBidSafeUnwrapPreparation?: { address?: string };
 };
 
 export const safeReleaseConfiguration = {
@@ -246,6 +249,15 @@ export function configuredFactoryAddress(): Address | null {
     .VeilBidSafeModuleFactory?.address;
   const configured =
     import.meta.env.VITE_SAFE_MODULE_FACTORY_ADDRESS?.trim() || manifestAddress;
+  return configured && isAddress(configured) ? getAddress(configured) : null;
+}
+
+export function configuredUnwrapPreparationAddress(): Address | null {
+  const manifestAddress = (deployment.contracts as ReleaseContracts)
+    .VeilBidSafeUnwrapPreparation?.address;
+  const configured =
+    import.meta.env.VITE_SAFE_UNWRAP_PREPARATION_ADDRESS?.trim() ||
+    manifestAddress;
   return configured && isAddress(configured) ? getAddress(configured) : null;
 }
 
@@ -567,6 +579,37 @@ async function unusedPreparationNonce({
     if (!used) return nonce;
   }
   throw new Error("Could not allocate a fresh Safe preparation nonce.");
+}
+
+async function unusedSafeUnwrapNonce({
+  preparation,
+  safe,
+  rpcUrl,
+}: {
+  preparation: Address;
+  safe: Address;
+  rpcUrl: string;
+}) {
+  const client = createResilientSepoliaClient(rpcUrl);
+  const seed = BigInt(
+    `0x${crypto
+      .getRandomValues(new Uint8Array(16))
+      .reduce(
+        (hex, byte) => `${hex}${byte.toString(16).padStart(2, "0")}`,
+        "",
+      )}`,
+  );
+  for (let offset = 0n; offset < 16n; offset += 1n) {
+    const nonce = seed + offset + 1n;
+    const used = await client.readContract({
+      address: preparation,
+      abi: unwrapPreparationAbi,
+      functionName: "usedNonces",
+      args: [safe, nonce],
+    });
+    if (!used) return nonce;
+  }
+  throw new Error("Could not allocate a fresh Safe unwrap nonce.");
 }
 
 async function proposeSafeBatch({
@@ -919,6 +962,53 @@ export function buildFullSafeUnwrapTransaction(
   };
 }
 
+export function buildPartialSafeUnwrapTransactions({
+  preparation,
+  safe,
+  recipient,
+  encryptedAmountHandle,
+  inputProof,
+  inputOwner,
+  expectedBalanceHandle,
+  nonce,
+}: {
+  preparation: Address;
+  safe: Address;
+  recipient: Address;
+  encryptedAmountHandle: Hex;
+  inputProof: Hex;
+  inputOwner: Address;
+  expectedBalanceHandle: Hex;
+  nonce: bigint;
+}): readonly [SafeBatchTransaction, SafeBatchTransaction] {
+  return [
+    {
+      to: preparation,
+      value: "0",
+      data: encodeFunctionData({
+        abi: unwrapPreparationAbi,
+        functionName: "preparePartialUnwrap",
+        args: [
+          encryptedAmountHandle,
+          inputProof,
+          inputOwner,
+          expectedBalanceHandle,
+          nonce,
+        ],
+      }),
+    },
+    {
+      to: wrapperAddress,
+      value: "0",
+      data: encodeFunctionData({
+        abi: wrapperAbi,
+        functionName: "unwrap",
+        args: [safe, recipient, encryptedAmountHandle],
+      }),
+    },
+  ];
+}
+
 export async function withdrawSafeEth({
   configuration,
   recipient,
@@ -1019,6 +1109,80 @@ export async function unwrapFullSafeConfidentialBalance({
     onStage,
     target: wrapperAddress,
     safeTransactionData: transaction.data,
+    rpcUrl,
+  });
+}
+
+export async function unwrapPartialSafeConfidentialBalance({
+  configuration,
+  recipient,
+  amount,
+  revealedBalance,
+  walletClient,
+  provider,
+  account,
+  onStage,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  configuration: SafeAccountConfiguration;
+  recipient: Address;
+  amount: bigint;
+  revealedBalance: bigint;
+  walletClient: WalletClient;
+  provider: EIP1193Provider;
+  account: Address;
+  onStage: (stage: string) => void;
+  rpcUrl?: string;
+}) {
+  const expectedBalanceHandle =
+    configuration.balances.confidentialHandle;
+  if (!expectedBalanceHandle) {
+    throw new Error("This Safe has no confidential balance to unwrap.");
+  }
+  if (amount <= 0n) {
+    throw new Error("Custom unwrap amount must be positive.");
+  }
+  if (revealedBalance <= 0n || amount >= revealedBalance) {
+    throw new Error(
+      "Custom unwrap must be smaller than the revealed balance. Use Full for the entire balance.",
+    );
+  }
+  const preparation = configuredUnwrapPreparationAddress();
+  if (!preparation) {
+    throw new Error("Safe partial unwrap preparation is unavailable.");
+  }
+  const nonce = await unusedSafeUnwrapNonce({
+    preparation,
+    safe: configuration.safe,
+    rpcUrl,
+  });
+  onStage("Encrypting the custom unwrap amount");
+  const handles = await createViemHandleClient(walletClient);
+  const encrypted = await handles.encryptInput(
+    amount,
+    "uint256",
+    preparation,
+  );
+  const transactions = buildPartialSafeUnwrapTransactions({
+    preparation,
+    safe: configuration.safe,
+    recipient,
+    encryptedAmountHandle: encrypted.handle,
+    inputProof: encrypted.handleProof,
+    inputOwner: account,
+    expectedBalanceHandle,
+    nonce,
+  });
+  return proposeSafeBatch({
+    kind: "unwrap",
+    safe: configuration.safe,
+    transactions,
+    provider,
+    account,
+    onStage,
+    target: wrapperAddress,
+    safeTransactionData: transactions[1].data,
+    preparationTransactionData: transactions[0].data,
     rpcUrl,
   });
 }

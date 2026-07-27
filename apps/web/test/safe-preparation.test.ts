@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import tokenAbiJson from "@veilbid/chain-bindings/abis/VeilBidTestUSDC";
 import wrapperAbiJson from "@veilbid/chain-bindings/abis/VeilBidConfidentialUSDC";
+import unwrapPreparationAbiJson from "@veilbid/chain-bindings/abis/VeilBidSafeUnwrapPreparation";
 import {
   decodeFunctionData,
   keccak256,
@@ -12,6 +13,7 @@ import {
 import {
   assertSafeBatchExecution,
   buildFullSafeUnwrapTransaction,
+  buildPartialSafeUnwrapTransactions,
   buildSafeBalanceViewerTransaction,
   buildSafeEthWithdrawalTransaction,
   buildSafeTestUsdcWithdrawalTransaction,
@@ -26,6 +28,9 @@ const vendor = "0x1111111111111111111111111111111111111111";
 const safe = "0x2222222222222222222222222222222222222222" as Address;
 const recipient = "0x3333333333333333333333333333333333333333" as Address;
 const handle = `0x${"44".repeat(32)}` as Hex;
+const inputProof = `0x${"55".repeat(64)}` as Hex;
+const preparation =
+  "0x5555555555555555555555555555555555555555" as Address;
 const noxViewerAbi = [{
   type: "function",
   name: "addViewer",
@@ -137,6 +142,37 @@ describe("Safe preparation terms", () => {
       data: buildFullSafeUnwrapTransaction(safe, recipient, handle).data,
     });
     expect(unwrap).toMatchObject({
+      functionName: "unwrap",
+      args: [safe, recipient, handle],
+    });
+
+    const partial = buildPartialSafeUnwrapTransactions({
+      preparation,
+      safe,
+      recipient,
+      encryptedAmountHandle: handle,
+      inputProof,
+      inputOwner: recipient,
+      expectedBalanceHandle: handle,
+      nonce: 42n,
+    });
+    expect(partial).toHaveLength(2);
+    expect(partial[0].to).toBe(preparation);
+    expect(
+      decodeFunctionData({
+        abi: unwrapPreparationAbiJson as Abi,
+        data: partial[0].data,
+      }),
+    ).toMatchObject({
+      functionName: "preparePartialUnwrap",
+      args: [handle, inputProof, recipient, handle, 42n],
+    });
+    expect(
+      decodeFunctionData({
+        abi: wrapperAbiJson as Abi,
+        data: partial[1].data,
+      }),
+    ).toMatchObject({
       functionName: "unwrap",
       args: [safe, recipient, handle],
     });
