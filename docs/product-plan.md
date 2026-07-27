@@ -92,13 +92,13 @@ Disclosure policy:
 ### Safe buyer
 
 1. Connect a Sepolia Safe owner and select one of its discovered Safes.
-2. Inspect owners, threshold, dedicated module, operator, and confidential
-   balance status. The focused VeilBid surface shows vcUSDC only; exact reveal
-   requires a threshold-authorized per-handle viewer grant.
-3. For a new Safe, approve the one-time module deployment/enablement,
-   Market-binding, and operator setup through the existing threshold.
-4. Faucet/wrap test funding into the Safe through a threshold-authorized batch
-   when needed.
+2. Inspect owners, threshold, and the compact confidential vcUSDC balance. Exact
+   reveal requires a threshold-authorized per-handle viewer grant.
+3. Deposit public test vUSDC from the connected owner wallet directly into the
+   selected Safe through the wrapper when funding is needed.
+4. In the tender form, approve the one-time module deployment/enablement,
+   Market-binding, and operator setup through the existing threshold if the
+   selected Safe is not ready.
 5. Safe Buyer prepares a target-bound budget handle and tender creation in one
    threshold-authorized batch through the restricted preparation module.
 6. Execute tender creation/funding as a normal Safe transaction satisfying the
@@ -106,9 +106,9 @@ Disclosure policy:
 7. Confirm the public exact-funding proof before the tender opens.
 8. Settle/refund to the Safe; the browser owner does not become custodian.
 9. Exit confidential treasury funds with either a full-handle unwrap or an
-   owner-encrypted custom amount. Both require the normal Safe threshold and a
-   separate permissionless public-proof finalization; amount and recipient
-   become public at finalization.
+   owner-encrypted custom amount to the connected wallet. Both require the
+   normal Safe threshold and a separate permissionless public-proof
+   finalization; amount and recipient become public at finalization.
 10. Manage public ETH/vUSDC and unrelated assets in Safe Wallet rather than
    duplicating a general-purpose treasury interface inside VeilBid.
 
@@ -194,7 +194,7 @@ handle and verified against the stored bid owner.
 | Settlement | Authorized confidential deltas match winning price and remainder |
 | No valid bid | Full confidential refund and terminal status |
 | Replay protection | Duplicate close/finalize/settle calls fail safely |
-| Safe custody | Module preparation cannot execute from the Safe; funding requires a threshold-authorized Safe transaction |
+| Safe custody | Wallet deposits mint vcUSDC to the Safe but cannot spend it; tender funding requires a threshold-authorized Safe transaction |
 | Selective audit | Grants follow the role, lifecycle, per-handle, and irreversibility rules above |
 | Award receipt | One non-transferable receipt is minted to the proof-derived winner |
 | Public UX | Lifecycle and proof evidence load without wallet |

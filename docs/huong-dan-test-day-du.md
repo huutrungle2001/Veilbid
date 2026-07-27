@@ -108,7 +108,8 @@ số dư bí mật.
 ## 3. Kiểm tra Balances, faucet, wrap và reveal của EOA
 
 Phần này kiểm tra tiện ích ví của EOA và có thể bỏ qua khi chỉ demo Safe Buyer.
-Nó không cấp vốn cho Safe; Safe có batch funding riêng trong mục 4.
+`WRAP TO vcUSDC` mint cho chính EOA; Safe Buyer có nút riêng để dùng public
+`TEST USDC` của EOA và mint vcUSDC thẳng vào Safe.
 
 1. Kết nối một EOA test trên Sepolia.
 2. Trong `BALANCES`, kiểm tra:
@@ -157,44 +158,27 @@ Kết nối một Safe owner và chuyển sang workspace `SAFE BUYER`.
 5. Xác nhận thẻ `SELECTED SAFE` hiển thị:
    - Safe address.
    - Số owner và threshold.
-   - Địa chỉ preparation module riêng của Safe.
-   - vcUSDC là `0`, unavailable hoặc được che bằng `••••••`.
+   - Khối `SAFE FUNDS` nhỏ gọn.
+   - vcUSDC là `0`, unavailable hoặc được che bằng `••••••` trong một dòng.
    - Nút con mắt và `REFRESH`.
    - `OPEN SAFE` mở đúng Safe đã chọn.
 6. Xác nhận Safe Buyer không hiển thị ETH, public vUSDC hoặc token không liên
    quan. Dùng Safe Wallet nếu cần quản lý các tài sản công khai đó.
 
-### 4.2. Thiết lập một lần cho Safe mới
-
-Nếu cả bốn readiness check đã xanh, bỏ qua bước này. Nếu chưa:
-
-1. Bấm `CONFIGURE THIS SAFE`.
-2. Kiểm tra Safe proposal gồm tối đa bốn call:
-   - Factory deploy module riêng cho Safe nếu chưa tồn tại.
-   - Safe tự enable module.
-   - Safe gọi module để bind canonical Market.
-   - Safe cấp Market làm confidential-token operator.
-3. Ký proposal bằng owner hiện tại.
-4. Với Safe threshold `1/1`, web tự gửi execution sau chữ ký.
-5. Với multisig, mở Safe hoặc dùng `APPROVE / EXECUTE` để các owner còn lại
-   ký; web chỉ execute khi đủ threshold.
-6. Refresh và xác nhận bốn readiness check đều xanh.
-
-Đây là bước duy nhất được thêm cho một Safe chưa từng dùng VeilBid. Nó không
-lặp lại cho mỗi tender.
-
-### 4.3. Nạp confidential vUSDC cho Safe
+### 4.2. Nạp confidential vcUSDC cho Safe từ ví kết nối
 
 1. Nhập số lượng vào `vcUSDC amount`.
-2. Bấm `ADD TEST vcUSDC`.
-3. Proposal sẽ tự thêm faucet call khi public vUSDC của Safe chưa đủ, sau đó
-   `approve` wrapper và `wrap` vào chính Safe.
-4. Ký/thu thập đủ threshold.
+2. Bấm `DEPOSIT TO SAFE`.
+3. Nếu ví không đủ public `TEST USDC`, dùng `GET TEST USDC` trong `BALANCES`
+   rồi thử lại.
+4. Xác nhận approve wrapper nếu allowance chưa đủ, sau đó xác nhận wrap.
 5. Xác nhận `SELECTED SAFE` hiển thị vcUSDC dạng `••••••`.
 
-EOA owner trả gas cho transaction thực thi; tài sản được mint/wrap thuộc Safe.
+Hai giao dịch này do EOA đang kết nối ký và trả gas; recipient của lệnh wrap là
+Safe đã chọn, nên vcUSDC được mint thuộc Safe. Đây không phải Safe proposal và
+không cần cấu hình module trước.
 
-### 4.4. Reveal vcUSDC của Safe
+### 4.3. Reveal vcUSDC của Safe
 
 1. Khi vcUSDC hiển thị `••••••`, bấm nút con mắt.
 2. Nếu handle chưa được cấp quyền, ký Safe proposal cấp connected owner làm
@@ -207,7 +191,7 @@ EOA owner trả gas cho transaction thực thi; tài sản được mint/wrap th
 
 Viewer grant là per-handle, không cấp operator, signer hoặc quyền xem bid.
 
-### 4.5. Unwrap vcUSDC: toàn bộ hoặc tùy chỉnh
+### 4.4. Unwrap vcUSDC: toàn bộ hoặc tùy chỉnh
 
 Khối `UNWRAP vcUSDC` nằm ngay trong card `SELECTED SAFE`, không mở lại bảng
 quản lý ETH/public vUSDC.
@@ -219,7 +203,8 @@ ngay bên cạnh.
 
 1. Bấm `FULL`; nút chuyển thành `FULL ✓` và ô amount hiển thị
    `FULL BALANCE`.
-2. Kiểm tra `Public vUSDC recipient`; mặc định là EOA owner đang kết nối.
+2. Kiểm tra `PUBLIC vUSDC RECIPIENT`; địa chỉ này bị khóa cố định là ví EOA
+   đang kết nối.
 3. Bấm `PROPOSE FULL UNWRAP`.
 4. Full dùng balance handle mã hóa hiện tại, nên không cần bấm con mắt hoặc
    reveal balance trước.
@@ -232,7 +217,7 @@ ngay bên cạnh.
    execute, rồi bấm `REVEAL BALANCE`.
 3. Nhập số vcUSDC nhỏ hơn balance vừa reveal. Muốn rút hết thì chuyển về
    `FULL`, không nhập đúng bằng balance trong Custom.
-4. Kiểm tra recipient và bấm `PROPOSE CUSTOM UNWRAP`.
+4. Kiểm tra recipient là ví đang kết nối và bấm `PROPOSE CUSTOM UNWRAP`.
 5. Safe batch phải gồm đúng hai call nguyên tử:
    - Adapter xác minh owner-encrypted amount, Safe, balance handle hiện tại và
      nonce mới; quyền Nox chỉ tồn tại trong transaction đó.
@@ -253,7 +238,21 @@ Kết quả mong đợi:
 - Sau partial unwrap, balance handle đổi và viewer grant cũ không được tái sử
   dụng.
 
-### 4.6. Tạo tender
+### 4.5. Cấu hình khi cần và tạo tender
+
+Trong thẻ `CREATE A SAFE-OWNED TENDER`, kiểm tra trạng thái setup:
+
+1. Nếu thấy `SAFE READY ✓`, không cần thêm bước cấu hình.
+2. Nếu thấy `CONFIGURE THIS SAFE`, bấm nút và kiểm tra proposal gồm tối đa bốn
+   call: deploy module riêng, enable module, bind canonical Market và cấp Market
+   làm confidential-token operator.
+3. Ký/thu thập đủ threshold. Safe `1/1` tự gửi execution; multisig chỉ execute
+   sau khi đủ owner approval.
+4. Sau khi hoàn tất, trạng thái chuyển thành `SAFE READY ✓` và
+   `CREATE WITH SAFE` được bật.
+
+Đây là bước thêm một lần cho Safe chưa từng dùng VeilBid. Nó chỉ cần cho việc
+tạo tender; deposit, reveal và unwrap không bị đặt sai dưới bước cấu hình này.
 
 Dùng dữ liệu mẫu:
 
@@ -271,7 +270,7 @@ Approved vendors:
 0xA4565608e096CFEf7da36eB19a57Da6d277D942f
 ```
 
-Các bước:
+Các bước tạo tender:
 
 1. Kiểm tra deadline còn đủ thời gian để gửi hai bid.
 2. Bấm `CREATE WITH SAFE`.
@@ -529,7 +528,7 @@ Thực hiện thêm các trường hợp:
 - [ ] Safe owner, Safe đã chọn, Market và module/factory đúng canonical release.
 - [ ] Safe discovery hoặc nhập địa chỉ thủ công hoạt động.
 - [ ] Safe mới hoàn tất one-time setup qua đúng threshold.
-- [ ] Safe funding batch tạo confidential budget thành công.
+- [ ] Ví kết nối deposit vcUSDC thẳng vào Safe thành công.
 - [ ] Optional: faucet/manual wrap của EOA hoạt động.
 - [ ] Optional: EOA vcUSDC reveal chỉ tồn tại trong session.
 - [ ] Safe Buyer tạo atomic preparation/create batch thành công.

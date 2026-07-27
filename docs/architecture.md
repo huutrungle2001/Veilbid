@@ -178,8 +178,9 @@ buyer refund during a Nox outage.
   and a separately labeled 12-block finality checkpoint.
 - Buyer, Vendor, Public, Auditor, Activity, and Safe workspaces.
 - Safe Transaction Service discovery with a manual-address fallback.
-- One-time per-Safe module setup, Safe-owned faucet/wrap funding, automatic
-  preparation nonce allocation, and public-hash-only proposal recovery.
+- Connected-wallet approve/wrap deposits into the selected Safe, tender-scoped
+  one-time module setup, automatic preparation nonce allocation, and
+  public-hash-only proposal recovery.
 - Handle encryption/decryption, ACL views, and public proof recovery.
 - Persistent progress UI for wallet, chain, indexing, proof, and refresh stages.
 

@@ -138,9 +138,9 @@ stateDiagram-v2
 2. Safe Buyer discovers any Sepolia Safe owned by the connected wallet. A
    one-time threshold-authorized batch deploys/enables that Safe's deterministic
    preparation module and configures settlement authority.
-3. The Safe can faucet/wrap test assets in its own batch; tender creation then
-   prepares the Nox funding handle and creates the tender atomically. The EOA
-   path remains available as an advanced fallback.
+3. The connected owner wallet can approve and wrap its public test vUSDC
+   directly to the selected Safe. Tender creation then prepares the Nox funding
+   handle and creates the tender atomically through the Safe threshold.
 4. A public equality proof must establish that encrypted escrow equals the
    public ceiling before the tender becomes `Open`.
 5. Each approved vendor may submit one immutable encrypted price.
@@ -293,11 +293,11 @@ vcUSDC state changes to `ENCRYPTED`; selecting the eye asks that wallet to
 decrypt the balance for the current browser session only.
 
 Safe Buyer keeps the selected treasury focused on VeilBid's confidential asset:
-the `SELECTED SAFE` card shows vcUSDC beside one private-view control. The first
-reveal threshold-authorizes the connected owner for the current balance handle;
-the next click decrypts it for this browser session. The grant is per-handle and
-must be repeated after the balance changes. Revealed values are never stored in
-logs, URLs, local storage, or evidence.
+the compact `SAFE FUNDS` section shows vcUSDC beside one private-view control.
+The first reveal threshold-authorizes the connected owner for the current
+balance handle; the next click decrypts it for this browser session. The grant
+is per-handle and must be repeated after the balance changes. Revealed values
+are never stored in logs, URLs, local storage, or evidence.
 
 The same card provides an explicit vcUSDC exit without becoming a general Safe
 asset manager. Its single amount field supports a `FULL` shortcut that consumes
@@ -307,7 +307,7 @@ encrypts only that chosen amount for a dedicated preparation adapter. The
 adapter validates the owner proof, current balance handle, and fresh nonce
 inside the same threshold-authorized Safe batch as the wrapper call. A second
 permissionless transaction finalizes the public proof; that finalization makes
-the unwrapped amount and recipient public.
+the unwrapped amount and connected-wallet recipient public.
 
 Public ETH and vUSDC are intentionally omitted from the VeilBid Safe surface.
 They remain visible and transferable in the standard Safe Wallet; VeilBid does
@@ -350,14 +350,16 @@ screenshots, logs, or evidence.
 
 1. Connect a Sepolia Safe owner and select a discovered Safe or paste its
    address.
-2. For a new Safe, approve one setup proposal that deploys/enables its
-   deterministic module, binds the Market, and authorizes settlement.
-3. Faucet/wrap test vUSDC into the Safe through a normal Safe batch if needed.
-4. Use the eye beside vcUSDC to threshold-authorize and privately reveal the
+2. Obtain public test vUSDC in the connected wallet, enter an amount under
+   `SAFE FUNDS`, and approve/wrap it directly into the selected Safe.
+3. Use the eye beside vcUSDC to threshold-authorize and privately reveal the
    current Safe balance handle when needed.
-5. To exit vcUSDC, use the amount field after reveal or press its `FULL`
-   shortcut without reveal, review the public recipient, satisfy the Safe
-   threshold, then finalize the public unwrap proof.
+4. To exit vcUSDC, use the amount field after reveal or press its `FULL`
+   shortcut without reveal. Public vUSDC is fixed to the connected wallet;
+   satisfy the Safe threshold, then finalize the public unwrap proof.
+5. In `CREATE A SAFE-OWNED TENDER`, approve the one-time setup proposal if the
+   selected Safe is not ready. This deploys/enables its deterministic module,
+   binds the Market, and authorizes settlement.
 6. Enter public terms; VeilBid allocates the internal nonce and creates one
    atomic preparation/tender batch.
 7. Satisfy the Safe's normal threshold. Pending multisig approvals remain

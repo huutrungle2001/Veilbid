@@ -94,15 +94,17 @@ Exit: Core protocol tests pass without plaintext shadow state.
   Safe/action/consumer/nonce binding and no Safe execution entry point.
 - [x] Make Safe Buyer the primary browser workflow with one atomic batch for
   handle preparation and tender creation; retain EOA recovery fallback.
-- [x] Support owner handle preparation and threshold-authorized Safe funding.
+- [x] Support connected-wallet deposits to a Safe plus threshold-authorized
+  confidential tender funding.
 - [x] Support threshold-authorized full and custom Safe vcUSDC unwrap through a
   custody-free, transaction-scoped preparation adapter.
 - [x] Support buyer cancellation/viewer operations where approved.
 - [x] Test revoke/re-enable and permissionless terminal actions.
 - [x] Document threshold-1 browser limitations.
 
-Exit: Safe owns funds, module calls cannot execute from the Safe, and every
-funding/viewer write satisfies normal Safe threshold authority.
+Exit: Safe owns funds, wallet deposits cannot spend them, module calls cannot
+execute from the Safe, and every tender-funding/viewer write satisfies normal
+Safe threshold authority.
 
 Gate E established the implementation basis for the first three items and the
 revoke/re-enable path on Sepolia. These checkboxes remain open until the
