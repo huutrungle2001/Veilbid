@@ -151,18 +151,21 @@ Kết nối một Safe owner và chuyển sang workspace `SAFE BUYER`.
 ### 4.1. Chọn Safe
 
 1. Chờ web tìm các Safe Sepolia của owner.
-2. Nếu chỉ có một Safe, web tự chọn và đọc cấu hình.
-3. Nếu có nhiều Safe, bấm Safe muốn dùng.
+2. Web chỉ đánh dấu `LAST USED`, không tự mở chi tiết Safe.
+3. Bấm card Safe muốn dùng; selected state và skeleton phải xuất hiện ngay.
 4. Nếu discovery không khả dụng, dán địa chỉ Safe rồi bấm `CHECK SAFE`.
 5. Xác nhận thẻ `SELECTED SAFE` hiển thị:
    - Safe address.
    - Số owner và threshold.
-   - ETH, public Test USDC và trạng thái confidential vUSDC của chính Safe.
    - Địa chỉ preparation module riêng của Safe.
+6. Trong `TREASURY BALANCES`, xác nhận:
+   - ETH và public Test USDC của chính Safe.
+   - vcUSDC là `0`, unavailable hoặc được che bằng `••••••`.
+   - `REFRESH BALANCES` đọc lại Sepolia.
+   - `OPEN IN SAFE` mở đúng Safe đã chọn.
 
-Web chỉ hiển thị `Encrypted balance present`, `No encrypted balance` hoặc trạng
-thái unavailable cho confidential balance của Safe. Web không giả vờ biết
-plaintext balance và không dùng EOA balance thay cho Safe balance.
+Sidebar `BALANCES` vẫn thuộc EOA kết nối. `TREASURY BALANCES` mới thuộc Safe;
+hai khu vực này không được dùng thay thế cho nhau.
 
 ### 4.2. Thiết lập một lần cho Safe mới
 
@@ -190,11 +193,47 @@ lặp lại cho mỗi tender.
 3. Proposal sẽ tự thêm faucet call khi public vUSDC của Safe chưa đủ, sau đó
    `approve` wrapper và `wrap` vào chính Safe.
 4. Ký/thu thập đủ threshold.
-5. Xác nhận thẻ Safe chuyển sang `Encrypted balance present`.
+5. Xác nhận `TREASURY BALANCES` hiển thị vcUSDC dạng `••••••`.
 
 EOA owner trả gas cho transaction thực thi; tài sản được mint/wrap thuộc Safe.
 
-### 4.4. Tạo tender
+### 4.4. Xem balance và quản lý tài sản Safe
+
+#### Reveal vcUSDC của Safe
+
+1. Khi vcUSDC hiển thị `••••••`, bấm `AUTHORIZE PRIVATE VIEW`.
+2. Ký Safe proposal cấp connected owner làm viewer cho balance handle hiện tại.
+3. Với Safe 1/1, chờ execution hoàn tất rồi bấm `REVEAL vcUSDC`.
+4. Ký yêu cầu data-access của Nox.
+5. Kiểm tra plaintext chỉ xuất hiện trong phiên hiện tại.
+6. Sau funding, transfer hoặc unwrap, balance handle đổi; web phải yêu cầu cấp
+   quyền lại thay vì tái sử dụng viewer grant cũ.
+
+Viewer grant là per-handle, không cấp operator, signer hoặc quyền xem bid.
+
+#### Withdraw ETH hoặc public vUSDC
+
+1. Mở `TREASURY ACTIONS`.
+2. Nhập recipient công khai.
+3. Nhập ETH hoặc vUSDC; có thể dùng `MAX`.
+4. Bấm nút proposal tương ứng.
+5. Kiểm tra mọi transfer vẫn qua Safe Transaction Service và đúng threshold.
+6. Sau execution, `TREASURY BALANCES` tự refresh; transaction hoàn thành xuất
+   hiện trong `TRANSACTION HISTORY`.
+
+#### Unwrap toàn bộ vcUSDC
+
+1. Nhập recipient nhận public vUSDC.
+2. Đọc cảnh báo: số lượng unwrap và recipient sẽ trở thành public.
+3. Bấm `PROPOSE FULL UNWRAP` và đạt đủ Safe threshold.
+4. Khi `UNWRAP REQUEST READY` xuất hiện, bấm `FINALIZE UNWRAP`.
+5. Chờ public-decryption proof và xác nhận transaction finalize.
+6. Kiểm tra public vUSDC đến recipient và link Etherscan xuất hiện.
+
+Không hỗ trợ partial confidential unwrap trong release này. Web dùng balance
+handle hiện tại của Safe, không tạo proof EOA rồi giả danh Safe.
+
+### 4.5. Tạo tender
 
 Dùng dữ liệu mẫu:
 
@@ -234,9 +273,11 @@ Các bước:
 6. Nếu Safe Transaction Service chưa cập nhật, bấm `REFRESH SIGNATURES`.
    `COPY BATCH JSON` và `OPEN SAFE` chỉ là handoff phục hồi, không phải bước
    bắt buộc của luồng threshold `1/1`.
-7. Nếu reload hoặc đóng tab giữa chừng, dùng `RECENT SAFE PROPOSALS`; browser
-   chỉ lưu Safe address, Safe transaction hash, loại action và timestamp công
-   khai, không lưu handle, proof, chữ ký hoặc plaintext.
+7. Nếu là multisig, proposal chưa đủ chữ ký xuất hiện trong
+   `PENDING APPROVALS` và tự refresh trạng thái. Với Safe 1/1, action đã execute
+   chuyển vào `TRANSACTION HISTORY` thu gọn. Browser chỉ lưu Safe address, Safe
+   transaction hash, loại action và timestamp công khai; không lưu handle,
+   proof, chữ ký, recipient, amount hoặc plaintext.
 8. Ghi lại Tender ID từ `PUBLIC` sau khi transaction được index.
 9. Tender ban đầu có thể ở `FundingPending`. Relay sẽ lấy public
     exact-funding proof và gọi confirmation mà không cần Buyer ký thêm.

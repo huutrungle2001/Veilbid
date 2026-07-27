@@ -288,13 +288,21 @@ validation, encryption or simulation, wallet-signature, confirmation, and
 success/error stages. Loading notifications persist; completed and failed
 notifications can be dismissed and also close automatically.
 
-The balance panel shows a disabled eye when no vcUSDC exists. After wrapping,
-the state changes to `ENCRYPTED`; selecting the eye asks the connected wallet
-to decrypt the balance for the current browser session only. The value clears
-on refresh, account change, or chain change and is never written to storage,
-logs, URLs, or public evidence. Manual unwrap is not exposed by this release
-because the wrapper requires a separate public-decryption and finalization
-flow.
+The sidebar balance panel belongs to the connected EOA. After wrapping, its
+vcUSDC state changes to `ENCRYPTED`; selecting the eye asks that wallet to
+decrypt the balance for the current browser session only.
+
+Safe Buyer has a separate `TREASURY BALANCES` panel. Public ETH/vUSDC are read
+directly from the selected Safe. To reveal its vcUSDC, the Safe must first
+threshold-authorize the connected owner as a viewer for the current balance
+handle. The grant is per-handle and must be repeated after the balance changes.
+Revealed values clear with the browser session and are never stored in logs,
+URLs, local storage, or evidence.
+
+`TREASURY ACTIONS` prepares normal threshold-authorized Safe withdrawals for
+ETH and vUSDC. Full vcUSDC unwrap is intentionally two-stage: the Safe creates
+an unwrap request, then a public-decryption proof is finalized in a separate
+permissionless transaction. The finalized unwrap amount becomes public.
 
 ### Vendor
 
@@ -336,10 +344,14 @@ screenshots, logs, or evidence.
 2. For a new Safe, approve one setup proposal that deploys/enables its
    deterministic module, binds the Market, and authorizes settlement.
 3. Faucet/wrap test vUSDC into the Safe through a normal Safe batch if needed.
-4. Enter public terms; VeilBid allocates the internal nonce and creates one
+4. Refresh public balances or threshold-authorize a private viewer for the
+   current Safe vcUSDC balance handle.
+5. Optionally withdraw ETH/vUSDC or request/finalize a full vcUSDC unwrap from
+   the collapsed treasury actions panel.
+6. Enter public terms; VeilBid allocates the internal nonce and creates one
    atomic preparation/tender batch.
-5. Satisfy the Safe's normal threshold and recover pending proposals by their
-   public Safe transaction hashes.
+7. Satisfy the Safe's normal threshold. Pending multisig approvals remain
+   actionable; executed actions move into collapsed transaction history.
 
 Preparation is not execution. The module contains no
 `execTransactionFromModule` or arbitrary-call path.
