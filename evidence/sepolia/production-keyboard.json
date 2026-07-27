@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "suite": "production-keyboard-navigation",
-  "recordedAt": "2026-07-27T13:29:01.129Z",
+  "recordedAt": "2026-07-27T14:38:24.370Z",
   "publicIdentifiers": {
-    "testCommit": "9f65164dd8d696e63d0c8b8064ba2eb7c8f32d02",
-    "deploymentSourceCommit": "9f65164dd8d696e63d0c8b8064ba2eb7c8f32d02",
-    "deploymentId": "dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj",
+    "testCommit": "208e81078805991fc7688843fef6e0b3babe82f1",
+    "deploymentSourceCommit": "208e81078805991fc7688843fef6e0b3babe82f1",
+    "deploymentId": "dpl_DgfAxLWdc4cfVzhtVntjEn4g4uHj",
     "canonicalUrl": "https://veilbid-three.vercel.app",
     "browser": "Google Chrome 149.0.7827.200",
     "viewport": "1280x900"
@@ -30,7 +30,7 @@
       "TENDERS"
     ],
     "docsContrast": {
-      "checked": 198,
+      "checked": 195,
       "failures": []
     }
   },
