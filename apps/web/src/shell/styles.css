@@ -2235,6 +2235,7 @@ main {
 
 .safe-tender-form-header,
 .safe-tender-form-body,
+.safe-tender-validation,
 .safe-tender-submit,
 .safe-tender-form > .safe-tender-setup,
 .safe-tender-form > .safe-handoff {
@@ -2434,6 +2435,57 @@ main {
   gap: 28px;
   grid-template-columns: minmax(0, 1fr) auto;
   padding: 24px 30px;
+}
+
+.safe-tender-validation {
+  align-items: center;
+  background: #fff0ec;
+  border: 1px solid var(--color-ink-black);
+  border-left: 7px solid #d43d2f;
+  display: flex;
+  gap: 14px;
+  margin: 0 30px 20px;
+  padding: 14px 16px;
+}
+
+.safe-tender-validation > span {
+  align-items: center;
+  background: #d43d2f;
+  border-radius: 100%;
+  color: var(--color-paper-white);
+  display: flex;
+  flex: 0 0 28px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  height: 28px;
+  justify-content: center;
+}
+
+.safe-tender-validation > div {
+  display: grid;
+  gap: 3px;
+}
+
+.safe-tender-validation strong,
+.safe-tender-validation p {
+  font-family: var(--font-mono);
+}
+
+.safe-tender-validation strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.safe-tender-validation p {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.safe-tender-form input[aria-invalid="true"] {
+  background: #fff0ec;
+  border: 2px solid #d43d2f;
 }
 
 .safe-tender-submit > div {
@@ -3966,6 +4018,11 @@ footer p {
   .safe-tender-submit {
     align-items: stretch;
     padding: 22px 20px;
+  }
+
+  .safe-tender-validation {
+    align-items: flex-start;
+    margin: 0 20px 16px;
   }
 
   .safe-tender-submit > .primary-button {

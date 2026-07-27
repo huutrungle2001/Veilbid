@@ -681,6 +681,7 @@ export function SafeTreasuryWorkspace({
   const [discoveryStage, setDiscoveryStage] = useState<string | null>(null);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tenderValidationError, setTenderValidationError] = useState<string | null>(null);
   const [result, setResult] = useState<SafePreparationResult | null>(null);
   const [fundAmount, setFundAmount] = useState("100");
   const [storedProposals, setStoredProposals] = useState<StoredSafeProposal[]>([]);
@@ -710,6 +711,7 @@ export function SafeTreasuryWorkspace({
       ),
     );
     setError(null);
+    setTenderValidationError(null);
     setSafeReadWarning(null);
     try {
       const inspected = await inspectSafeConfiguration({ safe, account });
@@ -760,6 +762,7 @@ export function SafeTreasuryWorkspace({
   useEffect(() => {
     setStage(null);
     setError(null);
+    setTenderValidationError(null);
     setResult(null);
     setConfiguration(null);
     setSelectedSafe(null);
@@ -1206,12 +1209,28 @@ export function SafeTreasuryWorkspace({
 
   async function prepare() {
     if (!connected || !configuration) return;
+    const missingFields = [
+      !input.metadata.trim() ? "public metadata" : null,
+      !input.ceiling.trim() ? "public ceiling" : null,
+      !input.deadline.trim() ? "bid deadline" : null,
+      vendorCount === 0 ? "at least one approved vendor" : null,
+    ].filter((field): field is string => field !== null);
+    setError(null);
+    if (missingFields.length > 0) {
+      setTenderValidationError(
+        `Complete ${missingFields.join(", ")} before creating the tender.`,
+      );
+      return;
+    }
     try {
       parseSafeTenderInput(input);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Invalid tender input.");
+      setTenderValidationError(
+        cause instanceof Error ? cause.message : "Check the tender details and try again.",
+      );
       return;
     }
+    setTenderValidationError(null);
     await runAction("CREATE SAFE TENDER", (onStage) =>
       prepareSafeTender({
         input,
@@ -1349,6 +1368,7 @@ export function SafeTreasuryWorkspace({
   const vendorCount = vendorRows.filter((vendor) => vendor.trim()).length;
 
   function updateVendor(index: number, value: string) {
+    setTenderValidationError(null);
     const pasted = value.split(/[\s,]+/).filter(Boolean);
     const next = [...vendorRows];
     if (pasted.length > 1) {
@@ -1363,6 +1383,7 @@ export function SafeTreasuryWorkspace({
   }
 
   function removeVendor(index: number) {
+    setTenderValidationError(null);
     const next = vendorRows.filter((_, itemIndex) => itemIndex !== index);
     setInput((current) => ({
       ...current,
@@ -1372,6 +1393,7 @@ export function SafeTreasuryWorkspace({
 
   function addVendor() {
     if (vendorRows.length >= 8) return;
+    setTenderValidationError(null);
     setInput((current) => ({
       ...current,
       vendors: [...vendorRows, ""].join("\n"),
@@ -1675,27 +1697,35 @@ export function SafeTreasuryWorkspace({
                   <span>Public metadata</span>
                   <input
                     value={input.metadata}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      setTenderValidationError(null);
                       setInput((current) => ({
                         ...current,
                         metadata: event.target.value,
-                      }))
-                    }
+                      }));
+                    }}
                     placeholder="Procurement title or terms fingerprint source"
+                    aria-invalid={Boolean(
+                      tenderValidationError && !input.metadata.trim(),
+                    )}
                   />
                 </label>
                 <label>
                   <span>Public ceiling (vUSDC)</span>
                   <input
                     value={input.ceiling}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      setTenderValidationError(null);
                       setInput((current) => ({
                         ...current,
                         ceiling: event.target.value,
-                      }))
-                    }
+                      }));
+                    }}
                     inputMode="decimal"
                     placeholder="100"
+                    aria-invalid={Boolean(
+                      tenderValidationError && !input.ceiling.trim(),
+                    )}
                   />
                 </label>
                 <label>
@@ -1703,12 +1733,16 @@ export function SafeTreasuryWorkspace({
                   <input
                     type="datetime-local"
                     value={input.deadline}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      setTenderValidationError(null);
                       setInput((current) => ({
                         ...current,
                         deadline: event.target.value,
-                      }))
-                    }
+                      }));
+                    }}
+                    aria-invalid={Boolean(
+                      tenderValidationError && !input.deadline.trim(),
+                    )}
                   />
                 </label>
               </section>
@@ -1734,6 +1768,9 @@ export function SafeTreasuryWorkspace({
                           value={vendor}
                           onChange={(event) => updateVendor(index, event.target.value)}
                           placeholder="0x…"
+                          aria-invalid={Boolean(
+                            tenderValidationError && vendorCount === 0,
+                          )}
                         />
                       </label>
                       {vendorRows.length > 1 && (
@@ -1758,6 +1795,16 @@ export function SafeTreasuryWorkspace({
                 </button>
               </fieldset>
             </div>
+
+            {tenderValidationError && (
+              <div className="safe-tender-validation" role="alert">
+                <span aria-hidden="true">!</span>
+                <div>
+                  <strong>CHECK TENDER DETAILS</strong>
+                  <p>{tenderValidationError}</p>
+                </div>
+              </div>
+            )}
 
             <footer className="safe-tender-submit">
               <div>
