@@ -12,7 +12,7 @@
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T19:35:00+07:00
+- Last updated: 2026-07-27T20:01:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -84,6 +84,7 @@ Only one phase may be `In progress`.
 | Safe Buyer confidential focus | Approved | User | 2026-07-27 | Keep only vcUSDC and its private reveal control inside `SELECTED SAFE`; omit public ETH/vUSDC balances and general withdrawals because Safe Wallet already owns that surface. Remove the old Treasury Actions panel before implementing the separately verified full/custom unwrap experience. |
 | Safe confidential asset exits | Verified | Agent | 2026-07-27 | Adapter `0x779b…9ff9` has exact Sourcify creation/runtime mappings and canonical-wrapper binding. Sepolia E2E funded the release Safe, executed atomic partial preparation/unwrap with replay protection, finalized the exact partial amount in memory, then full-unwrapped/finalized the remainder while preserving owners and threshold. |
 | Safe confidential frontend release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_2R1QhA9CSF6VLUnGRoBcRYVQVgmS` is aliased to `https://veilbid-three.vercel.app`; three production routes, desktop/mobile browser capture, canonical Sepolia state, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed without wallet or confidential data access. |
+| Consolidated Safe controls release | Verified | Agent | 2026-07-27 | Vercel deployment `dpl_Eq5LN1QzBrTjDbN9GofRcGfgFhXV` merges setup/funding into `SELECTED SAFE`, replaces Full/Custom tabs with one custom amount field plus a Full shortcut, and renumbers tender creation to step 2. Production route, desktop/mobile, keyboard, sticky-layout, canonical-state, and 198 Docs contrast checks passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
