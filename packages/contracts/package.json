@@ -33,6 +33,7 @@
     "test:sepolia:release:two-vendor": "node --env-file-if-exists=../../.env.local test/sepolia/release-two-vendor.sepolia.mjs",
     "preflight:release": "node --env-file-if-exists=../../.env.local scripts/preflight-release.sepolia.mjs",
     "deploy:release": "node --env-file-if-exists=../../.env.local scripts/deploy-release.sepolia.mjs",
+    "upgrade:review-market": "node --env-file-if-exists=../../.env.local scripts/upgrade-review-market.sepolia.mjs",
     "deploy:safe-factory": "node --env-file-if-exists=../../.env.local scripts/deploy-safe-module-factory.sepolia.mjs",
     "deploy:safe-unwrap-preparation": "node --env-file-if-exists=../../.env.local scripts/deploy-safe-unwrap-preparation.sepolia.mjs",
     "publish:sources:release": "node scripts/publish-release-sources.sepolia.mjs",
