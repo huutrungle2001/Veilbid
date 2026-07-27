@@ -1,7 +1,7 @@
 import type { PublicMarketIndex, PublicTender } from "@veilbid/chain-bindings";
 import { getTenderReadiness } from "@veilbid/chain-bindings";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useLocation, useSearchParams } from "react-router";
 import type { LoadedPublicMarket } from "../public-market/loadPublicMarket";
@@ -18,6 +18,11 @@ import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
 import { PrimaryNavigation } from "./PrimaryNavigation";
 import { ContextHelp } from "./ContextHelp";
+import {
+  formatLocalDeadline,
+  formatUtcDeadline,
+  remainingTimeLabel,
+} from "../time/tenderTime";
 import {
   RoleWorkspace,
   type InteractiveRole,
@@ -76,14 +81,6 @@ function shortAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
-function timestampLabel(timestamp: bigint) {
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(new Date(Number(timestamp) * 1_000));
-}
-
 function StatusBadge({ status }: { status: PublicTender["status"] }) {
   const verified = ["Awarded", "Refunded"].includes(status);
   const encrypted = ["Open", "Closed"].includes(status);
@@ -98,6 +95,33 @@ function StatusBadge({ status }: { status: PublicTender["status"] }) {
       </span>
       {status.toUpperCase()}
     </span>
+  );
+}
+
+function TenderDeadline({
+  timestamp,
+  detail = false,
+}: {
+  timestamp: bigint;
+  detail?: boolean;
+}) {
+  const [nowMilliseconds, setNowMilliseconds] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setNowMilliseconds(Date.now()),
+      1_000,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+  return (
+    <>
+      {formatLocalDeadline(timestamp)}
+      {detail ? (
+        <small>On-chain: {formatUtcDeadline(timestamp)} UTC</small>
+      ) : (
+        <small>{remainingTimeLabel(timestamp, nowMilliseconds)}</small>
+      )}
+    </>
   );
 }
 
@@ -131,7 +155,7 @@ function TenderCard({
         </span>
       </span>
       <span className="card-deadline">
-        Deadline · {timestampLabel(tender.bidDeadline)}
+        Deadline · <TenderDeadline timestamp={tender.bidDeadline} />
       </span>
       <span className="card-footer">
         <StatusBadge status={tender.status} />
@@ -260,7 +284,9 @@ function TenderDetail({
         </div>
         <div>
           <dt>Bid deadline</dt>
-          <dd>{timestampLabel(tender.bidDeadline)} UTC</dd>
+          <dd>
+            <TenderDeadline timestamp={tender.bidDeadline} detail />
+          </dd>
         </div>
         <div>
           <dt>Buyer / Safe</dt>
@@ -437,7 +463,7 @@ export function ExplorerView({
             onRefresh={onRetry}
           />
         ) : activeRole === "SAFE TREASURY" && wallet ? (
-          <SafeTreasuryWorkspace wallet={wallet} />
+          <SafeTreasuryWorkspace wallet={wallet} onRefresh={onRetry} />
         ) : (activeRole === "BUYER" || activeRole === "VENDOR") && wallet ? (
           <RoleWorkspace
             role={activeRole}

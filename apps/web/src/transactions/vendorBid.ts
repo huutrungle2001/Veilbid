@@ -47,6 +47,7 @@ export async function submitVendorBid({
   account,
   tenderId,
   publicCeiling,
+  bidDeadline,
   priceInput,
   onStage,
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
@@ -55,11 +56,17 @@ export async function submitVendorBid({
   account: Address;
   tenderId: bigint;
   publicCeiling: bigint;
+  bidDeadline: bigint;
   priceInput: string;
   onStage: (stage: VendorBidStage) => void;
   rpcUrl?: string;
 }): Promise<VendorBidResult> {
   const price = parseVendorPrice(priceInput, publicCeiling);
+  if (bidDeadline <= BigInt(Math.floor(Date.now() / 1_000))) {
+    throw new Error(
+      "This tender's bid deadline has passed. Choose another active tender.",
+    );
+  }
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(rpcUrl),

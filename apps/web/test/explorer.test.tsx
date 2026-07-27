@@ -323,11 +323,42 @@ describe("Tender Room public explorer", () => {
     );
 
     expect(
-      screen.getByText(/No confirmed tender is accepting bids/i),
+      screen.getByText(/No confirmed, unexpired tender is accepting bids/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/has not submitted a bid/i),
     ).toBeInTheDocument();
+  });
+
+  it("removes expired Open tenders from the Vendor selector", () => {
+    const expired = state();
+    expired.data = {
+      ...expired.data!,
+      index: {
+        ...expired.data!.index,
+        tenders: expired.data!.index.tenders.map((tender) => ({
+          ...tender,
+          bidDeadline: 1n,
+        })),
+      },
+    };
+    render(
+      <MemoryRouter initialEntries={["/room"]}>
+        <ExplorerView
+          state={expired}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="VENDOR"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByText(/No confirmed, unexpired tender is accepting bids/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /No active tenders/i }))
+      .toBeInTheDocument();
   });
 
   it("opens the primary Safe Buyer workspace", () => {

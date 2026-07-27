@@ -7,6 +7,13 @@ import {
 } from "../transactions/vendorBid";
 import type { WalletController } from "../wallet/WalletPanel";
 import { useToasts } from "../shell/ToastProvider";
+import {
+  formatLocalDeadline,
+  formatUtcDeadline,
+  isTenderAcceptingBids,
+  remainingTimeLabel,
+} from "../time/tenderTime";
+import { transactionErrorMessage } from "../transactions/errors";
 
 const stageLabels: Record<VendorBidStage, string> = {
   checking: "Checking admission",
@@ -27,9 +34,12 @@ export function VendorBidForm({
   onConfirmed: () => void;
 }) {
   const toasts = useToasts();
+  const [nowMilliseconds, setNowMilliseconds] = useState(() => Date.now());
   const openTenders = useMemo(
-    () => tenders.filter((tender) => tender.status === "Open"),
-    [tenders],
+    () => tenders.filter((tender) =>
+      isTenderAcceptingBids(tender, nowMilliseconds),
+    ),
+    [nowMilliseconds, tenders],
   );
   const [tenderId, setTenderId] = useState("");
   const [price, setPrice] = useState("");
@@ -52,6 +62,24 @@ export function VendorBidForm({
     setTransactionHash(null);
   }, [wallet.state.sessionRevision]);
 
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setNowMilliseconds(Date.now()),
+      1_000,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (
+      tenderId &&
+      !openTenders.some((tender) => tender.tenderId.toString() === tenderId)
+    ) {
+      setTenderId("");
+      setError("The selected tender has expired. Choose another active tender.");
+    }
+  }, [openTenders, tenderId]);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!connected || !selected) return;
@@ -67,6 +95,7 @@ export function VendorBidForm({
         account: wallet.state.account!,
         tenderId: selected.tenderId,
         publicCeiling: selected.publicCeiling,
+        bidDeadline: selected.bidDeadline,
         priceInput: price,
         onStage: (nextStage) => {
           setStage(nextStage);
@@ -87,9 +116,10 @@ export function VendorBidForm({
         "Bid submission stopped. Review the wallet request and tender state.",
       );
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Bid submission failed before confirmation.",
+        transactionErrorMessage(
+          cause,
+          "Bid submission failed before confirmation. No transaction was sent.",
+        ),
       );
     }
   }
@@ -101,7 +131,7 @@ export function VendorBidForm({
         <h2>Encrypt and submit one immutable price.</h2>
       </div>
       <label>
-        Open tender
+        Active tender
         <select
           value={tenderId}
           onChange={(event) => setTenderId(event.target.value)}
@@ -110,7 +140,7 @@ export function VendorBidForm({
         >
           <option value="">
             {openTenders.length === 0
-              ? "No Open tenders available"
+              ? "No active tenders available"
               : "Select confirmed dossier"}
           </option>
           {openTenders.map((tender) => (
@@ -119,15 +149,25 @@ export function VendorBidForm({
               value={tender.tenderId.toString()}
             >
               Tender {tender.tenderId.toString()} · ceiling{" "}
-              {Number(tender.publicCeiling) / 1_000_000} vUSDC
+              {Number(tender.publicCeiling) / 1_000_000} vUSDC ·{" "}
+              {remainingTimeLabel(tender.bidDeadline, nowMilliseconds)}
             </option>
           ))}
         </select>
       </label>
+      {selected && (
+        <div className="vendor-deadline-summary" aria-live="polite">
+          <span>
+            <strong>{remainingTimeLabel(selected.bidDeadline, nowMilliseconds)}</strong>
+            {formatLocalDeadline(selected.bidDeadline)}
+          </span>
+          <small>On-chain: {formatUtcDeadline(selected.bidDeadline)} UTC</small>
+        </div>
+      )}
       {openTenders.length === 0 && (
         <p className="form-empty-hint" role="status">
-          No confirmed tender is accepting bids. Check Public and refresh
-          after the buyer opens a tender.
+          No confirmed, unexpired tender is accepting bids. Check Public and
+          refresh after the buyer opens a tender.
         </p>
       )}
       <label>
