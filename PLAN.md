@@ -5,15 +5,15 @@
 
 ## 1. Current status
 
-- Current phase: Phase 6 — Safe treasury UX completion
-- Status: Waiting for approval
-- Next action: User verifies the local Safe balance viewer, ETH/vUSDC
-  withdrawals, full vcUSDC unwrap/finalize, and adaptive pending/history UX;
-  then promote the tested web patch before returning to submission.
+- Current phase: Phase 6 — Confidential Safe asset exits
+- Status: In progress
+- Next action: Commit and push the vcUSDC-focused Safe Buyer simplification,
+  then design and verify threshold-authorized full/custom unwrap without
+  expanding the public-asset UI.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
-- Awaiting approval from: User for production promotion.
-- Last updated: 2026-07-27T18:11:14+07:00
+- Awaiting approval from: None during implementation.
+- Last updated: 2026-07-27T19:03:28+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -82,6 +82,7 @@ Only one phase may be `In progress`.
 | iExec Hello World registration | Verified | Agent | 2026-07-27 | Wallet `0x8234…4A55` deployed the official-pattern confidential Piggy Bank and completed encrypted deposit, owner decrypt, encrypted withdrawal, and final owner decrypt on Ethereum Sepolia. |
 | Safe discovery hotfix | Local verified | Agent | 2026-07-27 | Corrected the API Kit base path from the obsolete root to `/api`, restored seven indexed owner Safes, and added direct on-chain ownership verification. The local UX now presents explicit Safe cards, highlights rather than auto-opens the last-used Safe, responds immediately with selection/loading state, caches inspected status, ignores stale RPC responses, and automatically fails over from Thirdweb to independent Sepolia providers. Awaiting user confirmation before production promotion. |
 | Safe treasury management | Local verified | Agent | 2026-07-27 | Added selected-Safe ETH/vUSDC balances, threshold-authorized per-handle vcUSDC reveal, ETH/vUSDC withdrawals, full confidential unwrap plus public-proof finalization, on-chain finalized-request recovery, and adaptive Pending Approvals/Transaction History. Typed lint, 70 Tender Room tests, production build, desktop mock-wallet smoke, and 390px overflow smoke pass; Sepolia writes remain user-controlled and the patch is not yet promoted. |
+| Safe Buyer confidential focus | Approved | User | 2026-07-27 | Keep only vcUSDC and its private reveal control inside `SELECTED SAFE`; omit public ETH/vUSDC balances and general withdrawals because Safe Wallet already owns that surface. Remove the old Treasury Actions panel before implementing the separately verified full/custom unwrap experience. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks

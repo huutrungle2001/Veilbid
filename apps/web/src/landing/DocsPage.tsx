@@ -249,7 +249,7 @@ export function DocsPage() {
               <div><dt>No wallet detected</dt><dd>Unlock or install an EIP-6963 compatible browser wallet, then reload. Public mode remains available.</dd></div>
               <div><dt>Wrong network</dt><dd>Open the header wallet menu and select SWITCH TO SEPOLIA. Write actions remain disabled until chain 11155111 is active.</dd></div>
               <div><dt>Public state unavailable</dt><dd>Retry the Sepolia read. VeilBid deliberately shows an error instead of substituting mock data.</dd></div>
-              <div><dt>Wrap or unwrap is unavailable</dt><dd>Connect on Sepolia and request Test USDC first. Safe Buyer can withdraw public assets or unwrap its full vcUSDC balance from Treasury Actions; the unwrap amount and recipient become public.</dd></div>
+              <div><dt>Safe assets are not listed</dt><dd>Safe Buyer intentionally shows only vcUSDC. Open the selected account in Safe Wallet to inspect or transfer public ETH, vUSDC, and unrelated assets.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
               <div><dt>Auditor cannot reveal</dt><dd>Confirm the connected account has a grant for that exact bid handle; access to another bid does not carry over.</dd></div>
               <div><dt>Safe action unavailable</dt><dd>Confirm the connected wallet is a Safe owner and the live module is enabled. Enabling or re-enabling it requires a normal Safe threshold transaction.</dd></div>
