@@ -111,8 +111,8 @@ export function DocsPage() {
               { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
               { title: "Create funded tender", copy: "Simulate, review, and sign the tender creation transaction. The public terms and encrypted budget are bound together." },
-              { title: "Prove exact funding", copy: "Request the public equality result proving escrow equals the ceiling, without opening the confidential balance itself." },
-              { title: "Open bidding", copy: "Confirm the proof on-chain. The tender becomes Open only after exact funding is verified." },
+              { title: "Prove exact funding", copy: "The web waits for the public equality result proving escrow equals the ceiling, without opening the confidential balance itself." },
+              { title: "Open bidding", copy: "Confirm the permissionless proof transaction in the connected wallet. The relay remains a fallback if the browser flow stops." },
             ]} />
             <p className="docs-note">
               If the funding proof is interrupted, do not create another
@@ -130,7 +130,7 @@ export function DocsPage() {
             <h2>Submit your bid or review authorized bids.</h2>
             <StepList steps={[
               { title: "Connect the approved account", copy: "The connected address must occupy an approved vendor slot on an Open tender." },
-              { title: "Select the tender", copy: "Check the public ceiling, deadline, buyer, and admission status before entering any private value." },
+              { title: "Select the tender", copy: "Only Open, unexpired tenders are selectable. The local deadline, remaining time, and canonical UTC time are shown before any private value is entered." },
               { title: "Enter the bid privately", copy: "The plaintext exists only in the active browser session while the Nox input is prepared for this market." },
               { title: "Encrypt for the market", copy: "Bind the confidential input to the chain, market contract, tender, and connected vendor." },
               { title: "Simulate and sign", copy: "The app simulates the write first. Review the wallet request, sign once, and wait for confirmation." },
@@ -184,6 +184,8 @@ export function DocsPage() {
               { title: "Configure when creating", copy: "The tender form shows CONFIGURE THIS SAFE only when required. Its one-time threshold batch deploys/enables the deterministic module and binds the canonical Market." },
               { title: "Bind the review wallet", copy: "The connected owner is included in the threshold-approved tender calldata as its public review wallet. It gains no cross-bid access while Open; finalization grants scoped access automatically." },
               { title: "Reveal only when needed", copy: "The eye grants the connected owner viewer access to the current balance handle, then decrypts only in this browser session. A new handle requires a new grant." },
+              { title: "Validate the ceiling", copy: "Tender creation stays locked until the current Safe balance is revealed. The public ceiling cannot exceed that private session balance." },
+              { title: "Open the tender", copy: "After the Safe creation batch executes, the web waits for the exact-funding proof and asks the connected owner to submit the permissionless confirmation. Relay automation remains the fallback." },
               { title: "Enter an amount or use Full", copy: "The Full shortcut uses the encrypted balance directly without reveal. A custom amount first reveals the current balance privately, then encrypts only that amount for an atomic preparation + wrapper batch." },
               { title: "Finalize the public exit", copy: "After the Safe executes, FINALIZE UNWRAP completes the permissionless public proof and releases public vUSDC to the connected wallet. The amount and recipient become public; remaining vcUSDC and bid values stay confidential." },
             ]} />

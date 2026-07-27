@@ -191,9 +191,11 @@ không phải Safe proposal và không cần cấu hình module trước.
 1. Khi vcUSDC hiển thị `••••••`, bấm nút con mắt.
 2. Nếu handle chưa được cấp quyền, ký Safe proposal cấp connected owner làm
    viewer cho balance handle hiện tại.
-3. Với Safe 1/1, chờ execution hoàn tất rồi bấm con mắt lần nữa.
-4. Ký yêu cầu data-access của Nox.
-5. Kiểm tra plaintext chỉ xuất hiện trong phiên hiện tại.
+3. Với Safe 1/1, web chờ execution hoàn tất rồi tự chuyển sang bước decrypt;
+   không bấm con mắt lần thứ hai.
+4. Ký yêu cầu data-access của Nox trong cùng luồng thông báo.
+5. Kiểm tra plaintext xuất hiện ngay sau chữ ký cuối và chỉ tồn tại trong phiên
+   hiện tại.
 6. Sau funding, transfer hoặc unwrap, balance handle đổi; web phải yêu cầu cấp
    quyền lại thay vì tái sử dụng viewer grant cũ.
 
@@ -221,8 +223,8 @@ ngay bên cạnh.
 #### Rút lượng tùy chỉnh
 
 1. Nếu `FULL ✓` đang được chọn, bấm lại nút đó để quay về nhập amount.
-2. Nếu balance chưa reveal, bấm `AUTHORIZE BALANCE VIEW`, chờ Safe proposal
-   execute, rồi bấm `REVEAL BALANCE`.
+2. Nếu balance chưa reveal, bấm `REVEAL BALANCE`; web tự chạy viewer grant,
+   chờ Safe execute rồi nối tiếp sang decrypt mà không cần bấm lại.
 3. Nhập số vcUSDC nhỏ hơn balance vừa reveal. Muốn rút hết thì chuyển về
    `FULL`, không nhập đúng bằng balance trong Custom.
 4. Kiểm tra recipient là ví đang kết nối và bấm `PROPOSE CUSTOM UNWRAP`.
@@ -280,9 +282,13 @@ Approved vendors:
 
 Các bước tạo tender:
 
-1. Kiểm tra deadline còn đủ thời gian để gửi hai bid.
-2. Bấm `CREATE WITH SAFE`.
-3. Theo dõi toast qua các giai đoạn:
+1. Trong `TENDER TERMS`, bấm `REVEAL BALANCE` và hoàn tất viewer grant/decrypt
+   nếu balance hiện tại chưa được reveal. Nút Create phải bị khóa trước bước
+   này.
+2. Nhập public ceiling không lớn hơn `AVAILABLE SAFE vcUSDC`; web phải chặn
+   ngay nếu vượt balance. Kiểm tra deadline còn đủ thời gian gửi hai bid.
+3. Bấm `CREATE WITH SAFE`.
+4. Theo dõi toast qua các giai đoạn:
    - Tự tạo và kiểm tra một nonce nội bộ chưa từng dùng. Người dùng không phải
      nhập nonce.
    - Mã hóa confidential budget cho module riêng của Safe.
@@ -291,24 +297,24 @@ Các bước tạo tender:
    - Chờ Safe owner ký approval.
    - Publish proposal lên Safe Transaction Service.
    - Khi threshold đạt đủ, gửi transaction thực thi batch lên Sepolia.
-4. Với Safe threshold `1/1`, xác nhận một chữ ký Safe và một
+5. Với Safe threshold `1/1`, xác nhận một chữ ký Safe và một
    transaction thực thi trong MetaMask.
-5. Kiểm tra phần kết quả hiển thị:
-   - Safe transaction hash.
-   - Threshold progress đúng với Safe đã chọn.
-   - Link `Confirmed on Sepolia`.
-6. Nếu Safe Transaction Service chưa cập nhật, bấm `REFRESH SIGNATURES`.
-   `COPY BATCH JSON` và `OPEN SAFE` chỉ là handoff phục hồi, không phải bước
-   bắt buộc của luồng threshold `1/1`.
-7. Nếu là multisig, proposal chưa đủ chữ ký xuất hiện trong
+6. Sau khi Safe batch tạo tender, chờ web lấy exact-funding proof rồi xác nhận
+   giao dịch permissionless `confirmTenderFunding`. Trong điều kiện Sepolia/Nox
+   bình thường bước `FundingPending → Open` mất khoảng 25–30 giây.
+7. Với Safe 1/1 đã execute, kiểm tra toast thành công và tender chuyển sang
+   `Open`; chi tiết transaction được thu gọn vào `TRANSACTION HISTORY`, không
+   hiện khối calldata sau tác vụ thành công.
+8. Với multisig chưa đủ chữ ký, handoff đang chờ mới hiển thị threshold progress,
+   `REFRESH SIGNATURES`, `COPY BATCH JSON` và `OPEN SAFE` để tiếp tục/phục hồi.
+9. Nếu là multisig, proposal chưa đủ chữ ký xuất hiện trong
    `PENDING APPROVALS` và tự refresh trạng thái. Với Safe 1/1, action đã execute
    chuyển vào `TRANSACTION HISTORY` thu gọn. Browser chỉ lưu Safe address, Safe
    transaction hash, loại action và timestamp công khai; không lưu handle,
    proof, chữ ký, recipient, amount hoặc plaintext.
-8. Ghi lại Tender ID từ `PUBLIC` sau khi transaction được index.
-9. Tender ban đầu có thể ở `FundingPending`. Relay sẽ lấy public
-    exact-funding proof và gọi confirmation mà không cần Buyer ký thêm.
-10. Refresh `PUBLIC` cho đến khi tender chuyển sang `Open`.
+10. Ghi lại Tender ID từ `PUBLIC` sau khi transaction được index. Nếu browser
+    đóng, ví từ chối hoặc proof tạm thời chưa có, Activity checkpoint và relay
+    sẽ tiếp tục làm fallback; không tạo lại tender.
 
 Kết quả mong đợi:
 
@@ -321,7 +327,9 @@ Kết quả mong đợi:
 - Public ceiling là `10 vUSDC`.
 - Hai địa chỉ Vendor là metadata công khai.
 - Safe owner không tự động thấy plaintext bid của Vendor.
-- Relay funding không nhận plaintext amount, handle hay proof từ người dùng.
+- Relay không nhận plaintext balance. Browser chỉ giữ balance Safe đã reveal
+  trong state của phiên hiện tại để kiểm tra ceiling; handle/proof không được
+  lưu vào checkpoint.
 
 ## 5. Vendor 1 gửi bid
 
@@ -332,7 +340,9 @@ Kết quả mong đợi:
 ```
 
 2. Mở workspace `PRIVATE BIDS`.
-3. Chọn tender vừa tạo.
+3. Chọn tender vừa tạo. Dropdown chỉ liệt kê tender `Open` còn hạn, hiển thị
+   giờ local của máy, countdown và thời gian UTC on-chain. Tender hết hạn phải
+   tự biến mất và không được encrypt/simulate.
 4. Nhập private bid:
 
 ```text
@@ -480,10 +490,10 @@ ví cá nhân sở hữu, không cần Safe.
    - Wrap sang confidential vcUSDC.
    - Authorize Market operator.
    - Create và fund tender.
-6. Khi toast báo tender đã submit, không chờ browser tự lấy funding proof như
-   phiên bản cũ. Relay sẽ confirm exact funding và mở tender.
-7. Nếu relay chậm hoặc thao tác bị gián đoạn, mở `ACTIVITY` và dùng checkpoint
-   funding tương ứng.
+6. Khi tender được tạo, chờ browser lấy exact-funding proof rồi xác nhận giao
+   dịch `confirmTenderFunding`; tender chuyển sang `Open` ngay trong luồng.
+7. Nếu đóng tab, từ chối chữ ký hoặc proof tạm thời chưa sẵn sàng, relay sẽ làm
+   fallback. Có thể mở `ACTIVITY` để resume checkpoint funding tương ứng.
 
 Kết quả mong đợi:
 
@@ -530,7 +540,7 @@ Thực hiện thêm các trường hợp:
 - [ ] Optional: EOA vcUSDC reveal chỉ tồn tại trong session.
 - [ ] Safe Buyer tạo atomic preparation/create batch thành công.
 - [ ] Safe transaction đạt threshold và được execute trên Sepolia.
-- [ ] Relay confirm exact funding thành công.
+- [ ] Web confirm exact funding thành công; relay/Activity fallback vẫn hoạt động.
 - [ ] Tender chuyển sang `Open`.
 - [ ] Hai Vendor gửi hai bid mã hóa.
 - [ ] Public hiển thị `2 / 2` Vendor đã bid và không lộ giá.

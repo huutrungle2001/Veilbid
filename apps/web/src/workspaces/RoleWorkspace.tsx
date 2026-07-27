@@ -34,7 +34,7 @@ export function RoleWorkspace({
                   "Connect the Sepolia wallet that will own the tender.",
                   "Enter public metadata, the vUSDC ceiling, a future deadline, and 1–8 approved vendor addresses.",
                   "Confirm the guided faucet, wrap, operator approval, and creation transactions in order.",
-                  "The relay confirms exact funding and opens the tender; Activity remains a manual recovery path.",
+                  "Wait for the Nox funding proof, then confirm the permissionless transaction that opens the tender. The relay remains a fallback.",
                 ]
               : [
                   "Connect the exact Sepolia account approved by the buyer.",
@@ -90,8 +90,8 @@ export function RoleWorkspace({
                 "Acquire and wrap test vUSDC",
                 "Approve market operator",
                 "Create funded tender",
-                "Relay verifies exact funding",
-                "Relay opens tender on-chain",
+                "Wait for exact-funding proof",
+                "Confirm and open tender on-chain",
               ]
             : [
                 "Verify vendor admission",
