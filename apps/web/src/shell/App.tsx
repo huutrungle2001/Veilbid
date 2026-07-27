@@ -267,6 +267,10 @@ function TenderDetail({
           <dd title={tender.buyer}>{shortAddress(tender.buyer)}</dd>
         </div>
         <div>
+          <dt>Review wallet</dt>
+          <dd title={tender.reviewViewer}>{shortAddress(tender.reviewViewer)}</dd>
+        </div>
+        <div>
           <dt>Sealed bids</dt>
           <dd>{tender.bidCount} / {tender.approvedVendorCount} vendors</dd>
         </div>

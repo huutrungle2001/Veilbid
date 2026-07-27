@@ -4,10 +4,9 @@ const navItems = [
   ["overview", "OVERVIEW"],
   ["quick-start", "QUICK START"],
   ["public", "PUBLIC EXPLORER"],
-  ["buyer", "BUYER GUIDE"],
-  ["vendor", "VENDOR GUIDE"],
+  ["buyer", "EOA BUYER / ADVANCED"],
+  ["vendor", "PRIVATE BIDS"],
   ["activity", "CLOSE & RECOVERY"],
-  ["auditor", "AUDITOR"],
   ["safe", "SAFE TREASURY"],
   ["architecture", "ARCHITECTURE"],
   ["privacy", "PRIVACY"],
@@ -72,7 +71,7 @@ export function DocsPage() {
             <h2>Inspect first. Connect only when needed.</h2>
             <StepList steps={[
               { title: "Open Tenders", copy: "Use the TENDERS link to load confirmed public state. No wallet is required to browse; recent records are marked until finality." },
-              { title: "Choose a workspace", copy: "Switch between Public, Buyer, Vendor, Activity, Auditor, and Safe Treasury from the workspace bar." },
+              { title: "Choose a workspace", copy: "The primary bar contains Public, Safe Buyer, Private Bids, and Activity. EOA Buyer remains under Advanced as a fallback." },
               { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
@@ -104,10 +103,10 @@ export function DocsPage() {
           </section>
 
           <section id="buyer">
-            <p className="eyebrow">BUYER GUIDE</p>
-            <h2>Create an exactly funded tender.</h2>
+            <p className="eyebrow">EOA BUYER / ADVANCED FALLBACK</p>
+            <h2>Create an exactly funded tender without a Safe.</h2>
             <StepList steps={[
-              { title: "Connect a Sepolia wallet", copy: "Open the Buyer workspace and connect the account that will own the tender. The demo uses test vUSDC only." },
+              { title: "Connect a Sepolia wallet", copy: "Expand Advanced, open EOA Buyer, and connect the account that will own the tender. Safe Buyer is the primary product flow." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
               { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
@@ -120,12 +119,15 @@ export function DocsPage() {
               tender. Open Activity and resume the stored public checkpoint.
               The eye beside vcUSDC performs an explicit, session-only reveal
               and appears disabled when no confidential balance exists.
+              The EOA is also bound as the review wallet: it cannot inspect
+              other vendors’ bids while Open and receives scoped access
+              automatically only after finalization.
             </p>
           </section>
 
           <section id="vendor">
-            <p className="eyebrow">VENDOR GUIDE</p>
-            <h2>Submit one immutable sealed price.</h2>
+            <p className="eyebrow">PRIVATE BIDS / VENDOR &amp; REVIEWER</p>
+            <h2>Submit your bid or review authorized bids.</h2>
             <StepList steps={[
               { title: "Connect the approved account", copy: "The connected address must occupy an approved vendor slot on an Open tender." },
               { title: "Select the tender", copy: "Check the public ceiling, deadline, buyer, and admission status before entering any private value." },
@@ -141,6 +143,12 @@ export function DocsPage() {
                 There is no edit or plaintext recovery path in the public UI.
               </p>
             </div>
+            <p className="docs-note">
+              The same workspace also checks per-bid ACL before revealing a
+              stored bid. Vendors can reveal or share only their own bid. A
+              tender’s public review wallet is authorized automatically after
+              proof-derived finalization, never while the tender is Open.
+            </p>
           </section>
 
           <section id="activity">
@@ -161,22 +169,6 @@ export function DocsPage() {
             ]} />
           </section>
 
-          <section id="auditor">
-            <p className="eyebrow">AUDITOR / SELECTIVE DISCLOSURE</p>
-            <h2>Reveal one granted bid, not the whole auction.</h2>
-            <p>
-              A vendor can grant access to its own stored bid. After close, the
-              buyer can grant a per-handle viewer. In Auditor, connect the
-              intended viewer, select the public bid reference, check its ACL,
-              and reveal only after authorization succeeds.
-            </p>
-            <ul className="docs-checklist">
-              <li>The revealed value is session-only and clears when the wallet account or chain changes.</li>
-              <li>A viewer grant provides no token operator, Safe signer, buyer, vendor, or administrator authority.</li>
-              <li>Do not capture plaintext values in screenshots, logs, or committed evidence.</li>
-            </ul>
-          </section>
-
           <section id="safe">
             <p className="eyebrow">SAFE TREASURY</p>
             <h2>Preparation is not execution.</h2>
@@ -190,6 +182,7 @@ export function DocsPage() {
             <StepList steps={[
               { title: "Select and fund", copy: "Select a Safe card or paste an address. DEPOSIT TO SAFE approves public test vUSDC from the connected wallet and wraps vcUSDC directly to that Safe." },
               { title: "Configure when creating", copy: "The tender form shows CONFIGURE THIS SAFE only when required. Its one-time threshold batch deploys/enables the deterministic module and binds the canonical Market." },
+              { title: "Bind the review wallet", copy: "The connected owner is included in the threshold-approved tender calldata as its public review wallet. It gains no cross-bid access while Open; finalization grants scoped access automatically." },
               { title: "Reveal only when needed", copy: "The eye grants the connected owner viewer access to the current balance handle, then decrypts only in this browser session. A new handle requires a new grant." },
               { title: "Enter an amount or use Full", copy: "The Full shortcut uses the encrypted balance directly without reveal. A custom amount first reveals the current balance privately, then encrypts only that amount for an atomic preparation + wrapper batch." },
               { title: "Finalize the public exit", copy: "After the Safe executes, FINALIZE UNWRAP completes the permissionless public proof and releases public vUSDC to the connected wallet. The amount and recipient become public; remaining vcUSDC and bid values stay confidential." },
@@ -208,7 +201,7 @@ export function DocsPage() {
             <p className="eyebrow">ARCHITECTURE</p>
             <h2>Four boundaries, one settlement path.</h2>
             <dl className="docs-definition-grid">
-              <div><dt>Tender Room</dt><dd>Wallet-free public index plus Buyer, Vendor, Activity, Auditor, and Safe workspaces.</dd></div>
+              <div><dt>Tender Room</dt><dd>Wallet-free public index plus Safe Buyer, Private Bids, Activity, and advanced EOA Buyer workspaces.</dd></div>
               <div><dt>Auction House</dt><dd>Non-upgradeable market, ERC-7984 demo assets, non-transferable receipt, and preparation-only Safe module.</dd></div>
               <div><dt>Settlement Relay</dt><dd>Stateless permissionless close and finalize automation with bounded, sequential actions.</dd></div>
               <div><dt>Operator Console</dt><dd>Strict-schema MCP stdio tools with no signer, write, or private-decryption surface.</dd></div>
@@ -224,9 +217,9 @@ export function DocsPage() {
             <p className="eyebrow">PRIVACY MAP</p>
             <h2>Public coordination is not anonymous bidding.</h2>
             <div className="privacy-table" role="table" aria-label="Data visibility">
-              <div role="row"><strong role="cell">Public</strong><span role="cell">Tender ID, buyer, vendors, ceiling, deadline, status, winner, hashes, receipt.</span></div>
+              <div role="row"><strong role="cell">Public</strong><span role="cell">Tender ID, buyer, review wallet, vendors, ceiling, deadline, status, winner, hashes, receipt.</span></div>
               <div role="row"><strong role="cell">Confidential</strong><span role="cell">Bid values, best price, payment and refund values, confidential balances.</span></div>
-              <div role="row"><strong role="cell">Selective</strong><span role="cell">One stored bid may be revealed only to its vendor or explicit per-handle viewers.</span></div>
+              <div role="row"><strong role="cell">Selective</strong><span role="cell">A stored bid is visible to its vendor, vendor-granted viewers, and the tender review wallet only after finalization.</span></div>
             </div>
           </section>
 
@@ -258,7 +251,7 @@ export function DocsPage() {
               <div><dt>Safe assets are not listed</dt><dd>Safe Buyer intentionally shows only vcUSDC. Open the selected account in Safe Wallet to inspect or transfer public ETH, vUSDC, and unrelated assets.</dd></div>
               <div><dt>Custom unwrap is unavailable</dt><dd>Reveal the current Safe vcUSDC balance first. Full unwrap does not require reveal. Both modes need the Safe threshold, followed by public-proof finalization.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
-              <div><dt>Auditor cannot reveal</dt><dd>Confirm the connected account has a grant for that exact bid handle; access to another bid does not carry over.</dd></div>
+              <div><dt>Review wallet cannot reveal</dt><dd>Confirm the tender is finalized and the connected account matches its public review wallet. Vendor grants still apply only to that exact bid handle.</dd></div>
               <div><dt>Safe action unavailable</dt><dd>Confirm the connected wallet is a Safe owner and the live module is enabled. Enabling or re-enabling it requires a normal Safe threshold transaction.</dd></div>
             </dl>
           </section>
@@ -271,7 +264,7 @@ export function DocsPage() {
               <li>VeilBid does not verify delivered service quality or prevent off-chain collusion.</li>
               <li>The current release is Sepolia test infrastructure, not audited or mainnet-ready software.</li>
               <li>A closed tender waits for a valid Nox proof; there is no buyer timeout override or plaintext fallback.</li>
-              <li>Safe preparation does not bypass the Safe threshold, and auditor access does not imply custody authority.</li>
+              <li>Safe preparation does not bypass the Safe threshold, and review access does not imply custody authority.</li>
             </ul>
             <div className="docs-actions">
               <Link className="primary-button" to="/room">USE THE APP →</Link>

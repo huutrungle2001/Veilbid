@@ -170,9 +170,7 @@ export function DisclosurePanel({
       </label>
       {eligible.length === 0 && (
         <p className="form-empty-hint" role="status">
-          {role === "VENDOR"
-            ? "This wallet has not submitted a bid in the indexed tenders."
-            : "Buyer disclosure becomes available only for this wallet's tenders after the Open stage."}
+          This wallet has not submitted a bid in the indexed tenders.
         </p>
       )}
       <label>
@@ -182,8 +180,8 @@ export function DisclosurePanel({
       <div className="privacy-confirmation">
         <strong>IRREVERSIBLE PER-HANDLE GRANT</strong>
         <span>
-          Vendors may grant their own bid at any time. EOA buyers may grant only
-          after Open; Safe buyers must use a threshold-authorized Safe transaction.
+          A Vendor may optionally share only its own selected bid. Tender review
+          wallets receive their access automatically after finalization.
         </span>
       </div>
       <div className="form-actions">

@@ -165,7 +165,7 @@ export function LandingPage() {
           <div>
             <details>
               <summary>Do I need a wallet to inspect VeilBid?</summary>
-              <p>No. Public tender state is wallet-free. Connect only for Buyer, Vendor, Activity, Auditor, or Safe actions.</p>
+              <p>No. Public tender state is wallet-free. Connect only for Safe Buyer, Private Bids, Activity, or advanced EOA Buyer actions.</p>
             </details>
             <details>
               <summary>Which wallets work?</summary>
