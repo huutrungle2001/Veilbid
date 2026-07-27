@@ -109,6 +109,7 @@ export function decodeVeilBidPublicEvent(
         buyer: addressArgument(args, "buyer"),
         metadataHash: hexArgument(args, "metadataHash"),
         paymentToken: addressArgument(args, "paymentToken"),
+        reviewViewer: addressArgument(args, "reviewViewer"),
         publicCeiling: bigintArgument(args, "publicCeiling"),
         bidDeadline: bigintArgument(args, "bidDeadline"),
         approvedVendorCount: numberArgument(args, "approvedVendorCount"),

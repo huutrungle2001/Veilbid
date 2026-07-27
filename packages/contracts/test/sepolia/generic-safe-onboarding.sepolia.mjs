@@ -335,6 +335,7 @@ async function main() {
   const nonce = BigInt(Date.now());
   const actionDataHash = await market.read.hashTenderAction([
     safeAddress,
+    owner.address,
     metadataHash,
     ceiling,
     deadline,
@@ -378,6 +379,7 @@ async function main() {
           ceiling,
           deadline,
           vendors,
+          owner.address,
           predictedModule,
           nonce,
         ],

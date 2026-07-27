@@ -9,6 +9,7 @@ function tender(tenderId: bigint, status: "Open" | "Closed") {
   return {
     tenderId,
     buyer,
+    reviewViewer: buyer,
     paymentToken: buyer,
     metadataHash: hash,
     publicCeiling: 1n,

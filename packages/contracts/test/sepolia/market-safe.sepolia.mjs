@@ -282,6 +282,7 @@ async function main() {
   const nonce = 1n;
   const actionDataHash = await market.read.hashTenderAction([
     safeAddress,
+    owner.address,
     metadataHash,
     budget,
     deadline,
@@ -332,7 +333,7 @@ async function main() {
     marketArtifact,
     marketAddress,
     "createTenderAuthorized",
-    [metadataHash, budget, deadline, vendors, moduleAddress, nonce],
+    [metadataHash, budget, deadline, vendors, owner.address, moduleAddress, nonce],
   );
   evidence.assertions.directOwnerCreateRejected = true;
 
@@ -348,6 +349,7 @@ async function main() {
         budget,
         deadline,
         vendors,
+        owner.address,
         moduleAddress,
         nonce,
       ],

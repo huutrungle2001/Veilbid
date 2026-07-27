@@ -33,6 +33,7 @@ function state(
           {
             tenderId: 1n,
             buyer,
+            reviewViewer: buyer,
             paymentToken: buyer,
             metadataHash: `0x${"33".repeat(32)}`,
             publicCeiling: 100_000_000n,

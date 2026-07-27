@@ -527,6 +527,7 @@ async function main() {
     () =>
       market.read.hashTenderAction([
         safeAddress,
+        owner.address,
         metadataHash,
         budget,
         bidDeadline,
@@ -568,6 +569,7 @@ async function main() {
         budget,
         bidDeadline,
         vendors,
+        owner.address,
         moduleAddress,
         moduleNonce,
       ],

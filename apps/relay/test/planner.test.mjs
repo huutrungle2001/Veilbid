@@ -9,6 +9,7 @@ function tender(tenderId, status, bidDeadline = 100n) {
   return {
     tenderId,
     buyer: address,
+    reviewViewer: address,
     paymentToken: address,
     metadataHash: hash,
     publicCeiling: 1n,

@@ -1356,6 +1356,7 @@ export async function prepareSafeTender({
     functionName: "hashTenderAction",
     args: [
       configuration.safe,
+      account,
       terms.metadataHash,
       terms.publicCeiling,
       terms.bidDeadline,
@@ -1397,6 +1398,7 @@ export async function prepareSafeTender({
       terms.publicCeiling,
       terms.bidDeadline,
       terms.approvedVendors,
+      account,
       configuration.module,
       nonce,
     ],

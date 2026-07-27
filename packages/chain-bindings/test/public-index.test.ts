@@ -26,6 +26,7 @@ function lifecycle(): VeilBidPublicEvent[] {
       name: "TenderCreated",
       tenderId: 1n,
       buyer,
+      reviewViewer: buyer,
       metadataHash,
       paymentToken: token,
       publicCeiling: 100n,

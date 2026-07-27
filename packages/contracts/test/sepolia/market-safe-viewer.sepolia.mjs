@@ -262,6 +262,7 @@ async function main() {
   const nonce = 2n;
   const actionDataHash = await market.read.hashTenderAction([
     safeAddress,
+    owner.address,
     metadataHash,
     budget,
     deadline,
@@ -298,6 +299,7 @@ async function main() {
         budget,
         deadline,
         vendors,
+        owner.address,
         moduleAddress,
         nonce,
       ],

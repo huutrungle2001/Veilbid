@@ -9,6 +9,7 @@ const hash = `0x${"33".repeat(32)}`;
 const publicTender = {
   tenderId: 1n,
   buyer,
+  reviewViewer: buyer,
   paymentToken: buyer,
   metadataHash: hash,
   publicCeiling: 1_000_000n,

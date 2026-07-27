@@ -19,6 +19,7 @@ function service() {
             {
               tenderId: 1n,
               buyer,
+              reviewViewer: buyer,
               paymentToken: buyer,
               metadataHash: hash,
               publicCeiling: 1n,

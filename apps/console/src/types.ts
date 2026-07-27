@@ -43,6 +43,7 @@ export interface PublicOperatorSource {
 export interface PublicTenderOutput {
   tenderId: string;
   buyer: Address;
+  reviewViewer: Address;
   paymentToken: Address;
   metadataHash: Hex;
   publicCeiling: string;

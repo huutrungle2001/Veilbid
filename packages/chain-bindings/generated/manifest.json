@@ -5,7 +5,7 @@
     {
       "contractName": "VeilBidMarket",
       "abi": "abis/VeilBidMarket.json",
-      "sha256": "83d2337ff7d5fc8f6913010a53b8a7f8244931fe0896e460f2ae9c313b624de0"
+      "sha256": "0fe556076046bd2e6c5400f85bd9e963af377183dbf42bf427eb7b6e1a8b11d7"
     },
     {
       "contractName": "VeilBidAwardReceipt",

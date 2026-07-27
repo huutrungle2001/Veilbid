@@ -13,6 +13,7 @@ export type VeilBidPublicEvent =
       buyer: Address;
       metadataHash: Hex;
       paymentToken: Address;
+      reviewViewer: Address;
       publicCeiling: bigint;
       bidDeadline: bigint;
       approvedVendorCount: number;

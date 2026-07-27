@@ -259,6 +259,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "reviewViewer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "publicCeiling",
         "type": "uint256"
@@ -574,6 +580,11 @@
         "type": "address[]"
       },
       {
+        "internalType": "address",
+        "name": "reviewViewer",
+        "type": "address"
+      },
+      {
         "internalType": "contract IVeilBidSafePreparationModule",
         "name": "module",
         "type": "address"
@@ -679,6 +690,11 @@
           {
             "internalType": "address",
             "name": "buyer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "reviewViewer",
             "type": "address"
           },
           {
@@ -812,6 +828,11 @@
       {
         "internalType": "address",
         "name": "buyer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "reviewViewer",
         "type": "address"
       },
       {

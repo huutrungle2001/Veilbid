@@ -13,6 +13,7 @@ function tender(
   return {
     tenderId: 1n,
     buyer,
+    reviewViewer: buyer,
     paymentToken: other,
     metadataHash: `0x${"33".repeat(32)}`,
     publicCeiling: 100n,

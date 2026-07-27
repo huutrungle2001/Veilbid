@@ -25,6 +25,7 @@ function publicTender(tender: PublicTender): PublicTenderOutput {
   return {
     tenderId: tender.tenderId.toString(),
     buyer: tender.buyer,
+    reviewViewer: tender.reviewViewer,
     paymentToken: tender.paymentToken,
     metadataHash: tender.metadataHash,
     publicCeiling: tender.publicCeiling.toString(),

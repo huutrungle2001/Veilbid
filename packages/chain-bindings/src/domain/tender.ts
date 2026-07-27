@@ -14,6 +14,7 @@ export type TenderStatus = (typeof tenderStatuses)[number];
 export interface PublicTender {
   tenderId: bigint;
   buyer: Address;
+  reviewViewer: Address;
   paymentToken: Address;
   metadataHash: Hex;
   publicCeiling: bigint;

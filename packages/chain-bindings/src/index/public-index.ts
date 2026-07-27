@@ -96,6 +96,7 @@ export function buildPublicMarketIndex(
       tenders.set(event.tenderId, {
         tenderId: event.tenderId,
         buyer: event.buyer,
+        reviewViewer: event.reviewViewer,
         paymentToken: event.paymentToken,
         metadataHash: event.metadataHash,
         publicCeiling: event.publicCeiling,
