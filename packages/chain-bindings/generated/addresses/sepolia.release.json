@@ -5,7 +5,7 @@
   "kind": "release",
   "deploymentState": "configured",
   "verified": true,
-  "sourceCommit": "c528b2ef4d4f5d754ca71d5e7f88c94247d0deba",
+  "sourceCommit": "e69eeadfa4b62948e66c539f6e3ff5e2c9707a6c",
   "deployedBy": "0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E",
   "safe": {
     "version": "1.4.1",
@@ -82,7 +82,6 @@
     "This is VeilBid's canonical Ethereum Sepolia release deployment.",
     "The threshold-1 Safe is the documented browser-demo configuration; all Safe-owned spending still requires a normal Safe transaction.",
     "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion.",
-    "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold.",
-    "Exact top-level creation/runtime mappings, embedded receipt runtime mapping, Safe source mapping, constructor calldata, runtime bytecode, receipts, wiring, and operational state were verified before promotion."
+    "Generic Safe module factory deployed for deterministic, per-Safe preparation modules; every setup still requires the selected Safe threshold."
   ]
 }

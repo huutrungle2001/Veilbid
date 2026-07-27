@@ -8,7 +8,7 @@
     "sourceProvider": "sourcify-v2"
   },
   "publicIdentifiers": {
-    "sourceCommit": "c528b2ef4d4f5d754ca71d5e7f88c94247d0deba",
+    "sourceCommit": "e69eeadfa4b62948e66c539f6e3ff5e2c9707a6c",
     "contracts": {
       "VeilBidTestUSDC": "0xeE9A2B02C8700596b4814923c4086786c63A9D01",
       "VeilBidConfidentialUSDC": "0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1",
