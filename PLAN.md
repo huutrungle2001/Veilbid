@@ -5,15 +5,15 @@
 
 ## 1. Current status
 
-- Current phase: Phase 7 — Submission
+- Current phase: Phase 6 — Safe treasury UX completion
 - Status: Waiting for approval
-- Next action: Enter Hello World wallet
-  `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` in the hackathon registration
-  form, then record the short demo/video and voice-over.
+- Next action: User verifies the local Safe balance viewer, ETH/vUSDC
+  withdrawals, full vcUSDC unwrap/finalize, and adaptive pending/history UX;
+  then promote the tested web patch before returning to submission.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
-- Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T13:41:44+07:00
+- Awaiting approval from: User for production promotion.
+- Last updated: 2026-07-27T18:11:14+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -46,7 +46,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
@@ -80,6 +80,8 @@ Only one phase may be `In progress`.
 | Generic Safe contract release | Verified | Agent | 2026-07-27 | Factory `0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4` has exact Sourcify creation/runtime mappings and the full release verifier passed. Independent Safe `0xC85A…B752` completed threshold setup, Safe-owned funding, and atomic tender #4 while preserving owners/threshold. |
 | Generic Safe frontend release | Verified | Agent | 2026-07-27 | Production deployment `dpl_HCFBAXRiSpm8nePzKutQ7kzQhSsr` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, keyboard navigation, release bindings, and bundled factory address checks passed. |
 | iExec Hello World registration | Verified | Agent | 2026-07-27 | Wallet `0x8234…4A55` deployed the official-pattern confidential Piggy Bank and completed encrypted deposit, owner decrypt, encrypted withdrawal, and final owner decrypt on Ethereum Sepolia. |
+| Safe discovery hotfix | Local verified | Agent | 2026-07-27 | Corrected the API Kit base path from the obsolete root to `/api`, restored seven indexed owner Safes, and added direct on-chain ownership verification. The local UX now presents explicit Safe cards, highlights rather than auto-opens the last-used Safe, responds immediately with selection/loading state, caches inspected status, ignores stale RPC responses, and automatically fails over from Thirdweb to independent Sepolia providers. Awaiting user confirmation before production promotion. |
+| Safe treasury management | Local verified | Agent | 2026-07-27 | Added selected-Safe ETH/vUSDC balances, threshold-authorized per-handle vcUSDC reveal, ETH/vUSDC withdrawals, full confidential unwrap plus public-proof finalization, on-chain finalized-request recovery, and adaptive Pending Approvals/Transaction History. Typed lint, 70 Tender Room tests, production build, desktop mock-wallet smoke, and 390px overflow smoke pass; Sepolia writes remain user-controlled and the patch is not yet promoted. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
