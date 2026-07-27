@@ -203,8 +203,8 @@ flowchart LR
 
 ### Off-chain components
 
-- **Web application:** public explorer plus Safe Buyer, Private Bids, Activity,
-  and an advanced EOA Buyer fallback.
+- **Web application:** public explorer plus Safe Buyer, EOA Buyer, Private
+  Bids, and Activity workspaces.
 - **Settlement relay:** stateless public readiness discovery and bounded
   close/finalize automation.
 - **Operator console:** five strict-schema, read-only public query tools exposed
@@ -264,7 +264,7 @@ security, or mainnet readiness.
    Records inside the 12-block finality window are labeled as pending finality;
    missing RPC/indexer data is shown as unavailable with no mock fallback.
 
-### EOA Buyer — advanced fallback
+### EOA Buyer — direct wallet
 
 1. Connect an injected EIP-6963 wallet and switch to Sepolia.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor

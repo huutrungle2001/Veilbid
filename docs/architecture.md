@@ -177,7 +177,7 @@ buyer refund during a Nox outage.
 - Wallet discovery and provider-specific reconnect.
 - Public event index with bounded RPC ranges, immediate confirmed-state display,
   and a separately labeled 12-block finality checkpoint.
-- Public, Safe Buyer, Private Bids, Activity, and advanced EOA Buyer workspaces.
+- Public, Safe Buyer, EOA Buyer, Private Bids, and Activity workspaces.
 - Safe Transaction Service discovery with a manual-address fallback.
 - Connected-wallet approve/wrap deposits into the selected Safe, tender-scoped
   one-time module setup, automatic preparation nonce allocation, and

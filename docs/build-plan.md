@@ -115,7 +115,7 @@ equivalent production contracts and tests remain separate from
 
 - [x] Build standalone landing and docs.
 - [x] Implement wallet-free tender explorer and detail routes.
-- [x] Implement Safe Buyer, Private Bids, and advanced EOA Buyer flows.
+- [x] Implement first-class Safe Buyer, EOA Buyer, Private Bids, and Activity flows.
 - [x] Implement Activity proof recovery.
 - [x] Merge post-finalization review and Vendor disclosure into Private Bids.
 - [x] Implement Safe Buyer workspace with Safe Transaction Service proposal,

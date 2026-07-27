@@ -5,8 +5,9 @@ Safe Buyer tạo tender bằng một Safe batch nguyên tử, hai Vendor gửi b
 relay công khai xác nhận funding/đóng/finalize, và review wallet chỉ được tự
 động cấp quyền xem bid sau finalization.
 
-Luồng chính là `SAFE BUYER`. `EOA BUYER` vẫn tồn tại như một phương án nâng cao
-để thử nghiệm hoặc phục hồi, không phải câu chuyện demo chính.
+Cả `SAFE BUYER` và `EOA BUYER` đều là chức năng chính trên thanh workspace.
+Video có thể ưu tiên Safe Buyer để nhấn mạnh Safe, còn EOA Buyer là luồng trực
+tiếp đầy đủ cho người dùng không muốn sử dụng Safe.
 
 ## 1. Chuẩn bị
 
@@ -457,10 +458,10 @@ cho confidential balance trừ khi chính holder thực hiện reveal được c
 Confidential payment và remainder được assert trong bộ test Sepolia và không
 lưu plaintext vào evidence công khai.
 
-## 10. EOA Buyer — fallback nâng cao
+## 10. EOA Buyer — luồng ví trực tiếp
 
-Chỉ dùng workspace `EOA BUYER` khi cần thử luồng ví cá nhân hoặc khi không có
-Safe mà ví hiện tại sở hữu.
+Workspace `EOA BUYER` nằm trực tiếp trên thanh chức năng chính và tạo tender do
+ví cá nhân sở hữu, không cần Safe.
 
 1. Kết nối EOA trên Sepolia.
 2. Bảo đảm EOA có Sepolia ETH. App có thể tự lấy Test USDC và wrap đúng public
@@ -485,8 +486,8 @@ Kết quả mong đợi:
 - EOA Buyer không được cung cấp winner và không tự động xem bid khi tender đang
   mở.
 - EOA Buyer được bind làm review wallet và tự nhận per-bid ACL sau finalization.
-- Đây là fallback; video submission nên ưu tiên Safe Buyer để giữ đúng định vị
-  “Confidential procurement for Safe treasuries”.
+- Luồng này được hỗ trợ đầy đủ; video submission vẫn có thể ưu tiên Safe Buyer
+  để giữ đúng định vị “Confidential procurement for Safe treasuries”.
 
 ## 11. Kiểm tra lỗi và session
 

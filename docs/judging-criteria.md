@@ -10,7 +10,7 @@
 | JUD-004 | `feedback.md` | 2/14 | Specific Nox comparison, ACL, proof, and Safe feedback |
 | JUD-005 | Video ≤4 minutes | 2/14 | One concise live lifecycle |
 | JUD-006 | Technical implementation | 1/14 | Nox encrypted argmin and ERC-7984 settlement |
-| JUD-007 | UX | 1/14 | Clear Public/Safe Buyer/Private Bids/Activity experiences with EOA Buyer as advanced fallback |
+| JUD-007 | UX | 1/14 | Clear Public/Safe Buyer/EOA Buyer/Private Bids/Activity experiences |
 
 ## Full-score evidence bar
 

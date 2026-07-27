@@ -5,15 +5,14 @@
 
 ## 1. Current status
 
-- Current phase: Phase 7 — Submission
-- Status: Waiting for approval
-- Next action: Record the demo video, publish the X post, and complete the
-  DoraHacks submission using the verified production release.
-- Current blocker: Product engineering is complete; submission media and final
-  publication remain user-controlled. The previous release is recoverable from
-  GitHub and local branch `backup/pre-auto-review-20260727`.
-- Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-27T21:39:00+07:00
+- Current phase: Phase 6 — Sepolia and product
+- Status: In progress
+- Next action: Restore EOA Buyer as a first-class workspace, validate, deploy,
+  and record the updated production evidence.
+- Current blocker: None. The previous release is recoverable from GitHub and
+  local branch `backup/pre-auto-review-20260727`.
+- Awaiting approval from: None during implementation.
+- Last updated: 2026-07-27T21:47:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -46,7 +45,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 3. Feasibility spikes | Prove handle persistence, encrypted argmin, public winner proof, and confidential settlement | All four mandatory gates pass | Completed |
 | 4. Build design | Freeze stack, contract interfaces, privacy model, milestones, and evidence schema | User approves Build Plan | Completed |
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
-| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
+| 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | In progress |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
 
 Only one phase may be `In progress`.
