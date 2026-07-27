@@ -28,6 +28,7 @@
     "test:sepolia:safe": "node --env-file-if-exists=../../.env.local test/sepolia/market-safe.sepolia.mjs",
     "test:sepolia:safe-viewer": "node --env-file-if-exists=../../.env.local test/sepolia/market-safe-viewer.sepolia.mjs",
     "test:sepolia:generic-safe": "node --env-file-if-exists=../../.env.local test/sepolia/generic-safe-onboarding.sepolia.mjs",
+    "test:sepolia:hello-world": "node --env-file-if-exists=../../.env.local test/sepolia/hackathon-hello-world.sepolia.mjs",
     "test:sepolia:release:two-vendor": "node --env-file-if-exists=../../.env.local test/sepolia/release-two-vendor.sepolia.mjs",
     "preflight:release": "node --env-file-if-exists=../../.env.local scripts/preflight-release.sepolia.mjs",
     "deploy:release": "node --env-file-if-exists=../../.env.local scripts/deploy-release.sepolia.mjs",

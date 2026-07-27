@@ -7,12 +7,13 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: Record the short demo/video and voice-over, then complete the
-  X post and DoraHacks submission when the user is ready.
+- Next action: Enter Hello World wallet
+  `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` in the hackathon registration
+  form, then record the short demo/video and voice-over.
 - Current blocker: None. The current verified release remains recoverable from
   GitHub and local branch `backup/pre-generic-safe-20260727`.
 - Awaiting approval from: None during implementation.
-- Last updated: 2026-07-27T13:10:03+07:00
+- Last updated: 2026-07-27T13:41:44+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -78,6 +79,7 @@ Only one phase may be `In progress`.
 | Generic Safe upgrade | Approved | User | 2026-07-27 | Replace the fixed demo-Safe-only Buyer experience with self-service Safe discovery, per-Safe module deployment, setup/funding, automatic nonce handling, and proposal recovery. The current release is preserved in GitHub and local backup branch `backup/pre-generic-safe-20260727`. |
 | Generic Safe contract release | Verified | Agent | 2026-07-27 | Factory `0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4` has exact Sourcify creation/runtime mappings and the full release verifier passed. Independent Safe `0xC85A…B752` completed threshold setup, Safe-owned funding, and atomic tender #4 while preserving owners/threshold. |
 | Generic Safe frontend release | Verified | Agent | 2026-07-27 | Production deployment `dpl_HCFBAXRiSpm8nePzKutQ7kzQhSsr` is aliased to `https://veilbid-three.vercel.app`; production route/desktop/mobile smoke, keyboard navigation, release bindings, and bundled factory address checks passed. |
+| iExec Hello World registration | Verified | Agent | 2026-07-27 | Wallet `0x8234…4A55` deployed the official-pattern confidential Piggy Bank and completed encrypted deposit, owner decrypt, encrypted withdrawal, and final owner decrypt on Ethereum Sepolia. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
