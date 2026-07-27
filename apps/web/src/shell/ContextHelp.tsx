@@ -50,16 +50,34 @@ export function ContextHelp({
     const trigger = triggerRef.current.getBoundingClientRect();
     const preferredWidth = 360;
     const gap = 12;
-    const rightSpace = window.innerWidth - trigger.right - gap - 16;
-    const opensRight = rightSpace >= 260;
-    const width = opensRight
-      ? Math.min(preferredWidth, rightSpace)
-      : Math.min(preferredWidth, window.innerWidth - 32);
-    const left = opensRight ? trigger.right + gap : 16;
-    const top = opensRight ? Math.max(16, trigger.top - 4) : trigger.bottom + gap;
+    const padding = 16;
+    const rightSpace = window.innerWidth - trigger.right - gap - padding;
+    const leftSpace = trigger.left - gap - padding;
+    const sideWidth = 260;
+    let width = Math.min(preferredWidth, window.innerWidth - padding * 2);
+    let left: number;
+    let top: number;
+    if (rightSpace >= sideWidth) {
+      width = Math.min(width, rightSpace);
+      left = trigger.right + gap;
+      top = Math.max(padding, trigger.top - 4);
+    } else if (leftSpace >= sideWidth) {
+      width = Math.min(width, leftSpace);
+      left = trigger.left - gap - width;
+      top = Math.max(padding, trigger.top - 4);
+    } else {
+      top = Math.min(
+        trigger.bottom + gap,
+        Math.max(padding, window.innerHeight - 220),
+      );
+      left = Math.min(
+        Math.max(padding, trigger.left + trigger.width / 2 - width / 2),
+        window.innerWidth - padding - width,
+      );
+    }
     setPortalStyle({
       left,
-      maxHeight: Math.max(180, window.innerHeight - top - 16),
+      maxHeight: Math.max(180, window.innerHeight - top - padding),
       top,
       width,
     });

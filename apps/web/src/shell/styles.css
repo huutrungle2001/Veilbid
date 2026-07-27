@@ -351,6 +351,67 @@ textarea:focus-visible {
   color: var(--color-ink-black);
 }
 
+.combined-workspace {
+  min-width: 0;
+}
+
+.workspace-subnav {
+  align-items: center;
+  background: var(--color-paper-white);
+  border-bottom: 1px solid var(--color-ink-black);
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 12px 30px;
+  position: sticky;
+  top: 72px;
+  z-index: 9;
+}
+
+.workspace-subnav-heading {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+}
+
+.workspace-subnav-links {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.workspace-subnav-links > button {
+  background: var(--color-paper-white);
+  border: 1px solid var(--color-ink-black);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  padding: 9px 14px;
+  text-align: left;
+}
+
+.workspace-subnav-links > button strong,
+.workspace-subnav-links > button small {
+  font-family: var(--font-mono);
+}
+
+.workspace-subnav-links > button strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.workspace-subnav-links > button small {
+  font-size: 0.6rem;
+}
+
+.workspace-subnav-links > button.active {
+  background: var(--color-veil-green);
+  color: var(--color-ink-black);
+}
+
 .sidebar-balances {
   border-top: 1px solid var(--color-ink-black);
   display: grid;
@@ -2407,48 +2468,6 @@ main {
   grid-column: 1 / -1;
 }
 
-.safe-tender-balance-check {
-  align-items: center;
-  background: var(--color-paper-warm);
-  border: 1px solid var(--color-ink-black);
-  display: grid;
-  gap: 8px 12px;
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 12px;
-}
-
-.safe-tender-balance-check[data-ready="true"] {
-  background: rgb(190 255 70 / 18%);
-}
-
-.safe-tender-balance-check > span {
-  display: grid;
-  gap: 3px;
-}
-
-.safe-tender-balance-check small,
-.safe-tender-balance-check strong {
-  font-family: var(--font-mono);
-}
-
-.safe-tender-balance-check > span small {
-  color: var(--color-ink-muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.07em;
-}
-
-.safe-tender-balance-check > span strong {
-  font-size: 0.88rem;
-}
-
-.safe-tender-balance-check > small {
-  color: var(--color-ink-muted);
-  font-size: 0.62rem;
-  grid-column: 1 / -1;
-  line-height: 1.4;
-}
-
 .safe-ceiling-error {
   grid-column: 1 / -1;
   margin: -7px 0 0;
@@ -2527,6 +2546,49 @@ main {
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.safe-tender-terms-heading {
+  align-items: center;
+  display: flex !important;
+  gap: 18px !important;
+  justify-content: space-between;
+  min-width: 0;
+  width: 100%;
+}
+
+.safe-tender-terms-heading > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.safe-tender-balance-inline {
+  align-items: center;
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  gap: 7px !important;
+}
+
+.safe-tender-balance-inline > span {
+  align-items: baseline;
+  display: inline-flex !important;
+  gap: 7px !important;
+}
+
+.safe-tender-balance-inline small {
+  color: var(--color-ink-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.safe-tender-balance-inline strong {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+.safe-tender-balance-inline[data-ready="true"] strong {
+  color: var(--color-ink-black);
 }
 
 .safe-tender-vendors {
@@ -3069,6 +3131,81 @@ main {
 .activity-card span {
   font-family: var(--font-mono);
   font-size: 0.7rem;
+}
+
+.activity-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.activity-history-card {
+  background: var(--color-paper-warm);
+  border: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.activity-history-heading {
+  align-items: end;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.activity-history-heading h3 {
+  font-size: 1.35rem;
+  margin: 4px 0 0;
+  text-transform: uppercase;
+}
+
+.activity-history-meta,
+.activity-history-timeline {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+}
+
+.activity-history-meta {
+  color: var(--color-ink-muted);
+  text-align: right;
+}
+
+.activity-history-timeline {
+  border-left: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 18px;
+}
+
+.activity-history-timeline li {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  position: relative;
+}
+
+.activity-history-timeline li::before {
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  content: "";
+  height: 8px;
+  left: -23px;
+  position: absolute;
+  width: 8px;
+}
+
+.activity-history-timeline span {
+  color: var(--color-ink-muted);
+  letter-spacing: 0.06em;
+}
+
+.activity-history-timeline a {
+  color: var(--color-ink-black);
+  font-weight: 700;
 }
 
 .empty-activity {
@@ -3891,6 +4028,29 @@ footer p {
     width: auto;
   }
 
+  .workspace-subnav {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 16px;
+    top: 190px;
+  }
+
+  .workspace-subnav-links {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workspace-subnav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workspace-subnav-links > button {
+    flex: 0 0 auto;
+    min-width: max-content;
+    padding: 8px 12px;
+  }
+
   .sidebar-balances {
     align-items: center;
     gap: 8px 12px;
@@ -4203,6 +4363,12 @@ footer p {
     grid-column: auto;
   }
 
+  .safe-tender-terms-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px 14px !important;
+  }
+
   .safe-tender-vendors legend {
     align-items: flex-start;
     gap: 12px;
@@ -4237,6 +4403,21 @@ footer p {
     align-items: stretch;
     flex-direction: column;
     gap: 20px;
+  }
+
+  .activity-history-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .activity-history-meta {
+    text-align: left;
+  }
+
+  .activity-history-timeline li {
+    align-items: start;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .dossier-list {

@@ -1993,9 +1993,58 @@ export function SafeTreasuryWorkspace({
               <section className="safe-tender-terms">
                 <div className="safe-tender-section-heading">
                   <span>01</span>
-                  <div>
-                    <strong>TENDER TERMS</strong>
-                    <small>Public procurement rules</small>
+                  <div className="safe-tender-terms-heading">
+                    <div>
+                      <strong>TENDER TERMS</strong>
+                      <small>Public procurement rules</small>
+                    </div>
+                    <div
+                      className="safe-tender-balance-inline"
+                      data-ready={currentRevealedBalance !== null}
+                    >
+                      <span>
+                        <small>vcUSDC</small>
+                        <strong>
+                          {currentRevealedBalance !== null
+                            ? formatUnits(currentRevealedBalance, 6)
+                            : configuration.balances.confidential === "encrypted"
+                              ? "••••••"
+                              : "0"}
+                        </strong>
+                      </span>
+                      <button
+                        className="balance-reveal safe-balance-eye"
+                        type="button"
+                        disabled={
+                          configuration.balances.confidential !== "encrypted" ||
+                          stage !== null ||
+                          revealPending
+                        }
+                        onClick={toggleBalanceReveal}
+                        aria-label={
+                          currentRevealedBalance !== null
+                            ? "Hide Safe vcUSDC balance"
+                            : "Reveal Safe vcUSDC balance"
+                        }
+                        title={
+                          currentRevealedBalance !== null
+                            ? "Hide vcUSDC"
+                            : "Reveal vcUSDC to validate the ceiling"
+                        }
+                      >
+                        {currentRevealedBalance !== null ? (
+                          <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+                            <path d="m4 4 16 16" />
+                            <path d="M10.6 6.1A10.6 10.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-2.2 2.9M14.4 17.7A10 10 0 0 1 12 18c-6 0-9.5-6-9.5-6a17 17 0 0 1 3.1-3.7" />
+                          </svg>
+                        ) : (
+                          <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                            <circle cx="12" cy="12" r="2.5" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <label className="safe-tender-metadata">
@@ -2034,42 +2083,6 @@ export function SafeTreasuryWorkspace({
                     )}
                   />
                 </label>
-                <div
-                  className="safe-tender-balance-check"
-                  data-ready={currentRevealedBalance !== null}
-                >
-                  <span>
-                    <small>AVAILABLE SAFE vcUSDC</small>
-                    <strong>
-                      {currentRevealedBalance !== null
-                        ? formatUnits(currentRevealedBalance, 6)
-                        : configuration.balances.confidential === "encrypted"
-                          ? "••••••"
-                          : "0"}
-                    </strong>
-                  </span>
-                  <button
-                    className="secondary-button"
-                    type="button"
-                    disabled={
-                      configuration.balances.confidential !== "encrypted" ||
-                      stage !== null ||
-                      revealPending
-                    }
-                    onClick={toggleBalanceReveal}
-                  >
-                    {currentRevealedBalance !== null
-                      ? "HIDE BALANCE"
-                      : "REVEAL BALANCE"}
-                  </button>
-                  <small>
-                    {currentRevealedBalance !== null
-                      ? "Private session value used to validate the public ceiling."
-                      : configuration.balances.confidential === "encrypted"
-                        ? "Reveal the Safe balance to validate your public ceiling."
-                        : "Deposit vcUSDC into this Safe before creating a tender."}
-                  </small>
-                </div>
                 {ceilingExceedsBalance && (
                   <p className="inline-error safe-ceiling-error" role="alert">
                     Public ceiling exceeds the available Safe vcUSDC balance.

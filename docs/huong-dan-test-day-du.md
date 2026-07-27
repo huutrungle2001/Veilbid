@@ -282,10 +282,10 @@ Approved vendors:
 
 Các bước tạo tender:
 
-1. Trong `TENDER TERMS`, bấm `REVEAL BALANCE` và hoàn tất viewer grant/decrypt
-   nếu balance hiện tại chưa được reveal. Nút Create phải bị khóa trước bước
-   này.
-2. Nhập public ceiling không lớn hơn `AVAILABLE SAFE vcUSDC`; web phải chặn
+1. Trong dòng `TENDER TERMS`, bấm con mắt cạnh giá trị `vcUSDC` và hoàn tất
+   viewer grant/decrypt nếu balance hiện tại chưa được reveal. Nút Create phải
+   bị khóa trước bước này.
+2. Nhập public ceiling không lớn hơn giá trị `vcUSDC` đã reveal; web phải chặn
    ngay nếu vượt balance. Kiểm tra deadline còn đủ thời gian gửi hai bid.
 3. Bấm `CREATE WITH SAFE`.
 4. Theo dõi toast qua các giai đoạn:
@@ -304,7 +304,8 @@ Các bước tạo tender:
    bình thường bước `FundingPending → Open` mất khoảng 25–30 giây.
 7. Với Safe 1/1 đã execute, kiểm tra toast thành công và tender chuyển sang
    `Open`; chi tiết transaction được thu gọn vào `TRANSACTION HISTORY`, không
-   hiện khối calldata sau tác vụ thành công.
+   hiện khối calldata sau tác vụ thành công. Mục lịch sử hiển thị cả Safe
+   transaction hash và execution transaction trên Etherscan.
 8. Với multisig chưa đủ chữ ký, handoff đang chờ mới hiển thị threshold progress,
    `REFRESH SIGNATURES`, `COPY BATCH JSON` và `OPEN SAFE` để tiếp tục/phục hồi.
 9. Nếu là multisig, proposal chưa đủ chữ ký xuất hiện trong
@@ -428,19 +429,22 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
 5. Nếu Nox proof chưa sẵn sàng, tender phải ở lại `Closed`; không được hiển thị
    mock success hoặc tự refund theo timeout.
 
-### Activity chỉ dùng khi relay chậm hoặc cần phục hồi
+### Activity & History: lịch sử và phục hồi
 
 1. Mở workspace `ACTIVITY`.
-2. Kiểm tra phần `RECOVERABLE CHECKPOINTS`. Nếu một thao tác browser trước đó
+2. Xem `LIFECYCLE HISTORY` để theo dõi tender, trạng thái công khai, transaction
+   tạo tender và transaction cập nhật trạng thái gần nhất. Các giá trị bid và
+   balance confidential không xuất hiện ở đây.
+3. Kiểm tra phần `RECOVERABLE CHECKPOINTS`. Nếu một thao tác browser trước đó
    bị gián đoạn, kết nối đúng ví và bấm `RESUME`.
-3. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, kết nối một ví có
+4. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, kết nối một ví có
    Sepolia ETH và xem `MANUAL RELAY FALLBACK`.
-4. Với tender đang `Open` và đã đủ điều kiện, bấm `CLOSE & TRACK`.
-5. Với tender đã `Closed`, bấm `TRACK PROOF`.
-6. Xác nhận transaction cần thiết trong MetaMask.
-7. Nếu proof chưa sẵn sàng, checkpoint vẫn phải còn trong
+5. Với tender đang `Open` và đã đủ điều kiện, bấm `CLOSE & TRACK`.
+6. Với tender đã `Closed`, bấm `TRACK PROOF`.
+7. Xác nhận transaction cần thiết trong MetaMask.
+8. Nếu proof chưa sẵn sàng, checkpoint vẫn phải còn trong
    `RECOVERABLE CHECKPOINTS`; thử `RESUME` sau, không tạo tender mới.
-8. Sang `PUBLIC` và refresh trạng thái.
+9. Sang `PUBLIC` và refresh trạng thái.
 
 Kết quả mong đợi:
 

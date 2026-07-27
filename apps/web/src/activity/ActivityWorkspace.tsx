@@ -89,6 +89,16 @@ export function ActivityWorkspace({
       }),
     [records, tenders],
   );
+  const lifecycleHistory = useMemo(
+    () =>
+      [...tenders].sort((left, right) => {
+        if (left.updatedBlock === right.updatedBlock) {
+          return Number(right.tenderId - left.tenderId);
+        }
+        return left.updatedBlock > right.updatedBlock ? -1 : 1;
+      }),
+    [tenders],
+  );
 
   async function resume(record: RecoveryRecord) {
     if (!connected) return;
@@ -180,7 +190,7 @@ export function ActivityWorkspace({
           ]}
           note="Recovery persists public identifiers and transaction references only—never plaintext values, handles, or proofs."
         />
-        <p className="eyebrow">ACTIVITY / AUTOMATION & RECOVERY</p>
+        <p className="eyebrow">ACTIVITY &amp; HISTORY / AUTOMATION &amp; RECOVERY</p>
         <h1>Automatic by default. Recoverable by design.</h1>
         <p>
           The web and relay can perform permissionless lifecycle writes. Manual
@@ -295,6 +305,76 @@ export function ActivityWorkspace({
                 </article>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      <section className="activity-section activity-history-section">
+        <header>
+          <div>
+            <p className="eyebrow">LIFECYCLE HISTORY</p>
+            <h2>{lifecycleHistory.length} dossiers</h2>
+          </div>
+          <ContextHelp
+            compact
+            label="Help for lifecycle history"
+            title="HOW TO READ LIFECYCLE HISTORY"
+            steps={[
+              "Each dossier is a public lifecycle record indexed from canonical Market events.",
+              "The timeline shows creation and the latest public state-changing transaction.",
+              "Safe proposal signatures and confidential values stay in their dedicated Safe/private surfaces.",
+            ]}
+            note="Only public identifiers, statuses, blocks, and transaction links are shown here."
+          />
+        </header>
+        {lifecycleHistory.length === 0 ? (
+          <p className="empty-activity">
+            No public tender history has been indexed yet.
+          </p>
+        ) : (
+          <div className="activity-history-list">
+            {lifecycleHistory.map((tender) => (
+              <article
+                className="activity-history-card"
+                key={tender.tenderId.toString()}
+              >
+                <div className="activity-history-heading">
+                  <div>
+                    <p className="eyebrow">TENDER {tender.tenderId.toString()}</p>
+                    <h3>{tender.status}</h3>
+                  </div>
+                  <span className="activity-history-meta">
+                    {tender.bidCount}/{tender.approvedVendorCount} bids · block {tender.updatedBlock.toString()}
+                  </span>
+                </div>
+                <ol className="activity-history-timeline">
+                  <li>
+                    <span>CREATED</span>
+                    <a
+                      href={`https://sepolia.etherscan.io/tx/${tender.createdTransaction}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {shortHash(tender.createdTransaction)} ↗
+                    </a>
+                  </li>
+                  {tender.updatedTransaction !== tender.createdTransaction && (
+                    <li>
+                      <span>
+                        LAST PUBLIC UPDATE · {tender.status.toUpperCase()}
+                      </span>
+                      <a
+                        href={`https://sepolia.etherscan.io/tx/${tender.updatedTransaction}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {shortHash(tender.updatedTransaction)} ↗
+                      </a>
+                    </li>
+                  )}
+                </ol>
+              </article>
+            ))}
           </div>
         )}
       </section>
