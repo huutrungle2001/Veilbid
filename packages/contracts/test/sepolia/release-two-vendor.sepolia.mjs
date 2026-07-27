@@ -89,8 +89,9 @@ let evidence = {
     confidentialWinnerSettlementVerifiedInMemory: false,
     losingVendorBalanceUnchangedInMemory: false,
     awardReceiptVerified: false,
-    directOwnerViewerGrantRejected: false,
-    safeThresholdCrossBidGrantVerifiedInMemory: false,
+    reviewViewerBoundAtCreation: false,
+    openReviewViewerDenied: false,
+    automaticPostFinalizeReviewVerifiedInMemory: false,
     replayRejected: false,
     releaseSafeStatePreserved: false,
   },
@@ -386,35 +387,9 @@ async function main() {
     ).value;
   }
 
-  async function runSafeDisclosure(tenderId, targetBid) {
-    stage = "SAFE_DISCLOSURE";
-    await expectMarketRevert(owner, "grantBidViewer", [
-      tenderId,
-      2n,
-      owner.address,
-    ]);
-    evidence.assertions.directOwnerViewerGrantRejected = true;
-    const alreadyGranted = await retry(
-      () =>
-        market.read.bidViewableBy([
-          tenderId,
-          2n,
-          owner.address,
-        ]),
-      "GRANTED_VIEWER_ACL_UNAVAILABLE",
-    );
-    if (!alreadyGranted) {
-      await safeCall(
-        "safeGrantCrossBidViewer",
-        marketAddress,
-        encodeFunctionData({
-          abi: marketArtifact.abi,
-          functionName: "grantBidViewer",
-          args: [tenderId, 2n, owner.address],
-        }),
-      );
-    }
-    evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory =
+  async function verifyAutomaticReview(tenderId, targetBid) {
+    stage = "AUTOMATIC_REVIEW";
+    evidence.assertions.automaticPostFinalizeReviewVerifiedInMemory =
       (await retry(
         () =>
           market.read.bidViewableBy([
@@ -435,7 +410,7 @@ async function main() {
         )
       ).value === secondPrice;
     assert.equal(
-      evidence.assertions.safeThresholdCrossBidGrantVerifiedInMemory,
+      evidence.assertions.automaticPostFinalizeReviewVerifiedInMemory,
       true,
     );
   }
@@ -482,14 +457,14 @@ async function main() {
       () => market.read.getBid([tenderId, 2n]),
       "SECOND_BID_UNAVAILABLE",
     );
-    await runSafeDisclosure(tenderId, targetBid);
+    await verifyAutomaticReview(tenderId, targetBid);
     await verifyReleaseState();
     saveEvidence();
     console.log(
       JSON.stringify({
         evidence: "evidence/sepolia/release-two-vendor.json",
         tenderId: evidence.publicIdentifiers.tenderId,
-        resumed: "safe-disclosure",
+        resumed: "automatic-review",
         assertions: evidence.assertions,
       }),
     );
@@ -599,6 +574,9 @@ async function main() {
     evidence.assertions.safePreparationAndFundingVerified,
     true,
   );
+  evidence.assertions.reviewViewerBoundAtCreation =
+    getAddress(pending.reviewViewer) === getAddress(owner.address);
+  assert.equal(evidence.assertions.reviewViewerBoundAtCreation, true);
   evidence.assertions.atomicSafeBatchVerified = true;
   const funding = await retry(
     () =>
@@ -740,6 +718,17 @@ async function main() {
       "OPEN_BUYER_ACL_UNAVAILABLE",
     )) === false;
   assert.equal(evidence.assertions.perVendorBidAclVerified, true);
+  evidence.assertions.openReviewViewerDenied =
+    (await retry(
+      () =>
+        market.read.bidViewableBy([
+          tenderId,
+          2n,
+          owner.address,
+        ]),
+      "OPEN_REVIEW_VIEWER_ACL_UNAVAILABLE",
+    )) === false;
+  assert.equal(evidence.assertions.openReviewViewerDenied, true);
   evidence.assertions.bothVendorBidsDecryptedInMemory =
     (
       await retry(
@@ -864,7 +853,7 @@ async function main() {
   ]);
   evidence.assertions.replayRejected = true;
 
-  await runSafeDisclosure(tenderId, secondBid);
+  await verifyAutomaticReview(tenderId, secondBid);
   await verifyReleaseState();
 
   saveEvidence();
