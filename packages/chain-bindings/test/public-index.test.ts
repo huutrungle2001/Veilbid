@@ -113,6 +113,18 @@ describe("buildPublicMarketIndex", () => {
       blockNumber: 16n,
       eventCount: 7,
     });
+    assert.deepEqual(
+      index.tenders[0].history?.map((event) => event.name),
+      [
+        "TenderCreated",
+        "TenderFunded",
+        "BidSubmitted",
+        "ViewerGranted",
+        "TenderClosed",
+        "TenderAwarded",
+        "ViewerGranted",
+      ],
+    );
   });
 
   it("rejects events before creation and changes after terminal state", () => {

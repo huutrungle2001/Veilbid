@@ -1,5 +1,6 @@
 import type {
   PublicBid,
+  PublicLifecycleEvent,
   PublicMarketIndex,
   PublicTender,
   TenderStatus,
@@ -55,7 +56,16 @@ function updateTender(
     ...changes,
     updatedBlock: event.blockNumber,
     updatedTransaction: event.transactionHash,
+    history: [...(tender.history ?? []), publicLifecycleEvent(event)],
   });
+}
+
+function publicLifecycleEvent(event: VeilBidPublicEvent): PublicLifecycleEvent {
+  return {
+    name: event.name,
+    blockNumber: event.blockNumber,
+    transactionHash: event.transactionHash,
+  };
 }
 
 function recordViewerGrant(
@@ -68,6 +78,7 @@ function recordViewerGrant(
     viewerGrantCount: tender.viewerGrantCount + 1,
     updatedBlock: event.blockNumber,
     updatedTransaction: event.transactionHash,
+    history: [...(tender.history ?? []), publicLifecycleEvent(event)],
   });
 }
 
@@ -112,6 +123,7 @@ export function buildPublicMarketIndex(
         updatedBlock: event.blockNumber,
         createdTransaction: event.transactionHash,
         updatedTransaction: event.transactionHash,
+        history: [publicLifecycleEvent(event)],
       });
       continue;
     }

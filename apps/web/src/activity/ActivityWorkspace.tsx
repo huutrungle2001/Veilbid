@@ -1,5 +1,6 @@
 import {
   getTenderReadiness,
+  type PublicLifecycleEvent,
   type PublicTender,
 } from "@veilbid/chain-bindings";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,6 +32,15 @@ const stageLabel: Record<RecoveryStage, string> = {
 
 function shortHash(value: string) {
   return `${value.slice(0, 10)}…${value.slice(-8)}`;
+}
+
+function lifecycleLabel(event: PublicLifecycleEvent) {
+  return event.name
+    .replace(/^Tender/, "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace("Bid Submitted", "BID RECEIVED")
+    .replace("Viewer Granted", "VIEWER ACCESS GRANTED")
+    .toUpperCase();
 }
 
 export function ActivityWorkspace({
@@ -348,30 +358,34 @@ export function ActivityWorkspace({
                   </span>
                 </div>
                 <ol className="activity-history-timeline">
-                  <li>
-                    <span>CREATED</span>
-                    <a
-                      href={`https://sepolia.etherscan.io/tx/${tender.createdTransaction}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {shortHash(tender.createdTransaction)} ↗
-                    </a>
-                  </li>
-                  {tender.updatedTransaction !== tender.createdTransaction && (
-                    <li>
-                      <span>
-                        LAST PUBLIC UPDATE · {tender.status.toUpperCase()}
+                  {(tender.history ?? [
+                    {
+                      name: "TenderCreated",
+                      blockNumber: tender.createdBlock,
+                      transactionHash: tender.createdTransaction,
+                    },
+                    ...(tender.updatedTransaction !== tender.createdTransaction
+                      ? [{
+                          name: tender.status,
+                          blockNumber: tender.updatedBlock,
+                          transactionHash: tender.updatedTransaction,
+                        }]
+                      : []),
+                  ]).map((event, index) => (
+                    <li key={`${event.transactionHash}-${event.name}-${index}`}>
+                      <span>{lifecycleLabel(event)}</span>
+                      <span className="activity-history-event-meta">
+                        <small>BLOCK {event.blockNumber.toString()}</small>
+                        <a
+                          href={`https://sepolia.etherscan.io/tx/${event.transactionHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {shortHash(event.transactionHash)} ↗
+                        </a>
                       </span>
-                      <a
-                        href={`https://sepolia.etherscan.io/tx/${tender.updatedTransaction}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {shortHash(tender.updatedTransaction)} ↗
-                      </a>
                     </li>
-                  )}
+                  ))}
                 </ol>
               </article>
             ))}

@@ -11,6 +11,12 @@ export const tenderStatuses = [
 
 export type TenderStatus = (typeof tenderStatuses)[number];
 
+export interface PublicLifecycleEvent {
+  name: string;
+  blockNumber: bigint;
+  transactionHash: Hex;
+}
+
 export interface PublicTender {
   tenderId: bigint;
   buyer: Address;
@@ -30,6 +36,8 @@ export interface PublicTender {
   updatedBlock: bigint;
   createdTransaction: Hex;
   updatedTransaction: Hex;
+  /** Public lifecycle checkpoints only; no confidential values are included. */
+  history?: readonly PublicLifecycleEvent[];
 }
 
 export interface PublicBid {
