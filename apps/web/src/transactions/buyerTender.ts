@@ -30,7 +30,6 @@ const wrapperAddress = deployment.contracts
   .VeilBidConfidentialUSDC.address as Address;
 
 export type BuyerTenderStage =
-  | "faucet"
   | "approve-wrapper"
   | "wrap"
   | "approve-market"
@@ -64,9 +63,6 @@ export function parseBuyerTender(
   }
   const publicCeiling = parseUnits(draft.ceilingInput.trim(), 6);
   if (publicCeiling === 0n) throw new Error("Public ceiling must be positive.");
-  if (publicCeiling > 10_000n * 1_000_000n) {
-    throw new Error("Public ceiling cannot exceed the 10,000 vUSDC test faucet.");
-  }
   const deadlineMilliseconds = Date.parse(draft.deadlineInput);
   if (
     !Number.isFinite(deadlineMilliseconds) ||
@@ -94,6 +90,20 @@ export function parseBuyerTender(
     bidDeadline: BigInt(Math.floor(deadlineMilliseconds / 1_000)),
     approvedVendors,
   };
+}
+
+export function requireTestUsdcBalance(
+  balance: unknown,
+  publicCeiling: bigint,
+) {
+  if (typeof balance !== "bigint") {
+    throw new Error("Test USDC balance response is malformed.");
+  }
+  if (balance < publicCeiling) {
+    throw new Error(
+      "Public ceiling exceeds this wallet's Test USDC balance. Use GET TEST USDC in BALANCES, then try again.",
+    );
+  }
 }
 
 export async function createBuyerTender({
@@ -139,10 +149,7 @@ export async function createBuyerTender({
     functionName: "balanceOf",
     args: [account],
   });
-  if (typeof balance !== "bigint" || balance < parsed.publicCeiling) {
-    onStage("faucet");
-    await transact(tokenAddress, tokenAbi, "faucet");
-  }
+  requireTestUsdcBalance(balance, parsed.publicCeiling);
   const allowance = await publicClient.readContract({
     address: tokenAddress,
     abi: tokenAbi,

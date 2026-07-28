@@ -76,7 +76,7 @@ export function RoleWorkspace({
               ? [
                   "Connect the Sepolia wallet that will own the tender.",
                   "Enter public metadata, the vUSDC ceiling, a future deadline, and 1–8 approved vendor addresses.",
-                  "Confirm the guided faucet, wrap, operator approval, and creation transactions in order.",
+                  "Ensure Test USDC covers the ceiling, then confirm wrap, operator approval, and creation in order.",
                   "Wait for the Nox funding proof, then confirm the permissionless transaction that opens the tender. The relay remains a fallback.",
                 ]
               : [
@@ -130,7 +130,7 @@ export function RoleWorkspace({
         <ol>
           {(buyer
             ? [
-                "Acquire and wrap test vUSDC",
+                "Check Test USDC and wrap the ceiling",
                 "Approve market operator",
                 "Create funded tender",
                 "Wait for exact-funding proof",

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseBuyerTender } from "../src/transactions/buyerTender";
+import {
+  parseBuyerTender,
+  requireTestUsdcBalance,
+} from "../src/transactions/buyerTender";
 
 const vendor = "0x1111111111111111111111111111111111111111";
 const otherVendor = "0x2222222222222222222222222222222222222222";
@@ -58,21 +61,22 @@ describe("Buyer tender validation", () => {
       parseBuyerTender(
         {
           ...base,
-          ceilingInput: "10000.000001",
-          deadlineInput: "2026-07-26T01:00:00Z",
-        },
-        now,
-      ),
-    ).toThrow("10,000");
-    expect(() =>
-      parseBuyerTender(
-        {
-          ...base,
           ceilingInput: "100",
           deadlineInput: "2026-07-25T23:00:00Z",
         },
         now,
       ),
     ).toThrow("future");
+  });
+
+  it("requires the wallet to acquire Test USDC before creation", () => {
+    expect(() => requireTestUsdcBalance(99_000_000n, 100_000_000n)).toThrow(
+      /GET TEST USDC/i,
+    );
+    expect(() => requireTestUsdcBalance(100_000_000n, 100_000_000n))
+      .not.toThrow();
+    expect(() => requireTestUsdcBalance("encrypted", 1n)).toThrow(
+      /malformed/i,
+    );
   });
 });

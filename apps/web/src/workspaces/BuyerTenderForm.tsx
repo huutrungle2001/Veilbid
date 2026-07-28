@@ -14,7 +14,6 @@ import type { Hex } from "viem";
 import { ContextHelp } from "../shell/ContextHelp";
 
 const labels: Record<BuyerTenderStage, string> = {
-  faucet: "Acquiring test USDC",
   "approve-wrapper": "Approving official wrapper",
   wrap: "Wrapping confidential vUSDC",
   "approve-market": "Authorizing market operator",
@@ -164,7 +163,8 @@ export function BuyerTenderForm({
             title="HOW TO CREATE AN EOA TENDER"
             steps={[
               "Enter public terms, ceiling, deadline, and approved vendors.",
-              "The connected wallet acquires, wraps, and funds the exact ceiling.",
+              "Ensure BALANCES has enough Test USDC; the form never calls the faucet automatically.",
+              "The connected wallet wraps and funds the exact ceiling.",
               "Confirm the funding proof so the tender becomes Open.",
             ]}
             note="If the browser stops after creation, Activity or the relay can recover funding confirmation."
