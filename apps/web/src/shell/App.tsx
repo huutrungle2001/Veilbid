@@ -41,6 +41,7 @@ type PublicTenderFilter =
   | "current"
   | "all"
   | "open"
+  | "ready-to-close"
   | "awarded"
   | "refunded"
   | "cancelled";
@@ -52,6 +53,7 @@ const publicTenderFilters: ReadonlyArray<{
   { value: "current", label: "Current & awarded" },
   { value: "all", label: "All tenders" },
   { value: "open", label: "Open" },
+  { value: "ready-to-close", label: "Ready to close" },
   { value: "awarded", label: "Awarded" },
   { value: "refunded", label: "Refunded" },
   { value: "cancelled", label: "Cancelled" },
@@ -64,11 +66,24 @@ function isPublicTenderFilter(value: string | null): value is PublicTenderFilter
 function filterPublicTenders(
   tenders: readonly PublicTender[],
   filter: PublicTenderFilter,
+  nowSeconds: bigint,
 ) {
   if (filter === "all") return tenders;
   if (filter === "current") {
     return tenders.filter((tender) =>
       ["FundingPending", "Open", "Closed", "Awarded"].includes(tender.status),
+    );
+  }
+  if (filter === "open") {
+    return tenders.filter(
+      (tender) =>
+        tender.status === "Open" &&
+        !getTenderReadiness(tender, nowSeconds).canClose,
+    );
+  }
+  if (filter === "ready-to-close") {
+    return tenders.filter(
+      (tender) => getTenderReadiness(tender, nowSeconds).canClose,
     );
   }
   const status = filter === "cancelled" ? "Cancelled" :
@@ -86,19 +101,31 @@ function shortAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
-function StatusBadge({ status }: { status: PublicTender["status"] }) {
+function StatusBadge({
+  status,
+  readyToClose = false,
+}: {
+  status: PublicTender["status"];
+  readyToClose?: boolean;
+}) {
   const verified = ["Awarded", "Refunded"].includes(status);
   const encrypted = ["Open", "Closed"].includes(status);
   return (
     <span
       className={`privacy-badge ${
-        verified ? "verified" : encrypted ? "encrypted" : ""
+        readyToClose
+          ? "ready"
+          : verified
+            ? "verified"
+            : encrypted
+              ? "encrypted"
+              : ""
       }`}
     >
       <span aria-hidden="true">
-        {verified ? "✓" : encrypted ? "◆" : "◌"}
+        {readyToClose ? "↻" : verified ? "✓" : encrypted ? "◆" : "◌"}
       </span>
-      {status.toUpperCase()}
+      {readyToClose ? "READY TO CLOSE" : status.toUpperCase()}
     </span>
   );
 }
@@ -134,11 +161,14 @@ function TenderCard({
   tender,
   selected,
   onSelect,
+  nowSeconds,
 }: {
   tender: PublicTender;
   selected: boolean;
   onSelect: () => void;
+  nowSeconds: bigint;
 }) {
+  const readyToClose = getTenderReadiness(tender, nowSeconds).canClose;
   return (
     <div className="tender-card-shell">
       <button
@@ -165,7 +195,7 @@ function TenderCard({
           Deadline · <TenderDeadline timestamp={tender.bidDeadline} />
         </span>
         <span className="card-footer">
-          <StatusBadge status={tender.status} />
+          <StatusBadge status={tender.status} readyToClose={readyToClose} />
           <span className="card-arrow" aria-hidden="true">
             →
           </span>
@@ -254,15 +284,17 @@ function TenderDetail({
   tender,
   indexedBlock,
   finalizedBlock,
+  nowSeconds,
 }: {
   tender: PublicTender;
   indexedBlock: bigint;
   finalizedBlock: bigint;
+  nowSeconds: bigint;
 }) {
   const finalityPending = tender.updatedBlock > finalizedBlock;
   const readiness = getTenderReadiness(
     tender,
-    BigInt(Math.floor(Date.now() / 1_000)),
+    nowSeconds,
   );
   const readinessLabel = readiness.needsFundingProof
     ? "VERIFYING ESCROW"
@@ -291,7 +323,10 @@ function TenderDetail({
             "After Awarded, inspect the non-transferable receipt and finalization transaction here.",
           ]}
         />
-        <StatusBadge status={tender.status} />
+        <StatusBadge
+          status={tender.status}
+          readyToClose={readiness.canClose}
+        />
       </header>
 
       <Lifecycle tender={tender} />
@@ -412,6 +447,9 @@ export function ExplorerView({
   wallet?: WalletController;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [nowSeconds, setNowSeconds] = useState(() =>
+    BigInt(Math.floor(Date.now() / 1_000)),
+  );
   const index = state.data?.index ?? zeroIndex;
   const deploymentKind = state.data?.deploymentKind ?? deployment.kind;
   const deploymentVerified =
@@ -420,10 +458,25 @@ export function ExplorerView({
   const publicFilter: PublicTenderFilter = isPublicTenderFilter(requestedFilter)
     ? requestedFilter
     : "current";
+
+  useEffect(() => {
+    if (activeRole !== "PUBLIC") return;
+    const updateClock = () => {
+      setNowSeconds(BigInt(Math.floor(Date.now() / 1_000)));
+    };
+    updateClock();
+    const timer = window.setInterval(updateClock, 1_000);
+    return () => window.clearInterval(timer);
+  }, [activeRole]);
+
   const visibleTenders = useMemo(() => {
-    const filtered = filterPublicTenders(index.tenders, publicFilter);
+    const filtered = filterPublicTenders(
+      index.tenders,
+      publicFilter,
+      nowSeconds,
+    );
     return activeRole === "PUBLIC" ? filtered : index.tenders;
-  }, [activeRole, index.tenders, publicFilter]);
+  }, [activeRole, index.tenders, nowSeconds, publicFilter]);
   const selectedId = searchParams.get("tender");
   const publicDetailOpen = searchParams.get("view") === "detail";
   const selected = useMemo(
@@ -442,7 +495,7 @@ export function ExplorerView({
     else next.set("status", nextFilter);
     if (
       selectedId &&
-      !filterPublicTenders(index.tenders, nextFilter).some(
+      !filterPublicTenders(index.tenders, nextFilter, nowSeconds).some(
         (tender) => tender.tenderId.toString() === selectedId,
       )
     ) {
@@ -659,6 +712,7 @@ export function ExplorerView({
                       tender={tender}
                       selected={selected.tenderId === tender.tenderId}
                       onSelect={() => selectPublicTender(tender.tenderId)}
+                      nowSeconds={nowSeconds}
                     />
                   ))}
                 </aside>
@@ -678,6 +732,7 @@ export function ExplorerView({
                       tender={selected}
                       indexedBlock={state.data.indexedBlock}
                       finalizedBlock={state.data.finalizedBlock}
+                      nowSeconds={nowSeconds}
                     />
                   </div>
                 ) : (

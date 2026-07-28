@@ -1175,6 +1175,7 @@ main {
   gap: 6px;
   letter-spacing: 0.08em;
   padding: 7px 10px;
+  white-space: nowrap;
 }
 
 .privacy-badge.encrypted {
@@ -1184,6 +1185,17 @@ main {
 
 .privacy-badge.verified {
   background: var(--color-veil-green);
+  color: var(--color-ink-black);
+}
+
+.privacy-badge.ready {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-paper-white),
+    var(--color-paper-white) 8px,
+    var(--color-ink-12) 8px,
+    var(--color-ink-12) 10px
+  );
   color: var(--color-ink-black);
 }
 

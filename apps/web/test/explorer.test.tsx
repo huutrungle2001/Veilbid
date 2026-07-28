@@ -200,6 +200,50 @@ describe("Tender Room public explorer", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("moves expired on-chain Open tenders into Ready to close", () => {
+    const filtered = state();
+    const expiredTender = {
+      ...filtered.data!.index.tenders[0],
+      bidDeadline: 1n,
+    };
+    filtered.data = {
+      ...filtered.data!,
+      index: {
+        ...filtered.data!.index,
+        tenders: [
+          expiredTender,
+          {
+            ...expiredTender,
+            tenderId: 2n,
+            bidDeadline: 2_000_000_000n,
+          },
+        ],
+      },
+    };
+    view(filtered);
+
+    expect(screen.getAllByText("READY TO CLOSE").length).toBeGreaterThan(0);
+    const filter = screen.getByRole("combobox", {
+      name: "Filter public tenders",
+    });
+    fireEvent.change(filter, { target: { value: "open" } });
+    expect(
+      screen.queryByText("Confidential procurement #1"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getAllByText("Confidential procurement #2").length,
+    ).toBeGreaterThan(0);
+
+    fireEvent.change(filter, { target: { value: "ready-to-close" } });
+    expect(filter).toHaveValue("ready-to-close");
+    expect(
+      screen.getAllByText("Confidential procurement #1").length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.queryByText("Confidential procurement #2"),
+    ).not.toBeInTheDocument();
+  });
+
   it("surfaces explicit non-transferable receipt evidence after award", () => {
     const awarded = state();
     const tender = awarded.data!.index.tenders[0];
