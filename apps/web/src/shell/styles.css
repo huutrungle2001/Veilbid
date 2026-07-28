@@ -369,7 +369,7 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--color-ink-black);
   display: flex;
   gap: 24px;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 12px 30px;
   position: sticky;
   top: 72px;
