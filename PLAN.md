@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T11:44:00+07:00
+- Last updated: 2026-07-28T11:47:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -48,6 +48,7 @@ Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 | 5. Core development | Implement contracts, tests, generated artifacts, and local client | Core Product Ready gate | Completed |
 | 6. Sepolia and product | Deploy contracts, complete web/finalizer/MCP, verify live flows | Generic Safe release verification passes | Completed |
 | 7. Submission | Publish repository, feedback, live UI, and DoraHacks entry | User final review | Waiting for approval |
+| 8. Post-hackathon Safe multisig | Support multi-owner Safe treasuries, configurable thresholds, signer UX, and full lifecycle regression coverage | Multi-owner Sepolia acceptance flow passes | Todo |
 
 Only one phase may be `In progress`.
 
@@ -102,6 +103,7 @@ Only one phase may be `In progress`.
 | Left-aligned workspace tabs | Verified | Agent | 2026-07-28 | Buyer Safe/EOA tabs and Private Bids `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` now begin on the left beside the help control on desktop and mobile. Vercel deployment `4y98RSxeMydupuEQsbBaPgrbfGHa` and the canonical alias returned HTTP 200; production and keyboard smoke passed. |
 | EOA-first Buyer workspace | Verified | Agent | 2026-07-28 | Buyer navigation now places `EOA BUYER` before `SAFE BUYER` and opens EOA Buyer by default; explicit `buyer=safe` links remain backward-compatible. Vercel deployment `FgdxsHtpNnR3CuwdmcFFUquF4ujB` passed production and keyboard smoke. |
 | EOA tender form UI alignment | Verified | Agent | 2026-07-28 | EOA Create Tender now uses the same structured header, numbered terms/vendor sections, vendor counter/actions, review footer, and wallet context treatment as Safe Create Tender while preserving direct-wallet funding behavior. Vercel deployment `A8pVuVQ2sr9qZ1HpgANNhT3de4Mx` passed production and keyboard smoke; web tests 86/86 passed. |
+| Post-hackathon multisig backlog | Planned | Product | 2026-07-28 | Keep the hackathon release at `1 owner · threshold 1`. After submission, add owner/threshold management through standard Safe transactions, support 2-of-3 and other threshold configurations, show signer progress clearly, test create/fund/withdraw/unwrap/settlement with multiple signers, and document that owners approve treasury actions but are not automatic beneficiaries. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
