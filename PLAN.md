@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T13:34:00+07:00
+- Last updated: 2026-07-28T13:40:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -106,6 +106,7 @@ Only one phase may be `In progress`.
 | Post-hackathon multisig backlog | Planned | Product | 2026-07-28 | Keep the hackathon release at `1 owner · threshold 1`. After submission, add owner/threshold management through standard Safe transactions, support 2-of-3 and other threshold configurations, show signer progress clearly, test create/fund/withdraw/unwrap/settlement with multiple signers, and document that owners approve treasury actions but are not automatic beneficiaries. |
 | Landing and web guide audit | Verified | Agent | 2026-07-28 | Corrected the Safe deep link for the EOA-first Buyer workspace, aligned workspace naming/counts, documented Public mobile/filter behavior, all three Private Bids views, early close, Activity lifecycle history, Safe owner/beneficiary boundaries, and post-hackathon multisig scope. Vercel deployment `5PRU9antbv2z4xGE3CunyWZEMvc8` passed production and keyboard smoke with 213 Docs contrast checks. |
 | Animated landing mascots | Verified | Agent | 2026-07-28 | Added three lightweight inline SVG mascots for sealed bids, Nox comparison, and Safe owner authority, with responsive composition, hover/bob/blink/orbit motion, and reduced-motion support. Desktop, mobile, and full-page visual inspection passed; Vercel deployment `8doGGXwsPS4V69QVmNH7wXnuLFTm` passed production and keyboard smoke. |
+| Unified editable-control language | Verified | Agent | 2026-07-28 | All Tender Room data-entry controls now use a pale input surface, 2px rounded border, green inset affordance, distinct hover/focus feedback, visible placeholders, and separate disabled/read-only/error treatments across EOA, Safe, Private Bids, Activity-related forms, wallet utilities, and Public filters. Desktop/mobile visual review, 86 web tests, build, and Vercel deployment `GyRQ8koscaPYfZm6Q5FLgUvirmjA` production/keyboard smoke passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
