@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T16:18:43+07:00
+- Last updated: 2026-07-28T17:08:25+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -110,6 +110,7 @@ Only one phase may be `In progress`.
 | Activity action queue | Verified | Agent | 2026-07-28 | Replaced ambiguous Pending/Ready sections with one next-action queue: patterned `NEEDS ATTENTION` for saved interruptions, Veil Green `READY NOW` for immediately closable tenders, and black `PROCESSING` for Closed winner-proof tracking. Completed actions remain in Lifecycle History and an empty queue collapses to `ALL CAUGHT UP`. The implementation uses only canonical black/white/green and alpha-derived patterns from `DESIGNS.md`; desktop/mobile visual review, 86 tests, build, and Vercel deployment `EYA5bJvaYwPHL3dkbC4fFPCRW4Qu` production/keyboard smoke passed. |
 | Automation-first Activity UX | Verified | Agent | 2026-07-28 | Renamed the queue to `AUTOMATION STATUS`, labels relay-ready work as `AUTO-READY`, and tells users that no action is required while the relay advances or tracks a winner proof. Optional `ADVANCE MANUALLY` fallbacks use secondary styling; only a genuinely interrupted saved checkpoint retains the primary `RESUME` action. Landing and Docs guidance match the automatic flow. Web tests (86/86), build, desktop/mobile visual review, and Vercel deployment `35iJ85d3kug3nUu9rEKW5H5S8ZKs` production/keyboard smoke passed against source commit `7bfdeed`. |
 | Guided wallet and Sepolia connection | Verified | Agent | 2026-07-28 | Selecting a wallet now continues directly into an automatic Sepolia switch request when chain 11155111 is not active, while the header retains the compact `CONNECT WALLET` label. A rejected switch preserves the connected account in a safe wrong-chain state with signing disabled and an explicit retry. Web tests (87/87), typed lint, build, mobile visual review, and Vercel deployment `9NDRzqBGLaVkFRVi2pGCQHTXBokV` production/keyboard smoke passed against source commit `fcd2546`. |
+| EOA funding, unwrap, and stable Vendor admission | Verified | Agent | 2026-07-28 | EOA Create Tender now rejects a ceiling above the current public Test USDC balance before any write and never invokes the faucet automatically. The shared EOA balance panel adds style-matched Full/Custom vcUSDC unwrap, public-proof finalization, and on-chain pending-request recovery without a second burn; calldata tests cover both deployed wrapper overloads, whose full/partial behavior already has canonical Sepolia evidence. Vendor admission is keyed to wallet and tender identity rather than the one-second countdown, eliminating the empty-state flicker. Web tests (95/95), typed lint, build, and Vercel deployment `71tw9Hd6PDmx2j6GVZAcV9jWs4GX` production/keyboard smoke passed against source commit `d8f124e`. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
