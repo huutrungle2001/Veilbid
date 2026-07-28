@@ -8,7 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EIP1193Provider } from "viem";
 import { App } from "../src/shell/App";
 import { PrimaryNavigation } from "../src/shell/PrimaryNavigation";
@@ -161,6 +161,25 @@ describe("standalone public routes", () => {
     expect(
       within(header as HTMLElement).getByRole("link", { name: "VeilBid home" }),
     ).toHaveAttribute("aria-current", "page");
+  });
+
+  it("scrolls public page navigation to the top", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    vi.mocked(window.scrollTo).mockClear();
+
+    fireEvent.click(screen.getByRole("link", { name: "DOCS" }));
+
+    await waitFor(() =>
+      expect(window.scrollTo).toHaveBeenCalledWith({
+        behavior: "auto",
+        left: 0,
+        top: 0,
+      }),
+    );
   });
 
   it("marks Tenders active on the canonical tender route", () => {

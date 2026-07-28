@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { WalletController } from "../wallet/WalletPanel";
+import { scrollToPageTop } from "./navigationScroll";
 
 type NavigationItem = {
   label: string;
@@ -167,7 +168,10 @@ export function PrimaryNavigation({ wallet }: { wallet: WalletController }) {
   ];
 
   useEffect(() => {
-    if (!location.hash) return;
+    if (!location.hash) {
+      scrollToPageTop();
+      return;
+    }
     const frames = new Set<number>();
     let cancelled = false;
     const scrollToTarget = () => {
@@ -201,6 +205,7 @@ export function PrimaryNavigation({ wallet }: { wallet: WalletController }) {
         to="/"
         aria-label="VeilBid home"
         aria-current={isHome ? "page" : undefined}
+        onClick={scrollToPageTop}
       >
         VEILBID
       </Link>
@@ -211,6 +216,7 @@ export function PrimaryNavigation({ wallet }: { wallet: WalletController }) {
             className={`primary-nav-link${item.active ? " active" : ""}`}
             to={item.to}
             aria-current={item.active ? "page" : undefined}
+            onClick={scrollToPageTop}
           >
             {item.label}
           </Link>

@@ -330,6 +330,13 @@ describe("Tender Room public explorer", () => {
     ]);
     expect(screen.getByRole("button", { name: "PUBLIC" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "BUYER" })).toBeDisabled();
+    vi.mocked(window.scrollTo).mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "PUBLIC" }));
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      behavior: "auto",
+      left: 0,
+      top: 0,
+    });
   });
 
   it("opens Activity recovery without requiring a connected account", () => {
@@ -514,6 +521,7 @@ describe("Tender Room public explorer", () => {
   });
 
   it("defaults Buyer to EOA and keeps EOA before Safe", () => {
+    const onBuyerSectionChange = vi.fn();
     render(
       <MemoryRouter initialEntries={["/room"]}>
         <ExplorerView
@@ -522,6 +530,7 @@ describe("Tender Room public explorer", () => {
           wallet={disconnectedWallet}
           activeRole="BUYER"
           onRoleChange={vi.fn()}
+          onBuyerSectionChange={onBuyerSectionChange}
         />
       </MemoryRouter>,
     );
@@ -539,5 +548,13 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByText("TENDER TERMS")).toBeInTheDocument();
     expect(screen.getByText("APPROVED VENDORS")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "CONNECT WALLET TO CREATE" })).toBeInTheDocument();
+    vi.mocked(window.scrollTo).mockClear();
+    fireEvent.click(screen.getByRole("button", { name: /SAFE BUYER/ }));
+    expect(onBuyerSectionChange).toHaveBeenCalledWith("safe");
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      behavior: "auto",
+      left: 0,
+      top: 0,
+    });
   });
 });

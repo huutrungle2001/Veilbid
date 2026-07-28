@@ -2,6 +2,7 @@ import type { PublicBid, PublicTender } from "@veilbid/chain-bindings";
 import { useEffect, useRef } from "react";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { ContextHelp } from "../shell/ContextHelp";
+import { scrollToPageTop } from "../shell/navigationScroll";
 import type { WalletController } from "../wallet/WalletPanel";
 import {
   RoleWorkspace,
@@ -55,7 +56,10 @@ function SubNavigation<T extends string>({
             className={item.id === active ? "active" : ""}
             type="button"
             aria-current={item.id === active ? "page" : undefined}
-            onClick={() => onChange(item.id)}
+            onClick={() => {
+              scrollToPageTop();
+              onChange(item.id);
+            }}
           >
             <strong>
               <span className="workspace-label-full">{item.label}</span>

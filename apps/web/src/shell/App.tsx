@@ -18,6 +18,7 @@ import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
 import { PrimaryNavigation } from "./PrimaryNavigation";
 import { ContextHelp } from "./ContextHelp";
+import { scrollToPageTop } from "./navigationScroll";
 import {
   formatLocalDeadline,
   formatUtcDeadline,
@@ -581,9 +582,11 @@ export function ExplorerView({
                   className={role === activeRole ? "active" : ""}
                   aria-pressed={role === activeRole}
                   disabled={!enabled}
-                  onClick={() =>
-                    enabled && onRoleChange?.(role as RoomRole)
-                  }
+                  onClick={() => {
+                    if (!enabled) return;
+                    scrollToPageTop();
+                    onRoleChange?.(role as RoomRole);
+                  }}
                   title={
                     enabled
                       ? `${role} workspace`
