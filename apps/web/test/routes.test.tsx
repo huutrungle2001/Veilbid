@@ -64,6 +64,15 @@ describe("standalone public routes", () => {
       screen.getByRole("link", { name: /explore tenders/i }),
     ).toHaveAttribute("href", "/room");
     expect(
+      screen.getByRole("link", { name: /open eoa buyer/i }),
+    ).toHaveAttribute("href", "/room?role=buyer");
+    expect(
+      screen.getByRole("link", { name: /open safe buyer/i }),
+    ).toHaveAttribute("href", "/room?role=buyer&buyer=safe");
+    expect(
+      screen.getByRole("link", { name: /open private bids/i }),
+    ).toHaveAttribute("href", "/room?role=private-bids");
+    expect(
       screen.getByRole("link", { name: /skip to content/i }),
     ).toHaveAttribute("href", "#main-content");
     expect(screen.queryByText(/Reading confirmed Sepolia logs/i)).toBeNull();

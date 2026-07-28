@@ -8,21 +8,21 @@ const workspaces = [
     action: "EXPLORE PUBLIC STATE",
   },
   {
-    title: "SAFE BUYER",
-    copy: "Select any owned Safe, deposit confidential funds, approve public terms through its threshold, and create a Safe-owned tender.",
-    to: "/room?role=safe%20treasury",
-    action: "OPEN SAFE BUYER",
-  },
-  {
     title: "EOA BUYER",
-    copy: "Create an exactly funded tender directly from the connected wallet, with the same confidential bidding and automatic post-finalization review policy.",
+    copy: "Use the default Buyer view to create an exactly funded tender directly from the connected wallet, with confidential bidding and automatic post-finalization review.",
     to: "/room?role=buyer",
     action: "OPEN EOA BUYER",
   },
   {
+    title: "SAFE BUYER",
+    copy: "Select any owned Safe, deposit confidential funds, approve public terms through its threshold, and create a Safe-owned tender.",
+    to: "/room?role=buyer&buyer=safe",
+    action: "OPEN SAFE BUYER",
+  },
+  {
     title: "PRIVATE BIDS",
-    copy: "Submit and manage your own sealed Vendor bid, or privately reveal a bid granted to this review wallet after finalization.",
-    to: "/room?role=vendor",
+    copy: "Use Submit Bid, My Bid, and Granted Access to submit a sealed price, reveal or share your own bid, or review a bid authorized for this wallet.",
+    to: "/room?role=private-bids",
     action: "OPEN PRIVATE BIDS",
   },
   {
@@ -48,7 +48,8 @@ export function LandingPage() {
             <p>
               VeilBid combines public tender rules, encrypted vendor bids,
               Nox-computed selection, proof-derived awards, and confidential
-              ERC-7984 settlement on Ethereum Sepolia.
+              ERC-7984 settlement on Ethereum Sepolia. Buyers can start with
+              a direct wallet or use a Safe treasury for threshold authority.
             </p>
             <div className="hero-actions">
               <Link className="primary-button" to="/room">
@@ -100,7 +101,7 @@ export function LandingPage() {
 
         <section className="workspace-showcase">
           <header>
-            <p className="eyebrow">ONE APP / FIVE FOCUSED VIEWS</p>
+            <p className="eyebrow">FOUR WORKSPACES / TWO BUYER VIEWS</p>
             <h2>Follow the lifecycle from either side.</h2>
             <p>
               Start in Public mode to inspect the release. Connect a compatible
@@ -184,6 +185,14 @@ export function LandingPage() {
             <details>
               <summary>Can the buyer change the winner?</summary>
               <p>No. The winner is produced by confidential comparison and accepted only after the public winner-ID proof verifies on-chain.</p>
+            </details>
+            <details>
+              <summary>When should I use EOA Buyer or Safe Buyer?</summary>
+              <p>EOA Buyer is the default and needs fewer signatures. Safe Buyer separates treasury funds from a personal wallet and applies the Safe’s configured owner threshold to treasury actions.</p>
+            </details>
+            <details>
+              <summary>Does a multi-owner Safe divide funds among its owners?</summary>
+              <p>No. Owners approve actions; they are not automatic beneficiaries. Tender settlement pays the stored vendor, while any separate Safe withdrawal still needs the configured threshold.</p>
             </details>
           </div>
         </section>

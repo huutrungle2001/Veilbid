@@ -7,7 +7,7 @@ const navItems = [
   ["buyer", "EOA BUYER"],
   ["vendor", "PRIVATE BIDS"],
   ["activity", "CLOSE & RECOVERY"],
-  ["safe", "SAFE TREASURY"],
+  ["safe", "SAFE BUYER"],
   ["architecture", "ARCHITECTURE"],
   ["privacy", "PRIVACY"],
   ["evidence", "VERIFICATION"],
@@ -71,8 +71,8 @@ export function DocsPage() {
             <h2>Inspect first. Connect only when needed.</h2>
             <StepList steps={[
               { title: "Open Tenders", copy: "Use the TENDERS link to load confirmed public state. No wallet is required to browse; recent records are marked until finality." },
-              { title: "Choose a workspace", copy: "The primary bar contains Public, Buyer, Private Bids, and Activity. Buyer contains the Safe Buyer and EOA Buyer views; Private Bids contains Submit Bid, My Bid, and Granted Access." },
-              { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
+              { title: "Choose a workspace", copy: "The primary bar contains Public, Buyer, Private Bids, and Activity. Buyer opens EOA Buyer by default, with Safe Buyer beside it; Private Bids contains Submit Bid, My Bid, and Granted Access." },
+              { title: "Use contextual help", copy: "Hover or focus the ? control beside the workspace tabs, at a card corner, or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
               { title: "Follow transaction progress", copy: "A bottom-right notification moves through validation, simulation, wallet signature, confirmation, and completion. Verify every target and value in the wallet prompt." },
@@ -96,6 +96,8 @@ export function DocsPage() {
             </p>
             <ul className="docs-checklist">
               <li>Select a tender card to open its public dossier.</li>
+              <li>Filter active, awarded, cancelled, or refunded history without losing the selected status when opening a dossier.</li>
+              <li>On mobile, use ALL DOSSIERS to return from the selected detail to the compact tender list.</li>
               <li>Use the lifecycle and readiness labels to distinguish contract state from derived next actions.</li>
               <li>Inspect Sepolia links and receipt ownership for awarded tenders.</li>
               <li>Refresh to reread confirmed logs; recent records remain marked until the 12-block finality boundary.</li>
@@ -106,7 +108,7 @@ export function DocsPage() {
             <p className="eyebrow">EOA BUYER / DIRECT WALLET</p>
             <h2>Create an exactly funded tender without a Safe.</h2>
             <StepList steps={[
-              { title: "Connect a Sepolia wallet", copy: "Open Buyer, choose the EOA Buyer view, and connect the account that will directly own the tender." },
+              { title: "Connect a Sepolia wallet", copy: "Open Buyer—the default EOA Buyer view—and connect the account that will directly own the tender." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
               { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
@@ -129,12 +131,14 @@ export function DocsPage() {
             <p className="eyebrow">PRIVATE BIDS / VENDOR &amp; REVIEWER</p>
             <h2>Submit your bid or review authorized bids.</h2>
             <StepList steps={[
-              { title: "Connect the approved account", copy: "The connected address must occupy an approved vendor slot on an Open tender." },
-              { title: "Select the tender", copy: "Only Open, unexpired tenders are selectable. The local deadline, remaining time, and canonical UTC time are shown before any private value is entered." },
+              { title: "Open Submit Bid", copy: "Connect the approved account and choose Submit Bid. The address must occupy an approved vendor slot on an Open tender and must not already have submitted." },
+              { title: "Select the tender", copy: "Only eligible Open, unexpired tenders are selectable. The local deadline, remaining time, and canonical UTC time are shown before any private value is entered." },
               { title: "Enter the bid privately", copy: "The plaintext exists only in the active browser session while the Nox input is prepared for this market." },
               { title: "Encrypt for the market", copy: "Bind the confidential input to the chain, market contract, tender, and connected vendor." },
               { title: "Simulate and sign", copy: "The app simulates the write first. Review the wallet request, sign once, and wait for confirmation." },
               { title: "Refresh the dossier", copy: "The public bid count updates, but neither the price nor a plaintext shadow value is indexed." },
+              { title: "Use My Bid", copy: "Reveal your own stored bid in the current browser session or grant one exact wallet access to that bid handle." },
+              { title: "Use Granted Access", copy: "After finalization, the configured review wallet can reveal only bids for which it has scoped access. This does not grant token, Safe, or protocol authority." },
             ]} />
             <div className="docs-callout">
               <strong>IMMUTABILITY</strong>
@@ -155,22 +159,24 @@ export function DocsPage() {
             <p className="eyebrow">CLOSE, PROVE, SETTLE</p>
             <h2>Permissionless progress with resumable checkpoints.</h2>
             <p>
-              Once the deadline passes, any connected Sepolia account can close
-              an eligible tender. Nox performs the winner comparison, and only
-              the encrypted winner identifier is deliberately sent through
-              public decryption. The market verifies the proof and settles
-              against its stored vendor mapping.
+              Once every approved vendor has submitted, or once the deadline
+              passes with at least one valid bid, any connected Sepolia account
+              can close an eligible tender. Nox performs the winner comparison,
+              and only the encrypted winner identifier is deliberately sent
+              through public decryption. The market verifies the proof and
+              settles against its stored vendor mapping.
             </p>
             <StepList steps={[
               { title: "Close when ready", copy: "Activity derives close eligibility from confirmed public state and simulates the close transaction against canonical on-chain state." },
               { title: "Request winner proof", copy: "The relay requests public decryption for the winner ID, not for bid or settlement values." },
               { title: "Resume after interruption", copy: "Activity stores only public tender IDs and trigger transaction hashes; handles and proofs are reread when resuming." },
               { title: "Finalize once", copy: "On-chain proof verification and replay protection permit confidential vendor payment or the protocol’s full refund outcome." },
+              { title: "Review lifecycle history", copy: "Activity lists each indexed public lifecycle event with its confirmed block and Sepolia transaction link; no confidential amount or bid value is stored there." },
             ]} />
           </section>
 
           <section id="safe">
-            <p className="eyebrow">SAFE TREASURY</p>
+            <p className="eyebrow">SAFE BUYER / TREASURY</p>
             <h2>Preparation is not execution.</h2>
             <p>
               Choose any discovered Sepolia Safe owned by the connected wallet.
@@ -197,6 +203,12 @@ export function DocsPage() {
                 until the normal threshold is reached.
               </p>
             </div>
+            <p className="docs-note">
+              Safe owners are approvers, not automatic beneficiaries. The
+              canonical demo uses a 1-owner, threshold-1 Safe for predictable
+              signing; comprehensive multi-signer UX and 2-of-3 regression
+              coverage are planned after the hackathon.
+            </p>
           </section>
 
           <section id="architecture">
