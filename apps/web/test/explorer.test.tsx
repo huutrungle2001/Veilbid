@@ -272,6 +272,17 @@ describe("Tender Room public explorer", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/public IDs and transaction hashes/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ACTIVITY" })).toBeEnabled();
+    expect(screen.getByRole("heading", { name: "0 actions" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Action queue summary")).toHaveTextContent(
+      "0 NEEDS ATTENTION",
+    );
+    expect(screen.getByLabelText("Action queue summary")).toHaveTextContent(
+      "0 READY NOW",
+    );
+    expect(screen.getByLabelText("Action queue summary")).toHaveTextContent(
+      "0 PROCESSING",
+    );
+    expect(screen.getByText("ALL CAUGHT UP")).toBeInTheDocument();
   });
 
   it("combines Vendor and granted access in Private Bids", () => {

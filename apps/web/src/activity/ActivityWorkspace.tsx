@@ -109,6 +109,9 @@ export function ActivityWorkspace({
       }),
     [tenders],
   );
+  const readyNow = trackable.filter((tender) => tender.status !== "Closed");
+  const processing = trackable.filter((tender) => tender.status === "Closed");
+  const queueCount = records.length + readyNow.length + processing.length;
 
   async function resume(record: RecoveryRecord) {
     if (!connected) return;
@@ -210,46 +213,63 @@ export function ActivityWorkspace({
       </section>
       <WalletPanel wallet={wallet} />
 
-      <section className="activity-section">
+      <section className="activity-section activity-action-queue">
         <header>
           <div>
-            <p className="eyebrow">RECOVERABLE CHECKPOINTS</p>
-            <h2>{records.length} pending</h2>
+            <p className="eyebrow">ACTION QUEUE</p>
+            <h2>{queueCount} {queueCount === 1 ? "action" : "actions"}</h2>
           </div>
           <ContextHelp
             compact
-            label="Help for recoverable checkpoints"
-            title="HOW TO USE RECOVERABLE CHECKPOINTS"
+            label="Help for Activity action queue"
+            title="HOW TO READ THE ACTION QUEUE"
             steps={[
-              "These records are public transaction checkpoints saved in this browser.",
-              "Resume rereads the canonical tender state and continues a permissionless lifecycle action.",
-              "The list disappears after the checkpoint is resolved; it is not a bidder or treasury history.",
+              "Needs Attention means this browser saved an interrupted public checkpoint that can be resumed.",
+              "Ready Now means the next permissionless lifecycle transaction can be submitted immediately.",
+              "Processing means a tender is Closed and its public winner proof can be tracked or resumed.",
             ]}
+            note="Completed actions leave this queue and remain visible in Lifecycle History."
           />
-          <button className="icon-button" onClick={reload} aria-label="Refresh recovery records">
+          <button className="icon-button" onClick={reload} aria-label="Refresh action queue">
             ↻
           </button>
         </header>
-        {records.length === 0 ? (
-          <p className="empty-activity">
-            No interrupted funding or winner-proof requests in this browser.
+        <div className="activity-queue-summary" aria-label="Action queue summary">
+          <span data-state="attention">
+            <strong>{records.length}</strong> NEEDS ATTENTION
+          </span>
+          <span data-state="ready">
+            <strong>{readyNow.length}</strong> READY NOW
+          </span>
+          <span data-state="processing">
+            <strong>{processing.length}</strong> PROCESSING
+          </span>
+        </div>
+        {queueCount === 0 ? (
+          <p className="empty-activity activity-queue-empty">
+            <strong>ALL CAUGHT UP</strong>
+            <span>The web and relay are handling the current lifecycle.</span>
           </p>
         ) : (
           <div className="activity-list">
             {records.map((record) => {
               const key = `${record.kind}:${record.tenderId}`;
               return (
-                <article className="activity-card" key={key}>
-                  <div>
+                <article className="activity-card" data-state="attention" key={key}>
+                  <div className="activity-card-copy">
+                    <span className="activity-state-badge" data-state="attention">
+                      NEEDS ATTENTION
+                    </span>
                     <p className="eyebrow">
                       {record.kind === "funding"
-                        ? "EXACT-FUNDING PROOF"
-                        : "WINNER-ID PROOF"}
+                        ? "EXACT-FUNDING PROOF INTERRUPTED"
+                        : "WINNER-ID PROOF INTERRUPTED"}
                     </p>
                     <h3>Tender {record.tenderId}</h3>
-                    <span title={record.triggerTransactionHash}>
+                    <span>Resume from the saved public transaction checkpoint.</span>
+                    <small title={record.triggerTransactionHash}>
                       Trigger · {shortHash(record.triggerTransactionHash)}
-                    </span>
+                    </small>
                   </div>
                   <button
                     className="primary-button"
@@ -261,56 +281,58 @@ export function ActivityWorkspace({
                 </article>
               );
             })}
-          </div>
-        )}
-      </section>
-
-      <section className="activity-section">
-        <header>
-          <div>
-            <p className="eyebrow">MANUAL RELAY FALLBACK</p>
-            <h2>{trackable.length} ready</h2>
-          </div>
-          <ContextHelp
-            compact
-            label="Help for manual relay fallback"
-            title="WHEN TO USE MANUAL CLOSE"
-            steps={[
-              "Use this only when the hosted relay has not advanced a ready tender.",
-              "Close or track proof is permissionless and does not spend Safe funds.",
-              "After finalization, no vendor Resume step is required; the public dossier shows Awarded or Refunded.",
-            ]}
-          />
-        </header>
-        {trackable.length === 0 ? (
-          <p className="empty-activity">
-            No confirmed public dossier is currently ready to close or track.
-          </p>
-        ) : (
-          <div className="activity-list">
-            {trackable.map((tender) => {
+            {readyNow.map((tender) => {
               const key = `close:${tender.tenderId.toString()}`;
+              const readiness = getTenderReadiness(
+                tender,
+                BigInt(Math.floor(Date.now() / 1_000)),
+              );
               return (
-                <article className="activity-card" key={key}>
-                  <div>
-                    <p className="eyebrow">
-                      {tender.status === "Closed"
-                        ? "TRACK CLOSED PROOF"
-                        : "CLOSE READY"}
-                    </p>
+                <article className="activity-card" data-state="ready" key={key}>
+                  <div className="activity-card-copy">
+                    <span className="activity-state-badge" data-state="ready">
+                      READY NOW
+                    </span>
+                    <p className="eyebrow">READY TO CLOSE</p>
                     <h3>Tender {tender.tenderId.toString()}</h3>
-                    <span>{tender.bidCount}/{tender.approvedVendorCount} vendors submitted</span>
+                    <span>
+                      {readiness.allVendorsSubmitted
+                        ? `All ${tender.bidCount}/${tender.approvedVendorCount} vendors submitted.`
+                        : `Deadline passed with ${tender.bidCount} valid bid${tender.bidCount === 1 ? "" : "s"}.`}
+                    </span>
+                    <small>Permissionless · does not spend Safe funds</small>
                   </div>
                   <button
                     className="primary-button"
                     disabled={!connected || activeKey !== null}
                     onClick={() => void close(tender)}
                   >
-                    {activeKey === key
-                      ? "WORKING…"
-                      : tender.status === "Closed"
-                        ? "TRACK PROOF →"
-                        : "CLOSE & TRACK →"}
+                    {activeKey === key ? "WORKING…" : "CLOSE & TRACK →"}
+                  </button>
+                </article>
+              );
+            })}
+            {processing.map((tender) => {
+              const key = `close:${tender.tenderId.toString()}`;
+              return (
+                <article className="activity-card" data-state="processing" key={key}>
+                  <div className="activity-card-copy">
+                    <span className="activity-state-badge" data-state="processing">
+                      PROCESSING
+                    </span>
+                    <p className="eyebrow">WINNER PROOF TRACKABLE</p>
+                    <h3>Tender {tender.tenderId.toString()}</h3>
+                    <span>
+                      Closed with {tender.bidCount}/{tender.approvedVendorCount} vendor bids.
+                    </span>
+                    <small>Track the public Nox winner-ID proof.</small>
+                  </div>
+                  <button
+                    className="primary-button"
+                    disabled={!connected || activeKey !== null}
+                    onClick={() => void close(tender)}
+                  >
+                    {activeKey === key ? "WORKING…" : "TRACK PROOF →"}
                   </button>
                 </article>
               );
@@ -331,7 +353,7 @@ export function ActivityWorkspace({
             title="HOW TO READ LIFECYCLE HISTORY"
             steps={[
               "Each dossier is a public lifecycle record indexed from canonical Market events.",
-              "The timeline shows creation and the latest public state-changing transaction.",
+              "The timeline shows every indexed public lifecycle event and its confirmed transaction.",
               "Safe proposal signatures and confidential values stay in their dedicated Safe/private surfaces.",
             ]}
             note="Only public identifiers, statuses, blocks, and transaction links are shown here."
