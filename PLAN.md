@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T02:05:00+07:00
+- Last updated: 2026-07-28T11:18:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -98,6 +98,7 @@ Only one phase may be `In progress`.
 | Contextual workflow guidance | Verified | Agent | 2026-07-28 | Added per-card hover/focus `?` help across Public, EOA/Vendor/Disclosure/Auditor, Safe treasury actions, and Activity recovery cards; Public now keeps the dossier list and selected detail independently visible on desktop. Confidential bid reveals format six-decimal vUSDC units instead of raw micro-units. Web tests (85/85), lint/build, production route/desktop/mobile smoke, and keyboard/contrast smoke passed. |
 | Contextual guidance frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_BAYihyHS4hBHT3p4ms7ZcmwF21we` is aliased to `https://veilbid-three.vercel.app`; production smoke and keyboard smoke passed for the contextual UI release, followed by a CSS-only alignment deployment from source commit `788b0f8`. |
 | Combined workspace frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_Db42an8dLTHNMruP1i2WXevRz7Uh` is aliased to `https://veilbid-three.vercel.app`; production smoke and real-browser keyboard smoke passed against source commit `1a39d1d`. |
+| Comprehensive UI/UX release | Verified | Agent | 2026-07-28 | Vercel deployment `dpl_GL8mW3rxvqPzhtTWwwAzuKigXtMM` is aliased to `https://veilbid-three.vercel.app`; mobile sticky navigation, compact/collapsible balances, public master/detail navigation, tab-specific Private Bids guidance, approved-tender filtering, contextual help, lifecycle history, touch targets, and interaction feedback were verified. Full tests (155), lint/build, production smoke, and keyboard smoke passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
