@@ -254,6 +254,7 @@ export function WalletBalancePanel({
   );
   const [revealError, setRevealError] = useState<string | null>(null);
   const [message, setMessage] = useState<BalanceMessage | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
   const revealRequestId = useRef(0);
   const walletActionRequestId = useRef(0);
   const activeToastIds = useRef(new Set<string>());
@@ -475,7 +476,11 @@ export function WalletBalancePanel({
         : "UNAVAILABLE";
 
   return (
-    <section className="sidebar-balances" aria-label="Wallet balances">
+    <section
+      className="sidebar-balances"
+      aria-label="Wallet balances"
+      data-mobile-expanded={mobileExpanded}
+    >
       <header>
         <strong>BALANCES</strong>
         <div className="balance-header-actions">
@@ -499,6 +504,15 @@ export function WalletBalancePanel({
             aria-label="Refresh wallet balances"
           >
             ↻
+          </button>
+          <button
+            className="balance-mobile-toggle"
+            type="button"
+            aria-expanded={mobileExpanded}
+            aria-label={mobileExpanded ? "Collapse wallet balances" : "Expand wallet balances"}
+            onClick={() => setMobileExpanded((current) => !current)}
+          >
+            {mobileExpanded ? "−" : "+"}
           </button>
         </div>
       </header>

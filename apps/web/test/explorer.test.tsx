@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -120,7 +121,7 @@ describe("Tender Room public explorer", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides cancelled history by default and exposes it through the status filter", () => {
+  it("hides cancelled history by default and exposes it through the status filter", async () => {
     const filtered = state();
     const openTender = filtered.data!.index.tenders[0];
     filtered.data = {
@@ -156,6 +157,10 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByText("1 tenders")).toBeInTheDocument();
     expect(screen.getAllByText("Confidential procurement #2").length).toBeGreaterThan(0);
     expect(filter).toHaveValue("cancelled");
+    fireEvent.click(
+      screen.getByRole("button", { name: /Confidential procurement #2/ }),
+    );
+    await waitFor(() => expect(filter).toHaveValue("cancelled"));
   });
 
   it("surfaces explicit non-transferable receipt evidence after award", () => {

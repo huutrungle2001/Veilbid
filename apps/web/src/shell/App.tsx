@@ -423,6 +423,7 @@ export function ExplorerView({
     return activeRole === "PUBLIC" ? filtered : index.tenders;
   }, [activeRole, index.tenders, publicFilter]);
   const selectedId = searchParams.get("tender");
+  const publicDetailOpen = searchParams.get("view") === "detail";
   const selected = useMemo(
     () =>
       visibleTenders.find(
@@ -444,8 +445,33 @@ export function ExplorerView({
       )
     ) {
       next.delete("tender");
+      next.delete("view");
     }
     setSearchParams(next);
+  }
+
+  function scrollToPublicWorkspace() {
+    window.setTimeout(() => {
+      document.getElementById("tenders")?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 0);
+  }
+
+  function selectPublicTender(tenderId: bigint) {
+    const next = new URLSearchParams(searchParams);
+    next.set("tender", tenderId.toString());
+    next.set("view", "detail");
+    setSearchParams(next);
+    scrollToPublicWorkspace();
+  }
+
+  function showPublicDossiers() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("view");
+    setSearchParams(next);
+    scrollToPublicWorkspace();
   }
 
   return (
@@ -581,7 +607,10 @@ export function ExplorerView({
             )}
 
             {state.status === "ready" && state.data && (
-              <section className="explorer-grid" id="tenders">
+              <section
+                className={`explorer-grid${publicDetailOpen ? " show-mobile-detail" : ""}`}
+                id="tenders"
+              >
                 <aside className="dossier-list" aria-label="Public tenders">
                   <header>
                     <div>
@@ -623,18 +652,28 @@ export function ExplorerView({
                       key={tender.tenderId.toString()}
                       tender={tender}
                       selected={selected.tenderId === tender.tenderId}
-                      onSelect={() =>
-                        setSearchParams({ tender: tender.tenderId.toString() })
-                      }
+                      onSelect={() => selectPublicTender(tender.tenderId)}
                     />
                   ))}
                 </aside>
                 {selected ? (
-                  <TenderDetail
-                    tender={selected}
-                    indexedBlock={state.data.indexedBlock}
-                    finalizedBlock={state.data.finalizedBlock}
-                  />
+                  <div className="public-detail-column">
+                    <div className="public-mobile-toolbar">
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={showPublicDossiers}
+                      >
+                        ← ALL DOSSIERS
+                      </button>
+                      <span>TENDER {selected.tenderId.toString()}</span>
+                    </div>
+                    <TenderDetail
+                      tender={selected}
+                      indexedBlock={state.data.indexedBlock}
+                      finalizedBlock={state.data.finalizedBlock}
+                    />
+                  </div>
                 ) : (
                   <section className="state-panel">
                     <span aria-hidden="true">0</span>

@@ -1,4 +1,5 @@
 import type { PublicBid, PublicTender } from "@veilbid/chain-bindings";
+import { useEffect, useRef } from "react";
 import { SafeTreasuryWorkspace } from "../safe/SafeTreasuryWorkspace";
 import { ContextHelp } from "../shell/ContextHelp";
 import type { WalletController } from "../wallet/WalletPanel";
@@ -17,9 +18,23 @@ function SubNavigation<T extends string>({
 }: {
   ariaLabel: string;
   active: T;
-  items: readonly { id: T; label: string; description: string }[];
+    items: readonly { id: T; label: string; description: string; mobileLabel?: string }[];
   onChange: (id: T) => void;
 }) {
+  const activeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const activeButton = activeRef.current;
+    const scrollParent = activeButton?.parentElement;
+    if (!activeButton || !scrollParent) return;
+    if (scrollParent.scrollWidth <= scrollParent.clientWidth) return;
+    const rightEdge = activeButton.offsetLeft + activeButton.offsetWidth;
+    scrollParent.scrollLeft = Math.max(
+      0,
+      rightEdge - scrollParent.clientWidth + 4,
+    );
+  }, [active]);
+
   return (
     <nav className="workspace-subnav" aria-label={ariaLabel}>
       <div className="workspace-subnav-heading">
@@ -36,12 +51,18 @@ function SubNavigation<T extends string>({
         {items.map((item) => (
           <button
             key={item.id}
+            ref={item.id === active ? activeRef : undefined}
             className={item.id === active ? "active" : ""}
             type="button"
             aria-current={item.id === active ? "page" : undefined}
             onClick={() => onChange(item.id)}
           >
-            <strong>{item.label}</strong>
+            <strong>
+              <span className="workspace-label-full">{item.label}</span>
+              <span className="workspace-label-mobile">
+                {item.mobileLabel ?? item.label}
+              </span>
+            </strong>
             <small>{item.description}</small>
           </button>
         ))}
@@ -72,11 +93,13 @@ export function BuyerWorkspace({
             id: "safe",
             label: "SAFE BUYER",
             description: "Use a Safe treasury",
+            mobileLabel: "SAFE",
           },
           {
             id: "eoa",
             label: "EOA BUYER",
             description: "Use a direct wallet",
+            mobileLabel: "EOA",
           },
         ]}
       />
@@ -121,16 +144,19 @@ export function PrivateBidsWorkspace({
             id: "submit",
             label: "SUBMIT BID",
             description: "Encrypt and submit",
+            mobileLabel: "BID",
           },
           {
             id: "my-bid",
             label: "MY BID",
             description: "Reveal or share",
+            mobileLabel: "MY BID",
           },
           {
             id: "granted-access",
             label: "GRANTED ACCESS",
             description: "Review authorized bids",
+            mobileLabel: "ACCESS",
           },
         ]}
       />
