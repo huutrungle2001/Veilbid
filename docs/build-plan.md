@@ -154,7 +154,7 @@ verification pass.
 
 - [x] Replace feedback placeholder with implementation evidence.
 - [x] Finalize README, docs, threat model, and verification report.
-- [ ] Record a real-person demo under four minutes.
+- [x] Record and prepare a real-person demo under four minutes.
 - [ ] Publish public GitHub repository.
 - [ ] Publish X post with required links and `@iEx_ec`.
 - [ ] Submit the independent VeilBid project on DoraHacks.

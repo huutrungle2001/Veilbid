@@ -10,7 +10,9 @@
 - [x] Root evidence-based `feedback.md`.
 - [x] Public frontend backed by Ethereum Sepolia:
   `https://veilbid-three.vercel.app`.
-- [ ] Demo video no longer than four minutes.
+- [x] Local demo video is no longer than four minutes: the preserved source is
+  `submission/video/VEILBID.mp4`, and the upload-ready edit is
+  `submission/video/VEILBID-final.mp4` (3:52.167, 1920×1080, CFR 60 fps H.264).
 - [ ] X post with description, video, repository, live app, and `@iEx_ec`.
 - [ ] DoraHacks VeilBid submission.
 - [x] Final secret/privacy/claim review.

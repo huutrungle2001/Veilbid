@@ -7,13 +7,14 @@
 
 - Current phase: Phase 7 — Submission
 - Status: Waiting for approval
-- Next action: Record the demo video, publish the X post, and complete the
-  DoraHacks submission using the verified production release.
-- Current blocker: Product engineering is complete; submission media and final
-  publication remain user-controlled. Previous releases remain recoverable
-  from GitHub and local branch `backup/pre-auto-review-20260727`.
+- Next action: Review/upload the prepared 3:52 demo video, publish the X post,
+  and complete the DoraHacks submission using the verified production release.
+- Current blocker: Product engineering and the local demo video are complete;
+  video hosting and final publication remain user-controlled. Previous releases
+  remain recoverable from GitHub and local branch
+  `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T20:28:00+07:00
+- Last updated: 2026-07-28T23:20:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -116,6 +117,7 @@ Only one phase may be `In progress`.
 | Derived close-readiness UX | Verified | Agent | 2026-07-28 | Public distinguishes contract status from operational readiness: an on-chain `Open` tender whose deadline passed or whose Vendor slots are full immediately receives a striped `READY TO CLOSE` badge and appears under its own filter. The `Open` filter now contains only bid-accepting tenders; lifecycle continues to show `OPEN` until a permissionless close transaction confirms. Full repository tests (99 web tests), lint/build, desktop visual review, and Vercel deployment `APyiPkAuvu8fVuGyWsfLnQAWfVqW` production/keyboard smoke passed against source commit `d4a106a`. |
 | Persistent winner notifications | Verified | Agent | 2026-07-28 | A connected winning wallet now receives an unread on-chain award banner, while Activity retains its complete award history with the exact `TenderAwarded` block, settlement transaction, and receipt link. Award facts are always reconstructed from the confirmed Sepolia index; local storage is isolated by chain, Market, and wallet and contains read tender IDs only. Full repository tests (103 web tests; 173 total), lint/build, production desktop/mobile smoke, and keyboard/contrast smoke passed on Vercel deployment `HVvT8AxquG831VLM5NR7aFAaRd3d` from source commit `fe4dd9b`. |
 | Compact Activity controls | Verified | Agent | 2026-07-28 | Removed manual mark-read controls and all visible `READ`/`UNREAD` labels; opening an award or its Activity history acknowledges only that notification while retaining the on-chain-derived record. Automation Status keeps its three counters visible but collapses optional details by default, automatically opening and emphasizing `RESUME` only for a saved `NEEDS ATTENTION` checkpoint. Full repository tests (105 web tests; 175 total), lint/build, production desktop/mobile smoke, and keyboard/contrast smoke passed on Vercel deployment `CpW5Rn5DbepxSVBL3Kmm94Pkm2q7` from source commit `bde3152`. |
+| Demo video edit | Local verified | Agent | 2026-07-28 | Preserved the 9:28 source recording and produced `submission/video/VEILBID-final.mp4`: 3:52.167, 1920×1080, CFR 60 fps H.264. Forty-five detected wallet/static waits were shortened at visually matched frames, the remaining capture was accelerated 1.5×, and full-stream decode plus frame-timing checks passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
@@ -142,5 +144,5 @@ Only one phase may be `In progress`.
 - [x] Ethereum Sepolia source/deployment mapping is verified.
 - [x] `feedback.md` contains evidence-based feedback.
 - [x] GitHub repository is public.
-- [ ] Demo video is no longer than four minutes.
+- [x] Demo video is no longer than four minutes.
 - [ ] X post and DoraHacks submission are public.
