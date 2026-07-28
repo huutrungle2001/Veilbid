@@ -143,7 +143,7 @@ export function DocsPage() {
               { title: "Simulate and sign", copy: "The app simulates the write first. Review the wallet request, sign once, and wait for confirmation." },
               { title: "Refresh the dossier", copy: "The public bid count updates, but neither the price nor a plaintext shadow value is indexed." },
               { title: "Use My Bid", copy: "Reveal your own stored bid in the current browser session or grant one exact wallet access to that bid handle." },
-              { title: "Use Granted Access", copy: "After finalization, the configured review wallet can reveal only bids for which it has scoped access. This does not grant token, Safe, or protocol authority." },
+              { title: "Use Granted Access", copy: "The app automatically checks per-bid ACLs and lists only bids shared with this wallet. After finalization, the configured review wallet can select an authorized bid and reveal it directly; this grants no token, Safe, or protocol authority." },
             ]} />
             <div className="docs-callout">
               <strong>IMMUTABILITY</strong>

@@ -410,13 +410,14 @@ Review wallet của tender Safe là EOA owner đã được bind ở lúc tạo.
 Buyer grant thủ công và không cần thêm Safe proposal.
 
 1. Khi tender vẫn `Open`, chuyển về Safe owner.
-2. Mở workspace `PRIVATE BIDS`, chọn tab `GRANTED ACCESS`, chọn bid của Vendor 2 và bấm
-   `CHECK VIEWER ACCESS`.
-3. Xác nhận review wallet chưa được phép reveal bid đó.
+2. Mở workspace `PRIVATE BIDS`, chọn tab `GRANTED ACCESS` và chờ web tự kiểm
+   tra ACL của các bid đã index.
+3. Xác nhận danh sách chưa hiện bid của Vendor 2 vì review wallet chưa được
+   phép reveal bid đó.
 4. Hoàn tất bước relay/finalize tại mục 8.
-5. Khi tender đã `Awarded` hoặc `Refunded`, vẫn bằng Safe owner, kiểm tra lại
-   đúng bid trong `PRIVATE BIDS`.
-6. Xác nhận ACL đã được cấp tự động rồi bấm reveal trong session.
+5. Khi tender đã `Awarded` hoặc `Refunded`, vẫn bằng Safe owner, mở lại
+   `GRANTED ACCESS` và chọn đúng bid vừa tự động xuất hiện.
+6. Bấm `REVEAL IN SESSION`; không có bước kiểm tra quyền thủ công riêng.
 7. Đổi tài khoản hoặc reload và xác nhận plaintext bị xóa.
 
 Không chụp hoặc lưu giá reveal vào public evidence. Quyền review chỉ áp dụng
