@@ -32,7 +32,7 @@ const workspaces = [
   },
   {
     title: "ACTIVITY",
-    copy: "Close eligible tenders and safely resume interrupted funding or winner-proof requests from public checkpoints.",
+    copy: "Monitor automatic close, winner-proof, and settlement progress; use the manual fallback only when automation is delayed or interrupted.",
     to: "/room?role=activity",
     action: "OPEN ACTIVITY",
   },

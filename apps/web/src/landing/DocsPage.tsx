@@ -164,10 +164,13 @@ export function DocsPage() {
               can close an eligible tender. Nox performs the winner comparison,
               and only the encrypted winner identifier is deliberately sent
               through public decryption. The market verifies the proof and
-              settles against its stored vendor mapping.
+              settles against its stored vendor mapping. The hosted relay
+              advances this flow automatically; Activity manual actions are
+              optional recovery fallbacks.
             </p>
             <StepList steps={[
-              { title: "Close when ready", copy: "Activity derives close eligibility from confirmed public state and simulates the close transaction against canonical on-chain state." },
+              { title: "Monitor automation", copy: "Activity shows Auto-Ready and Automation In Progress states. No user action is required while the hosted relay is advancing normally." },
+              { title: "Advance only when needed", copy: "ADVANCE MANUALLY is a secondary fallback when the relay is delayed or unavailable; it derives eligibility and simulates against canonical on-chain state." },
               { title: "Request winner proof", copy: "The relay requests public decryption for the winner ID, not for bid or settlement values." },
               { title: "Resume after interruption", copy: "Activity stores only public tender IDs and trigger transaction hashes; handles and proofs are reread when resuming." },
               { title: "Finalize once", copy: "On-chain proof verification and replay protection permit confidential vendor payment or the protocol’s full refund outcome." },
