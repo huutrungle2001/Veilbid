@@ -10,14 +10,18 @@ const secondAccount = "0x2222222222222222222222222222222222222222";
 class TestProvider {
   chainId = "0xaa36a7";
   accounts = [account];
+  rejectSwitch = false;
+  requestedMethods: string[] = [];
   listeners = new Map<string, Set<(...parameters: unknown[]) => void>>();
 
   request = async ({ method }: { method: string }) => {
+    this.requestedMethods.push(method);
     if (method === "eth_accounts" || method === "eth_requestAccounts") {
       return this.accounts;
     }
     if (method === "eth_chainId") return this.chainId;
     if (method === "wallet_switchEthereumChain") {
+      if (this.rejectSwitch) throw new Error("Switch rejected");
       this.chainId = "0xaa36a7";
       this.emit("chainChanged", this.chainId);
       return null;
@@ -82,7 +86,7 @@ describe("provider-aware wallet session", () => {
     expect(localStorage.getItem(selectedProviderStorageKey)).toBe("test.wallet");
   });
 
-  it("withholds the wallet client until the provider switches to Sepolia", async () => {
+  it("connects and switches to Sepolia as one guided action", async () => {
     const provider = new TestProvider();
     provider.chainId = "0x1";
     const { result } = renderHook(() => useWallet());
@@ -90,12 +94,25 @@ describe("provider-aware wallet session", () => {
     act(() => announce(provider));
     await waitFor(() => expect(result.current.state.providers).toHaveLength(1));
     await act(() => result.current.connect(result.current.state.providers[0]));
-    expect(result.current.state.status).toBe("wrong-chain");
-    expect(result.current.state.walletClient).toBeNull();
-
-    await act(() => result.current.switchToSepolia());
     expect(result.current.state.status).toBe("connected");
     expect(result.current.state.walletClient).not.toBeNull();
+    expect(provider.requestedMethods).toContain("wallet_switchEthereumChain");
+  });
+
+  it("keeps a connected wrong-chain wallet recoverable when switching is rejected", async () => {
+    const provider = new TestProvider();
+    provider.chainId = "0x1";
+    provider.rejectSwitch = true;
+    const { result } = renderHook(() => useWallet());
+
+    act(() => announce(provider));
+    await waitFor(() => expect(result.current.state.providers).toHaveLength(1));
+    await act(() => result.current.connect(result.current.state.providers[0]));
+
+    expect(result.current.state.status).toBe("wrong-chain");
+    expect(result.current.state.account).toBe(account);
+    expect(result.current.state.walletClient).toBeNull();
+    expect(result.current.state.error).toMatch(/Confirm the switch/i);
   });
 
   it("clears the signing session when the connected account disappears", async () => {

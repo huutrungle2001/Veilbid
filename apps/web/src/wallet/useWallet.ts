@@ -117,6 +117,8 @@ export function useWallet() {
       "CONNECT WALLET",
       `Waiting for ${detail.info.name} authorization…`,
     );
+    let authorizedAccount: Address | null = null;
+    let detectedChainId: number | null = null;
     setState((current) => ({
       ...current,
       status: "connecting",
@@ -131,19 +133,48 @@ export function useWallet() {
       if (!account || chainId === null) {
         throw new Error("Wallet did not return an account and chain");
       }
+      authorizedAccount = account;
+      detectedChainId = chainId;
       localStorage.setItem(selectedProviderStorageKey, detail.info.rdns);
+
+      if (chainId !== sepolia.id) {
+        toasts.update(
+          toastId,
+          `${detail.info.name} authorized. Confirm the switch to Ethereum Sepolia…`,
+        );
+        await detail.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: numberToHex(sepolia.id) }],
+        });
+        detectedChainId = await currentChain(detail.provider);
+        if (detectedChainId !== sepolia.id) {
+          throw new Error("Wallet did not switch to Ethereum Sepolia");
+        }
+      }
+
       setState((current) =>
-        connectedState(current, detail, account, chainId),
+        connectedState(current, detail, account, sepolia.id),
       );
-      toasts.succeed(
-        toastId,
-        chainId === sepolia.id
-          ? `${detail.info.name} connected on Sepolia.`
-          : `${detail.info.name} connected. Switch to Sepolia to continue.`,
-      );
+      toasts.succeed(toastId, `${detail.info.name} connected on Sepolia.`);
     } catch {
-      toasts.fail(toastId, "Wallet connection was rejected or unavailable.");
-      clearSession("error", "Wallet connection was rejected or unavailable.");
+      if (authorizedAccount && detectedChainId !== null) {
+        setState((current) => ({
+          ...connectedState(
+            current,
+            detail,
+            authorizedAccount as Address,
+            detectedChainId as number,
+          ),
+          error: "Confirm the switch to Ethereum Sepolia to enable signing.",
+        }));
+        toasts.fail(
+          toastId,
+          "Wallet connected, but the Sepolia switch was rejected or unavailable.",
+        );
+      } else {
+        toasts.fail(toastId, "Wallet connection was rejected or unavailable.");
+        clearSession("error", "Wallet connection was rejected or unavailable.");
+      }
     }
   }, [clearSession, toasts]);
 

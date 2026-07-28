@@ -24,7 +24,7 @@ function HeaderWalletMenu({ wallet }: { wallet: WalletController }) {
     : wrongChain
       ? "WRONG NETWORK"
       : state.status === "connecting"
-        ? "CONNECTING…"
+        ? "CONNECTING WALLET…"
         : "CONNECT WALLET";
 
   useEffect(() => {
@@ -94,14 +94,17 @@ function HeaderWalletMenu({ wallet }: { wallet: WalletController }) {
             </>
           ) : wrongChain ? (
             <>
-              <strong>Ethereum Sepolia required</strong>
-              <p>Switch the selected wallet before submitting any transaction.</p>
+              <strong>Sepolia confirmation needed</strong>
+              <p>
+                The wallet connected, but the automatic network switch did not
+                complete. Confirm the next wallet request to enable signing.
+              </p>
               <button
                 className="primary-button"
                 type="button"
                 onClick={() => void wallet.switchToSepolia()}
               >
-                SWITCH TO SEPOLIA →
+                RETRY SEPOLIA CONNECTION →
               </button>
               <button
                 className="secondary-button"
@@ -114,8 +117,9 @@ function HeaderWalletMenu({ wallet }: { wallet: WalletController }) {
           ) : (
             <>
               <p>
-                VeilBid detects EIP-6963 providers and asks you to choose
-                explicitly. Private keys never leave your wallet.
+                Choose an EIP-6963 provider once. VeilBid connects it and asks
+                for the Sepolia switch automatically when needed. Private keys
+                never leave your wallet.
               </p>
               <div className="header-provider-list">
                 {state.providers.length === 0 ? (

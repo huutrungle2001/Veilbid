@@ -36,12 +36,12 @@ export function WalletPanel({
         <div>
           <span aria-hidden="true">!</span>
           <div>
-            <strong>Wrong network</strong>
-            <span>Writes remain disabled until the selected wallet is on Sepolia.</span>
+            <strong>Sepolia confirmation needed</strong>
+            <span>The automatic switch did not complete. Confirm the next wallet request.</span>
           </div>
         </div>
         <button className="secondary-button" onClick={wallet.switchToSepolia}>
-          SWITCH TO SEPOLIA →
+          RETRY SEPOLIA CONNECTION →
         </button>
       </section>
     );
@@ -53,8 +53,8 @@ export function WalletPanel({
         <p className="eyebrow">EXPLICIT WALLET SELECTION</p>
         <h2>Connect only when you are ready to sign.</h2>
         <p>
-          Provider selection is explicit. VeilBid never receives a private key
-          and clears signing state when the account or chain changes.
+          Choose a provider once; VeilBid connects it and requests Sepolia
+          automatically when needed. Private keys never leave the wallet.
         </p>
         {state.error && <p className="inline-error" role="alert">{state.error}</p>}
       </div>
