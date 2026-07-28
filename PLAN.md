@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T11:28:00+07:00
+- Last updated: 2026-07-28T11:32:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -99,7 +99,7 @@ Only one phase may be `In progress`.
 | Contextual guidance frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_BAYihyHS4hBHT3p4ms7ZcmwF21we` is aliased to `https://veilbid-three.vercel.app`; production smoke and keyboard smoke passed for the contextual UI release, followed by a CSS-only alignment deployment from source commit `788b0f8`. |
 | Combined workspace frontend release | Verified | Agent | 2026-07-28 | Final Vercel deployment `dpl_Db42an8dLTHNMruP1i2WXevRz7Uh` is aliased to `https://veilbid-three.vercel.app`; production smoke and real-browser keyboard smoke passed against source commit `1a39d1d`. |
 | Comprehensive UI/UX release | Verified | Agent | 2026-07-28 | Vercel deployment `dpl_GL8mW3rxvqPzhtTWwwAzuKigXtMM` is aliased to `https://veilbid-three.vercel.app`; mobile sticky navigation, compact/collapsible balances, public master/detail navigation, tab-specific Private Bids guidance, approved-tender filtering, contextual help, lifecycle history, touch targets, and interaction feedback were verified. Full tests (155), lint/build, production smoke, and keyboard smoke passed. |
-| Left-aligned workspace tabs | Verified | Agent | 2026-07-28 | Buyer Safe/EOA tabs and Private Bids `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` now begin on the left beside the help control on desktop and mobile. The production deployment and canonical alias both returned HTTP 200. |
+| Left-aligned workspace tabs | Verified | Agent | 2026-07-28 | Buyer Safe/EOA tabs and Private Bids `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` now begin on the left beside the help control on desktop and mobile. Vercel deployment `4y98RSxeMydupuEQsbBaPgrbfGHa` and the canonical alias returned HTTP 200; production and keyboard smoke passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
