@@ -15,6 +15,12 @@ import { createResilientSepoliaClient } from "../chain/sepoliaRpc";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
+import {
+  finalizeWalletUnwrap,
+  findPendingWalletUnwrap,
+  requestWalletUnwrap,
+  type WalletUnwrapStage,
+} from "../transactions/walletUnwrap";
 import type { WalletController } from "./WalletPanel";
 
 const tokenAbi = tokenAbiJson as Abi;
@@ -28,6 +34,15 @@ const wrapToastLabel: Record<WrapStage, string> = {
   checking: "Checking Test USDC balance and wrapper allowance…",
   approving: "Waiting for the approval signature and confirmation…",
   wrapping: "Waiting for the wrap signature and confirmation…",
+};
+
+const unwrapToastLabel: Record<WalletUnwrapStage, string> = {
+  encrypting: "Encrypting the custom vcUSDC amount…",
+  "signing-request": "Confirm the unwrap request in your wallet…",
+  "confirming-request": "Waiting for the unwrap request confirmation…",
+  "requesting-proof": "Waiting for the public Nox unwrap proof…",
+  "signing-finalization": "Confirm public unwrap finalization in your wallet…",
+  "confirming-finalization": "Waiting for Test USDC release confirmation…",
 };
 
 export type ConfidentialBalanceState =
@@ -169,6 +184,18 @@ export function parseWrapAmount(input: string) {
   return amount;
 }
 
+export function parseUnwrapAmount(input: string) {
+  const normalized = input.trim();
+  if (!/^(0|[1-9]\d*)(\.\d{1,6})?$/.test(normalized)) {
+    throw new Error("Enter a positive amount with at most 6 decimals.");
+  }
+  const amount = parseUnits(normalized, 6);
+  if (amount === 0n) {
+    throw new Error("Unwrap amount must be greater than zero.");
+  }
+  return amount;
+}
+
 export async function wrapTestUsdc(
   walletClient: WalletClient,
   account: Address,
@@ -231,12 +258,18 @@ export function WalletBalancePanel({
   requestFaucet = requestTestUsdc,
   revealBalance = revealConfidentialBalance,
   requestWrap = wrapTestUsdc,
+  requestUnwrap = requestWalletUnwrap,
+  finalizeUnwrap = finalizeWalletUnwrap,
+  findPendingUnwrap = findPendingWalletUnwrap,
 }: {
   wallet: WalletController;
   loadBalances?: BalanceLoader;
   requestFaucet?: FaucetRequester;
   revealBalance?: BalanceRevealer;
   requestWrap?: BalanceWrapper;
+  requestUnwrap?: typeof requestWalletUnwrap;
+  finalizeUnwrap?: typeof finalizeWalletUnwrap;
+  findPendingUnwrap?: typeof findPendingWalletUnwrap;
 }) {
   const toasts = useToasts();
   const { state } = wallet;
@@ -248,6 +281,12 @@ export function WalletBalancePanel({
   const [wrapExpanded, setWrapExpanded] = useState(false);
   const [wrapAmount, setWrapAmount] = useState("");
   const [wrapStage, setWrapStage] = useState<WrapStage | null>(null);
+  const [unwrapExpanded, setUnwrapExpanded] = useState(false);
+  const [unwrapAmount, setUnwrapAmount] = useState("");
+  const [unwrapFullBalance, setUnwrapFullBalance] = useState(false);
+  const [unwrapStage, setUnwrapStage] = useState<WalletUnwrapStage | null>(null);
+  const [pendingUnwrapHandle, setPendingUnwrapHandle] = useState<Hex | null>(null);
+  const [pendingUnwrapCheck, setPendingUnwrapCheck] = useState(false);
   const [revealPending, setRevealPending] = useState(false);
   const [revealedBalance, setRevealedBalance] = useState<bigint | null>(
     null,
@@ -257,6 +296,7 @@ export function WalletBalancePanel({
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const revealRequestId = useRef(0);
   const walletActionRequestId = useRef(0);
+  const unwrapRecoveryRequestId = useRef(0);
   const activeToastIds = useRef(new Set<string>());
   const connected =
     state.status === "connected" &&
@@ -286,6 +326,13 @@ export function WalletBalancePanel({
       toasts.dismiss(toastId);
     }
     activeToastIds.current.clear();
+    unwrapRecoveryRequestId.current += 1;
+    setUnwrapExpanded(false);
+    setUnwrapAmount("");
+    setUnwrapFullBalance(false);
+    setUnwrapStage(null);
+    setPendingUnwrapHandle(null);
+    setPendingUnwrapCheck(false);
     if (!connected) {
       revealRequestId.current += 1;
       setBalances(null);
@@ -461,6 +508,184 @@ export function WalletBalancePanel({
     }
   }
 
+  async function toggleUnwrap() {
+    if (unwrapExpanded) {
+      unwrapRecoveryRequestId.current += 1;
+      setUnwrapExpanded(false);
+      setPendingUnwrapCheck(false);
+      setMessage(null);
+      return;
+    }
+    if (!connected) return;
+    setWrapExpanded(false);
+    setUnwrapExpanded(true);
+    setMessage(null);
+    const requestId = unwrapRecoveryRequestId.current + 1;
+    unwrapRecoveryRequestId.current = requestId;
+    setPendingUnwrapCheck(true);
+    try {
+      const handle = await findPendingUnwrap(state.account!);
+      if (unwrapRecoveryRequestId.current === requestId) {
+        setPendingUnwrapHandle(handle);
+      }
+    } catch {
+      if (unwrapRecoveryRequestId.current === requestId) {
+        setMessage({
+          kind: "error",
+          text: "Pending unwrap history is temporarily unavailable. You can still start a new unwrap if vcUSDC is available.",
+        });
+      }
+    } finally {
+      if (unwrapRecoveryRequestId.current === requestId) {
+        setPendingUnwrapCheck(false);
+      }
+    }
+  }
+
+  async function unwrap(event: React.FormEvent) {
+    event.preventDefault();
+    if (!connected || !balances || pendingUnwrapCheck) return;
+    setMessage(null);
+    let requestHandle = pendingUnwrapHandle;
+    let input:
+      | { mode: "full"; balanceHandle: Hex }
+      | { mode: "custom"; amount: bigint }
+      | null = null;
+
+    if (!requestHandle) {
+      if (
+        balances.confidential !== "encrypted" ||
+        !balances.confidentialHandle
+      ) {
+        setMessage({
+          kind: "error",
+          text: "No confidential vcUSDC balance is available to unwrap.",
+        });
+        return;
+      }
+      if (unwrapFullBalance) {
+        input = {
+          mode: "full",
+          balanceHandle: balances.confidentialHandle,
+        };
+      } else {
+        if (revealedBalance === null) {
+          setMessage({
+            kind: "error",
+            text: "Reveal the current vcUSDC balance before entering a custom amount, or choose FULL.",
+          });
+          return;
+        }
+        let amount: bigint;
+        try {
+          amount = parseUnwrapAmount(unwrapAmount);
+        } catch (cause) {
+          setMessage({
+            kind: "error",
+            text:
+              cause instanceof Error
+                ? cause.message
+                : "Unwrap amount is invalid.",
+          });
+          return;
+        }
+        if (amount >= revealedBalance) {
+          setMessage({
+            kind: "error",
+            text: "Custom unwrap must be smaller than the revealed balance. Choose FULL to unwrap everything.",
+          });
+          return;
+        }
+        input = { mode: "custom", amount };
+      }
+    }
+
+    const toastId = toasts.startStack(
+      "UNWRAP vcUSDC",
+      requestHandle
+        ? unwrapToastLabel["requesting-proof"]
+        : input?.mode === "custom"
+          ? unwrapToastLabel.encrypting
+          : unwrapToastLabel["signing-request"],
+    );
+    activeToastIds.current.add(toastId);
+    const requestId = walletActionRequestId.current + 1;
+    walletActionRequestId.current = requestId;
+    try {
+      if (!requestHandle && input) {
+        const request = await requestUnwrap(
+          state.walletClient!,
+          state.account!,
+          input,
+          (nextStage) => {
+            if (walletActionRequestId.current === requestId) {
+              setUnwrapStage(nextStage);
+              toasts.update(toastId, unwrapToastLabel[nextStage]);
+            }
+          },
+        );
+        if (walletActionRequestId.current !== requestId) return;
+        requestHandle = request.requestHandle;
+        setPendingUnwrapHandle(request.requestHandle);
+      }
+      if (!requestHandle) throw new Error("Unwrap request is unavailable.");
+      const finalized = await finalizeUnwrap(
+        state.walletClient!,
+        state.account!,
+        requestHandle,
+        (nextStage) => {
+          if (walletActionRequestId.current === requestId) {
+            setUnwrapStage(nextStage);
+            toasts.update(toastId, unwrapToastLabel[nextStage]);
+          }
+        },
+      );
+      if (walletActionRequestId.current !== requestId) return;
+      setPendingUnwrapHandle(null);
+      setUnwrapAmount("");
+      setUnwrapFullBalance(false);
+      setUnwrapExpanded(false);
+      await refresh();
+      setMessage({
+        kind: "status",
+        text: `${compactAmount(finalized.amount, 6, 6)} vcUSDC unwrapped to public Test USDC.`,
+      });
+      activeToastIds.current.delete(toastId);
+      toasts.succeed(
+        toastId,
+        `${compactAmount(finalized.amount, 6, 6)} Test USDC released to this wallet.`,
+      );
+    } catch {
+      if (walletActionRequestId.current === requestId) {
+        activeToastIds.current.delete(toastId);
+        if (requestHandle) {
+          setPendingUnwrapHandle(requestHandle);
+          setMessage({
+            kind: "error",
+            text: "The unwrap request is confirmed, but public-proof finalization is still pending. Use FINALIZE PENDING UNWRAP to retry.",
+          });
+          toasts.fail(
+            toastId,
+            "Unwrap request confirmed; public-proof finalization is still pending.",
+          );
+        } else {
+          setMessage({
+            kind: "error",
+            text: "Unwrap was rejected or stopped before an on-chain request was confirmed.",
+          });
+          toasts.fail(
+            toastId,
+            "Unwrap stopped before an on-chain request was confirmed.",
+          );
+        }
+      }
+    } finally {
+      if (walletActionRequestId.current === requestId) {
+        setUnwrapStage(null);
+      }
+    }
+  }
+
   function hideRevealedBalance() {
     revealRequestId.current += 1;
     setRevealPending(false);
@@ -491,10 +716,11 @@ export function WalletBalancePanel({
             steps={[
               "SEP ETH pays Sepolia gas; acquire it from a Sepolia faucet if needed.",
               "GET TEST USDC requests demo tokens from the VeilBid faucet contract.",
-              "WRAP TO vcUSDC converts a chosen Test USDC amount after an ERC-20 approval; Buyer can also wrap automatically while funding.",
+              "WRAP TO vcUSDC converts a chosen Test USDC amount after an ERC-20 approval. EOA Buyer requires enough Test USDC before creation and never calls the faucet automatically.",
               "When vcUSDC shows ENCRYPTED, use the eye and authorize your wallet to reveal it for this session only.",
+              "UNWRAP vcUSDC releases public Test USDC to this wallet after an unwrap request and public-proof finalization.",
             ]}
-            note="Refresh rereads Sepolia. Wrap only what you intend to test. Confidential values are never stored in the URL, browser storage, logs, or public evidence."
+            note="Full unwrap uses the encrypted balance directly; custom unwrap requires a private reveal. The finalized amount and recipient become public."
           />
           <button
             className="balance-refresh"
@@ -606,7 +832,12 @@ export function WalletBalancePanel({
         className="balance-faucet"
         type="button"
         onClick={() => void faucet()}
-        disabled={!connected || faucetPending || wrapStage !== null}
+        disabled={
+          !connected ||
+          faucetPending ||
+          wrapStage !== null ||
+          unwrapStage !== null
+        }
       >
         {faucetPending ? "CONFIRMING…" : "GET TEST USDC"}
       </button>
@@ -617,12 +848,16 @@ export function WalletBalancePanel({
         aria-controls="balance-wrap-form"
         onClick={() => {
           setWrapExpanded((current) => !current);
+          unwrapRecoveryRequestId.current += 1;
+          setUnwrapExpanded(false);
+          setPendingUnwrapCheck(false);
           setMessage(null);
         }}
         disabled={
           !connected ||
           faucetPending ||
           wrapStage !== null ||
+          unwrapStage !== null ||
           status === "loading" ||
           balances?.testUsdc === 0n
         }
@@ -681,9 +916,111 @@ export function WalletBalancePanel({
           </p>
         </form>
       )}
+      <button
+        className="balance-wrap-toggle balance-unwrap-toggle"
+        type="button"
+        aria-expanded={unwrapExpanded}
+        aria-controls="balance-unwrap-form"
+        onClick={() => void toggleUnwrap()}
+        disabled={
+          !connected ||
+          faucetPending ||
+          wrapStage !== null ||
+          unwrapStage !== null ||
+          status === "loading"
+        }
+        title="Convert confidential vcUSDC back to public Test USDC"
+      >
+        {unwrapExpanded ? "CANCEL UNWRAP" : "UNWRAP vcUSDC"}
+      </button>
+      {unwrapExpanded && balances && (
+        <form
+          className="balance-wrap-form balance-unwrap-form"
+          id="balance-unwrap-form"
+          onSubmit={(event) => void unwrap(event)}
+        >
+          <label htmlFor="balance-unwrap-amount">vcUSDC AMOUNT</label>
+          <div>
+            <input
+              id="balance-unwrap-amount"
+              value={unwrapFullBalance ? "FULL BALANCE" : unwrapAmount}
+              onChange={(event) => setUnwrapAmount(event.target.value)}
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder={
+                revealedBalance === null
+                  ? "Reveal balance or use Full"
+                  : "0.00"
+              }
+              disabled={
+                unwrapStage !== null ||
+                pendingUnwrapCheck ||
+                pendingUnwrapHandle !== null ||
+                unwrapFullBalance ||
+                revealedBalance === null
+              }
+              required={!unwrapFullBalance && pendingUnwrapHandle === null}
+            />
+            <button
+              type="button"
+              aria-pressed={unwrapFullBalance}
+              onClick={() => {
+                setUnwrapFullBalance((current) => !current);
+                setUnwrapAmount("");
+                setMessage(null);
+              }}
+              disabled={
+                unwrapStage !== null ||
+                pendingUnwrapCheck ||
+                pendingUnwrapHandle !== null
+              }
+              title="Use the encrypted full balance without revealing it"
+            >
+              {unwrapFullBalance ? "FULL ✓" : "FULL"}
+            </button>
+          </div>
+          {!unwrapFullBalance &&
+            pendingUnwrapHandle === null &&
+            revealedBalance === null && (
+              <p>
+                Use the eye beside vcUSDC before entering a custom amount, or
+                choose Full without revealing the balance.
+              </p>
+            )}
+          {pendingUnwrapCheck && <p>CHECKING PENDING UNWRAP HISTORY…</p>}
+          {pendingUnwrapHandle && (
+            <p>
+              A confirmed unwrap request is waiting for its public proof. No
+              new amount or burn transaction is needed.
+            </p>
+          )}
+          <button
+            className="balance-wrap-confirm"
+            type="submit"
+            disabled={
+              unwrapStage !== null ||
+              pendingUnwrapCheck ||
+              (!pendingUnwrapHandle &&
+                (balances.confidential !== "encrypted" ||
+                  (!unwrapFullBalance &&
+                    (revealedBalance === null || unwrapAmount.trim() === ""))))
+            }
+          >
+            {unwrapStage
+              ? "UNWRAP IN PROGRESS…"
+              : pendingUnwrapHandle
+                ? "FINALIZE PENDING UNWRAP"
+                : `UNWRAP ${unwrapFullBalance ? "FULL" : "CUSTOM"}`}
+          </button>
+          <p>
+            Recipient: this connected wallet. Finalization makes the amount
+            and recipient public; remaining vcUSDC stays confidential.
+          </p>
+        </form>
+      )}
       <p className="balance-note">
-        Use the eye to decrypt vcUSDC with your wallet. The value stays
-        in this browser session only.
+        Use the eye to decrypt vcUSDC; the value stays in this browser session
+        only. Wrap creates confidential funds; unwrap returns public Test USDC.
       </p>
       {revealError && (
         <p className="balance-message" role="alert">
