@@ -110,7 +110,8 @@ export function DocsPage() {
             <StepList steps={[
               { title: "Connect a Sepolia wallet", copy: "Open Buyer—the default EOA Buyer view—and connect the account that will directly own the tender." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
-              { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
+              { title: "Acquire enough Test USDC", copy: "Use GET TEST USDC before creation. If the public ceiling exceeds the wallet balance, the form stops before any transaction; it never calls the faucet automatically." },
+              { title: "Wrap and fund", copy: "Once Test USDC covers the ceiling, the guided flow approves the wrapper when needed, wraps the exact ceiling to vcUSDC, and creates the funded tender." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
               { title: "Create funded tender", copy: "Simulate, review, and sign the tender creation transaction. The public terms and encrypted budget are bound together." },
               { title: "Prove exact funding", copy: "The web waits for the public equality result proving escrow equals the ceiling, without opening the confidential balance itself." },
@@ -121,6 +122,10 @@ export function DocsPage() {
               tender. Open Activity and resume the stored public checkpoint.
               The eye beside vcUSDC performs an explicit, session-only reveal
               and appears disabled when no confidential balance exists.
+              UNWRAP vcUSDC supports Full directly from the encrypted balance,
+              or a custom amount after reveal. Public-proof finalization
+              releases Test USDC to the connected wallet and makes amount and
+              recipient public.
               The EOA is also bound as the review wallet: it cannot inspect
               other vendors’ bids while Open and receives scoped access
               automatically only after finalization.
@@ -265,8 +270,9 @@ export function DocsPage() {
               <div><dt>No wallet detected</dt><dd>Unlock or install an EIP-6963 compatible browser wallet, then reload. Public mode remains available.</dd></div>
               <div><dt>Sepolia switch declined</dt><dd>Open the header wallet menu and select RETRY SEPOLIA CONNECTION. Write actions remain disabled until chain 11155111 is active.</dd></div>
               <div><dt>Public state unavailable</dt><dd>Retry the Sepolia read. VeilBid deliberately shows an error instead of substituting mock data.</dd></div>
+              <div><dt>EOA ceiling exceeds Test USDC</dt><dd>Use GET TEST USDC in Balances, wait for confirmation, then submit again. Create Tender never calls the faucet automatically.</dd></div>
               <div><dt>Safe assets are not listed</dt><dd>Safe Buyer intentionally shows only vcUSDC. Open the selected account in Safe Wallet to inspect or transfer public ETH, vUSDC, and unrelated assets.</dd></div>
-              <div><dt>Custom unwrap is unavailable</dt><dd>Reveal the current Safe vcUSDC balance first. Full unwrap does not require reveal. Both modes need the Safe threshold, followed by public-proof finalization.</dd></div>
+              <div><dt>Custom unwrap is unavailable</dt><dd>Reveal the current holder’s vcUSDC balance first. Full unwrap does not require reveal. Safe exits need the Safe threshold; EOA exits use the connected wallet directly. Both finish through public-proof finalization.</dd></div>
               <div><dt>Proof request interrupted</dt><dd>Open Activity and resume the public checkpoint. Do not repeat tender creation or submit an alternate winner.</dd></div>
               <div><dt>Review wallet cannot reveal</dt><dd>Confirm the tender is finalized and the connected account matches its public review wallet. Vendor grants still apply only to that exact bid handle.</dd></div>
               <div><dt>Safe action unavailable</dt><dd>Confirm the connected wallet is a Safe owner and the live module is enabled. Enabling or re-enabling it requires a normal Safe threshold transaction.</dd></div>

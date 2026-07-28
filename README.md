@@ -275,7 +275,9 @@ security, or mainnet readiness.
 3. Inspect Sepolia ETH and test USDC in the workspace balance panel. Use
    `GET TEST USDC` when needed. For an explicit test, open `WRAP TO vcUSDC`,
    enter an amount, and confirm the ERC-20 approval and wrap transactions.
-   The guided Buyer flow can instead wrap the exact ceiling automatically.
+   EOA tender creation never calls the faucet automatically: Test USDC must
+   already cover the public ceiling, after which the guided flow wraps exactly
+   that ceiling.
 4. Authorize the market operator and create the funded tender.
 5. Request and submit the public exact-funding proof.
 6. Confirm the tender changes from `FundingPending` to `Open`.
@@ -295,6 +297,13 @@ notifications can be dismissed and also close automatically.
 The sidebar balance panel belongs to the connected EOA. After wrapping, its
 vcUSDC state changes to `ENCRYPTED`; selecting the eye asks that wallet to
 decrypt the balance for the current browser session only.
+
+The same panel supports full or custom vcUSDC unwrap back to public Test USDC.
+Full consumes the current encrypted balance without a private reveal; custom
+requires the session balance first so the browser can reject an overdraw. The
+unwrap request burns confidential funds, then a second permissionless
+public-proof transaction releases Test USDC to the connected wallet. The
+finalized amount and recipient become public.
 
 Safe Buyer keeps the selected treasury focused on VeilBid's confidential asset:
 the compact `SAFE FUNDS` section shows vcUSDC beside one private-view control.

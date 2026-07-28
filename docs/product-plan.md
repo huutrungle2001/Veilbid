@@ -79,7 +79,9 @@ Disclosure policy:
 
 ### Buyer EOA
 
-1. Connect on Sepolia and obtain/wrap test USDC.
+1. Connect on Sepolia and obtain enough public Test USDC explicitly. Tender
+   creation rejects an over-balance ceiling before any write and never calls
+   the faucet automatically.
 2. Create a `FundingPending` tender with public ceiling and deadlines.
 3. Attempt to escrow the public ceiling through ERC-7984.
 4. Generate and submit the public funding-equality proof; only an exactly
@@ -90,6 +92,10 @@ Disclosure policy:
 7. Verify the proof-derived winner and confidential settlement.
 8. Review stored bids after finalization through the automatically authorized
    EOA review wallet.
+9. Exit full or custom vcUSDC through the shared EOA balance panel. A full exit
+   consumes the encrypted balance handle directly; a custom exit requires a
+   session-only reveal. Public-proof finalization returns Test USDC to the EOA
+   and makes the amount and recipient public.
 
 ### Safe buyer
 

@@ -111,7 +111,7 @@ Chỉ dùng các ví này trên testnet.
 Kết quả mong đợi: Public hoạt động không cần ví và không hiển thị giá bid hay
 số dư bí mật.
 
-## 3. Kiểm tra Balances, faucet, wrap và reveal của EOA
+## 3. Kiểm tra Balances, faucet, wrap, reveal và unwrap của EOA
 
 Phần này kiểm tra tiện ích ví của EOA và có thể bỏ qua khi chỉ demo Safe Buyer.
 `WRAP TO vcUSDC` mint cho chính EOA; Safe Buyer có nút riêng để dùng public
@@ -142,6 +142,13 @@ Phần này kiểm tra tiện ích ví của EOA và có thể bỏ qua khi ch�
 12. Xác nhận yêu cầu của ví để reveal.
 13. Kiểm tra số dư rõ chỉ xuất hiện trong phiên trình duyệt hiện tại.
 14. Bấm mắt lần nữa để ẩn.
+15. Bấm `UNWRAP vcUSDC`; khung phải có cùng style với `WRAP TO vcUSDC`.
+16. Chọn `FULL` để unwrap toàn bộ mà không cần reveal, hoặc reveal balance rồi
+    nhập một amount tùy chỉnh nhỏ hơn balance.
+17. Bấm `UNWRAP FULL` hoặc `UNWRAP CUSTOM`, xác nhận unwrap request, chờ public
+    proof rồi xác nhận finalization.
+18. Kiểm tra public Test USDC trở về chính EOA đang kết nối. Nếu proof chưa sẵn
+    sàng, mở lại khung và dùng `FINALIZE PENDING UNWRAP`; web không burn lần hai.
 
 Kết quả mong đợi:
 
@@ -150,6 +157,9 @@ Kết quả mong đợi:
 - Giá trị rõ không xuất hiện trong URL, local storage, log hoặc Public.
 - Refresh, đổi tài khoản hoặc đổi mạng phải xóa giá trị đã reveal.
 - Số dư vừa faucet/wrap thuộc EOA đang kết nối, không tự chuyển sang Safe.
+- Full unwrap không cần reveal; custom unwrap yêu cầu balance đã reveal.
+- Amount và recipient trở thành public khi finalize; vcUSDC còn lại vẫn
+  confidential.
 
 ## 4. Safe Buyer: chọn Safe, thiết lập, funding và tạo tender
 
@@ -488,12 +498,12 @@ Mở workspace `BUYER`, chọn tab `EOA BUYER`; luồng này tạo tender do ví
 sở hữu, không cần Safe.
 
 1. Kết nối EOA trên Sepolia.
-2. Bảo đảm EOA có Sepolia ETH. App có thể tự lấy Test USDC và wrap đúng public
-   ceiling khi tạo tender.
+2. Bảo đảm EOA có Sepolia ETH và đủ public Test USDC. Nếu thiếu, người dùng phải
+   tự bấm `GET TEST USDC`; Create Tender không tự gọi faucet.
 3. Nhập public metadata, ceiling, deadline và 1–8 Vendor.
-4. Bấm `PREPARE & FUND TENDER`.
+4. Bấm `CREATE WITH EOA`.
 5. Xác nhận lần lượt các transaction cần thiết:
-   - Faucet Test USDC nếu thiếu.
+   - Chặn trước giao dịch nếu public ceiling lớn hơn Test USDC hiện có.
    - Approve wrapper.
    - Wrap sang confidential vcUSDC.
    - Authorize Market operator.
@@ -521,8 +531,10 @@ Thực hiện thêm các trường hợp:
    hướng dẫn chuyển lại Sepolia.
 2. Từ chối một wallet prompt: toast phải đổi sang lỗi, không treo loading.
 3. Nhập wrap amount lớn hơn Test USDC: UI phải báo lỗi trước khi gửi.
-4. Nhập bid lớn hơn public ceiling: UI phải từ chối.
-5. Dùng ví không được approve để gửi bid: giao dịch không được tiếp tục.
+4. Nhập EOA public ceiling lớn hơn Test USDC hiện có: Create Tender phải yêu
+   cầu người dùng tự bấm faucet và không tự gửi giao dịch faucet.
+5. Nhập bid lớn hơn public ceiling: UI phải từ chối.
+6. Dùng ví không được approve để gửi bid: giao dịch không được tiếp tục.
 6. Gửi bid lần hai từ cùng Vendor: phải bị từ chối.
 7. Đổi account giữa lúc đang xem plaintext: plaintext phải bị xóa.
 8. Reload Public khi RPC lỗi: hiển thị lỗi và nút retry, không dùng mock data.
