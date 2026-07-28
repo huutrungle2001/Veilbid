@@ -386,4 +386,29 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByText(/discovers Safe accounts owned by/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /SAFE BUYER/ })).toBeInTheDocument();
   });
+
+  it("defaults Buyer to EOA and keeps EOA before Safe", () => {
+    render(
+      <MemoryRouter initialEntries={["/room"]}>
+        <ExplorerView
+          state={state()}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="BUYER"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    const tabs = Array.from(
+      screen.getByRole("navigation", { name: "Buyer sections" }).querySelectorAll("button"),
+    )
+      .map((button) => button.textContent)
+      .filter((label) => label?.includes("BUYER"));
+    expect(tabs).toEqual([
+      "EOA BUYEREOAUse a direct wallet",
+      "SAFE BUYERSAFEUse a Safe treasury",
+    ]);
+    expect(screen.getByRole("button", { name: /EOA BUYER/ })).toHaveClass("active");
+    expect(screen.getByRole("heading", { name: "Fund public terms." })).toBeInTheDocument();
+  });
 });

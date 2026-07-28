@@ -525,7 +525,7 @@ export function ExplorerView({
           <BuyerWorkspace
             wallet={wallet}
             onRefresh={onRetry}
-            section={buyerSection ?? "safe"}
+            section={buyerSection ?? "eoa"}
             onSectionChange={onBuyerSectionChange ?? (() => undefined)}
           />
         ) : activeRole === "PRIVATE BIDS" && wallet ? (
@@ -714,7 +714,7 @@ function TenderRoomApp({ wallet }: { wallet: WalletController }) {
     ?.toUpperCase()
     .replace(/[-_]+/g, " ");
   const buyerSection: BuyerSection =
-    roomParams.get("buyer") === "eoa" ? "eoa" : "safe";
+    roomParams.get("buyer") === "safe" ? "safe" : "eoa";
   const privateSection: PrivateBidsSection =
     requestedRole === "AUDITOR" || roomParams.get("private") === "granted-access"
       ? "granted-access"
@@ -741,7 +741,7 @@ function TenderRoomApp({ wallet }: { wallet: WalletController }) {
   };
   const setBuyerSection = (section: BuyerSection) => {
     const next = new URLSearchParams(roomParams);
-    if (section === "safe") next.delete("buyer");
+    if (section === "eoa") next.delete("buyer");
     else next.set("buyer", section);
     next.set("role", "buyer");
     setRoomParams(next);

@@ -90,16 +90,16 @@ export function BuyerWorkspace({
         onChange={onSectionChange}
         items={[
           {
-            id: "safe",
-            label: "SAFE BUYER",
-            description: "Use a Safe treasury",
-            mobileLabel: "SAFE",
-          },
-          {
             id: "eoa",
             label: "EOA BUYER",
             description: "Use a direct wallet",
             mobileLabel: "EOA",
+          },
+          {
+            id: "safe",
+            label: "SAFE BUYER",
+            description: "Use a Safe treasury",
+            mobileLabel: "SAFE",
           },
         ]}
       />
