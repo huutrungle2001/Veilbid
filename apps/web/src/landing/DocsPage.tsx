@@ -175,12 +175,12 @@ export function DocsPage() {
               optional recovery fallbacks.
             </p>
             <StepList steps={[
-              { title: "Monitor automation", copy: "Activity shows Auto-Ready and Automation In Progress states. No user action is required while the hosted relay is advancing normally." },
+              { title: "Monitor automation", copy: "Activity keeps Automation Status compact by default while its three counters remain visible. It opens automatically only when a saved checkpoint Needs Attention; otherwise Show Details exposes optional relay and manual-recovery information." },
               { title: "Advance only when needed", copy: "ADVANCE MANUALLY is a secondary fallback when the relay is delayed or unavailable; it derives eligibility and simulates against canonical on-chain state." },
               { title: "Request winner proof", copy: "The relay requests public decryption for the winner ID, not for bid or settlement values." },
               { title: "Resume after interruption", copy: "Activity stores only public tender IDs and trigger transaction hashes; handles and proofs are reread when resuming." },
               { title: "Finalize once", copy: "On-chain proof verification and replay protection permit confidential vendor payment or the protocol’s full refund outcome." },
-              { title: "Notify the winner", copy: "When the connected wallet is named by a confirmed TenderAwarded event, VeilBid shows an unread award banner. The complete award history remains in Activity with the exact award transaction and receipt link." },
+              { title: "Notify the winner", copy: "When the connected wallet is named by a confirmed TenderAwarded event, VeilBid shows an unread award banner. Opening that award marks it read automatically; the complete history remains in Activity with the exact award transaction and receipt link." },
               { title: "Review lifecycle history", copy: "Activity lists each indexed public lifecycle event with its confirmed block and Sepolia transaction link; no confidential amount or bid value is stored there." },
             ]} />
             <p className="docs-note">

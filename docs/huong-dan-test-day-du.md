@@ -453,8 +453,10 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
    - Banner `You won Tender #...` xuất hiện khi có award chưa đọc.
    - Bấm `VIEW AWARD` để mở đúng public dossier, hoặc `ACTIVITY HISTORY` để xem
      toàn bộ các lần thắng.
-   - Bấm `MARK READ` không xóa bản ghi. Sau reload, award vẫn nằm trong Activity
-     và được phục hồi từ `TenderAwarded` trên Sepolia.
+   - Không có nút `MARK READ` riêng. Bấm `VIEW AWARD`, `ACTIVITY HISTORY` từ
+     banner hoặc `VIEW PUBLIC AWARD` sẽ tự đánh dấu đã đọc, nhưng không xóa bản
+     ghi. Sau reload, award vẫn nằm trong Activity và được phục hồi từ
+     `TenderAwarded` trên Sepolia.
    - Chỉ trạng thái đã đọc được lưu theo chain, Market và địa chỉ ví trong
      local storage; bid value, settlement amount, handle, proof và signature
      không được lưu.
@@ -462,8 +464,12 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
    (tạo, funding, bid received, close, award/refund/cancel và viewer grant),
    block cùng transaction tương ứng. Các giá trị bid và balance confidential
    không xuất hiện ở đây.
-4. Kiểm tra `AUTOMATION STATUS`. Nếu có checkpoint gián đoạn mang nhãn
-   `NEEDS ATTENTION`, kết nối đúng ví và bấm `RESUME`.
+4. Kiểm tra `AUTOMATION STATUS`:
+   - Bình thường phần chi tiết được thu gọn; ba bộ đếm vẫn hiển thị.
+   - Bấm `SHOW DETAILS` chỉ khi muốn xem trạng thái relay hoặc fallback thủ
+     công.
+   - Nếu có checkpoint gián đoạn mang nhãn `NEEDS ATTENTION`, phần này tự mở;
+     kết nối đúng ví và bấm `RESUME`.
 5. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, dùng nút
    `ADVANCE MANUALLY` tương ứng như một fallback permissionless.
 6. Xác nhận transaction cần thiết trong MetaMask.

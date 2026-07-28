@@ -216,9 +216,10 @@ luồng Safe Buyer có nút deposit riêng.
    - Ví 1 nhận confidential remainder `3 vcUSDC`.
 6. Vì vẫn đang kết nối Ví 3, quay banner `You won Tender #...`, rồi mở
    `ACTIVITY HISTORY`.
-7. Trong `AWARD NOTIFICATIONS`, mở đúng award và transaction Sepolia. Có thể
-   bấm `MARK READ`: bản ghi vẫn được giữ trong Activity sau reload vì được dựng
-   lại từ event `TenderAwarded`; browser chỉ lưu trạng thái đã đọc.
+7. Trong `AWARD NOTIFICATIONS`, bấm `VIEW PUBLIC AWARD` để mở đúng award và
+   transaction Sepolia. Thao tác này tự đánh dấu đã đọc nhưng bản ghi vẫn được
+   giữ trong Activity sau reload vì được dựng lại từ event `TenderAwarded`;
+   browser chỉ lưu trạng thái đã đọc.
 
 Số dư hiển thị là **tổng balance của ví**, không phải riêng khoản nhận từ tender.
 Muốn chứng minh đúng `7` và `3`, cần ghi lại balance trước và sau.
