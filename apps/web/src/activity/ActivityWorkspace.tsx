@@ -56,7 +56,12 @@ export function ActivityWorkspace({
   onViewAward: (tenderId: bigint) => void;
 }) {
   const toasts = useToasts();
-  const [records, setRecords] = useState<RecoveryRecord[]>([]);
+  const [records, setRecords] = useState<RecoveryRecord[]>(() =>
+    readRecoveryRecords(),
+  );
+  const [automationExpanded, setAutomationExpanded] = useState(
+    () => records.length > 0,
+  );
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [stage, setStage] = useState<RecoveryStage | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +80,10 @@ export function ActivityWorkspace({
       window.removeEventListener("storage", reload);
     };
   }, [reload]);
+
+  useEffect(() => {
+    if (records.length > 0) setAutomationExpanded(true);
+  }, [records.length]);
 
   useEffect(() => {
     setActiveKey(null);
@@ -222,26 +231,45 @@ export function ActivityWorkspace({
         onViewAward={onViewAward}
       />
 
-      <section className="activity-section activity-action-queue">
+      <section
+        className="activity-section activity-action-queue"
+        data-attention={records.length > 0}
+      >
         <header>
           <div>
             <p className="eyebrow">AUTOMATION STATUS</p>
             <h2>{queueCount} {queueCount === 1 ? "item" : "items"}</h2>
           </div>
-          <ContextHelp
-            compact
-            label="Help for automation status"
-            title="HOW TO READ AUTOMATION STATUS"
-            steps={[
-              "Needs Attention means this browser saved an interrupted public checkpoint that can be resumed.",
-              "Auto-Ready means the relay can submit the next permissionless lifecycle transaction without user action.",
-              "Automation In Progress means a tender is Closed and its public winner proof is being tracked.",
-            ]}
-            note="Manual buttons are optional fallbacks. Completed actions remain visible in Lifecycle History."
-          />
-          <button className="icon-button" onClick={reload} aria-label="Refresh action queue">
-            ↻
-          </button>
+          <div className="activity-queue-header-controls">
+            <ContextHelp
+              compact
+              label="Help for automation status"
+              title="HOW TO READ AUTOMATION STATUS"
+              steps={[
+                "Needs Attention means this browser saved an interrupted public checkpoint that can be resumed.",
+                "Auto-Ready means the relay can submit the next permissionless lifecycle transaction without user action.",
+                "Automation In Progress means a tender is Closed and its public winner proof is being tracked.",
+              ]}
+              note="This section stays compact unless you open it or a recoverable checkpoint needs attention. Manual buttons are optional fallbacks."
+            />
+            <button
+              className="icon-button"
+              onClick={reload}
+              aria-label="Refresh action queue"
+            >
+              ↻
+            </button>
+            <button
+              className="activity-queue-toggle"
+              type="button"
+              aria-controls="automation-status-details"
+              aria-expanded={automationExpanded}
+              onClick={() => setAutomationExpanded((expanded) => !expanded)}
+            >
+              {automationExpanded ? "HIDE DETAILS" : "SHOW DETAILS"}
+              <span aria-hidden="true">{automationExpanded ? "−" : "+"}</span>
+            </button>
+          </div>
         </header>
         <div className="activity-queue-summary" aria-label="Automation status summary">
           <span data-state="attention">
@@ -254,13 +282,15 @@ export function ActivityWorkspace({
             <strong>{processing.length}</strong> IN PROGRESS
           </span>
         </div>
-        {queueCount === 0 ? (
-          <p className="empty-activity activity-queue-empty">
-            <strong>ALL CAUGHT UP</strong>
-            <span>The web and relay are handling the current lifecycle.</span>
-          </p>
-        ) : (
-          <div className="activity-list">
+        {automationExpanded && (
+          <div className="activity-queue-details" id="automation-status-details">
+            {queueCount === 0 ? (
+              <p className="empty-activity activity-queue-empty">
+                <strong>ALL CAUGHT UP</strong>
+                <span>The web and relay are handling the current lifecycle.</span>
+              </p>
+            ) : (
+              <div className="activity-list">
             {records.map((record) => {
               const key = `${record.kind}:${record.tenderId}`;
               return (
@@ -346,6 +376,8 @@ export function ActivityWorkspace({
                 </article>
               );
             })}
+              </div>
+            )}
           </div>
         )}
       </section>

@@ -136,16 +136,12 @@ export function WinnerNotificationBanner({
         <button
           className="secondary-button"
           type="button"
-          onClick={onOpenActivity}
+          onClick={() => {
+            markRead([latest.tenderId]);
+            onOpenActivity();
+          }}
         >
           ACTIVITY HISTORY
-        </button>
-        <button
-          className="winner-notification-dismiss"
-          type="button"
-          onClick={() => markRead(unread.map((tender) => tender.tenderId))}
-        >
-          MARK ALL READ
         </button>
       </div>
     </section>
@@ -240,15 +236,6 @@ export function WinnerNotificationHistory({
                   >
                     VIEW PUBLIC AWARD →
                   </button>
-                  {!read && (
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      onClick={() => markRead([tender.tenderId])}
-                    >
-                      MARK READ
-                    </button>
-                  )}
                 </div>
               </article>
             );

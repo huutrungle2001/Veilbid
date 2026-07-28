@@ -118,6 +118,9 @@ describe("winner notifications", () => {
 
     expect(screen.getByText("You won Tender #2.")).toBeInTheDocument();
     expect(screen.getByText(/block 102 · receipt #2/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /MARK.*READ/ }),
+    ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "VIEW AWARD →" }));
 
     expect(onViewAward).toHaveBeenCalledWith(2n);
@@ -125,6 +128,23 @@ describe("winner notifications", () => {
       expect(screen.getByText("You won Tender #1.")).toBeInTheDocument(),
     );
     expect([...readWinnerNotificationIds(winner)]).toContain("2");
+  });
+
+  it("marks the notification read when its Activity history is opened", () => {
+    const onOpenActivity = vi.fn();
+    render(
+      <WinnerNotificationBanner
+        wallet={wallet}
+        tenders={[awardedTender(1n)]}
+        onViewAward={vi.fn()}
+        onOpenActivity={onOpenActivity}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "ACTIVITY HISTORY" }));
+
+    expect(onOpenActivity).toHaveBeenCalledOnce();
+    expect([...readWinnerNotificationIds(winner)]).toContain("1");
   });
 
   it("keeps the complete on-chain award history in Activity", async () => {
@@ -141,6 +161,9 @@ describe("winner notifications", () => {
     expect(screen.getByRole("heading", { name: "2 awards" })).toBeInTheDocument();
     expect(screen.getByText("READ")).toBeInTheDocument();
     expect(screen.getByText("NEW AWARD")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /MARK.*READ/ }),
+    ).not.toBeInTheDocument();
     const settlementLinks = screen.getAllByRole("link", { name: /Settlement/ });
     expect(settlementLinks[0]).toHaveAttribute(
       "href",

@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PublicMarketState } from "../src/public-market/usePublicMarket";
 import { ExplorerView } from "../src/shell/App";
 import type { WalletController } from "../src/wallet/WalletPanel";
+import { saveRecoveryRecord } from "../src/activity/recoveryStore";
 
 const buyer = "0x1111111111111111111111111111111111111111";
 const transactionHash = `0x${"22".repeat(32)}` as const;
@@ -363,7 +364,40 @@ describe("Tender Room public explorer", () => {
     expect(screen.getByLabelText("Automation status summary")).toHaveTextContent(
       "0 IN PROGRESS",
     );
+    expect(screen.queryByText("ALL CAUGHT UP")).not.toBeInTheDocument();
+    const toggle = screen.getByRole("button", { name: /SHOW DETAILS/ });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(toggle);
     expect(screen.getByText("ALL CAUGHT UP")).toBeInTheDocument();
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("automatically expands Automation Status for a recoverable checkpoint", () => {
+    saveRecoveryRecord({
+      kind: "winner",
+      tenderId: 9n,
+      triggerTransactionHash: transactionHash,
+    });
+    render(
+      <MemoryRouter initialEntries={["/room"]}>
+        <ExplorerView
+          state={state()}
+          onRetry={vi.fn()}
+          wallet={disconnectedWallet}
+          activeRole="ACTIVITY"
+          onRoleChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText("Automation status summary")).toHaveTextContent(
+      "1 NEEDS ATTENTION",
+    );
+    expect(screen.getByRole("button", { name: /HIDE DETAILS/ })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "RESUME →" })).toBeVisible();
   });
 
   it("combines Vendor and granted access in Private Bids", () => {

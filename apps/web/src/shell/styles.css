@@ -3370,19 +3370,6 @@ main {
   color: var(--color-paper-white);
 }
 
-.winner-notification-dismiss {
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  min-height: 42px;
-  padding: 8px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
 .winner-notification-history {
   display: grid;
   gap: 16px;
@@ -3480,8 +3467,47 @@ main {
   gap: 16px;
 }
 
+.activity-action-queue[data-attention="true"] {
+  border-top: 4px solid var(--color-veil-green);
+  padding-top: 25px;
+}
+
 .activity-action-queue > header {
+  align-items: center;
   margin-bottom: 0;
+}
+
+.activity-queue-header-controls {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.activity-queue-toggle {
+  align-items: center;
+  background: var(--color-veil-green);
+  border: 1px solid var(--color-ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  gap: 12px;
+  justify-content: space-between;
+  min-height: 44px;
+  min-width: 136px;
+  padding: 9px 12px;
+}
+
+.activity-queue-toggle > span {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.activity-queue-details {
+  display: grid;
+  gap: 16px;
 }
 
 .activity-queue-summary {
@@ -5227,10 +5253,6 @@ footer p {
     flex: 1 1 180px;
   }
 
-  .winner-notification-dismiss {
-    flex: 1 1 100%;
-  }
-
   .winner-notification-history > header {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -5254,6 +5276,21 @@ footer p {
 
   .activity-queue-summary {
     grid-template-columns: 1fr;
+  }
+
+  .activity-action-queue > header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .activity-queue-header-controls {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  .activity-queue-toggle {
+    flex: 1 1 auto;
   }
 
   .activity-queue-summary > span {
