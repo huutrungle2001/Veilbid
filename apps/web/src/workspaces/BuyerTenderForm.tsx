@@ -40,6 +40,10 @@ function minimumLocalDeadline() {
   return deadline.toISOString().slice(0, 16);
 }
 
+function shortAddress(value: string) {
+  return `${value.slice(0, 6)}…${value.slice(-4)}`;
+}
+
 export function BuyerTenderForm({
   wallet,
   onConfirmed,
@@ -142,133 +146,187 @@ export function BuyerTenderForm({
   }
 
   return (
-    <form className="write-form" onSubmit={(event) => void submit(event)}>
-      <div className="form-heading">
-        <p className="eyebrow">EXACTLY FUNDED TENDER</p>
-        <h2>Create public terms and confidential escrow.</h2>
-        <ContextHelp
-          compact
-          label="Help for EOA tender creation"
-          title="HOW TO CREATE AN EOA TENDER"
-          steps={[
-            "Enter public terms, ceiling, deadline, and approved vendors.",
-            "The connected wallet acquires/wraps the exact ceiling and creates the tender.",
-            "Confirm the funding proof so the tender becomes Open.",
-          ]}
-          note="If the browser stops after creation, Activity or the relay can recover funding confirmation."
-        />
-      </div>
-      <label>
-        Public metadata
-        <input
-          value={metadata}
-          onChange={(event) => setMetadata(event.target.value)}
-          maxLength={240}
-          disabled={pending}
-          placeholder="Procurement title or terms fingerprint source"
-          required
-        />
-      </label>
-      <label>
-        Public ceiling (vUSDC)
-        <input
-          value={ceiling}
-          onChange={(event) => setCeiling(event.target.value)}
-          inputMode="decimal"
-          disabled={pending}
-          placeholder="100"
-          required
-        />
-      </label>
-      <label>
-        Public bid deadline
-        <input
-          type="datetime-local"
-          value={deadline}
-          onChange={(event) => setDeadline(event.target.value)}
-          min={minimumLocalDeadline()}
-          disabled={pending}
-          required
-        />
-        <small className="field-hint">
-          Choose a local time at least five minutes from now so funding proof
-          and vendor signing have time to complete.
-        </small>
-      </label>
-      <fieldset className="vendor-fieldset">
-        <legend>Approved vendors (1–8)</legend>
-        <small id="approved-vendors-help" className="field-hint">
-          Add one wallet address per row. You can also paste comma- or
-          whitespace-separated addresses into a row.
-        </small>
-        <div className="vendor-input-list">
-          {vendors.map((vendor, index) => (
-            <div className="vendor-input-row" key={`vendor-${index}`}>
-              <label htmlFor={`approved-vendor-${index}`}>
-                Vendor {index + 1}
-                <input
-                  id={`approved-vendor-${index}`}
-                  value={vendor}
-                  onChange={(event) => {
-                    const pasted = event.target.value
-                      .split(/[\s,]+/)
-                      .filter(Boolean);
-                    if (pasted.length > 1) {
-                      setVendors((current) => [
-                        ...current.slice(0, index),
-                        ...pasted.slice(0, 8 - index),
-                        ...current.slice(index + 1),
-                      ]);
-                    } else {
-                      setVendors((current) =>
-                        current.map((value, itemIndex) =>
-                          itemIndex === index ? event.target.value : value,
-                        ),
-                      );
-                    }
-                  }}
-                  disabled={pending}
-                  placeholder="0x…"
-                  aria-describedby="approved-vendors-help"
-                  required
-                />
-              </label>
-              {vendors.length > 1 && (
-                <button
-                  className="vendor-remove-button"
-                  type="button"
-                  onClick={() =>
-                    setVendors((current) =>
-                      current.filter((_, itemIndex) => itemIndex !== index),
-                    )
-                  }
-                  disabled={pending}
-                  aria-label={`Remove vendor ${index + 1}`}
-                >
-                  REMOVE
-                </button>
-              )}
+    <form
+      className="write-form safe-tender-form eoa-tender-form"
+      onSubmit={(event) => void submit(event)}
+    >
+      <header className="safe-tender-form-header">
+        <div className="form-heading">
+          <p className="eyebrow">CREATE TENDER / DIRECT WALLET</p>
+          <h2>Create an EOA-owned tender</h2>
+          <p>
+            Define the public terms and fund the exact confidential ceiling
+            directly from this wallet.
+          </p>
+          <ContextHelp
+            compact
+            label="Help for EOA tender creation"
+            title="HOW TO CREATE AN EOA TENDER"
+            steps={[
+              "Enter public terms, ceiling, deadline, and approved vendors.",
+              "The connected wallet acquires, wraps, and funds the exact ceiling.",
+              "Confirm the funding proof so the tender becomes Open.",
+            ]}
+            note="If the browser stops after creation, Activity or the relay can recover funding confirmation."
+          />
+        </div>
+        <div className="safe-tender-context eoa-tender-context">
+          <span>DIRECT WALLET</span>
+          <strong>{connected ? shortAddress(wallet.state.account!) : "NOT CONNECTED"}</strong>
+          <small>EOA owner · threshold 1</small>
+        </div>
+      </header>
+
+      <div className="safe-tender-form-body">
+        <section className="safe-tender-terms">
+          <div className="safe-tender-section-heading">
+            <span>01</span>
+            <div>
+              <strong>TENDER TERMS</strong>
+              <small>Public procurement rules</small>
             </div>
-          ))}
+          </div>
+          <label className="safe-tender-metadata">
+            <span>Public metadata</span>
+            <input
+              value={metadata}
+              onChange={(event) => setMetadata(event.target.value)}
+              maxLength={240}
+              disabled={pending}
+              placeholder="Procurement title or terms fingerprint source"
+              required
+            />
+          </label>
+          <label>
+            <span>Public ceiling (vUSDC)</span>
+            <input
+              value={ceiling}
+              onChange={(event) => setCeiling(event.target.value)}
+              inputMode="decimal"
+              disabled={pending}
+              placeholder="100"
+              required
+            />
+          </label>
+          <label>
+            <span>Bid deadline</span>
+            <input
+              type="datetime-local"
+              value={deadline}
+              onChange={(event) => setDeadline(event.target.value)}
+              min={minimumLocalDeadline()}
+              disabled={pending}
+              required
+            />
+            <small className="field-hint">
+              Local machine time; choose at least five minutes from now so
+              funding proof and vendor signing have time to complete.
+            </small>
+          </label>
+        </section>
+
+        <fieldset className="safe-tender-vendors">
+          <legend>
+            <span className="safe-tender-section-heading">
+              <span>02</span>
+              <span>
+                <strong>APPROVED VENDORS</strong>
+                <small>One immutable bid slot per address</small>
+              </span>
+            </span>
+            <span className="safe-vendor-count">{vendors.length} / 8</span>
+          </legend>
+          <small id="approved-vendors-help" className="field-hint">
+            Add one wallet address per row. You can also paste comma- or
+            whitespace-separated addresses into a row.
+          </small>
+          <div className="safe-vendor-list">
+            {vendors.map((vendor, index) => (
+              <div className="safe-vendor-row" key={`eoa-vendor-${index}`}>
+                <label htmlFor={`approved-vendor-${index}`}>
+                  <span>Vendor {index + 1}</span>
+                  <input
+                    id={`approved-vendor-${index}`}
+                    value={vendor}
+                    onChange={(event) => {
+                      const pasted = event.target.value
+                        .split(/[\s,]+/)
+                        .filter(Boolean);
+                      if (pasted.length > 1) {
+                        setVendors((current) => [
+                          ...current.slice(0, index),
+                          ...pasted.slice(0, 8 - index),
+                          ...current.slice(index + 1),
+                        ]);
+                      } else {
+                        setVendors((current) =>
+                          current.map((value, itemIndex) =>
+                            itemIndex === index ? event.target.value : value,
+                          ),
+                        );
+                      }
+                    }}
+                    disabled={pending}
+                    placeholder="0x…"
+                    aria-describedby="approved-vendors-help"
+                    required
+                  />
+                </label>
+                {vendors.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVendors((current) =>
+                        current.filter((_, itemIndex) => itemIndex !== index),
+                      )
+                    }
+                    disabled={pending}
+                    aria-label={`Remove vendor ${index + 1}`}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            className="safe-vendor-add"
+            type="button"
+            onClick={() => setVendors((current) => [...current, ""])}
+            disabled={pending || vendors.length >= 8}
+          >
+            + ADD VENDOR
+          </button>
+        </fieldset>
+      </div>
+
+      <footer className="safe-tender-submit">
+        <div>
+          <p className="eyebrow">03 / REVIEW &amp; SUBMIT</p>
+          <dl>
+            <div>
+              <dt>WALLET AUTHORITY</dt>
+              <dd>DIRECT EOA</dd>
+            </div>
+            <div>
+              <dt>REVIEW ACCESS</dt>
+              <dd>AFTER FINALIZATION</dd>
+            </div>
+          </dl>
+          <small>
+            This wallet signs normal transactions and receives private bid
+            access only after proof-derived finalization.
+          </small>
         </div>
         <button
-          className="vendor-add-button"
-          type="button"
-          onClick={() => setVendors((current) => [...current, ""])}
-          disabled={pending || vendors.length >= 8}
+          className="primary-button"
+          type="submit"
+          disabled={!connected || pending}
         >
-          + ADD VENDOR ({vendors.length}/8)
+          {connected ? "CREATE WITH EOA →" : "CONNECT WALLET TO CREATE"}
         </button>
-      </fieldset>
-      <div className="privacy-confirmation">
-        <strong>Authority boundary</strong>
-        <span>
-          This EOA path signs normal wallet transactions. It never grants the
-          buyer access to vendor bid values while the tender is open. After
-          finalization, this same wallet automatically receives private review
-          access to the stored bids.
-        </span>
-      </div>
+      </footer>
+
       {stage && (
         <p className="progress-line" aria-live="polite">
           <span className="signal-dot" aria-hidden="true" />
@@ -277,13 +335,6 @@ export function BuyerTenderForm({
       )}
       {error && <p className="inline-error" role="alert">{error}</p>}
       {result && <p className="result-line" aria-live="polite">{result}</p>}
-      <button
-        className="primary-button"
-        type="submit"
-        disabled={!connected || pending}
-      >
-        {connected ? "PREPARE & FUND TENDER →" : "CONNECT WALLET TO CREATE"}
-      </button>
     </form>
   );
 }

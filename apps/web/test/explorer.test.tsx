@@ -410,5 +410,8 @@ describe("Tender Room public explorer", () => {
     ]);
     expect(screen.getByRole("button", { name: /EOA BUYER/ })).toHaveClass("active");
     expect(screen.getByRole("heading", { name: "Fund public terms." })).toBeInTheDocument();
+    expect(screen.getByText("TENDER TERMS")).toBeInTheDocument();
+    expect(screen.getByText("APPROVED VENDORS")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "CONNECT WALLET TO CREATE" })).toBeInTheDocument();
   });
 });
