@@ -96,7 +96,8 @@ export function DocsPage() {
             </p>
             <ul className="docs-checklist">
               <li>Select a tender card to open its public dossier.</li>
-              <li>Use Open for bid-ready tenders, Current &amp; awarded for the main lifecycle, or the terminal-status filters for history. The dossier count, refresh, and filter controls remain visible while the list scrolls.</li>
+              <li>Use Open only for tenders still accepting bids. An on-chain Open tender moves to the derived Ready to close view as soon as its deadline passes or every Vendor submits; it becomes contract-level Closed only after the permissionless close transaction confirms.</li>
+              <li>Use Current &amp; awarded for the main lifecycle or the terminal-status filters for history. The dossier count, refresh, and filter controls remain visible while the list scrolls.</li>
               <li>On mobile, use ALL DOSSIERS to return from the selected detail to the compact tender list.</li>
               <li>Use the lifecycle and readiness labels to distinguish contract state from derived next actions.</li>
               <li>Inspect Sepolia links and receipt ownership for awarded tenders.</li>
