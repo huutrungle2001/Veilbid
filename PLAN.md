@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T11:37:00+07:00
+- Last updated: 2026-07-28T11:44:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -101,6 +101,7 @@ Only one phase may be `In progress`.
 | Comprehensive UI/UX release | Verified | Agent | 2026-07-28 | Vercel deployment `dpl_GL8mW3rxvqPzhtTWwwAzuKigXtMM` is aliased to `https://veilbid-three.vercel.app`; mobile sticky navigation, compact/collapsible balances, public master/detail navigation, tab-specific Private Bids guidance, approved-tender filtering, contextual help, lifecycle history, touch targets, and interaction feedback were verified. Full tests (155), lint/build, production smoke, and keyboard smoke passed. |
 | Left-aligned workspace tabs | Verified | Agent | 2026-07-28 | Buyer Safe/EOA tabs and Private Bids `SUBMIT BID`, `MY BID`, and `GRANTED ACCESS` now begin on the left beside the help control on desktop and mobile. Vercel deployment `4y98RSxeMydupuEQsbBaPgrbfGHa` and the canonical alias returned HTTP 200; production and keyboard smoke passed. |
 | EOA-first Buyer workspace | Verified | Agent | 2026-07-28 | Buyer navigation now places `EOA BUYER` before `SAFE BUYER` and opens EOA Buyer by default; explicit `buyer=safe` links remain backward-compatible. Vercel deployment `FgdxsHtpNnR3CuwdmcFFUquF4ujB` passed production and keyboard smoke. |
+| EOA tender form UI alignment | Verified | Agent | 2026-07-28 | EOA Create Tender now uses the same structured header, numbered terms/vendor sections, vendor counter/actions, review footer, and wallet context treatment as Safe Create Tender while preserving direct-wallet funding behavior. Vercel deployment `A8pVuVQ2sr9qZ1HpgANNhT3de4Mx` passed production and keyboard smoke; web tests 86/86 passed. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
