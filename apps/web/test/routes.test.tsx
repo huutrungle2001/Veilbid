@@ -52,11 +52,12 @@ afterEach(cleanup);
 
 describe("standalone public routes", () => {
   it("renders the landing page without entering the chain runtime", () => {
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={["/"]}>
         <App />
       </MemoryRouter>,
     );
+    expect(container.querySelectorAll(".landing-mascot-svg")).toHaveLength(3);
     expect(
       screen.getByRole("heading", { name: /Lowest valid bid/i }),
     ).toBeInTheDocument();

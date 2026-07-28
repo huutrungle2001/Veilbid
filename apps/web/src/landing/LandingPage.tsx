@@ -1,4 +1,9 @@
 import { Link } from "react-router";
+import {
+  NoxOrbMascot,
+  TreasuryCrewMascot,
+  VeilScoutMascot,
+} from "./LandingMascots";
 
 const workspaces = [
   {
@@ -45,6 +50,9 @@ export function LandingPage() {
             <em>Without publishing prices.</em>
           </h1>
           <div className="landing-lede">
+            <div className="landing-mascot landing-mascot-hero">
+              <VeilScoutMascot />
+            </div>
             <p>
               VeilBid combines public tender rules, encrypted vendor bids,
               Nox-computed selection, proof-derived awards, and confidential
@@ -89,6 +97,9 @@ export function LandingPage() {
               decides the result. On-chain verification binds the result to
               settlement.
             </p>
+            <div className="landing-mascot landing-mascot-nox">
+              <NoxOrbMascot />
+            </div>
           </div>
           <ol>
             <li><strong>01 / BUYER</strong><span>Publishes terms, approves vendors, and escrows exactly the public ceiling.</span></li>
@@ -124,6 +135,9 @@ export function LandingPage() {
           <div>
             <p className="eyebrow">KNOW WHAT OTHERS CAN SEE</p>
             <h2>Confidential price. Public coordination.</h2>
+            <div className="landing-mascot landing-mascot-treasury">
+              <TreasuryCrewMascot />
+            </div>
           </div>
           <div className="visibility-grid">
             <article>
