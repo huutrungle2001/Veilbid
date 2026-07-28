@@ -709,7 +709,10 @@ export function ExplorerView({
 function TenderRoomApp({ wallet }: { wallet: WalletController }) {
   const { state, refresh } = usePublicMarket();
   const [roomParams, setRoomParams] = useSearchParams();
-  const requestedRole = roomParams.get("role")?.toUpperCase();
+  const requestedRole = roomParams
+    .get("role")
+    ?.toUpperCase()
+    .replace(/[-_]+/g, " ");
   const buyerSection: BuyerSection =
     roomParams.get("buyer") === "eoa" ? "eoa" : "safe";
   const privateSection: PrivateBidsSection =
