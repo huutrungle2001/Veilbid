@@ -150,7 +150,7 @@ export function DisclosurePanel({
         <p className="eyebrow">{role === "VENDOR" ? "MY BID" : "SELECTIVE DISCLOSURE"}</p>
         <h2>
           {role === "VENDOR"
-            ? "Manage your stored bid."
+            ? "Reveal or share a bid you submitted."
             : "Reveal or grant one stored bid."}
         </h2>
         <ContextHelp
@@ -158,14 +158,14 @@ export function DisclosurePanel({
           label="Help for stored bid disclosure"
           title="HOW TO REVEAL A STORED BID"
           steps={[
-            "Select a public tender/bid reference that this wallet is allowed to view.",
+            "Select a bid submitted by this connected wallet.",
             "Reveal decrypts only the selected handle in this browser session.",
             "A Vendor may grant only its own bid to another address; review wallets receive automatic access after finalization.",
           ]}
         />
       </div>
       <label>
-        Eligible bid
+        {role === "VENDOR" ? "My submitted bid" : "Eligible bid"}
         <select value={selectedKey} onChange={(event) => setSelectedKey(event.target.value)}>
           <option value="">
             {eligible.length === 0
@@ -185,7 +185,7 @@ export function DisclosurePanel({
         </p>
       )}
       <label>
-        Viewer address
+        {role === "VENDOR" ? "Share with viewer address" : "Viewer address"}
         <input value={viewer} onChange={(event) => setViewer(event.target.value)} placeholder="0x…" />
       </label>
       <div className="privacy-confirmation">

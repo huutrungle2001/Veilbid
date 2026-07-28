@@ -2,17 +2,15 @@ import { createViemHandleClient, type HandleClient } from "@iexec-nox/handle";
 import marketAbiJson from "@veilbid/chain-bindings/abis/VeilBidMarket";
 import deployment from "@veilbid/chain-bindings/addresses/sepolia.release";
 import {
-  createPublicClient,
   formatUnits,
-  http,
   type Abi,
   type Address,
   type Hex,
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { sepolia } from "viem/chains";
 import { defaultSepoliaRpcUrl } from "../public-market/loadPublicMarket";
+import { createResilientSepoliaClient } from "../chain/sepoliaRpc";
 
 const marketAbi = marketAbiJson as Abi;
 const marketAddress = deployment.contracts.VeilBidMarket.address as Address;
@@ -108,10 +106,7 @@ export async function revealAuthorizedBid({
   account: Address;
   rpcUrl?: string;
 }) {
-  const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  const publicClient = createResilientSepoliaClient(rpcUrl);
   const handleClient = await createViemHandleClient(walletClient);
   return revealBidWithClients({
     publicClient,
@@ -125,8 +120,5 @@ export async function revealAuthorizedBid({
 export function createAuditorPublicClient(
   rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
 ) {
-  return createPublicClient({
-    chain: sepolia,
-    transport: http(rpcUrl),
-  });
+  return createResilientSepoliaClient(rpcUrl);
 }

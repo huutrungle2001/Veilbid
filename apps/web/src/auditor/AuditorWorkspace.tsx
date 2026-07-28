@@ -1,5 +1,6 @@
 import type { PublicBid, PublicTender } from "@veilbid/chain-bindings";
 import { useEffect, useMemo, useState } from "react";
+import type { Address } from "viem";
 import {
   createAuditorPublicClient,
   inspectBidViewer,
@@ -9,28 +10,62 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
 
+export async function loadGrantedBidKeys(
+  account: Address,
+  bids: readonly PublicBid[],
+) {
+  const publicClient = createAuditorPublicClient();
+  const checks = await Promise.all(
+    bids.map(async (bid) => ({
+      key: `${bid.tenderId}:${bid.bidId}`,
+      authorized: await inspectBidViewer({
+        publicClient,
+        tenderId: bid.tenderId,
+        bidId: bid.bidId,
+        account,
+      }),
+    })),
+  );
+  return new Set(
+    checks.filter((check) => check.authorized).map((check) => check.key),
+  );
+}
+
 export function GrantedAccessPanel({
   wallet,
   tenders,
   bids,
+  loadAccess = loadGrantedBidKeys,
+  revealBid = revealAuthorizedBid,
 }: {
   wallet: WalletController;
   tenders: readonly PublicTender[];
   bids: readonly PublicBid[];
+  loadAccess?: typeof loadGrantedBidKeys;
+  revealBid?: typeof revealAuthorizedBid;
 }) {
   const toasts = useToasts();
   const [selection, setSelection] = useState("");
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [authorizedKeys, setAuthorizedKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [accessStatus, setAccessStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+  const [accessRevision, setAccessRevision] = useState(0);
   const [revealed, setRevealed] = useState<{
     value: string;
     solidityType: string;
   } | null>(null);
   const [stage, setStage] = useState<string | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const connected =
+  const connected = Boolean(
     wallet.state.status === "connected" &&
     wallet.state.account &&
-    wallet.state.walletClient;
+    wallet.state.walletClient,
+  );
+  const account = connected ? wallet.state.account : null;
   const options = useMemo(
     () =>
       bids.map((bid) => ({
@@ -42,49 +77,76 @@ export function GrantedAccessPanel({
       })),
     [bids, tenders],
   );
-  const selected = options.find((option) => option.key === selection);
+  const accessContextKey = options
+    .map(
+      (option) =>
+        `${option.key}:${option.tender?.status ?? "Unknown"}:${
+          option.tender?.viewerGrantCount ?? 0
+        }:${option.tender?.updatedBlock?.toString() ?? "0"}`,
+    )
+    .join("|");
+  const authorizedOptions = options.filter((option) =>
+    authorizedKeys.has(option.key),
+  );
+  const selected = authorizedOptions.find(
+    (option) => option.key === selection,
+  );
 
   useEffect(() => {
-    setAuthorized(null);
+    let active = true;
+    setSelection("");
+    setRevealed(null);
+    setStage(null);
+    setAccessError(null);
+    setError(null);
+    if (!account) {
+      setAuthorizedKeys(new Set());
+      setAccessStatus("idle");
+      return () => {
+        active = false;
+      };
+    }
+    if (bids.length === 0) {
+      setAuthorizedKeys(new Set());
+      setAccessStatus("ready");
+      return () => {
+        active = false;
+      };
+    }
+    setAccessStatus("loading");
+    void loadAccess(account, bids)
+      .then((keys) => {
+        if (!active) return;
+        setAuthorizedKeys(keys);
+        setAccessStatus("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setAuthorizedKeys(new Set());
+        setAccessStatus("error");
+        setAccessError(
+          "Granted-access permissions could not be read from Sepolia. Retry without assuming access.",
+        );
+      });
+    return () => {
+      active = false;
+    };
+  }, [
+    accessContextKey,
+    accessRevision,
+    account,
+    loadAccess,
+    wallet.state.sessionRevision,
+  ]);
+
+  useEffect(() => {
     setRevealed(null);
     setStage(null);
     setError(null);
   }, [selection, wallet.state.sessionRevision]);
 
-  async function checkAccess() {
-    if (!connected || !selected) return;
-    const toastId = toasts.start(
-      "CHECK VIEWER ACCESS",
-      "Reading the per-bid viewer permission from Sepolia…",
-    );
-    setError(null);
-    setRevealed(null);
-    setStage("Reading per-bid viewer ACL");
-    try {
-      const result = await inspectBidViewer({
-        publicClient: createAuditorPublicClient(),
-        tenderId: selected.tenderId,
-        bidId: selected.bidId,
-        account: wallet.state.account!,
-      });
-      setAuthorized(result);
-      if (!result) {
-        setError("This wallet has not been granted access to this bid.");
-        toasts.fail(toastId, "This wallet is not authorized for the selected bid.");
-      } else {
-        toasts.succeed(toastId, "Viewer access confirmed for this bid only.");
-      }
-    } catch {
-      setAuthorized(null);
-      setError("Viewer access could not be read from Sepolia.");
-      toasts.fail(toastId, "Viewer access could not be read from Sepolia.");
-    } finally {
-      setStage(null);
-    }
-  }
-
   async function reveal() {
-    if (!connected || !selected || authorized !== true) return;
+    if (!connected || !selected) return;
     const toastId = toasts.start(
       "REVEAL BID",
       "Waiting for wallet authorization and private decryption…",
@@ -92,7 +154,7 @@ export function GrantedAccessPanel({
     setError(null);
     setStage("Awaiting wallet authorization and private reveal");
     try {
-      const result = await revealAuthorizedBid({
+      const result = await revealBid({
         walletClient: wallet.state.walletClient!,
         tenderId: selected.tenderId,
         bidId: selected.bidId,
@@ -125,17 +187,18 @@ export function GrantedAccessPanel({
           <p className="eyebrow">GRANTED ACCESS</p>
           <h2>Reveal a bid shared with this wallet.</h2>
           <p>
-            Finalized tenders automatically authorize their review wallet.
-            Vendors may also share their own bid with another address.
+            Only bids whose on-chain ACL authorizes this wallet appear here.
+            Finalized tenders authorize their review wallet automatically;
+            vendors may also share an individual bid.
           </p>
           <ContextHelp
             compact
             label="Help for granted bid access"
             title="HOW TO USE GRANTED ACCESS"
             steps={[
-              "Select a tender and bid reference.",
-              "Check the on-chain viewer permission before decrypting.",
-              "Reveal only the authorized handle; the plaintext is cleared when the wallet session changes.",
+              "Connect the wallet that received review access or a Vendor grant.",
+              "Wait while VeilBid checks every indexed bid ACL and keeps only authorized references.",
+              "Select an authorized bid and reveal it for this browser session only.",
             ]}
           />
         </div>
@@ -146,11 +209,17 @@ export function GrantedAccessPanel({
             onChange={(event) => setSelection(event.target.value)}
           >
             <option value="">
-              {options.length === 0
-                ? "No public bid references available"
-                : "Select tender / bid"}
+              {!connected
+                ? "Connect wallet to load granted bids"
+                : accessStatus === "loading"
+                  ? "Checking granted access…"
+                  : accessStatus === "error"
+                    ? "Granted access is temporarily unavailable"
+                    : authorizedOptions.length === 0
+                      ? "No bids granted to this wallet"
+                      : "Select authorized tender / bid"}
             </option>
-            {options.map((option) => (
+            {authorizedOptions.map((option) => (
               <option value={option.key} key={option.key}>
                 Tender {option.tenderId.toString()} · Bid{" "}
                 {option.bidId.toString()} · {option.tender?.status ?? "Unknown"}
@@ -158,33 +227,56 @@ export function GrantedAccessPanel({
             ))}
           </select>
         </label>
-        {options.length === 0 && (
+        {connected && accessStatus === "loading" && (
           <p className="form-empty-hint" role="status">
-            No confirmed bid references are indexed yet. A vendor must
-            submit a bid before viewer access can be checked.
+            Checking scoped viewer permissions on Sepolia…
           </p>
         )}
+        {connected &&
+          accessStatus === "ready" &&
+          authorizedOptions.length === 0 && (
+            <p className="form-empty-hint" role="status">
+              This wallet has no granted bid access in the confirmed index.
+              Review access appears automatically after finalization; Vendor
+              grants appear after their transaction is indexed.
+            </p>
+          )}
         <div className="form-actions">
           <button
             className="secondary-button"
-            disabled={!connected || !selected || stage !== null}
-            onClick={() => void checkAccess()}
+            disabled={!connected || accessStatus === "loading" || stage !== null}
+            onClick={() => setAccessRevision((current) => current + 1)}
           >
-            CHECK VIEWER ACCESS
+            REFRESH ACCESS
           </button>
           <button
             className="primary-button"
-            disabled={!connected || authorized !== true || stage !== null}
+            disabled={!connected || !selected || stage !== null}
             onClick={() => void reveal()}
           >
             REVEAL IN SESSION →
           </button>
         </div>
-        {authorized === true && (
-          <p className="success-line" aria-live="polite">Authorized for this bid only.</p>
+        {selected && (
+          <p className="success-line" aria-live="polite">
+            On-chain access confirmed for this bid only.
+          </p>
         )}
-        {stage && <p className="progress-line" aria-live="polite">{stage}</p>}
-        {error && <p className="inline-error" role="alert">{error}</p>}
+        {stage && (
+          <p className="progress-line" aria-live="polite">
+            {stage}
+          </p>
+        )}
+        {accessError && (
+          <p className="inline-error" role="alert">
+            {accessError}
+          </p>
+        )}
+        {error && (
+          <p className="inline-error" role="alert">
+            {error}
+          </p>
+        )}
         {revealed && (
           <section className="reveal-result" aria-live="polite">
             <p className="eyebrow">SESSION-ONLY PLAINTEXT</p>
@@ -209,9 +301,9 @@ export function AuditorWorkspace(props: {
           title="HOW TO REVEAL GRANTED BIDS"
           steps={[
             "Connect the exact Sepolia wallet configured as review wallet or granted by a Vendor.",
-            "Select one public tender and bid reference.",
-            "Check the on-chain per-bid viewer permission.",
-            "Reveal only after access is confirmed; plaintext clears when the wallet session changes.",
+            "Wait while VeilBid checks indexed bid permissions automatically.",
+            "Select one of the authorized bid references shown.",
+            "Reveal it for this session; plaintext clears when the wallet session changes.",
           ]}
           note="Viewer access provides no token, Safe signer, buyer, vendor, or administrator authority."
         />

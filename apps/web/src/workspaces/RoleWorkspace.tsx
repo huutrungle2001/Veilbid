@@ -45,10 +45,10 @@ export function RoleWorkspace({
             eyebrow: "PRIVATE BIDS / GRANTED ACCESS",
             title: "Review one authorized bid.",
             description:
-              "Check the on-chain viewer permission before revealing a bid shared with this wallet.",
+              "See only bids whose on-chain viewer permission includes this wallet, then reveal one privately.",
             stages: [
-              "Select a public bid reference",
-              "Check the per-bid viewer permission",
+              "Load authorized bid references",
+              "Select a granted bid",
               "Reveal the authorized handle",
               "Clear plaintext when the wallet session changes",
             ],
