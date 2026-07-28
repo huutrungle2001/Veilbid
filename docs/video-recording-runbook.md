@@ -1,151 +1,363 @@
-# VeilBid — Video Recording Runbook
+# VeilBid — Hướng dẫn quay video
 
-Tài liệu này dùng để **chuẩn bị và quay footage thô trước**. Chưa cần đọc lời
-thoại khi quay; sau khi có đủ clip mới viết script và cắt bản cuối dưới 4 phút.
+Tài liệu này đi theo đúng thứ tự quay: **Landing → Docs → EOA Buyer hoàn chỉnh
+→ Safe Buyer làm lại từ đầu**. Chỉ cần chuẩn bị ba ví Sepolia.
 
-## 1. Quy tắc an toàn
+Web production:
 
-- Chỉ Ethereum Sepolia.
-- Địa chỉ `0x...` là public và có thể ghi trong tài liệu/video.
-- Không ghi hoặc chụp private key, seed phrase, chữ ký, raw calldata, Nox
-  handle, proof hay plaintext bid value.
-- Khi nhập giá bid, crop/che ô giá hoặc chỉ giữ màn hình sau bước encrypt.
-- Không dùng mock success. Nếu proof chậm, quay đúng trạng thái pending và
-  Activity recovery.
+```text
+https://veilbid-three.vercel.app
+```
 
-## 2. Tài khoản cần chuẩn bị
+## 1. Chuẩn bị đúng ba ví
 
-Đây là bộ tài khoản cho một lifecycle quay mới với Safe và hai Vendor. Chỉ
-import private key từ file local của bạn; **không copy private key vào Markdown**.
+| Ví | Vai trò | Địa chỉ |
+| --- | --- | --- |
+| Ví 1 | EOA Buyer, Safe owner và review wallet | `0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E` |
+| Ví 2 | Vendor 1 | `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` |
+| Ví 3 | Vendor 2, đặt giá thấp hơn | `0xA4565608e096CFEf7da36eB19a57Da6d277D942f` |
 
-| Vai trò | Địa chỉ public cần dùng | Private key local | Dùng ở đâu |
-| --- | --- | --- | --- |
-| Safe owner / Buyer / review wallet | `0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E` | `SEPOLIA_PRIVATE_KEY` | Kết nối trong `BUYER → SAFE BUYER`; ký Safe proposal. Review wallet được bind tự động, không nhập riêng. |
-| Safe treasury | `0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0` | Không có private key riêng | Trong `SAFE BUYER`, chọn card Safe. Chỉ dán thủ công nếu Safe discovery không tìm thấy. |
-| Vendor 1 | `0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55` | `SEPOLIA_TEST_VENDOR_PRIVATE_KEY` | Dán vào `APPROVED VENDORS → Vendor 1`; sau đó kết nối chính wallet này trong `PRIVATE BIDS`. |
-| Vendor 2 | `0xA4565608e096CFEf7da36eB19a57Da6d277D942f` | `SEPOLIA_TEST_AUDITOR_PRIVATE_KEY` | Dán vào `APPROVED VENDORS → Vendor 2`; sau đó kết nối chính wallet này trong `PRIVATE BIDS`. |
-| Permissionless finalizer | Một EOA Sepolia khác có ETH | Private key local của bạn | Không dán vào form. Chỉ kết nối wallet này khi dùng `ACTIVITY → MANUAL RELAY FALLBACK`. |
+Cả ba ví phải có Sepolia ETH để trả gas. Ví 1 cần public Test USDC để tạo
+tender EOA và nạp tiền cho Safe. Một lần `GET TEST USDC` là đủ cho cả hai luồng
+demo.
 
-### Lưu ý về canonical release
+Safe dùng trong phần thứ hai:
 
-Evidence lifecycle canonical cũ dùng Vendor thứ hai
-`0x4d2809486012076B2212C829742BD95eF5992dB0`. Nếu bạn quay một tender mới,
-dùng nhất quán Vendor 1 và Vendor 2 ở bảng trên; **không trộn** hai bộ địa chỉ.
+```text
+0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0
+```
 
-## 3. Địa chỉ contract để kiểm tra (không nhập vào form)
+Safe là contract treasury do Ví 1 sở hữu, **không phải ví thứ tư**.
 
-Các địa chỉ này chỉ dùng để mở Etherscan hoặc đối chiếu UI:
+### Dữ liệu dùng xuyên suốt video
 
-| Thành phần | Địa chỉ |
-| --- | --- |
-| VeilBid Market | `0x720ac8Ae5dE78590FF5184E53130460033228afc` |
-| Confidential vcUSDC wrapper | `0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1` |
-| Test USDC faucet | `0xeE9A2B02C8700596b4814923c4086786c63A9D01` |
-| Award receipt | `0x7B51DE3579F61741eDA8602D79AAD3f175451656` |
-| Safe preparation module | `0x60a3ed162b13E7Fd8b0139547Aa1B38F41a774C0` |
-| Per-Safe module factory | `0x6C09f72FF67eE0bfAD7D45DFFde5bd06228050BE` |
+| Trường | Luồng EOA | Luồng Safe |
+| --- | --- | --- |
+| Public metadata | `EOA website development tender` | `Safe website development tender` |
+| Public ceiling | `10` | `10` |
+| Deadline | Thời điểm hiện tại + 15–20 phút | Thời điểm hiện tại + 15–20 phút |
+| Vendor 1 | Ví 2 | Ví 2 |
+| Vendor 2 | Ví 3 | Ví 3 |
+| Bid của Ví 2 | `8` | `8` |
+| Bid của Ví 3 | `7` | `7` |
 
-## 4. Copy/paste map trong app
+Hai Vendor gửi đủ bid nên tender có thể đóng sớm, không cần chờ deadline.
 
-### A. Safe Buyer
+## 2. Quy tắc trước khi quay
 
-1. Kết nối `Safe owner / Buyer`.
-2. Chọn card Safe có địa chỉ `0xBF39…3fbA0`.
-3. Nếu không có card, mở ô `Safe address` / `CHECK SAFE` và dán:
+- Chỉ dùng Ethereum Sepolia và test assets.
+- Không quay private key, seed phrase, chữ ký, calldata, proof hoặc Nox handle.
+- Ô nhập bid là dữ liệu bí mật. Che/crop lúc gõ `8` và `7`, hoặc chỉ quay lại
+  sau khi đã mã hóa và gửi thành công.
+- Không dùng mock data hoặc giả thông báo thành công.
+- Sau mỗi transaction, giữ màn hình 2–3 giây để người xem nhìn thấy toast và
+  trạng thái mới.
+
+## 3. Mở Landing Page
+
+1. Mở `https://veilbid-three.vercel.app` khi chưa kết nối ví.
+2. Quay phần hero `Public terms. Private bids.`.
+3. Cuộn qua ba mascot để giới thiệu ngắn:
+   - Vendor gửi bid mã hóa.
+   - Nox so sánh giá mà không công khai plaintext.
+   - Safe hoặc EOA giữ quyền đối với treasury.
+4. Dừng ở phần mô tả privacy: public metadata được công khai, bid và payment
+   amount vẫn confidential.
+5. Bấm `TENDERS` một lần để cho thấy Public hoạt động không cần wallet, sau đó
+   quay lại phần Docs ở bước tiếp theo.
+
+Mục tiêu footage: khoảng 10–15 giây.
+
+## 4. Mở trang Docs
+
+1. Bấm `DOCS` trên thanh điều hướng.
+2. Quay nhanh menu tài liệu bên trái và các phần:
+   - Quick Start.
+   - Public Explorer.
+   - EOA Buyer.
+   - Private Bids.
+   - Safe Buyer.
+   - Privacy Boundary.
+3. Nhấn mạnh rằng đây là hướng dẫn sử dụng thật của bản Sepolia đang deploy.
+4. Bấm `OPEN TENDERS` hoặc `TENDERS` để trở lại ứng dụng.
+
+Mục tiêu footage: khoảng 10–15 giây.
+
+## 5. Kết nối Ví 1 và chuẩn bị tiền
+
+1. Bấm `CONNECT WALLET`.
+2. Chọn MetaMask chứa Ví 1:
 
    ```text
-   0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0
+   0xE412d04DA2A211F7ADC80311CC0FF9F03440B64E
    ```
 
-4. Trong `CREATE A SAFE-OWNED TENDER → APPROVED VENDORS`, dán:
+3. Nếu MetaMask chưa ở Sepolia, chấp nhận yêu cầu chuyển mạng.
+4. Kiểm tra thanh đầu trang hiển thị `SEPOLIA`.
+5. Trong `BALANCES`, bấm refresh và kiểm tra:
+   - `SEP ETH` lớn hơn 0.
+   - `TEST USDC` đủ ít nhất `20`.
+6. Nếu Test USDC chưa đủ, bấm `GET TEST USDC` và xác nhận transaction.
 
-   **Vendor 1**
+Không cần wrap thủ công trước. Luồng EOA Buyer sẽ tự wrap đúng public ceiling;
+luồng Safe Buyer có nút deposit riêng.
+
+## 6. Luồng chính — EOA Buyer
+
+### 6.1. Tạo tender bằng Ví 1
+
+1. Mở workspace `BUYER`.
+2. Chọn `EOA BUYER`. Đây là tab mặc định.
+3. Trong `CREATE TENDER / DIRECT WALLET`, nhập:
+
+   **Public metadata**
+
+   ```text
+   EOA website development tender
+   ```
+
+   **Public ceiling**
+
+   ```text
+   10
+   ```
+
+   **Bid deadline**
+
+   Chọn giờ hiện tại + 15–20 phút theo giờ máy.
+
+4. Trong `APPROVED VENDORS`, nhập:
+
+   **Vendor 1 — Ví 2**
 
    ```text
    0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55
    ```
 
-   **Vendor 2**
+5. Bấm `+ ADD VENDOR`, sau đó nhập:
+
+   **Vendor 2 — Ví 3**
 
    ```text
    0xA4565608e096CFEf7da36eB19a57Da6d277D942f
    ```
 
-5. Không có ô nhập review wallet. App tự bind wallet owner đang kết nối
-   (`0xE412…B64E`) làm review wallet khi Safe threshold approve tender.
+6. Kiểm tra lại ceiling, deadline và đúng hai Vendor.
+7. Bấm `CREATE WITH EOA →`.
+8. Xác nhận lần lượt các yêu cầu trong MetaMask. Số lần ký có thể ít hơn nếu
+   allowance đã tồn tại; luôn đi theo toast đang xếp chồng trên web.
+9. Chờ thông báo:
 
-### B. EOA Buyer (tuỳ chọn quay thêm)
+   ```text
+   Tender ... is Open and accepting bids.
+   ```
 
-1. Kết nối một EOA Buyer có Sepolia ETH và Test USDC.
-2. Trong `EOA BUYER → APPROVED VENDORS`, dùng đúng hai địa chỉ Vendor ở trên,
-   mỗi địa chỉ một row.
-3. Review wallet cũng tự động là EOA Buyer đang kết nối; không dán địa chỉ
-   review wallet.
+10. Sang `PUBLIC`, chọn filter `Open` và xác nhận tender EOA mới xuất hiện.
 
-### C. Private Bids
+### 6.2. Ví 2 gửi bid `8`
 
-- Không dán địa chỉ vào `SUBMIT BID`.
-- Kết nối Vendor 1 để gửi bid cho row Vendor 1.
-- Đổi sang Vendor 2 để gửi bid cho row Vendor 2.
-- Tender chỉ xuất hiện nếu wallet hiện tại đúng allowlist và tender còn `Open`.
+1. Chuyển MetaMask sang Ví 2:
 
-### D. Public, Activity và review
+   ```text
+   0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55
+   ```
 
-- `PUBLIC`: không cần wallet, không dán địa chỉ.
-- `ACTIVITY`: không cần dán địa chỉ; nếu dùng manual fallback thì kết nối
-  permissionless finalizer có ETH.
-- `GRANTED ACCESS`: kết nối đúng review wallet `0xE412…B64E` sau khi tender
-  finalized; ACL được cấp tự động, không có thao tác grant thủ công.
+2. Nếu web chưa cập nhật account, bấm wallet trên header và kết nối lại Ví 2.
+3. Mở `PRIVATE BIDS → SUBMIT BID`.
+4. Chọn tender EOA vừa tạo trong `Active tender`.
+5. Che vùng nhập liệu rồi nhập:
 
-### E. Safe unwrap
+   ```text
+   8
+   ```
 
-`PUBLIC vUSDC RECIPIENT` tự khóa thành địa chỉ EOA đang kết nối. Không dán Safe
-address hoặc recipient khác vào đây.
+6. Bấm `ENCRYPT, SIMULATE & SUBMIT →` và xác nhận transaction.
+7. Chờ toast thành công.
+8. Có thể mở `MY BID` để cho thấy Ví 2 chỉ quản lý bid do chính mình gửi;
+   không reveal plaintext trong footage công khai.
 
-## 5. Chuẩn bị số dư và dữ liệu
+### 6.3. Ví 3 gửi bid thấp hơn `7`
 
-- Mỗi wallet ký giao dịch phải có Sepolia ETH.
-- Safe `0xBF39…3fbA0` phải có đủ confidential vcUSDC cho public ceiling.
-- Nếu cần, dùng `GET TEST USDC` rồi `DEPOSIT TO SAFE` trong `SAFE BUYER`.
-- Dùng dữ liệu ngắn, ví dụ:
-  - Public metadata: `Website development tender`
-  - Public ceiling: `10`
-  - Deadline: hiện tại + 10–15 phút
-- Hai bid mẫu có thể là `8` và `7`, nhưng phải che giá trong footage công khai.
-- Kiểm tra production app và relay trước khi quay:
+1. Chuyển MetaMask sang Ví 3:
 
-  ```text
-  https://veilbid-three.vercel.app
-  https://veilbid-relay-production.up.railway.app/health
-  ```
+   ```text
+   0xA4565608e096CFEf7da36eB19a57Da6d277D942f
+   ```
 
-## 6. Thứ tự quay footage thô
+2. Mở `PRIVATE BIDS → SUBMIT BID`.
+3. Chọn cùng tender EOA.
+4. Che vùng nhập liệu rồi nhập:
 
-1. `01-public`: Public explorer khi chưa kết nối wallet.
-2. `02-safe-select`: kết nối owner, chọn Safe hoặc dán Safe address fallback.
-3. `03-safe-funding`: reveal/fund vcUSDC cho Safe; giữ plaintext ngoài vùng quay.
-4. `04-safe-create`: nhập metadata, ceiling, deadline và hai approved vendors;
-   tạo Safe batch, approve/execute, rồi confirm exact funding.
-5. `05-vendor-1`: Vendor 1 encrypt và submit bid.
-6. `06-vendor-2`: Vendor 2 encrypt và submit bid.
-7. `07-close-finalize`: relay hoặc Activity close, public proof và finalize.
-8. `08-award-review`: winner public, receipt, review wallet có ACL sau finalize.
-9. `09-safe-exit`: optional full/custom unwrap và Activity lifecycle history.
-10. `10-recovery`: optional pending proof hoặc manual recovery thật, không giả lập.
+   ```text
+   7
+   ```
 
-Mỗi clip nên giữ màn hình ổn định 2–3 giây sau khi trạng thái chuyển thành
-`confirmed`, `Open`, `Closed` hoặc `Awarded`. Sau khi đủ clip, mới viết voiceover
-và cắt bản submission tối đa 4 phút.
+5. Bấm `ENCRYPT, SIMULATE & SUBMIT →` và xác nhận transaction.
+6. Chờ toast thành công.
 
-## 7. Checklist trước khi bấm Record
+### 6.4. Theo dõi đóng và settlement
 
-- [ ] Đang ở Ethereum Sepolia.
-- [ ] Đã tắt notification và mở browser sạch.
-- [ ] Đã chuẩn bị 4–5 wallet session, không lộ private key.
-- [ ] Safe owner đúng `0xE412…B64E`.
-- [ ] Safe đúng `0xBF39…3fbA0`.
-- [ ] Hai Vendor trong form đúng thứ tự và đúng checksum.
-- [ ] Safe đủ vcUSDC; Buyer/Vendor/finalizer đủ gas.
-- [ ] Deadline còn đủ thời gian cho funding proof và hai bid.
-- [ ] Không có handle, proof, calldata hoặc plaintext bid trong vùng quay.
-- [ ] Đã chuẩn bị một tender backup/proof-ready và Activity recovery path.
+1. Mở `PUBLIC` và refresh.
+2. Vì `2 / 2` Vendor đã gửi bid, tender sẽ hiện `READY TO CLOSE` dù deadline
+   chưa đến.
+3. Relay sẽ xử lý permissionlessly. Refresh và theo dõi:
+
+   ```text
+   READY TO CLOSE → CLOSED → AWARDED
+   ```
+
+4. Nếu relay đang ngủ hoặc chậm, kết nối lại Ví 1, mở `ACTIVITY` và dùng
+   `ADVANCE MANUALLY` làm fallback. Không cần ví thứ tư.
+5. Khi `AWARDED`, xác nhận:
+   - Winner công khai là Ví 3.
+   - Bid value `7` không xuất hiện trong Public.
+   - Award receipt thuộc Ví 3.
+   - Ví 3 nhận confidential payment `7 vcUSDC`.
+   - Ví 1 nhận confidential remainder `3 vcUSDC`.
+
+Số dư hiển thị là **tổng balance của ví**, không phải riêng khoản nhận từ tender.
+Muốn chứng minh đúng `7` và `3`, cần ghi lại balance trước và sau.
+
+### 6.5. Kiểm tra review access sau award
+
+1. Chuyển lại Ví 1.
+2. Mở `PRIVATE BIDS → GRANTED ACCESS`.
+3. Chờ web tự kiểm tra ACL on-chain.
+4. Các bid của tender vừa finalized sẽ tự xuất hiện; không có nút check quyền
+   thủ công.
+5. Có thể chọn một bid và bấm `REVEAL IN SESSION →`, nhưng phải crop plaintext
+   khỏi video public.
+6. Sang `ACTIVITY` để quay lifecycle history và transaction links.
+
+Đến đây luồng EOA Buyer đã hoàn chỉnh.
+
+## 7. Làm lại từ đầu — Safe Buyer
+
+Luồng Safe dùng lại ba ví và hai giá bid, nhưng phải tạo **một tender mới**.
+
+### 7.1. Chọn và chuẩn bị Safe bằng Ví 1
+
+1. Đảm bảo đang kết nối Ví 1.
+2. Mở `BUYER → SAFE BUYER`.
+3. Trong danh sách Safe, chọn:
+
+   ```text
+   0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0
+   ```
+
+4. Nếu discovery chưa hiện Safe, dán địa chỉ trên vào ô Safe address và bấm
+   `CHECK SAFE`.
+5. Kiểm tra `SELECTED SAFE` hiển thị:
+
+   ```text
+   1 owner(s) · threshold 1
+   ```
+
+6. Nếu setup chưa `READY`, bấm `CONFIGURE THIS SAFE →`, xác nhận proposal và
+   chờ Safe thực thi.
+7. Trong phần deposit, nhập:
+
+   ```text
+   10
+   ```
+
+8. Bấm `DEPOSIT TO SAFE →`. Tiền được lấy từ public Test USDC của Ví 1 và mint
+   thành vcUSDC trực tiếp cho Safe.
+9. Dùng biểu tượng con mắt cạnh `vcUSDC` để reveal balance trong session. Làm
+   theo từng toast/proposal cho đến khi web hiển thị balance.
+
+### 7.2. Tạo Safe-owned tender
+
+1. Trong `CREATE A SAFE-OWNED TENDER`, nhập:
+
+   **Public metadata**
+
+   ```text
+   Safe website development tender
+   ```
+
+   **Public ceiling**
+
+   ```text
+   10
+   ```
+
+   **Bid deadline**
+
+   Chọn giờ hiện tại + 15–20 phút.
+
+2. Nhập lại đúng hai Vendor:
+
+   ```text
+   0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55
+   0xA4565608e096CFEf7da36eB19a57Da6d277D942f
+   ```
+
+3. Bấm `CREATE WITH SAFE →`.
+4. Xác nhận Safe proposal. Với Safe 1/1, proposal có thể được thực thi ngay sau
+   chữ ký của Ví 1.
+5. Tiếp tục theo toast để confirm exact funding.
+6. Chờ tender Safe chuyển thành `Open`.
+7. Sang `PUBLIC → Open` để quay tender mới. Buyer lúc này là địa chỉ Safe,
+   không phải EOA Ví 1.
+
+### 7.3. Lặp lại hai bid
+
+1. Chuyển sang Ví 2.
+2. Mở `PRIVATE BIDS → SUBMIT BID`, chọn tender Safe mới và gửi bid `8`.
+3. Chuyển sang Ví 3.
+4. Chọn cùng tender Safe và gửi bid `7`.
+5. Che plaintext trong cả hai lần nhập.
+
+### 7.4. Theo dõi kết quả Safe
+
+1. Sang `PUBLIC`, refresh và theo dõi:
+
+   ```text
+   READY TO CLOSE → CLOSED → AWARDED
+   ```
+
+2. Winner vẫn là Ví 3 vì `7 < 8`.
+3. Ví 3 nhận confidential payment `7 vcUSDC`.
+4. Phần dư `3 vcUSDC` được trả về **Safe treasury**, không trả trực tiếp cho
+   owner Ví 1.
+5. Kết nối lại Ví 1 và mở `GRANTED ACCESS` để cho thấy review wallet chỉ được
+   cấp quyền sau finalization.
+6. Quay `ACTIVITY` để hiển thị lịch sử lifecycle và transaction.
+
+Điểm cần nói trong video: EOA Buyer ký trực tiếp; Safe Buyer yêu cầu quyền owner
+và threshold của Safe. Cả hai dùng cùng Market, Nox winner selection, private
+bid và settlement logic.
+
+## 8. Thứ tự clip đề xuất
+
+1. `01-landing`
+2. `02-docs`
+3. `03-wallet-1-balances`
+4. `04-eoa-create`
+5. `05-eoa-vendor-1`
+6. `06-eoa-vendor-2`
+7. `07-eoa-award-review`
+8. `08-safe-select-fund`
+9. `09-safe-create`
+10. `10-safe-vendor-1`
+11. `11-safe-vendor-2`
+12. `12-safe-award-activity`
+
+Quay footage thô dài hơn cũng được. Khi dựng bản submission dưới 4 phút, tăng
+tốc các đoạn chờ transaction/proof và chỉ giữ 2–3 giây ở mỗi trạng thái quan
+trọng.
+
+## 9. Checklist trước khi bấm Record
+
+- [ ] Đã import đúng ba ví và đang dùng Ethereum Sepolia.
+- [ ] Cả ba ví có Sepolia ETH.
+- [ ] Ví 1 có ít nhất `20` public Test USDC.
+- [ ] Safe `0xBF39…3fbA0` thuộc Ví 1 và có threshold 1/1.
+- [ ] Đã chuẩn bị hai metadata khác nhau cho EOA và Safe.
+- [ ] Mỗi deadline còn ít nhất 15 phút lúc bắt đầu tạo tender.
+- [ ] Hai Vendor được nhập đúng thứ tự: Ví 2 rồi Ví 3.
+- [ ] Đã chuẩn bị cách che ô private bid.
+- [ ] Không có private key, seed phrase, calldata, proof hoặc handle trong vùng
+  quay.
+- [ ] Browser notification đã tắt và cửa sổ quay không chứa terminal `.env`.
