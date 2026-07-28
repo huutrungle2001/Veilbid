@@ -6,6 +6,10 @@
   --color-paper-white: #ffffff;
   --color-paper-warm: #faf9f4;
   --color-surface-muted: #f1f2ef;
+  --color-input-surface: #f8fff0;
+  --color-input-hover: #f0ffdc;
+  --color-input-disabled: #eceee9;
+  --color-input-error: #fff0ec;
   --color-ink-muted: #454545;
   --color-ink-72: rgba(0, 0, 0, 0.72);
   --color-ink-12: rgba(0, 0, 0, 0.12);
@@ -2759,6 +2763,138 @@ main {
 .safe-tender-form input[aria-invalid="true"] {
   background: #fff0ec;
   border: 2px solid #d43d2f;
+}
+
+/* Form controls use a distinct surface language so they cannot be mistaken
+   for status cards, notices, or read-only evidence. */
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, select, textarea),
+.public-filter-control select {
+  background-color: var(--color-input-surface);
+  border: 2px solid var(--color-ink-black);
+  border-radius: 4px;
+  box-shadow:
+    inset 5px 0 0 var(--color-veil-green),
+    inset 0 -2px 0 var(--color-ink-12);
+  caret-color: var(--color-ink-black);
+  color: var(--color-ink-black);
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, select, textarea)::placeholder {
+  color: #686c64;
+  opacity: 1;
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, select, textarea):hover:not(:disabled):not([readonly]),
+.public-filter-control select:hover:not(:disabled) {
+  background-color: var(--color-input-hover);
+  box-shadow:
+    inset 7px 0 0 var(--color-veil-green),
+    inset 0 -2px 0 var(--color-ink-12);
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, select, textarea):focus-visible,
+.public-filter-control select:focus-visible {
+  background-color: var(--color-paper-white);
+  box-shadow:
+    inset 7px 0 0 var(--color-veil-green),
+    0 0 0 1px var(--color-ink-black);
+  transform: translateY(-1px);
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) select,
+.public-filter-control select {
+  cursor: pointer;
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, select, textarea):disabled {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-input-disabled),
+    var(--color-input-disabled) 7px,
+    #e4e6e1 7px,
+    #e4e6e1 14px
+  );
+  border-color: #747770;
+  border-style: dashed;
+  box-shadow: inset 5px 0 0 #b8bbb4;
+  color: var(--color-ink-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+:is(
+  .write-form,
+  .balance-wrap-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action,
+  .safe-handoff
+) :is(input, textarea)[readonly] {
+  background: var(--color-surface-muted);
+  border-color: #747770;
+  border-style: dashed;
+  box-shadow: none;
+  color: var(--color-ink-muted);
+}
+
+:is(
+  .write-form,
+  .safe-inline-deposit,
+  .safe-unwrap-action
+) :is(input, select, textarea)[aria-invalid="true"] {
+  background: var(--color-input-error);
+  border-color: #d43d2f;
+  box-shadow: inset 5px 0 0 #d43d2f;
+}
+
+.write-form label:focus-within,
+.safe-inline-deposit label:focus-within,
+.safe-unwrap-action label:focus-within {
+  color: #245f24;
+}
+
+.balance-wrap-form > div input {
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
 }
 
 .safe-tender-submit > div {
