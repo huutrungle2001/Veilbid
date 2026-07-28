@@ -214,6 +214,11 @@ luồng Safe Buyer có nút deposit riêng.
    - Award receipt thuộc Ví 3.
    - Ví 3 nhận confidential payment `7 vcUSDC`.
    - Ví 1 nhận confidential remainder `3 vcUSDC`.
+6. Vì vẫn đang kết nối Ví 3, quay banner `You won Tender #...`, rồi mở
+   `ACTIVITY HISTORY`.
+7. Trong `AWARD NOTIFICATIONS`, mở đúng award và transaction Sepolia. Có thể
+   bấm `MARK READ`: bản ghi vẫn được giữ trong Activity sau reload vì được dựng
+   lại từ event `TenderAwarded`; browser chỉ lưu trạng thái đã đọc.
 
 Số dư hiển thị là **tổng balance của ví**, không phải riêng khoản nhận từ tender.
 Muốn chứng minh đúng `7` và `3`, cần ghi lại balance trước và sau.
@@ -227,7 +232,8 @@ Muốn chứng minh đúng `7` và `3`, cần ghi lại balance trước và sau
    thủ công.
 5. Có thể chọn một bid và bấm `REVEAL IN SESSION →`, nhưng phải crop plaintext
    khỏi video public.
-6. Sang `ACTIVITY` để quay lifecycle history và transaction links.
+6. Sang `ACTIVITY` để quay lifecycle history, award history và transaction
+   links.
 
 Đến đây luồng EOA Buyer đã hoàn chỉnh.
 
@@ -324,6 +330,8 @@ Luồng Safe dùng lại ba ví và hai giá bid, nhưng phải tạo **một te
 5. Kết nối lại Ví 1 và mở `GRANTED ACCESS` để cho thấy review wallet chỉ được
    cấp quyền sau finalization.
 6. Quay `ACTIVITY` để hiển thị lịch sử lifecycle và transaction.
+7. Chuyển sang Ví 3 để quay banner thắng Safe tender và bản ghi bền vững trong
+   `AWARD NOTIFICATIONS`.
 
 Điểm cần nói trong video: EOA Buyer ký trực tiếp; Safe Buyer yêu cầu quyền owner
 và threshold của Safe. Cả hai dùng cùng Market, Nox winner selection, private

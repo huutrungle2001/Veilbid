@@ -449,20 +449,27 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
 ### Activity & History: lịch sử và phục hồi
 
 1. Mở workspace `ACTIVITY`.
-2. Xem `LIFECYCLE HISTORY` để theo dõi toàn bộ public event đã index của tender
+2. Kết nối Ví Vendor thắng và kiểm tra `AWARD NOTIFICATIONS`:
+   - Banner `You won Tender #...` xuất hiện khi có award chưa đọc.
+   - Bấm `VIEW AWARD` để mở đúng public dossier, hoặc `ACTIVITY HISTORY` để xem
+     toàn bộ các lần thắng.
+   - Bấm `MARK READ` không xóa bản ghi. Sau reload, award vẫn nằm trong Activity
+     và được phục hồi từ `TenderAwarded` trên Sepolia.
+   - Chỉ trạng thái đã đọc được lưu theo chain, Market và địa chỉ ví trong
+     local storage; bid value, settlement amount, handle, proof và signature
+     không được lưu.
+3. Xem `LIFECYCLE HISTORY` để theo dõi toàn bộ public event đã index của tender
    (tạo, funding, bid received, close, award/refund/cancel và viewer grant),
    block cùng transaction tương ứng. Các giá trị bid và balance confidential
    không xuất hiện ở đây.
-3. Kiểm tra phần `RECOVERABLE CHECKPOINTS`. Nếu một thao tác browser trước đó
-   bị gián đoạn, kết nối đúng ví và bấm `RESUME`.
-4. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, kết nối một ví có
-   Sepolia ETH và xem `MANUAL RELAY FALLBACK`.
-5. Với tender đang `Open` và đã đủ điều kiện, bấm `CLOSE & TRACK`.
-6. Với tender đã `Closed`, bấm `TRACK PROOF`.
-7. Xác nhận transaction cần thiết trong MetaMask.
-8. Nếu proof chưa sẵn sàng, checkpoint vẫn phải còn trong
-   `RECOVERABLE CHECKPOINTS`; thử `RESUME` sau, không tạo tender mới.
-9. Sang `PUBLIC` và refresh trạng thái.
+4. Kiểm tra `AUTOMATION STATUS`. Nếu có checkpoint gián đoạn mang nhãn
+   `NEEDS ATTENTION`, kết nối đúng ví và bấm `RESUME`.
+5. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, dùng nút
+   `ADVANCE MANUALLY` tương ứng như một fallback permissionless.
+6. Xác nhận transaction cần thiết trong MetaMask.
+7. Nếu proof chưa sẵn sàng, checkpoint phải còn trong Activity; thử `RESUME`
+   sau, không tạo tender mới.
+8. Sang `PUBLIC` và refresh trạng thái.
 
 Kết quả mong đợi:
 
@@ -574,6 +581,8 @@ Thực hiện thêm các trường hợp:
 - [ ] Optional: Activity manual fallback/checkpoint recovery hoạt động.
 - [ ] Vendor 2 thắng với bid thấp nhất.
 - [ ] Award receipt được tạo.
+- [ ] Ví Vendor thắng nhận banner; award vẫn còn trong `ACTIVITY` sau khi đánh
+      dấu đã đọc và reload.
 - [ ] Toast hiển thị đúng từng giai đoạn và không bị treo.
 - [ ] Module preparation không có quyền tự execute từ Safe.
 - [ ] Safe owner EOA không thay thế Buyer Safe hoặc vượt qua threshold.
