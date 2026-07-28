@@ -180,8 +180,8 @@ export async function findPendingWalletUnwrap(
 ): Promise<Hex | null> {
   const client = createResilientSepoliaClient(rpcUrl);
   const latestBlock = await client.getBlockNumber();
-  const logs = [];
   const chunkSize = 999n;
+  const ranges: { fromBlock: bigint; toBlock: bigint }[] = [];
   for (
     let fromBlock = wrapperDeploymentBlock;
     fromBlock <= latestBlock;
@@ -191,16 +191,21 @@ export async function findPendingWalletUnwrap(
       fromBlock + chunkSize < latestBlock
         ? fromBlock + chunkSize
         : latestBlock;
-    logs.push(
-      ...(await client.getLogs({
-        address: wrapperAddress,
-        event: unwrapRequestedEvent,
-        args: { receiver: recipient },
-        fromBlock,
-        toBlock,
-      })),
-    );
+    ranges.push({ fromBlock, toBlock });
   }
+  const logs = (
+    await Promise.all(
+      ranges.map(({ fromBlock, toBlock }) =>
+        client.getLogs({
+          address: wrapperAddress,
+          event: unwrapRequestedEvent,
+          args: { receiver: recipient },
+          fromBlock,
+          toBlock,
+        }),
+      ),
+    )
+  ).flat();
 
   for (const log of logs.reverse()) {
     const requestHandle = log.args.amount;
