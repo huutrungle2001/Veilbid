@@ -30,10 +30,12 @@ export function VendorBidForm({
   wallet,
   tenders,
   onConfirmed,
+  readAdmission = readVendorAdmission,
 }: {
   wallet: WalletController;
   tenders: readonly PublicTender[];
   onConfirmed: () => void;
+  readAdmission?: typeof readVendorAdmission;
 }) {
   const toasts = useToasts();
   const [nowMilliseconds, setNowMilliseconds] = useState(() => Date.now());
@@ -43,6 +45,9 @@ export function VendorBidForm({
     ),
     [nowMilliseconds, tenders],
   );
+  const openTenderIds = openTenders
+    .map((tender) => tender.tenderId.toString())
+    .join(",");
   const [admission, setAdmission] = useState<
     Record<string, { approved: boolean; submitted: boolean }>
   >({});
@@ -57,7 +62,8 @@ export function VendorBidForm({
     wallet.state.account &&
     wallet.state.walletClient;
   const eligibleTenders = useMemo(() => {
-    if (!connected || admissionLoading) return openTenders;
+    if (!connected) return openTenders;
+    if (admissionLoading) return [];
     return openTenders.filter((tender) => {
       const result = admission[tender.tenderId.toString()];
       return result?.approved && !result.submitted;
@@ -88,7 +94,7 @@ export function VendorBidForm({
     void Promise.all(
       openTenders.map(async (tender) => [
         tender.tenderId.toString(),
-        await readVendorAdmission({
+        await readAdmission({
           tenderId: tender.tenderId,
           account: wallet.state.account!,
         }),
@@ -106,7 +112,7 @@ export function VendorBidForm({
     return () => {
       active = false;
     };
-  }, [connected, openTenders, wallet.state.account]);
+  }, [connected, openTenderIds, readAdmission, wallet.state.account]);
 
   useEffect(() => {
     const timer = window.setInterval(
@@ -154,6 +160,13 @@ export function VendorBidForm({
       });
       setTransactionHash(result.transactionHash);
       setPrice("");
+      setAdmission((current) => ({
+        ...current,
+        [selected.tenderId.toString()]: {
+          approved: true,
+          submitted: true,
+        },
+      }));
       onConfirmed();
     } catch (cause) {
       setStage(null);
