@@ -18,6 +18,7 @@ import { WalletPanel, type WalletController } from "../wallet/WalletPanel";
 import { ContextHelp } from "../shell/ContextHelp";
 import { useToasts } from "../shell/ToastProvider";
 import { transactionErrorMessage } from "../transactions/errors";
+import { WinnerNotificationHistory } from "./WinnerNotifications";
 
 const stageLabel: Record<RecoveryStage, string> = {
   reading: "Reading canonical state",
@@ -47,10 +48,12 @@ export function ActivityWorkspace({
   wallet,
   tenders,
   onRefresh,
+  onViewAward,
 }: {
   wallet: WalletController;
   tenders: readonly PublicTender[];
   onRefresh: () => void;
+  onViewAward: (tenderId: bigint) => void;
 }) {
   const toasts = useToasts();
   const [records, setRecords] = useState<RecoveryRecord[]>([]);
@@ -212,6 +215,12 @@ export function ActivityWorkspace({
         </p>
       </section>
       <WalletPanel wallet={wallet} />
+
+      <WinnerNotificationHistory
+        wallet={wallet}
+        tenders={tenders}
+        onViewAward={onViewAward}
+      />
 
       <section className="activity-section activity-action-queue">
         <header>

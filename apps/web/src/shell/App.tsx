@@ -13,6 +13,7 @@ import { useWallet } from "../wallet/useWallet";
 import type { WalletController } from "../wallet/WalletPanel";
 import { WalletBalancePanel } from "../wallet/WalletBalancePanel";
 import { ActivityWorkspace } from "../activity/ActivityWorkspace";
+import { WinnerNotificationBanner } from "../activity/WinnerNotifications";
 import { DocsPage } from "../landing/DocsPage";
 import { LandingPage } from "../landing/LandingPage";
 import { PrimaryNavigation } from "./PrimaryNavigation";
@@ -529,6 +530,35 @@ export function ExplorerView({
     scrollToPublicWorkspace();
   }
 
+  function viewPublicAward(tenderId: bigint) {
+    const next = new URLSearchParams(searchParams);
+    next.delete("role");
+    next.delete("buyer");
+    next.delete("private");
+    next.set("status", "awarded");
+    next.set("tender", tenderId.toString());
+    next.set("view", "detail");
+    setSearchParams(next);
+    scrollToPublicWorkspace();
+  }
+
+  function openActivityHistory() {
+    const next = new URLSearchParams(searchParams);
+    next.set("role", "activity");
+    next.delete("status");
+    next.delete("buyer");
+    next.delete("private");
+    next.delete("tender");
+    next.delete("view");
+    setSearchParams(next);
+    window.setTimeout(() => {
+      document.getElementById("award-notifications")?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 0);
+  }
+
   return (
     <div className="tender-layout">
       <div className="rolebar" aria-label="Tender workspaces">
@@ -570,11 +600,20 @@ export function ExplorerView({
       </div>
 
       <div className="tender-surface">
+        {wallet && (
+          <WinnerNotificationBanner
+            wallet={wallet}
+            tenders={index.tenders}
+            onViewAward={viewPublicAward}
+            onOpenActivity={openActivityHistory}
+          />
+        )}
         {activeRole === "ACTIVITY" && wallet ? (
           <ActivityWorkspace
             wallet={wallet}
             tenders={index.tenders}
             onRefresh={onRetry}
+            onViewAward={viewPublicAward}
           />
         ) : activeRole === "BUYER" && wallet ? (
           <BuyerWorkspace

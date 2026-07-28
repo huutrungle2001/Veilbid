@@ -3309,6 +3309,172 @@ main {
   text-transform: uppercase;
 }
 
+.winner-notification-banner {
+  align-items: center;
+  background: var(--color-veil-green);
+  border-bottom: 1px solid var(--color-ink-black);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 18px 24px;
+}
+
+.winner-notification-mark {
+  align-items: center;
+  background: var(--color-ink-black);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 50%;
+  color: var(--color-paper-white);
+  display: inline-flex;
+  font-size: 1rem;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.winner-notification-banner > div:not(.winner-notification-actions) {
+  display: grid;
+  gap: 3px;
+}
+
+.winner-notification-banner .eyebrow {
+  margin: 0;
+}
+
+.winner-notification-banner strong {
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.winner-notification-banner > div > span {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.winner-notification-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.winner-notification-actions :is(.primary-button, .secondary-button) {
+  min-height: 42px;
+  padding: 9px 13px;
+}
+
+.winner-notification-actions .primary-button {
+  background: var(--color-ink-black);
+  color: var(--color-paper-white);
+}
+
+.winner-notification-dismiss {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-height: 42px;
+  padding: 8px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.winner-notification-history {
+  display: grid;
+  gap: 16px;
+  scroll-margin-top: 110px;
+}
+
+.winner-notification-history > header {
+  margin-bottom: 0;
+}
+
+.winner-unread-count,
+.winner-notification-state {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  border-radius: 25px;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 11px;
+}
+
+.winner-unread-count strong {
+  font-size: 0.82rem;
+}
+
+.winner-notification-list {
+  display: grid;
+  gap: 10px;
+}
+
+.winner-notification-card {
+  align-items: center;
+  border: 1px solid var(--color-ink-black);
+  border-left: 8px solid var(--color-ink-black);
+  border-radius: 25px;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 20px 24px;
+}
+
+.winner-notification-card[data-read="false"] {
+  border-left-color: var(--color-veil-green);
+}
+
+.winner-notification-card[data-read="false"] .winner-notification-state {
+  background: var(--color-veil-green);
+}
+
+.winner-notification-card-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.winner-notification-card-copy > .eyebrow {
+  margin: 4px 0 0;
+}
+
+.winner-notification-card h3 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.winner-notification-card-copy > span:not(.winner-notification-state),
+.winner-notification-card-copy > a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.winner-notification-card-copy > a {
+  color: var(--color-ink-black);
+  overflow-wrap: anywhere;
+  text-underline-offset: 3px;
+}
+
+.winner-notification-card-actions {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.winner-notification-card-actions :is(.primary-button, .secondary-button) {
+  width: 100%;
+}
+
 .activity-action-queue {
   display: grid;
   gap: 16px;
@@ -5044,6 +5210,46 @@ footer p {
     align-items: stretch;
     flex-direction: column;
     gap: 20px;
+  }
+
+  .winner-notification-banner {
+    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 18px 20px;
+  }
+
+  .winner-notification-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .winner-notification-actions :is(.primary-button, .secondary-button) {
+    flex: 1 1 180px;
+  }
+
+  .winner-notification-dismiss {
+    flex: 1 1 100%;
+  }
+
+  .winner-notification-history > header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .winner-notification-history > header > .context-help {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .winner-notification-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .winner-notification-card-actions {
+    min-width: 0;
   }
 
   .activity-queue-summary {
