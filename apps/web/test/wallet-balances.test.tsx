@@ -70,7 +70,9 @@ describe("workspace wallet balances", () => {
       "HOW TO USE BALANCES",
     );
     fireEvent.mouseLeave(balanceHelp);
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument(),
+    );
     expect(screen.getByText("1250")).toBeInTheDocument();
     expect(screen.getByText("ENCRYPTED")).toBeInTheDocument();
     expect(screen.getByText(/browser session only/i)).toBeInTheDocument();

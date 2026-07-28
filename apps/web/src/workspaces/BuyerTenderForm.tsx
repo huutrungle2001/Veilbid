@@ -33,7 +33,7 @@ const fundingLabels: Record<FundingConfirmationStage, string> = {
 };
 
 function minimumLocalDeadline() {
-  const deadline = new Date(Date.now() + 120_000);
+  const deadline = new Date(Date.now() + 300_000);
   deadline.setMinutes(
     deadline.getMinutes() - deadline.getTimezoneOffset(),
   );
@@ -191,7 +191,8 @@ export function BuyerTenderForm({
           required
         />
         <small className="field-hint">
-          Choose a local time at least one minute from now.
+          Choose a local time at least five minutes from now so funding proof
+          and vendor signing have time to complete.
         </small>
       </label>
       <fieldset className="vendor-fieldset">

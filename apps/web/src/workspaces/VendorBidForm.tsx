@@ -2,6 +2,7 @@ import type { PublicTender } from "@veilbid/chain-bindings";
 import { useEffect, useMemo, useState } from "react";
 import type { Hex } from "viem";
 import {
+  readVendorAdmission,
   submitVendorBid,
   type VendorBidStage,
 } from "../transactions/vendorBid";
@@ -42,19 +43,30 @@ export function VendorBidForm({
     ),
     [nowMilliseconds, tenders],
   );
+  const [admission, setAdmission] = useState<
+    Record<string, { approved: boolean; submitted: boolean }>
+  >({});
+  const [admissionLoading, setAdmissionLoading] = useState(false);
   const [tenderId, setTenderId] = useState("");
   const [price, setPrice] = useState("");
   const [stage, setStage] = useState<VendorBidStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<Hex | null>(null);
-  const selected = openTenders.find(
-    (tender) => tender.tenderId.toString() === tenderId,
-  );
-  const pending = stage !== null && stage !== "confirmed";
   const connected =
     wallet.state.status === "connected" &&
     wallet.state.account &&
     wallet.state.walletClient;
+  const eligibleTenders = useMemo(() => {
+    if (!connected || admissionLoading) return openTenders;
+    return openTenders.filter((tender) => {
+      const result = admission[tender.tenderId.toString()];
+      return result?.approved && !result.submitted;
+    });
+  }, [admission, admissionLoading, connected, openTenders]);
+  const selected = eligibleTenders.find(
+    (tender) => tender.tenderId.toString() === tenderId,
+  );
+  const pending = stage !== null && stage !== "confirmed";
 
   useEffect(() => {
     setPrice("");
@@ -62,6 +74,39 @@ export function VendorBidForm({
     setError(null);
     setTransactionHash(null);
   }, [wallet.state.sessionRevision]);
+
+  useEffect(() => {
+    let active = true;
+    if (!connected || !wallet.state.account || openTenders.length === 0) {
+      setAdmission({});
+      setAdmissionLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    setAdmissionLoading(true);
+    void Promise.all(
+      openTenders.map(async (tender) => [
+        tender.tenderId.toString(),
+        await readVendorAdmission({
+          tenderId: tender.tenderId,
+          account: wallet.state.account!,
+        }),
+      ] as const),
+    )
+      .then((entries) => {
+        if (active) setAdmission(Object.fromEntries(entries));
+      })
+      .catch(() => {
+        if (active) setAdmission({});
+      })
+      .finally(() => {
+        if (active) setAdmissionLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [connected, openTenders, wallet.state.account]);
 
   useEffect(() => {
     const timer = window.setInterval(
@@ -74,12 +119,12 @@ export function VendorBidForm({
   useEffect(() => {
     if (
       tenderId &&
-      !openTenders.some((tender) => tender.tenderId.toString() === tenderId)
+      !eligibleTenders.some((tender) => tender.tenderId.toString() === tenderId)
     ) {
       setTenderId("");
-      setError("The selected tender has expired. Choose another active tender.");
+      setError("The selected tender is no longer available for this wallet.");
     }
-  }, [openTenders, tenderId]);
+  }, [eligibleTenders, tenderId]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -152,9 +197,11 @@ export function VendorBidForm({
           <option value="">
             {openTenders.length === 0
               ? "No active tenders available"
-              : "Select confirmed dossier"}
+              : admissionLoading
+                ? "Checking vendor admission…"
+                : "Select approved tender"}
           </option>
-          {openTenders.map((tender) => (
+          {eligibleTenders.map((tender) => (
             <option
               key={tender.tenderId.toString()}
               value={tender.tenderId.toString()}
@@ -179,6 +226,12 @@ export function VendorBidForm({
         <p className="form-empty-hint" role="status">
           No confirmed, unexpired tender is accepting bids. Check Public and
           refresh after the buyer opens a tender.
+        </p>
+      )}
+      {openTenders.length > 0 && !admissionLoading && eligibleTenders.length === 0 && (
+        <p className="form-empty-hint" role="status">
+          No active tender is approved for this wallet, or this wallet already
+          submitted its one immutable bid.
         </p>
       )}
       <label>
@@ -216,7 +269,7 @@ export function VendorBidForm({
       <button
         className="primary-button"
         type="submit"
-        disabled={!connected || !selected || pending}
+        disabled={!connected || !selected || pending || admissionLoading}
       >
         {connected ? "ENCRYPT, SIMULATE & SUBMIT →" : "CONNECT WALLET TO BID"}
       </button>

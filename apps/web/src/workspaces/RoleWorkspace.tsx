@@ -26,6 +26,45 @@ export function RoleWorkspace({
 }) {
   const buyer = role === "BUYER";
   const privateSectionToRender = privateSection ?? "submit";
+  const privateView =
+    privateSectionToRender === "my-bid"
+      ? {
+          eyebrow: "PRIVATE BIDS / MY BID",
+          title: "Reveal or share your bid.",
+          description:
+            "Decrypt only your own stored bid or grant one viewer access to that bid.",
+          stages: [
+            "Select your stored bid",
+            "Reveal in this session or enter a viewer",
+            "Confirm the per-bid action",
+            "Keep the plaintext in this browser only",
+          ],
+        }
+      : privateSectionToRender === "granted-access"
+        ? {
+            eyebrow: "PRIVATE BIDS / GRANTED ACCESS",
+            title: "Review one authorized bid.",
+            description:
+              "Check the on-chain viewer permission before revealing a bid shared with this wallet.",
+            stages: [
+              "Select a public bid reference",
+              "Check the per-bid viewer permission",
+              "Reveal the authorized handle",
+              "Clear plaintext when the wallet session changes",
+            ],
+          }
+        : {
+            eyebrow: "PRIVATE BIDS / VENDOR & REVIEWER",
+            title: "Submit a sealed bid.",
+            description:
+              "Vendors submit one immutable encrypted price; reviewers reveal only authorized bids.",
+            stages: [
+              "Verify vendor admission",
+              "Encrypt price for market",
+              "Simulate and sign the bid transaction",
+              "Refresh the confirmed dossier",
+            ],
+          };
   return (
     <main className="role-workspace" id="main-content">
       <section className="workspace-intro">
@@ -53,14 +92,14 @@ export function RoleWorkspace({
               : "Each approved vendor submits one immutable encrypted bid before the deadline."
           }
         />
-        <p className="eyebrow">{buyer ? "EOA BUYER / DIRECT WALLET" : "PRIVATE BIDS / VENDOR & REVIEWER"}</p>
+        <p className="eyebrow">{buyer ? "EOA BUYER / DIRECT WALLET" : privateView.eyebrow}</p>
         <h1>
-          {buyer ? "Fund public terms." : "Submit or privately review bids."}
+          {buyer ? "Fund public terms." : privateView.title}
         </h1>
         <p>
           {buyer
             ? "Create an exactly funded tender without gaining access to open vendor prices."
-            : "Vendors manage their own sealed bid here. Review wallets reveal only bids authorized after finalization or explicitly shared by a Vendor."}
+            : privateView.description}
         </p>
       </section>
       <WalletPanel wallet={wallet} />
@@ -97,13 +136,7 @@ export function RoleWorkspace({
                 "Wait for exact-funding proof",
                 "Confirm and open tender on-chain",
               ]
-            : [
-                "Verify vendor admission",
-                "Encrypt price for market",
-                "Simulate bid transaction",
-                "Sign and confirm on-chain",
-                "Refresh confirmed dossier",
-              ]
+            : privateView.stages
           ).map((stage, index) => (
             <li key={stage}>
               <span>{index + 1}</span>

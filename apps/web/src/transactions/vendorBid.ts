@@ -29,6 +29,36 @@ export interface VendorBidResult {
   blockNumber: bigint;
 }
 
+export async function readVendorAdmission({
+  tenderId,
+  account,
+  rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL ?? defaultSepoliaRpcUrl,
+}: {
+  tenderId: bigint;
+  account: Address;
+  rpcUrl?: string;
+}) {
+  const publicClient = createPublicClient({
+    chain: sepolia,
+    transport: http(rpcUrl),
+  });
+  const [approved, submitted] = await Promise.all([
+    publicClient.readContract({
+      address: marketAddress,
+      abi: marketAbi,
+      functionName: "isApprovedVendor",
+      args: [tenderId, account],
+    }),
+    publicClient.readContract({
+      address: marketAddress,
+      abi: marketAbi,
+      functionName: "hasSubmittedBid",
+      args: [tenderId, account],
+    }),
+  ]);
+  return { approved: approved === true, submitted: submitted === true };
+}
+
 export function parseVendorPrice(value: string, ceiling: bigint) {
   const normalized = value.trim();
   if (!/^(0|[1-9]\d*)(\.\d{1,6})?$/.test(normalized)) {
@@ -73,24 +103,11 @@ export async function submitVendorBid({
   });
 
   onStage("checking");
-  const [approved, submitted] = await Promise.all([
-    publicClient.readContract({
-      address: marketAddress,
-      abi: marketAbi,
-      functionName: "isApprovedVendor",
-      args: [tenderId, account],
-    }),
-    publicClient.readContract({
-      address: marketAddress,
-      abi: marketAbi,
-      functionName: "hasSubmittedBid",
-      args: [tenderId, account],
-    }),
-  ]);
-  if (approved !== true) {
+  const admission = await readVendorAdmission({ tenderId, account, rpcUrl });
+  if (!admission.approved) {
     throw new Error("Connected account is not an approved vendor.");
   }
-  if (submitted === true) {
+  if (admission.submitted) {
     throw new Error("Connected account already submitted an immutable bid.");
   }
 
