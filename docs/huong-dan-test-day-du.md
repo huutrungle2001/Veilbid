@@ -92,8 +92,9 @@ Chỉ dùng các ví này trên testnet.
 
 1. Mở workspace `PUBLIC` khi chưa kết nối ví.
 2. Xác nhận danh sách tender được đọc từ Sepolia, không xuất hiện mock data.
-3. Nếu danh sách có nhiều tender, dùng bộ lọc trạng thái để chọn dossier cần
-   kiểm tra.
+3. Nếu danh sách có nhiều tender, chọn `Open` để chỉ xem tender đang nhận bid,
+   hoặc dùng các bộ lọc trạng thái khác để xem lịch sử. Khi cuộn danh sách,
+   thanh `CONFIRMED DOSSIERS`, số lượng, refresh và bộ lọc vẫn phải hiển thị.
 4. Chọn một tender và kiểm tra:
    - Public ceiling.
    - Deadline.
