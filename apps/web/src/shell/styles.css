@@ -3380,7 +3380,7 @@ main {
   margin-bottom: 0;
 }
 
-.winner-unread-count,
+.winner-new-count,
 .winner-notification-state {
   align-items: center;
   border: 1px solid var(--color-ink-black);
@@ -3394,7 +3394,7 @@ main {
   padding: 7px 11px;
 }
 
-.winner-unread-count strong {
+.winner-new-count strong {
   font-size: 0.82rem;
 }
 

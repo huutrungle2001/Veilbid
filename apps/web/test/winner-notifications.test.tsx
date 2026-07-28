@@ -159,7 +159,7 @@ describe("winner notifications", () => {
     );
 
     expect(screen.getByRole("heading", { name: "2 awards" })).toBeInTheDocument();
-    expect(screen.getByText("READ")).toBeInTheDocument();
+    expect(screen.getByText("AWARD")).toBeInTheDocument();
     expect(screen.getByText("NEW AWARD")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /MARK.*READ/ }),
@@ -174,6 +174,6 @@ describe("winner notifications", () => {
       screen.getAllByRole("button", { name: "VIEW PUBLIC AWARD →" })[0]!,
     );
     expect(onViewAward).toHaveBeenCalledWith(2n);
-    await waitFor(() => expect(screen.getAllByText("READ")).toHaveLength(2));
+    await waitFor(() => expect(screen.getAllByText("AWARD")).toHaveLength(2));
   });
 });

@@ -453,11 +453,11 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
    - Banner `You won Tender #...` xuất hiện khi có award chưa đọc.
    - Bấm `VIEW AWARD` để mở đúng public dossier, hoặc `ACTIVITY HISTORY` để xem
      toàn bộ các lần thắng.
-   - Không có nút `MARK READ` riêng. Bấm `VIEW AWARD`, `ACTIVITY HISTORY` từ
-     banner hoặc `VIEW PUBLIC AWARD` sẽ tự đánh dấu đã đọc, nhưng không xóa bản
-     ghi. Sau reload, award vẫn nằm trong Activity và được phục hồi từ
-     `TenderAwarded` trên Sepolia.
-   - Chỉ trạng thái đã đọc được lưu theo chain, Market và địa chỉ ví trong
+   - Không có thao tác xác nhận riêng. Bấm `VIEW AWARD`, `ACTIVITY HISTORY` từ
+     banner hoặc `VIEW PUBLIC AWARD` sẽ tự ghi nhận thông báo đã được mở, nhưng
+     không xóa bản ghi. Sau reload, award vẫn nằm trong Activity và được phục
+     hồi từ `TenderAwarded` trên Sepolia.
+   - Chỉ trạng thái đã mở được lưu theo chain, Market và địa chỉ ví trong
      local storage; bid value, settlement amount, handle, proof và signature
      không được lưu.
 3. Xem `LIFECYCLE HISTORY` để theo dõi toàn bộ public event đã index của tender

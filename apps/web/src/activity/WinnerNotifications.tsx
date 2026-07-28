@@ -106,7 +106,7 @@ export function WinnerNotificationBanner({
       className="winner-notification-banner"
       role="status"
       aria-live="polite"
-      aria-label="Unread winner notifications"
+      aria-label="New winner notifications"
     >
       <span className="winner-notification-mark" aria-hidden="true">
         ★
@@ -118,7 +118,7 @@ export function WinnerNotificationBanner({
           Award confirmed at block {award.blockNumber.toString()} · receipt #
           {latest.tenderId.toString()}
           {unread.length > 1
-            ? ` · ${unread.length - 1} more unread award${unread.length === 2 ? "" : "s"}`
+            ? ` · ${unread.length - 1} more new award${unread.length === 2 ? "" : "s"}`
             : ""}
         </span>
       </div>
@@ -172,8 +172,8 @@ export function WinnerNotificationHistory({
             {awards.length} {awards.length === 1 ? "award" : "awards"}
           </h2>
         </div>
-        <span className="winner-unread-count">
-          <strong>{unread.length}</strong> UNREAD
+        <span className="winner-new-count">
+          <strong>{unread.length}</strong> NEW
         </span>
         <ContextHelp
           compact
@@ -182,7 +182,7 @@ export function WinnerNotificationHistory({
           steps={[
             "VeilBid derives this history from confirmed TenderAwarded events for the connected wallet.",
             "Open an award to inspect its public dossier and non-transferable receipt.",
-            "Only read state is stored locally; award records remain recoverable from Sepolia after reload.",
+            "Only whether an award notification was opened is stored locally; award records remain recoverable from Sepolia after reload.",
           ]}
           note="No bid value, confidential payment amount, handle, proof, or signature is stored here."
         />
@@ -208,7 +208,7 @@ export function WinnerNotificationHistory({
               >
                 <div className="winner-notification-card-copy">
                   <span className="winner-notification-state">
-                    {read ? "READ" : "NEW AWARD"}
+                    {read ? "AWARD" : "NEW AWARD"}
                   </span>
                   <p className="eyebrow">PROOF-DERIVED WINNER</p>
                   <h3>You won Tender #{tender.tenderId.toString()}</h3>
