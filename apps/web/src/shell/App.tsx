@@ -40,6 +40,7 @@ type RoomRole =
 type PublicTenderFilter =
   | "current"
   | "all"
+  | "open"
   | "awarded"
   | "refunded"
   | "cancelled";
@@ -50,6 +51,7 @@ const publicTenderFilters: ReadonlyArray<{
 }> = [
   { value: "current", label: "Current & awarded" },
   { value: "all", label: "All tenders" },
+  { value: "open", label: "Open" },
   { value: "awarded", label: "Awarded" },
   { value: "refunded", label: "Refunded" },
   { value: "cancelled", label: "Cancelled" },
@@ -612,35 +614,39 @@ export function ExplorerView({
                 id="tenders"
               >
                 <aside className="dossier-list" aria-label="Public tenders">
-                  <header>
-                    <div>
-                      <p className="eyebrow">CONFIRMED DOSSIERS</p>
-                      <h2>{visibleTenders.length} tenders</h2>
-                    </div>
-                    <button
-                      className="icon-button"
-                      onClick={onRetry}
-                      aria-label="Refresh confirmed Sepolia state"
-                    >
-                      ↻
-                    </button>
-                  </header>
-                  <label className="public-filter-control">
-                    <span>Show</span>
-                    <select
-                      aria-label="Filter public tenders"
-                      value={publicFilter}
-                      onChange={(event) =>
-                        changePublicFilter(event.target.value as PublicTenderFilter)
-                      }
-                    >
-                      {publicTenderFilters.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="dossier-list-controls">
+                    <header>
+                      <div>
+                        <p className="eyebrow">CONFIRMED DOSSIERS</p>
+                        <h2>{visibleTenders.length} tenders</h2>
+                      </div>
+                      <button
+                        className="icon-button"
+                        onClick={onRetry}
+                        aria-label="Refresh confirmed Sepolia state"
+                      >
+                        ↻
+                      </button>
+                    </header>
+                    <label className="public-filter-control">
+                      <span>Show</span>
+                      <select
+                        aria-label="Filter public tenders"
+                        value={publicFilter}
+                        onChange={(event) =>
+                          changePublicFilter(
+                            event.target.value as PublicTenderFilter,
+                          )
+                        }
+                      >
+                        {publicTenderFilters.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   {visibleTenders.length === 0 && (
                     <p className="form-empty-hint">
                       No tenders match this filter. Choose “All tenders” to

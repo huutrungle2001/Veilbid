@@ -163,6 +163,43 @@ describe("Tender Room public explorer", () => {
     await waitFor(() => expect(filter).toHaveValue("cancelled"));
   });
 
+  it("exposes an Open-only public filter", () => {
+    const filtered = state();
+    const openTender = filtered.data!.index.tenders[0];
+    filtered.data = {
+      ...filtered.data!,
+      index: {
+        ...filtered.data!.index,
+        tenders: [
+          openTender,
+          {
+            ...openTender,
+            tenderId: 2n,
+            status: "Awarded",
+            winnerBidId: 1n,
+            winner: buyer,
+          },
+        ],
+      },
+    };
+    view(filtered);
+    const filter = screen.getByRole("combobox", {
+      name: "Filter public tenders",
+    });
+    expect(
+      screen.getByRole("option", { name: "Open" }),
+    ).toBeInTheDocument();
+    fireEvent.change(filter, { target: { value: "open" } });
+    expect(filter).toHaveValue("open");
+    expect(screen.getByText("1 tenders")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Confidential procurement #1").length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.queryByText("Confidential procurement #2"),
+    ).not.toBeInTheDocument();
+  });
+
   it("surfaces explicit non-transferable receipt evidence after award", () => {
     const awarded = state();
     const tender = awarded.data!.index.tenders[0];

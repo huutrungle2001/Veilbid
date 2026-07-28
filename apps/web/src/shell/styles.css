@@ -452,7 +452,9 @@ textarea:focus-visible {
 .context-help {
   display: inline-flex;
   position: relative;
-  z-index: 30;
+  /* Regular help stays below sticky workspace rails; compact cards are
+     portaled to body and retain their own high layer. */
+  z-index: 5;
 }
 
 .context-help-trigger {
@@ -1023,11 +1025,21 @@ main {
   background: var(--color-paper-white);
 }
 
-.dossier-list > header {
+.dossier-list-controls {
+  background: var(--color-paper-white);
+  display: grid;
+  gap: 12px;
+  padding-bottom: 12px;
+  position: sticky;
+  top: 72px;
+  z-index: 6;
+}
+
+.dossier-list-controls > header {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 0 4px 12px;
+  padding: 0 4px;
 }
 
 .dossier-list h2 {
@@ -4486,6 +4498,10 @@ footer p {
     top: 96px;
   }
 
+  .dossier-list-controls {
+    top: 0;
+  }
+
   .detail-panel {
     max-height: calc(100vh - 120px);
     overflow-y: auto;
@@ -4747,8 +4763,10 @@ footer p {
     letter-spacing: 0.08em;
   }
 
-  .dossier-list > header {
+  .dossier-list-controls {
     grid-column: 1 / -1;
+    padding-top: 10px;
+    top: 176px;
   }
 
   .landing-hero,
