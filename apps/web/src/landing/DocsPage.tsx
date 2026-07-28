@@ -160,7 +160,7 @@ export function DocsPage() {
             <h2>Permissionless progress with resumable checkpoints.</h2>
             <p>
               Once every approved vendor has submitted, or once the deadline
-              passes with at least one valid bid, any connected Sepolia account
+              passes, any connected Sepolia account
               can close an eligible tender. Nox performs the winner comparison,
               and only the encrypted winner identifier is deliberately sent
               through public decryption. The market verifies the proof and
