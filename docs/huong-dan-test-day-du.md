@@ -110,6 +110,10 @@ Chỉ dùng các ví này trên testnet.
 5. Hover hoặc focus vào dấu `?` ở góc trên bên phải.
 6. Xác nhận tooltip không bị cắt và có hướng dẫn đúng workspace.
 7. Thu nhỏ cửa sổ để kiểm tra thanh điều hướng và nội dung không đè nhau.
+8. Cuộn xuống thấp rồi chuyển giữa `LANDING / TENDERS / DOCS`, các workspace
+   `PUBLIC / BUYER / PRIVATE BIDS / ACTIVITY` và các tab con. Trang phải tự
+   trở về đầu; riêng thao tác mở dossier, award hoặc link có `#section` phải
+   cuộn đến đúng vùng nội dung thay vì về đầu trang.
 
 Kết quả mong đợi: Public hoạt động không cần ví và không hiển thị giá bid hay
 số dư bí mật.
