@@ -3422,7 +3422,7 @@ main {
   color: var(--color-ink-muted);
 }
 
-.activity-card > .primary-button {
+.activity-card > :is(.primary-button, .secondary-button) {
   flex: 0 0 auto;
   min-width: 176px;
 }
@@ -5024,7 +5024,7 @@ footer p {
     justify-content: flex-start;
   }
 
-  .activity-card > .primary-button {
+  .activity-card > :is(.primary-button, .secondary-button) {
     min-width: 0;
     width: 100%;
   }

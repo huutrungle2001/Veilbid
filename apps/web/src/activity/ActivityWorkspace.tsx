@@ -199,7 +199,7 @@ export function ActivityWorkspace({
             "The web normally confirms funding immediately; the hosted relay remains a fallback and continues later lifecycle actions.",
             "Connect any Sepolia wallet with gas only when recovery is needed; these lifecycle writes are permissionless.",
             "Use Resume on a saved funding or winner-proof checkpoint; the app rereads required handles and proofs.",
-            "Use manual Close & Track only if relay health is unavailable or delayed.",
+            "Use Advance Manually only if the hosted relay is unavailable or delayed.",
           ]}
           note="Recovery persists public identifiers and transaction references only—never plaintext values, handles, or proofs."
         />
@@ -216,33 +216,33 @@ export function ActivityWorkspace({
       <section className="activity-section activity-action-queue">
         <header>
           <div>
-            <p className="eyebrow">ACTION QUEUE</p>
-            <h2>{queueCount} {queueCount === 1 ? "action" : "actions"}</h2>
+            <p className="eyebrow">AUTOMATION STATUS</p>
+            <h2>{queueCount} {queueCount === 1 ? "item" : "items"}</h2>
           </div>
           <ContextHelp
             compact
-            label="Help for Activity action queue"
-            title="HOW TO READ THE ACTION QUEUE"
+            label="Help for automation status"
+            title="HOW TO READ AUTOMATION STATUS"
             steps={[
               "Needs Attention means this browser saved an interrupted public checkpoint that can be resumed.",
-              "Ready Now means the next permissionless lifecycle transaction can be submitted immediately.",
-              "Processing means a tender is Closed and its public winner proof can be tracked or resumed.",
+              "Auto-Ready means the relay can submit the next permissionless lifecycle transaction without user action.",
+              "Automation In Progress means a tender is Closed and its public winner proof is being tracked.",
             ]}
-            note="Completed actions leave this queue and remain visible in Lifecycle History."
+            note="Manual buttons are optional fallbacks. Completed actions remain visible in Lifecycle History."
           />
           <button className="icon-button" onClick={reload} aria-label="Refresh action queue">
             ↻
           </button>
         </header>
-        <div className="activity-queue-summary" aria-label="Action queue summary">
+        <div className="activity-queue-summary" aria-label="Automation status summary">
           <span data-state="attention">
             <strong>{records.length}</strong> NEEDS ATTENTION
           </span>
           <span data-state="ready">
-            <strong>{readyNow.length}</strong> READY NOW
+            <strong>{readyNow.length}</strong> AUTO-READY
           </span>
           <span data-state="processing">
-            <strong>{processing.length}</strong> PROCESSING
+            <strong>{processing.length}</strong> IN PROGRESS
           </span>
         </div>
         {queueCount === 0 ? (
@@ -291,7 +291,7 @@ export function ActivityWorkspace({
                 <article className="activity-card" data-state="ready" key={key}>
                   <div className="activity-card-copy">
                     <span className="activity-state-badge" data-state="ready">
-                      READY NOW
+                      AUTO-READY
                     </span>
                     <p className="eyebrow">READY TO CLOSE</p>
                     <h3>Tender {tender.tenderId.toString()}</h3>
@@ -300,14 +300,14 @@ export function ActivityWorkspace({
                         ? `All ${tender.bidCount}/${tender.approvedVendorCount} vendors submitted.`
                         : `Deadline passed with ${tender.bidCount} valid bid${tender.bidCount === 1 ? "" : "s"}.`}
                     </span>
-                    <small>Permissionless · does not spend Safe funds</small>
+                    <small>No action required — the relay will advance this tender automatically.</small>
                   </div>
                   <button
-                    className="primary-button"
+                    className="secondary-button"
                     disabled={!connected || activeKey !== null}
                     onClick={() => void close(tender)}
                   >
-                    {activeKey === key ? "WORKING…" : "CLOSE & TRACK →"}
+                    {activeKey === key ? "ADVANCING…" : "ADVANCE MANUALLY →"}
                   </button>
                 </article>
               );
@@ -318,21 +318,21 @@ export function ActivityWorkspace({
                 <article className="activity-card" data-state="processing" key={key}>
                   <div className="activity-card-copy">
                     <span className="activity-state-badge" data-state="processing">
-                      PROCESSING
+                      AUTOMATION IN PROGRESS
                     </span>
                     <p className="eyebrow">WINNER PROOF TRACKABLE</p>
                     <h3>Tender {tender.tenderId.toString()}</h3>
                     <span>
                       Closed with {tender.bidCount}/{tender.approvedVendorCount} vendor bids.
                     </span>
-                    <small>Track the public Nox winner-ID proof.</small>
+                    <small>No action required — the relay is tracking the public Nox winner-ID proof.</small>
                   </div>
                   <button
-                    className="primary-button"
+                    className="secondary-button"
                     disabled={!connected || activeKey !== null}
                     onClick={() => void close(tender)}
                   >
-                    {activeKey === key ? "WORKING…" : "TRACK PROOF →"}
+                    {activeKey === key ? "CHECKING…" : "CHECK / ADVANCE MANUALLY →"}
                   </button>
                 </article>
               );
