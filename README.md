@@ -267,8 +267,9 @@ security, or mainnet readiness.
 ### Buyer — direct wallet or Safe
 
 1. Open `BUYER`, choose `EOA BUYER` for a direct wallet or `SAFE BUYER` for a
-   Safe treasury, then connect an injected EIP-6963 wallet and switch to
-   Sepolia.
+   Safe treasury, then select `CONNECT WALLET` and choose an injected
+   EIP-6963 wallet. VeilBid requests the network switch automatically when
+   needed; the wallet may still show separate security confirmations.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor
    addresses.
 3. Inspect Sepolia ETH and test USDC in the workspace balance panel. Use

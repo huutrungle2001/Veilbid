@@ -73,8 +73,8 @@ export function DocsPage() {
               { title: "Open Tenders", copy: "Use the TENDERS link to load confirmed public state. No wallet is required to browse; recent records are marked until finality." },
               { title: "Choose a workspace", copy: "The primary bar contains Public, Buyer, Private Bids, and Activity. Buyer opens EOA Buyer by default, with Safe Buyer beside it; Private Bids contains Submit Bid, My Bid, and Granted Access." },
               { title: "Use contextual help", copy: "Hover or focus the ? control beside the workspace tabs, at a card corner, or beside Balances for page-specific instructions." },
-              { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
-              { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
+              { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the network indicator, then choose a detected EIP-6963 provider. VeilBid requests the Sepolia switch automatically when needed." },
+              { title: "Confirm wallet requests", copy: "Your wallet may show separate connection and network confirmations for security. Both belong to the same guided action on VeilBid." },
               { title: "Follow transaction progress", copy: "A bottom-right notification moves through validation, simulation, wallet signature, confirmation, and completion. Verify every target and value in the wallet prompt." },
               { title: "Refresh confirmed state", copy: "After confirmation, refresh the public dossier. It appears immediately with a finality-pending label; proof requests can be resumed from Activity if interrupted." },
             ]} />
@@ -263,7 +263,7 @@ export function DocsPage() {
             <h2>Recover without inventing state.</h2>
             <dl className="troubleshooting-list">
               <div><dt>No wallet detected</dt><dd>Unlock or install an EIP-6963 compatible browser wallet, then reload. Public mode remains available.</dd></div>
-              <div><dt>Wrong network</dt><dd>Open the header wallet menu and select SWITCH TO SEPOLIA. Write actions remain disabled until chain 11155111 is active.</dd></div>
+              <div><dt>Sepolia switch declined</dt><dd>Open the header wallet menu and select RETRY SEPOLIA CONNECTION. Write actions remain disabled until chain 11155111 is active.</dd></div>
               <div><dt>Public state unavailable</dt><dd>Retry the Sepolia read. VeilBid deliberately shows an error instead of substituting mock data.</dd></div>
               <div><dt>Safe assets are not listed</dt><dd>Safe Buyer intentionally shows only vcUSDC. Open the selected account in Safe Wallet to inspect or transfer public ETH, vUSDC, and unrelated assets.</dd></div>
               <div><dt>Custom unwrap is unavailable</dt><dd>Reveal the current Safe vcUSDC balance first. Full unwrap does not require reveal. Both modes need the Safe threshold, followed by public-proof finalization.</dd></div>
