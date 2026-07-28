@@ -386,7 +386,7 @@ textarea:focus-visible {
 .workspace-subnav-links {
   display: flex;
   gap: 8px;
-  margin-left: auto;
+  margin-left: 0;
   min-width: 0;
 }
 
@@ -4110,7 +4110,7 @@ footer p {
   .workspace-subnav-links {
     flex: 1 1 auto;
     justify-content: flex-start;
-    margin-left: auto;
+    margin-left: 0;
     overflow-x: auto;
     padding-bottom: 3px;
     scrollbar-color: var(--color-ink-black) transparent;
