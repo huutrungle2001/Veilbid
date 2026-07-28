@@ -13,7 +13,7 @@
   publication remain user-controlled. Previous releases remain recoverable
   from GitHub and local branch `backup/pre-auto-review-20260727`.
 - Awaiting approval from: User for final submission media/publication.
-- Last updated: 2026-07-28T19:50:00+07:00
+- Last updated: 2026-07-28T20:18:00+07:00
 
 Allowed statuses: `Todo`, `In progress`, `Waiting for approval`, `Blocked`,
 `Completed`, and `Skipped`.
@@ -112,6 +112,7 @@ Only one phase may be `In progress`.
 | Guided wallet and Sepolia connection | Verified | Agent | 2026-07-28 | Selecting a wallet now continues directly into an automatic Sepolia switch request when chain 11155111 is not active, while the header retains the compact `CONNECT WALLET` label. A rejected switch preserves the connected account in a safe wrong-chain state with signing disabled and an explicit retry. Web tests (87/87), typed lint, build, mobile visual review, and Vercel deployment `9NDRzqBGLaVkFRVi2pGCQHTXBokV` production/keyboard smoke passed against source commit `fcd2546`. |
 | EOA funding, unwrap, and stable Vendor admission | Verified | Agent | 2026-07-28 | EOA Create Tender now rejects a ceiling above the current public Test USDC balance before any write and never invokes the faucet automatically. The shared EOA balance panel adds style-matched Full/Custom vcUSDC unwrap, public-proof finalization, and on-chain pending-request recovery without a second burn; calldata tests cover both deployed wrapper overloads, whose full/partial behavior already has canonical Sepolia evidence. Vendor admission is keyed to wallet and tender identity rather than the one-second countdown, eliminating the empty-state flicker. Web tests (95/95), typed lint, build, and Vercel deployment `71tw9Hd6PDmx2j6GVZAcV9jWs4GX` production/keyboard smoke passed against source commit `d8f124e`. |
 | Owned/granted private-bid separation | Verified | Agent | 2026-07-28 | `MY BID` now explicitly contains only bids submitted by the connected Vendor and retains reveal/share actions. `GRANTED ACCESS` automatically reads every indexed bid ACL through resilient Sepolia RPCs, displays only references authorized for the connected wallet, and allows direct session reveal without a separate manual permission-check step or unauthorized public-bid fallback. Full repository tests (97 web tests), lint/build, and Vercel deployment `GpahbbsAJnXFRfHcm992qhJJEBmQ` production/keyboard smoke passed against source commit `114cc3c`. |
+| Public Open filter and sticky dossier controls | Verified | Agent | 2026-07-28 | Public now provides an explicit `Open` filter. `CONFIRMED DOSSIERS`, the visible count, refresh action, and status selector remain together at the head of the independently scrolling desktop list and below the mobile workspace rail. Contextual `?` triggers stay below sticky navigation layers. Browser geometry checks, desktop/mobile visual review, full repository tests (98 web tests), lint/build, and Vercel deployment `B3FYXEcvoKr2Rbwx9Hru9y7ZfeiX` production/keyboard smoke passed against source commit `a0f436e`. |
 | Final submission | Pending |  |  |  |
 
 ## 5. Current risks
