@@ -5,9 +5,11 @@ Safe Buyer tạo tender bằng một Safe batch nguyên tử, hai Vendor gửi b
 relay công khai xác nhận funding/đóng/finalize, và review wallet chỉ được tự
 động cấp quyền xem bid sau finalization.
 
-Cả `SAFE BUYER` và `EOA BUYER` đều là chức năng chính trên thanh workspace.
-Video có thể ưu tiên Safe Buyer để nhấn mạnh Safe, còn EOA Buyer là luồng trực
-tiếp đầy đủ cho người dùng không muốn sử dụng Safe.
+Thanh workspace chính gồm `PUBLIC`, `BUYER`, `PRIVATE BIDS` và `ACTIVITY`.
+Trong `BUYER` chọn `SAFE BUYER` hoặc `EOA BUYER`; trong `PRIVATE BIDS` chọn
+`SUBMIT BID`, `MY BID` hoặc `GRANTED ACCESS`. Video có thể ưu tiên Safe Buyer để
+nhấn mạnh Safe, còn EOA Buyer là luồng trực tiếp đầy đủ cho người dùng không
+muốn sử dụng Safe.
 
 ## 1. Chuẩn bị
 
@@ -340,8 +342,9 @@ Kết quả mong đợi:
 0x82342063DdfC86fC91333c31E2Ab65b4d6B34A55
 ```
 
-2. Mở workspace `PRIVATE BIDS`.
-3. Chọn tender vừa tạo. Dropdown chỉ liệt kê tender `Open` còn hạn, hiển thị
+2. Mở workspace `PRIVATE BIDS`, chọn tab `SUBMIT BID`.
+3. Chọn tender vừa tạo. Dropdown chỉ liệt kê tender `Open` còn hạn và được
+   approve cho ví hiện tại, hiển thị
    giờ local của máy, countdown và thời gian UTC on-chain. Tender hết hạn phải
    tự biến mất và không được encrypt/simulate.
 4. Nhập private bid:
@@ -370,7 +373,7 @@ Kết quả mong đợi: Public biết Vendor đã gửi bid nhưng không hiể
 0xA4565608e096CFEf7da36eB19a57Da6d277D942f
 ```
 
-2. Mở workspace `PRIVATE BIDS`.
+2. Mở workspace `PRIVATE BIDS`, chọn tab `SUBMIT BID`.
 3. Chọn cùng tender.
 4. Nhập private bid:
 
@@ -397,7 +400,7 @@ Review wallet của tender Safe là EOA owner đã được bind ở lúc tạo.
 Buyer grant thủ công và không cần thêm Safe proposal.
 
 1. Khi tender vẫn `Open`, chuyển về Safe owner.
-2. Mở workspace `PRIVATE BIDS`, chọn bid của Vendor 2 và bấm
+2. Mở workspace `PRIVATE BIDS`, chọn tab `GRANTED ACCESS`, chọn bid của Vendor 2 và bấm
    `CHECK VIEWER ACCESS`.
 3. Xác nhận review wallet chưa được phép reveal bid đó.
 4. Hoàn tất bước relay/finalize tại mục 8.
@@ -432,9 +435,10 @@ Luồng mặc định không yêu cầu Buyer hoặc Vendor ký thêm sau khi đ
 ### Activity & History: lịch sử và phục hồi
 
 1. Mở workspace `ACTIVITY`.
-2. Xem `LIFECYCLE HISTORY` để theo dõi tender, trạng thái công khai, transaction
-   tạo tender và transaction cập nhật trạng thái gần nhất. Các giá trị bid và
-   balance confidential không xuất hiện ở đây.
+2. Xem `LIFECYCLE HISTORY` để theo dõi toàn bộ public event đã index của tender
+   (tạo, funding, bid received, close, award/refund/cancel và viewer grant),
+   block cùng transaction tương ứng. Các giá trị bid và balance confidential
+   không xuất hiện ở đây.
 3. Kiểm tra phần `RECOVERABLE CHECKPOINTS`. Nếu một thao tác browser trước đó
    bị gián đoạn, kết nối đúng ví và bấm `RESUME`.
 4. Nếu relay chưa close/finalize sau một khoảng chờ hợp lý, kết nối một ví có
@@ -480,8 +484,8 @@ lưu plaintext vào evidence công khai.
 
 ## 10. EOA Buyer — luồng ví trực tiếp
 
-Workspace `EOA BUYER` nằm trực tiếp trên thanh chức năng chính và tạo tender do
-ví cá nhân sở hữu, không cần Safe.
+Mở workspace `BUYER`, chọn tab `EOA BUYER`; luồng này tạo tender do ví cá nhân
+sở hữu, không cần Safe.
 
 1. Kết nối EOA trên Sepolia.
 2. Bảo đảm EOA có Sepolia ETH. App có thể tự lấy Test USDC và wrap đúng public

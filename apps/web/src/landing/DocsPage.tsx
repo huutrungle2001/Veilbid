@@ -71,7 +71,7 @@ export function DocsPage() {
             <h2>Inspect first. Connect only when needed.</h2>
             <StepList steps={[
               { title: "Open Tenders", copy: "Use the TENDERS link to load confirmed public state. No wallet is required to browse; recent records are marked until finality." },
-              { title: "Choose a workspace", copy: "The primary bar contains Public, Safe Buyer, EOA Buyer, Private Bids, and Activity." },
+              { title: "Choose a workspace", copy: "The primary bar contains Public, Buyer, Private Bids, and Activity. Buyer contains the Safe Buyer and EOA Buyer views; Private Bids contains Submit Bid, My Bid, and Granted Access." },
               { title: "Use contextual help", copy: "Hover or focus the ? control at the upper-right of a workspace or beside Balances for page-specific instructions." },
               { title: "Connect your wallet", copy: "Select CONNECT WALLET beside the Sepolia indicator, then choose any detected EIP-6963 provider." },
               { title: "Confirm Sepolia", copy: "If your wallet is on another chain, use SWITCH TO SEPOLIA. Write actions stay unavailable on the wrong network." },
@@ -106,7 +106,7 @@ export function DocsPage() {
             <p className="eyebrow">EOA BUYER / DIRECT WALLET</p>
             <h2>Create an exactly funded tender without a Safe.</h2>
             <StepList steps={[
-              { title: "Connect a Sepolia wallet", copy: "Open EOA Buyer from the main workspace bar and connect the account that will directly own the tender." },
+              { title: "Connect a Sepolia wallet", copy: "Open Buyer, choose the EOA Buyer view, and connect the account that will directly own the tender." },
               { title: "Define public terms", copy: "Enter public metadata, a public ceiling, a future bid deadline, and between one and eight approved vendor addresses." },
               { title: "Acquire and wrap test assets", copy: "Use GET TEST USDC, then WRAP TO vcUSDC to test confidential balances manually. Approve and wrap may require two wallet confirmations. The guided Buyer flow can instead acquire and wrap the exact ceiling automatically." },
               { title: "Authorize the market", copy: "Approve the market as the confidential-token operator required for escrow." },
@@ -203,7 +203,7 @@ export function DocsPage() {
             <p className="eyebrow">ARCHITECTURE</p>
             <h2>Four boundaries, one settlement path.</h2>
             <dl className="docs-definition-grid">
-              <div><dt>Tender Room</dt><dd>Wallet-free public index plus Safe Buyer, EOA Buyer, Private Bids, and Activity workspaces.</dd></div>
+              <div><dt>Tender Room</dt><dd>Wallet-free public index plus Buyer (Safe/EOA), Private Bids (Submit/My Bid/Granted Access), and Activity workspaces.</dd></div>
               <div><dt>Auction House</dt><dd>Non-upgradeable market, ERC-7984 demo assets, non-transferable receipt, and preparation-only Safe module.</dd></div>
               <div><dt>Settlement Relay</dt><dd>Stateless permissionless close and finalize automation with bounded, sequential actions.</dd></div>
               <div><dt>Operator Console</dt><dd>Strict-schema MCP stdio tools with no signer, write, or private-decryption surface.</dd></div>

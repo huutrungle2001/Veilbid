@@ -203,8 +203,8 @@ flowchart LR
 
 ### Off-chain components
 
-- **Web application:** public explorer plus Safe Buyer, EOA Buyer, Private
-  Bids, and Activity workspaces.
+- **Web application:** public explorer plus Buyer (Safe Buyer/EOA Buyer),
+  Private Bids (Submit Bid/My Bid/Granted Access), and Activity workspaces.
 - **Settlement relay:** stateless public readiness discovery and bounded
   close/finalize automation.
 - **Operator console:** five strict-schema, read-only public query tools exposed
@@ -264,9 +264,11 @@ security, or mainnet readiness.
    Records inside the 12-block finality window are labeled as pending finality;
    missing RPC/indexer data is shown as unavailable with no mock fallback.
 
-### EOA Buyer — direct wallet
+### Buyer — direct wallet or Safe
 
-1. Connect an injected EIP-6963 wallet and switch to Sepolia.
+1. Open `BUYER`, choose `EOA BUYER` for a direct wallet or `SAFE BUYER` for a
+   Safe treasury, then connect an injected EIP-6963 wallet and switch to
+   Sepolia.
 2. Enter public metadata, a ceiling, a future deadline, and one to eight vendor
    addresses.
 3. Inspect Sepolia ETH and test USDC in the workspace balance panel. Use
@@ -337,6 +339,9 @@ stored bids after finalization. The value remains session-only.
 4. Finalize once the proof is available.
 5. Confirm either `Awarded` with a receipt or `Refunded` for the zero-winner
    outcome.
+6. Use `LIFECYCLE HISTORY` for the indexed public event timeline and
+   transaction links; confidential values and Safe signature payloads remain
+   outside this public history.
 
 ### Safe treasury
 
