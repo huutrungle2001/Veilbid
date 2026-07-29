@@ -30,6 +30,7 @@ evidence.
 
 - [Why VeilBid](#why-veilbid)
 - [Verified release](#verified-release)
+- [Quick start](#quick-start)
 - [Quick judge path](#quick-judge-path)
 - [How it works](#how-it-works)
 - [Architecture](#architecture)
@@ -97,6 +98,29 @@ Key public evidence:
 - [Production frontend smoke](evidence/sepolia/production-smoke.json)
 - [Production keyboard verification](evidence/sepolia/production-keyboard.json)
 - [Sanitized evidence policy and ledger](docs/verification.md)
+
+## Quick start
+
+Requires Git, Node.js `>=24 <25`, and Corepack. Clone the repository, install
+the pinned dependencies, and start the web application:
+
+```bash
+git clone https://github.com/huutrungle2001/Veilbid.git
+cd Veilbid
+corepack enable
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter @veilbid/tender-room dev --host 0.0.0.0
+```
+
+Open [http://localhost:5173](http://localhost:5173). The landing page,
+documentation, and public tender views work without a wallet. Sepolia write
+flows require an injected browser wallet; never enter a private key in the web
+application.
+
+For environment variables, production builds, and optional local Nox testing,
+continue to [Run locally](#run-locally). See the [User guide](docs/user-guide.md)
+for role-by-role usage and the [Deployment guide](docs/deployment.md) for
+release operations.
 
 ## Quick judge path
 
