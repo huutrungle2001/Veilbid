@@ -31,8 +31,6 @@ flowchart LR
     Finalizer -->|public winner proof only| NoxServices
 
     MCP["MCP adapter<br/>read-only only"] --> Chain
-
-    Agent["Draft assistant"] -.->|public terms only| Web
 ```
 
 ## 3. On-chain components
@@ -209,15 +207,6 @@ Implemented public tools:
 The MCP server has no signer, write, private-reveal, or raw-handle response
 surface.
 
-### Strategy assistant
-
-Optional, non-authoritative, and not implemented in this release:
-
-- Receives user-entered public tender intent only.
-- Returns strict-schema draft metadata, ceiling, and deadlines.
-- Does not receive wallet, bid, balance, handle, proof, signature, or key fields.
-- Cannot choose a winner or submit a transaction.
-
 ## 7. Data and state ownership
 
 | State | Canonical owner |
@@ -233,7 +222,6 @@ Optional, non-authoritative, and not implemented in this release:
 | Safe unwrap request | Wrapper event and public Safe execution transaction; plaintext amount appears only at finalization |
 | Safe partial-unwrap authorization | Dedicated adapter nonce plus current-balance-handle binding; encrypted amount access is transient for one atomic Safe transaction |
 | Deployment addresses/ABIs | Contract workspace canonical artifact |
-| Assistant draft | Browser session only |
 
 There is no application database or authentication server.
 
@@ -258,7 +246,7 @@ There is no application database or authentication server.
 - Safe module revoked: public finalize/refund remains available; owner module
   preparation pauses, while previously prepared inputs cannot move funds
   without a threshold-authorized Safe transaction.
-- Assistant/MCP failure: never gates protocol settlement.
+- MCP failure: never gates protocol settlement.
 
 ## 9. Implemented repository structure
 

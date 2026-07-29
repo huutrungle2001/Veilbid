@@ -4,9 +4,9 @@ Generated ABI/address snapshots and shared event, index, readiness, and domain
 types. Generated content comes only from canonical production artifacts and
 deployments under `packages/contracts`.
 
-Run `pnpm bindings:generate` at the repository root after compiling Auction
-House. `pnpm bindings:check` fails when committed JSON differs from the
-canonical artifacts or deployment manifest.
+Run `pnpm bindings:generate` at the repository root after compiling the VeilBid
+Market workspace. `pnpm bindings:check` fails when committed JSON differs from
+the canonical artifacts or deployment manifest.
 
 Runtime consumers use the verified `sepolia.release` snapshot. The separate
 `sepolia.test` snapshot remains deliberately marked `verified: false` for

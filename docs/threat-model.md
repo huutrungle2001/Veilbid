@@ -76,11 +76,10 @@ RPC can lie or delay but cannot sign. A finalizer is an untrusted permissionless
 caller and can choose timing or waste its own gas; it cannot choose the winner or
 decrypt prices.
 
-### Assistant and MCP
+### MCP
 
-The assistant receives public/user-entered tender text only and has no signing
-authority. MCP is read-only by default; an explicitly configured signer has the
-same risk as that wallet.
+MCP is strictly read-only and exposes no signer, transaction, custody,
+decryption, or raw-handle surface.
 
 ## 4. Threats and mitigations
 
@@ -105,7 +104,6 @@ same risk as that wallet.
 | Safe vcUSDC unwrap changes privacy | UI uses one amount field with an explicit Full shortcut, requires private balance reveal only for a custom amount, and warns before the Safe proposal | Finalized unwrap amount and recipient are public by wrapper design |
 | Partial unwrap proof is replayed or prepared against stale funds | Adapter binds the owner proof to the calling Safe, fresh nonce, one-time handle, current balance handle, and transaction-scoped Nox access | Nox, wrapper, adapter, or Safe bugs remain unaudited |
 | Metadata leaks commercial intent | UI explicitly labels public fields | Inference remains possible |
-| Prompt leaks confidential price | Field allowlist and warning | User can manually type a secret |
 | Bid-slot exhaustion | Fixed one-to-eight-address vendor allowlist and one immutable bid per approved vendor | An approved vendor can waste only its own slot |
 | Tie manipulation | Deterministic first-valid-bid rule | Transaction ordering remains public |
 | Receipt is transferred or presented as another vendor's award | Non-transferable receipt is minted once to the proof-derived winner | Wallet compromise can still control the winner address |

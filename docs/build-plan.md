@@ -1,4 +1,4 @@
-# VeilBid Build Plan
+# VeilBid Implementation Record
 
 > Status: Implemented. Release engineering, deployment, verification, and
 > public repository packaging are complete.
@@ -54,7 +54,7 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 ### Milestone 0 — Workspace and approval
 
 - [x] Create independent canonical documentation.
-- [x] Capture original source inputs and source priority.
+- [x] Establish independent release facts and canonical source priority.
 - [x] User approves Product Plan.
 - [x] Record the submission requirements used for the release.
 
@@ -71,8 +71,8 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 Exit: Gates A–D pass.
 
 Production workspaces were not created during this milestone. Gate outputs
-recorded the versions and architecture later used by the production Auction
-House. The retained spike sources and tests now live under the isolated
+recorded the versions and architecture later used by the production VeilBid
+Market. The retained spike sources and tests now live under the isolated
 feasibility subtrees in `packages/contracts`.
 
 ### Milestone 2 — Core contracts
@@ -100,16 +100,15 @@ Exit: Core protocol tests pass without plaintext shadow state.
   custody-free, transaction-scoped preparation adapter.
 - [x] Support buyer cancellation/viewer operations where approved.
 - [x] Test revoke/re-enable and permissionless terminal actions.
-- [x] Document threshold-1 browser limitations.
+- [x] Document Safe threshold proposal, approval, and recovery behavior.
 
 Exit: Safe owns funds, wallet deposits cannot spend them, module calls cannot
 execute from the Safe, and every tender-funding/viewer write satisfies normal
 Safe threshold authority.
 
-Gate E established the implementation basis for the first three items and the
-revoke/re-enable path on Sepolia. These checkboxes remain open until the
-equivalent production contracts and tests remain separate from
-`packages/contracts/contracts/feasibility/`.
+Gate E established the implementation basis and revoke/re-enable path on
+Sepolia. The production contracts and tests remain independently identifiable
+from `packages/contracts/contracts/feasibility/`.
 
 ### Milestone 4 — Web product
 
@@ -123,7 +122,7 @@ equivalent production contracts and tests remain separate from
 - [x] Add provider-aware reconnect, keyboard behavior, mobile layout, and staged
   progress/result notifications.
 
-Exit: Fresh-wallet core journey is discoverable and responsive.
+Exit: The connected-wallet core journey is discoverable and responsive.
 
 ### Milestone 5 — Automation and integrations
 
@@ -131,8 +130,6 @@ Exit: Fresh-wallet core journey is discoverable and responsive.
 - [x] Build stateless finalizer dry-run/once/poll/health.
 - [x] Add race simulation and bounded action budget.
 - [x] Add optional read-only MCP tools.
-- [ ] Add optional strict-schema public-term draft assistant only if core release
-  is already stable.
 
 Exit: Public lifecycle remains live without private authority.
 
@@ -185,7 +182,7 @@ require ignored local test-wallet configuration.
 - Use the selected internal-custody market; do not reintroduce split escrow
   without new evidence that justifies its additional ACL/call surface.
 - Do not add multi-criteria scoring until price-only settlement is verified.
-- Do not add AI or MCP writes before the live core lifecycle passes.
+- Keep MCP read-only; do not add signer or custody authority.
 - Do not add a backend/database to solve event-index or proof-recovery problems.
 - Preserve at least one full day for deployment evidence and submission.
 

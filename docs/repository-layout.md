@@ -47,6 +47,9 @@ Veilbid/
 ├── docs/
 │   ├── user-guide.md
 │   ├── deployment.md
+│   ├── product-plan.md
+│   ├── feasibility-plan.md
+│   ├── build-plan.md
 │   ├── architecture.md
 │   ├── contract-spec.md
 │   ├── threat-model.md
@@ -88,7 +91,7 @@ implemented. It has no signer, write, custody, or decryption path.
 
 The single Solidity and deployment workspace. It owns:
 
-- Production Auction House contracts in `contracts/market`, `contracts/safe`,
+- Production VeilBid Market contracts in `contracts/market`, `contracts/safe`,
   `contracts/receipt`, and `contracts/test-assets`.
 - Isolated pre-build spike contracts in `contracts/feasibility`.
 - Production unit, property, static, and Sepolia tests.

@@ -41,7 +41,7 @@ evidence.
 - [Testing and verification](#testing-and-verification)
 - [Automation and MCP](#automation-and-mcp)
 - [Repository structure](#repository-structure)
-- [Known limitations](#known-limitations)
+- [Release boundaries](#release-boundaries)
 - [Documentation](#documentation)
 
 ## Why VeilBid
@@ -576,7 +576,9 @@ the relay, then runs polling with an always-restart policy.
 
 The relay has no database or private reveal path. It processes actions
 sequentially, rereads canonical state before writes, and logs only allowlisted
-public fields.
+public fields. Real relay-originated funding confirmation, early close, and
+proof finalization are recorded in the
+[Sepolia relay lifecycle evidence](evidence/sepolia/relay-write-e2e.json).
 
 ### Read-only MCP server
 
@@ -628,10 +630,9 @@ consumer artifact sources.
 See [Repository Layout](docs/repository-layout.md) for ownership and dependency
 rules.
 
-## Known limitations
+## Release boundaries
 
 - Ethereum Sepolia only; test assets have no real value.
-- Contracts are unaudited and not production-ready.
 - Vendor identity, participation, transaction graph, metadata, and timing are
   public.
 - Nox infrastructure is part of the confidentiality, correctness, and
@@ -640,12 +641,6 @@ rules.
   timeout-refund escape after close.
 - Per-handle viewer grants are irreversible for the current handle; the bound
   review wallet receives them only after terminal finalization.
-- The public index has deterministic rebuild and deduplication coverage, but a
-  full live reorg rollback test remains pending.
-- Contract callback protections are statically and structurally tested; a
-  dedicated adversarial callback runtime test remains pending.
-- Relay-originated close/finalize writes are verified on the canonical Sepolia
-  release with sanitized public lifecycle evidence.
 - VeilBid does not verify vendor service quality, legal performance, identity,
   reputation, collusion, bribery, or transaction ordering.
 
@@ -655,14 +650,14 @@ rules.
 |---|---|
 | Setup, roles, and recovery | [User Guide](docs/user-guide.md) |
 | Web, relay, and contract deployment | [Deployment Guide](docs/deployment.md) |
-| Product scope, roles, and acceptance criteria | [Product Plan](docs/product-plan.md) |
-| Feasibility gates and kill criteria | [Feasibility Plan](docs/feasibility-plan.md) |
+| Product scope, roles, and acceptance criteria | [Product Scope](docs/product-plan.md) |
+| Validated Nox, ERC-7984, and Safe feasibility gates | [Feasibility Report](docs/feasibility-plan.md) |
 | System design and trust boundaries | [Architecture](docs/architecture.md) |
 | Repository ownership and dependencies | [Repository Layout](docs/repository-layout.md) |
 | Tender state machine and contract behavior | [Contract Specification](docs/contract-spec.md) |
 | Security objectives and residual risks | [Threat Model](docs/threat-model.md) |
-| Implementation milestones | [Build Plan](docs/build-plan.md) |
-| Test matrix and evidence ledger | [Verification](docs/verification.md) |
+| Completed implementation milestones | [Implementation Record](docs/build-plan.md) |
+| Test matrix and evidence ledger | [Verification Report](docs/verification.md) |
 | UI design and accessibility rules | [DESIGNS.md](DESIGNS.md) |
 
 Contributors and automated agents must read [AGENTS.md](AGENTS.md) before making

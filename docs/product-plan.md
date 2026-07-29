@@ -1,4 +1,4 @@
-# VeilBid Product Plan
+# VeilBid Product Scope and Acceptance Criteria
 
 > Status: Implemented. Feasibility Gates A–E and the canonical Sepolia release
 > are complete.
@@ -25,7 +25,8 @@ VeilBid combines:
 - Confidential on-chain winner selection.
 - Proof-derived public award.
 - Confidential payment and refund.
-- Post-finalization review through a creation-bound wallet and vendor-controlled selective disclosure.
+- Post-finalization review through a creation-bound wallet and
+  vendor-controlled selective disclosure.
 
 ## 3. Users
 
@@ -141,9 +142,9 @@ Disclosure policy:
 5. Finalize a no-valid-bid tender as a full refund after the winner proof
    establishes the zero sentinel.
 
-## 7. MVP
+## 7. Delivered release scope
 
-### Must have
+### Core protocol and product
 
 - [x] Faucet-backed Sepolia test USDC and official ERC-7984 wrapper.
 - [x] EOA and Safe-owned tender funding.
@@ -162,23 +163,15 @@ Disclosure policy:
 - [x] Responsive, keyboard-operable production frontend.
 - [x] Buyer cancellation before the first bid.
 
-### Should have
+### Delivered integrations
 
 - [x] Threshold-bound Safe review-wallet selection at tender creation.
-- [ ] Public finalizer health surfaced in the UI.
 - [x] Read-only MCP tools for tender and proof inspection.
-- [ ] Strict-schema Strategy Assistant for public tender drafting.
-
-### Could have
-
-- [ ] Vendor public bond.
-- [ ] Multiple procurement categories or metadata templates.
-- [ ] Webhook notification from the finalizer.
 
 ## 8. Non-goals
 
 - Secret bidder identity, tender timing, or transaction graph.
-- Multi-criteria quality evaluation in the hackathon MVP.
+- Multi-criteria quality evaluation in the hackathon release.
 - Verification that off-chain services were actually delivered.
 - Dispute arbitration or legal enforceability.
 - Production-value assets or mainnet deployment.
@@ -226,6 +219,6 @@ Use a pre-funded Safe and two prepared vendor wallets:
 ## 12. Approval gate
 
 - [x] User selected VeilBid for detailed planning.
-- [x] User approves this MVP and non-goals.
+- [x] User approves this release scope and non-goals.
 - [x] Mandatory feasibility gates pass.
 - [x] Build Plan is approved.

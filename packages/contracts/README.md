@@ -1,9 +1,9 @@
 # Contracts
 
 Canonical Solidity, tests, deployments, verification, and artifact generation
-for VeilBid. The Auction House production suite and retained feasibility spikes
-share this pinned Hardhat/Nox toolchain while remaining separate source and test
-trees.
+for VeilBid. The VeilBid Market production suite and retained feasibility
+spikes share this pinned Hardhat/Nox toolchain while remaining separate source
+and test trees.
 
 Workspace ownership:
 

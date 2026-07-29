@@ -58,8 +58,8 @@ VeilBid uses a compact monorepo layout:
   automation.
 - `apps/console/`: MCP stdio tools and local procurement CLI; read-only by
   default.
-- `packages/contracts/`: the shared Hardhat/Nox workspace. Production Auction
-  House contracts remain separate from isolated feasibility contracts and
+- `packages/contracts/`: the shared Hardhat/Nox workspace. Production VeilBid
+  Market contracts remain separate from isolated feasibility contracts and
   tests inside this package.
 - `packages/chain-bindings/`: generated ABI/address snapshots, event codecs,
   public index, and domain types.

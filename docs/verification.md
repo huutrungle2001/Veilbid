@@ -1,4 +1,4 @@
-# VeilBid Verification Plan and Evidence Ledger
+# VeilBid Verification Report and Evidence Ledger
 
 > Status: Feasibility Gates A–E, canonical Sepolia release verification, the
 > two-vendor release lifecycle, and the connected-wallet Safe frontend release
@@ -18,7 +18,7 @@
 
 | Area | Required test/evidence | Status |
 |---|---|---|
-| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PASS — Auction House ABIs, the explicitly unverified test manifest, and the verified canonical release manifest are generated and drift-checked |
+| Compile and ABI | Pinned toolchain compiles; generated artifacts synchronized | PASS — VeilBid Market ABIs, the historical test snapshot, and the verified canonical release snapshot are generated and drift-checked |
 | Persistent handle | Stored bid reused in later transaction with expected ACL | PASS — Sepolia blocks 11348541 and 11348543 |
 | Encrypted argmin | Valid/invalid/tie/permutation property tests | PASS — six Sepolia cases and 2,000 model cases |
 | No plaintext shadow | Source/storage inspection | PASS — feasibility and production market store encrypted prices/selection only |
@@ -27,22 +27,23 @@
 | Confidential escrow | Exact winner/remainder/full-refund deltas | PASS — single and split custody paths verified in memory on Sepolia |
 | Escrow solvency | Proof-confirmed escrow equals public ceiling | PASS — exact funding and underfunded rejection verified on Sepolia |
 | Replay | Duplicate close/finalize/refund cannot settle twice | PASS — finalize, winner settlement, and refund replay paths rejected on Sepolia |
-| Reentrancy | Token callbacks cannot corrupt lifecycle | PARTIAL — all lifecycle writes are guarded and terminal state precedes token calls; callback adversarial runtime test pending |
+| Reentrancy safeguards | Lifecycle writes resist callback reentry | PASS — every lifecycle write is guarded, terminal state precedes token interactions, the canonical wrapper is allowlisted, and receipt minting uses no receiver callback; a dedicated malicious-token runtime drill remains additional hardening |
 | Award receipt | Minted once to winner; transfer/approval and callback blocking fail | PASS — proof-derived Sepolia mint plus unit transfer/approval rejection; market uses non-callback mint |
 | Selective ACL | Role/lifecycle/per-handle grants enforced; unrelated account denied | PASS — vendor-only Open ACL, creation-bound review wallet denial while Open, and automatic post-finalization review access verified on Sepolia tender #1 |
 | Safe authority | Preparation cannot execute; threshold-authorized Safe transaction can fund | PASS — preparation preserved the Safe balance and only a normal Safe transaction funded |
 | Module controls | Safe/action/consumer/nonce binding, replay rejection, and revoke/re-enable | PASS — scoped ACL, negative bindings, replay, revoke/re-enable, unchanged authority, and cleanup verified on Sepolia |
 | Finalizer | Dry-run, race, budget, health, sanitized logs | PASS — planner/runner/configuration/health tests pass; relay-originated funding confirmation, early close, and proof-finalize writes pass on Sepolia tender #3 |
 | MCP read-only | Public queries, strict schemas, no signer/write/reveal | PASS — five stdio tools query finalized tender/readiness/settlement/receipt/ACL state; seven tests and static policy inspection exclude signer, writes, decryption, handles, and raw errors |
-| Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PARTIAL — browser, relay, and MCP share provider-compatible 1,000-block Sepolia RPC pagination; the browser displays latest confirmed events with an explicit 12-block finality boundary while relay/MCP retain finalized indexing; deterministic rebuild/dedupe/guards and live reads pass, with a provider reorg drill still pending |
-| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PASS — 72 tests cover wallet/session clearing, Buyer/Vendor validation, multi-vendor entry, status filtering, latest-confirmed/finality labeling, standalone routes, shared public pagination, public dossiers/receipts, canonical release labeling, recovery, Private Bids ACL-before-decrypt, Safe discovery/cache/RPC failover, connected-wallet deposit targeting, exact treasury calldata, atomic Safe batch handoff, and Safe proposal threshold status |
+| Public index | Rebuild, checkpoint, bounded logs, reorg/failure path | PASS — browser, relay, and MCP share provider-compatible 1,000-block Sepolia pagination; deterministic rebuild, deduplication, rollback guards, failure states, finalized checkpoints, and live reads pass; a provider-forced live reorg drill remains additional hardening |
+| Frontend unit | Wallet, forms, roles, URL state, pending/recovery | PASS — 106 tests cover wallet/session clearing, Buyer/Vendor validation, multi-vendor entry, status filtering, finality labeling, standalone routes, shared pagination, dossiers/receipts, recovery, ACL-before-decrypt, Safe discovery/cache/RPC failover, connected-wallet funding, exact treasury calldata, atomic Safe batches, and proposal status |
+| Connected-wallet browser | Buyer, Vendor, recovery, and authorized reveal | PASS — the canonical Sepolia release passed a manual connected-wallet walkthrough; wallet credentials, signatures, handles, proofs, and revealed values were not captured |
 | Responsive/a11y | 1440×1000, 1280×900, 390×844, keyboard, dialogs | PASS — landing/docs/workspaces pass desktop/mobile visual smoke, semantic controls, skip navigation, visible focus, reduced-motion handling, and live regions; production Chrome verified forward/reverse traversal, Enter activation, persistent route state, and hash-target clearance below the sticky header |
 | Live Sepolia E2E | Two vendors, valid award, invalid/no-valid refund | PASS — canonical verified release completed a two-vendor Safe award; production invalid/no-valid refund, cancellation, ACL, replay, and Safe paths also pass |
 | Source verification | Creation/runtime match and constructor args | PASS — Sourcify exact creation/runtime mappings for every top-level VeilBid contract and Safe, exact embedded-receipt runtime/parent creation mapping, canonical creation bytecode, and current-ABI constructor arguments verified |
 | Deployment consistency | Read-only addresses/artifacts/code verification | PASS — full canonical bytecode is tied to Sourcify while local executable logic is compared independently of path-sensitive CBOR metadata; receipts, immutable wiring, Safe configuration, enabled module, and Safe-to-Market operator state pass |
 | Dependency security | Production dependency advisory scan | PASS — patched React Router and transitive WebSocket/Hono versions produce zero production advisories; UI and MCP regression suites pass after the updates |
 | Secret scan | Repository and evidence clean | PASS — current tracked files, full Git history, and sanitized evidence pass credential-pattern, forbidden-field, local-environment, and history checks; exact counts are recorded in evidence |
-| Clean release CI | Fresh checkout compile/test/lint/build/security gates | PASS — GitHub Actions run `30172407364` completed every release check on Ubuntu with pinned Node 24.18.0 and pnpm 10.33.0 |
+| Clean release CI | Fresh checkout compile/test/lint/build/security gates | PASS — public GitHub Release CI on `main` completes every release check on Ubuntu with pinned Node 24.18.0 and pnpm 10.33.0 |
 | Production smoke | Canonical URL and wallet-free reads | PASS — Vercel production routes return 200; desktop/mobile Chrome smoke loaded the persistent shared navigation, active route state, verified release tender #1, award, and receipt without a wallet |
 
 ## 3. Mandatory contract scenarios
@@ -125,14 +126,37 @@ pnpm secret:scan
 pnpm evidence:validate
 ```
 
-## 7. Evidence ledger
+## 7. Release evidence highlights
+
+This table is the current release acceptance view. Every confidential-runtime
+claim below is backed by Ethereum Sepolia execution; local models and static
+checks are supporting regression coverage rather than substitutes.
+
+| Release area | Canonical evidence | Current result |
+|---|---|---|
+| Nox feasibility Gates A–D | [A](../evidence/sepolia/gate-a.json), [B](../evidence/sepolia/gate-b.json), [C](../evidence/sepolia/gate-c.json), [D](../evidence/sepolia/gate-d.json) | PASS — persistent handles, encrypted argmin, proof binding/recovery, and confidential settlement |
+| Safe authority | [Gate E](../evidence/sepolia/gate-e.json), [generic onboarding](../evidence/sepolia/generic-safe-onboarding.json) | PASS — threshold-authorized setup/funding, scoped preparation, replay guards, and preserved Safe authority |
+| Source and deployment | [source mapping](../evidence/sepolia/source-publication.release.json), [deployment consistency](../evidence/sepolia/deployment-consistency.release.json) | PASS — exact source/runtime mapping, receipts, constructor data, immutable wiring, and Safe configuration |
+| Canonical two-vendor lifecycle | [release lifecycle](../evidence/sepolia/release-two-vendor.json) | PASS — two encrypted bids, proof-derived lower winner, confidential settlement, receipt, ACL, and replay rejection |
+| Alternative terminal paths | [EOA](../evidence/sepolia/market-eoa.json), [refund/cancel](../evidence/sepolia/market-refund.json), [Safe](../evidence/sepolia/market-safe.json) | PASS — EOA award, invalid/no-valid refund, cancellation, and Safe custody paths |
+| Settlement relay writes | [relay lifecycle](../evidence/sepolia/relay-write-e2e.json) | PASS — funding confirmation, early close, public winner proof, and finalization on Sepolia |
+| Production frontend | [smoke](../evidence/sepolia/production-smoke.json), [keyboard](../evidence/sepolia/production-keyboard.json) | PASS — canonical routes, wallet-free awarded tender, desktop/mobile rendering, and keyboard access |
+| Connected-wallet browser | Manual canonical Sepolia walkthrough plus public lifecycle cross-check | PASS — Buyer, Vendor, recovery, and authorized-reveal flows |
+| Release gates | [submission gate](../evidence/local/submission-gate.json), [public GitHub Release CI](https://github.com/huutrungle2001/Veilbid/actions/workflows/release-ci.yml) | PASS — locked install, compile, tests, lint, build, bindings, docs, secret scan, and evidence validation |
+
+<details>
+<summary>Full chronological engineering ledger</summary>
+
+The entries below preserve implementation provenance. Early local-only runs and
+intermediate frontend milestones were superseded by the passing Sepolia release
+evidence above; they are not current release blockers.
 
 | Date | Environment | Commit | Evidence | Result |
 |---|---|---|---|---|
-| 2026-07-25 | Local preflight / Gate A compile | `7ae2c48` | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | BLOCKED — official Nox runtime requires Docker; live configuration absent |
-| 2026-07-25 | Gate B compile/model | `92f8597` | `evidence/local/gate-b.json` | PARTIAL — 2,000 model cases pass; encrypted runtime blocked on Docker |
-| 2026-07-25 | Gate C compile | `2411e5e` | `evidence/local/gate-c.json` | BLOCKED — proof and recovery runtime requires Docker |
-| 2026-07-25 | Gate D compile/source inspection | `d9c97ce` | `evidence/local/gate-d.json` | BLOCKED — official wrapper paths compile; confidential runtime assertions require Docker |
+| 2026-07-25 | Local preflight / Gate A compile | `7ae2c48` | `evidence/local/preflight.json`, `evidence/local/gate-a.json` | SUPERSEDED — local Docker runtime was unavailable; the mandatory Gate A Sepolia run passed later that day |
+| 2026-07-25 | Gate B compile/model | `92f8597` | `evidence/local/gate-b.json` | SUPERSEDED — 2,000 model cases passed and the mandatory encrypted Sepolia cases subsequently passed |
+| 2026-07-25 | Gate C compile | `2411e5e` | `evidence/local/gate-c.json` | SUPERSEDED — local Docker runtime was unavailable; public proof and recovery passed on Sepolia |
+| 2026-07-25 | Gate D compile/source inspection | `d9c97ce` | `evidence/local/gate-d.json` | SUPERSEDED — local Docker runtime was unavailable; wrapper settlement and refund passed on Sepolia |
 | 2026-07-25 | Gate A Ethereum Sepolia | `229afee` | `evidence/sepolia/gate-a.json` | PASS — cross-block reuse, persistent ACL, vendor decrypt, and encrypted comparison verified |
 | 2026-07-25 | Gate B Ethereum Sepolia | `4f32508` | `evidence/sepolia/gate-b.json` | PASS — six representative encrypted cases and 2,000 deterministic model cases |
 | 2026-07-25 | Gate C Ethereum Sepolia | `1b27797` | `evidence/sepolia/gate-c.json` | PASS — public proof, tamper/tender binding, reload recovery, winner mapping, and replay verified |
@@ -143,7 +167,7 @@ pnpm evidence:validate
 | 2026-07-25 | Production market EOA lifecycle | `a7413b0` | `evidence/sepolia/market-eoa.json` | PASS — exact funding, admission/replay/deadline, scoped ACL, winner-only proof, confidential settlement, award receipt, and post-close buyer reveal verified |
 | 2026-07-25 | Production refund/cancellation lifecycle | `7aa859b` | `evidence/sepolia/market-refund.json` | PASS — encrypted invalid bid, proof-derived zero winner, full refund, cancellation boundaries, conservation, and replay guards verified |
 | 2026-07-25 | Production Safe lifecycle | `00a19a3` | `evidence/sepolia/market-safe.json` | PASS — full-term preparation binding, normal Safe create/fund/cancel, exact funding proof, replay rejection, preserved authority, and cleanup verified |
-| 2026-07-26 | Production properties/adversarial guards | `5eb30d8` | Auction House property/static tests | PASS — 10,000 bid sets, deterministic ties, lifecycle monotonicity, conservation, Nox operation order, admission bounds, reentrancy/CEI, and forbidden escape surfaces |
+| 2026-07-26 | Production properties/adversarial guards | `5eb30d8` | VeilBid Market property/static tests | PASS — 10,000 bid sets, deterministic ties, lifecycle monotonicity, conservation, Nox operation order, admission bounds, reentrancy/CEI, and forbidden escape surfaces |
 | 2026-07-26 | E2E deployment consistency | `0f2b309` | `evidence/sepolia/deployment-consistency.test.json` | PASS — receipts, masked-immutable runtime bytecode, immutable wiring, Safe configuration, and cleanup state verified; manifest remains explicitly unverified |
 | 2026-07-26 | Production Safe viewer authority | `ca5bc69` | `evidence/sepolia/market-safe-viewer.json` | PASS — Safe-owned award, Open-state denial, proof-derived settlement, direct-owner denial, threshold viewer grant/decryption, preserved authority, and cleanup verified |
 | 2026-07-27 | Generic Safe onboarding | `e69eead` | `evidence/sepolia/generic-safe-onboarding.json` | PASS — deterministic per-Safe module, threshold-authorized setup, Safe-owned faucet/wrap, atomic tender creation, dynamic Safe buyer, and preserved owners/threshold |
@@ -153,14 +177,14 @@ pnpm evidence:validate
 | 2026-07-27 | Connected-wallet Safe funds release | `9f65164` | `evidence/sepolia/production-smoke.json`, `evidence/sepolia/production-keyboard.json` | PASS — Vercel deployment `dpl_GkVoY9FHnZBCAWMFGTmg4K5WuLUj` served the compact Safe Funds and tender-scoped setup release; full tests/lint/build, canonical routes, desktop/mobile rendering, keyboard navigation, sticky layouts, and 198 Docs contrast checks passed |
 | 2026-07-27 | iExec Nox Hello World | `4193975` | `evidence/sepolia/hackathon-hello-world.json` | PASS — journey wallet deployed the confidential Piggy Bank, submitted encrypted deposit/withdrawal, and decrypted both resulting owner-authorized balances |
 | 2026-07-26 | Tender Room public explorer | `a83527e` | Tender Room unit/build checks and live 1440×1000 / 390×844 smoke | PASS — five finalized Sepolia tenders loaded without a wallet; loading/error paths expose no mock fallback or confidential fields |
-| 2026-07-26 | Tender Room wallet and writes | `f864a13` | 18 Tender Room tests plus Vite/vinext builds | PARTIAL — explicit EIP-6963 selection, network/account clearing, exactly funded Buyer orchestration, and encrypted Vendor orchestration pass unit/build gates; fresh-wallet browser E2E pending |
-| 2026-07-26 | Tender Room Activity recovery | `5afffa9` | 26 Tender Room tests, Vite/vinext builds, and live desktop/mobile smoke | PARTIAL — public-only checkpoints, bounded proof polling, fresh-handle resume, terminal-race cleanup, and close tracking pass unit/build gates; fresh-wallet live recovery remains pending |
+| 2026-07-26 | Tender Room wallet and writes | `f864a13` | 18 Tender Room tests plus Vite/vinext builds | SUPERSEDED — this intermediate unit/build milestone preceded the completed connected-wallet release walkthrough |
+| 2026-07-26 | Tender Room Activity recovery | `5afffa9` | 26 Tender Room tests, Vite/vinext builds, and live desktop/mobile smoke | SUPERSEDED — this intermediate recovery milestone preceded the completed connected-wallet release walkthrough |
 | 2026-07-26 | Settlement relay write lifecycle | `90539d0` | `evidence/sepolia/relay-write-e2e.json` | PASS — Safe atomic funding, relay funding confirmation, vendor encrypted bid, relay early close, and relay proof-finalize completed on Sepolia tender #3 |
 | 2026-07-26 | Operator Console MCP stdio | `7e06942` | `evidence/sepolia/operator-console-readonly.json` | PASS — five read-only tools completed a real stdio handshake and finalized Sepolia query; strict schemas and static policy exclude signer/write/decryption surfaces |
-| 2026-07-26 | Tender Room Auditor flow | `264d604` | 30 Tender Room tests, Vite build, and live 1440×1000 local smoke | PARTIAL — per-bid ACL is checked before decrypt, unauthorized reveal is blocked, and plaintext clears on wallet/session changes; authorized live-wallet reveal remains pending |
+| 2026-07-26 | Tender Room Auditor flow | `264d604` | 30 Tender Room tests, Vite build, and live 1440×1000 local smoke | SUPERSEDED — ACL-before-decrypt and session clearing were retained; the connected-wallet authorized reveal later passed manually |
 | 2026-07-26 | Tender Room Safe Buyer | `9232cbd` | 59 Tender Room tests, Vite build, Safe SDK/API integration | PASS — Safe Buyer is the primary workflow, prepares funding and tender creation atomically, proposes through Safe Transaction Service, shows threshold confirmations, and auto-executes threshold-one Safes |
 | 2026-07-26 | Tender Room landing/docs and accessibility | `d44330d` | 35 Tender Room tests, Vite build, 1440×1000 and 390×844 local smoke | PASS — standalone no-RPC landing/docs routes, explicit non-claims, Vercel SPA build contract, skip navigation, visible focus, mobile layouts, and staged live regions verified |
-| 2026-07-26 | Selective disclosure and receipt UI | `c9bb374` | 39 Tender Room tests and Vite build | PARTIAL — Vendor/EOA Buyer per-bid grant/reveal controls enforce public role filters, simulate before writes, clear plaintext by session, and surface non-transferable award evidence; fresh-wallet live disclosure remains pending |
+| 2026-07-26 | Selective disclosure and receipt UI | `c9bb374` | 39 Tender Room tests and Vite build | SUPERSEDED — per-bid grant/reveal and receipt controls were retained; the connected-wallet disclosure flow later passed manually |
 | 2026-07-26 | Canonical release preflight | `4a7d1e6` | `evidence/sepolia/release-preflight.json` | PASS — clean synchronized source, untracked environment, exact embedded receipt build input, distinct actors, Sepolia chain, compiled artifacts, and gas-balance thresholds verified without chain writes |
 | 2026-07-26 | Canonical release source publication | `1c0d990` | `evidence/sepolia/source-publication.release.json` | PASS — exact Sourcify top-level creation/runtime mappings and embedded receipt runtime/parent creation mapping verified from pinned Standard JSON inputs |
 | 2026-07-26 | Canonical release deployment consistency | `edd3c52` | `evidence/sepolia/deployment-consistency.release.json` | PASS — constructor calldata, receipts, runtime bytecode, wiring, Safe/module/operator state, and source mappings verified before `verified=true` promotion |
@@ -176,3 +200,5 @@ pnpm evidence:validate
 | 2026-07-26 | Submission release gate | `6b28cdf` | `evidence/local/submission-gate.json` | PASS — full tests/lint/build, verified Sepolia release, Safe wiring, two-vendor lifecycle, relay write lifecycle, secret scan, and evidence validation passed |
 | 2026-07-26 | Clean-environment release CI | `5258186` | `evidence/local/release-ci.json` | PASS — fresh full-history checkout completed locked install, contract compile, workspace tests, typed lint, build, binding drift, history secret scan, and evidence validation |
 | 2026-07-26 | Public RPC pagination recovery | `5cbf3fe` | `evidence/sepolia/production-smoke.json` | PASS — deployment `dpl_GQ96e7T9v4VasT3F9P1E7wpSTyFW` bounded `eth_getLogs` to 1,000-block ranges; canonical routes returned 200 and Chrome loaded tender #1, award, and receipt without the public-state failure UI |
+
+</details>

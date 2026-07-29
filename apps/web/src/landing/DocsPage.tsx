@@ -232,7 +232,7 @@ export function DocsPage() {
             <h2>Four boundaries, one settlement path.</h2>
             <dl className="docs-definition-grid">
               <div><dt>Tender Room</dt><dd>Wallet-free public index plus Buyer (Safe/EOA), Private Bids (Submit/My Bid/Granted Access), and Activity workspaces.</dd></div>
-              <div><dt>Auction House</dt><dd>Non-upgradeable market, ERC-7984 demo assets, non-transferable receipt, and preparation-only Safe module.</dd></div>
+              <div><dt>VeilBid Market</dt><dd>Non-upgradeable market, ERC-7984 demo assets, non-transferable receipt, and preparation-only Safe module.</dd></div>
               <div><dt>Settlement Relay</dt><dd>Stateless permissionless close and finalize automation with bounded, sequential actions.</dd></div>
               <div><dt>Operator Console</dt><dd>Strict-schema MCP stdio tools with no signer, write, or private-decryption surface.</dd></div>
             </dl>

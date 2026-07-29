@@ -49,7 +49,8 @@ Keeping all comparisons in one reviewed operation order was important:
 encrypted validity first, then encrypted lower-than comparison, then `select`
 for both best price and winner ID.
 
-Evidence: `evidence/sepolia/gate-b.json` and Auction House property/static tests.
+Evidence: `evidence/sepolia/gate-b.json` and VeilBid Market property/static
+tests.
 
 ### Public-decryption proof binding
 

@@ -1,4 +1,4 @@
-# Feasibility and Kill-Criteria Plan
+# Feasibility Validation Report
 
 > Status: Complete. Gates A–E passed on Ethereum Sepolia.
 
@@ -143,8 +143,9 @@ The module may be registered in the Safe module registry solely as a revocable
 enablement signal, but it must not implement or call
 `execTransactionFromModule` or `execTransactionFromModuleReturnData`.
 
-If browser-based higher-threshold signing is not implemented, use a 1-of-1 demo
-Safe and document higher-threshold execution through Safe Wallet.
+The implemented browser flow submits Safe Transaction Service proposals,
+auto-executes threshold-one Safes, and leaves higher-threshold proposals
+actionable for the remaining owners through the standard Safe approval flow.
 
 ## 7. Decision record
 
