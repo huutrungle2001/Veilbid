@@ -516,6 +516,11 @@ corepack pnpm test:production https://veilbid-three.vercel.app
 corepack pnpm test:keyboard https://veilbid-three.vercel.app
 ```
 
+Connected-wallet Buyer, Vendor, recovery, and authorized-reveal flows have also
+been tested manually against the canonical Sepolia release. These checks require
+explicit wallet selection and user-approved signatures; release CI never stores
+wallet credentials or signs transactions.
+
 ### Nox and Sepolia suites
 
 The Docker-backed local Nox suite is optional:
@@ -641,8 +646,6 @@ rules.
   dedicated adversarial callback runtime test remains pending.
 - Relay-originated close/finalize writes are verified on the canonical Sepolia
   release with sanitized public lifecycle evidence.
-- Fresh-wallet browser write and authorized-reveal E2E coverage is not yet as
-  complete as contract-level Sepolia evidence.
 - VeilBid does not verify vendor service quality, legal performance, identity,
   reputation, collusion, bribery, or transaction ordering.
 
