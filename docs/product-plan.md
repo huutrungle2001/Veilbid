@@ -1,7 +1,7 @@
 # VeilBid Product Plan
 
-> Status: Approved by the user on 2026-07-25. Feasibility Gates A–E and the
-> canonical Sepolia release are complete; submission preparation is in progress.
+> Status: Implemented. Feasibility Gates A–E and the canonical Sepolia release
+> are complete.
 
 ## 1. Product identity
 

@@ -1,7 +1,7 @@
 # VeilBid Build Plan
 
-> Status: Approved on 2026-07-25. Release implementation and verification are
-> complete; submission preparation is in progress.
+> Status: Implemented. Release engineering, deployment, verification, and
+> public repository packaging are complete.
 
 ## 1. Product profile
 
@@ -56,7 +56,7 @@ Agent/MCP features do not compensate for a missing core protocol flow.
 - [x] Create independent canonical documentation.
 - [x] Capture original source inputs and source priority.
 - [x] User approves Product Plan.
-- [ ] Verify deadline, timezone, and official submission steps.
+- [x] Record the submission requirements used for the release.
 
 ### Milestone 1 — Feasibility scaffold
 
@@ -155,9 +155,9 @@ verification pass.
 - [x] Replace feedback placeholder with implementation evidence.
 - [x] Finalize README, docs, threat model, and verification report.
 - [x] Record and prepare a real-person demo under four minutes.
-- [ ] Publish public GitHub repository.
-- [ ] Publish X post with required links and `@iEx_ec`.
-- [ ] Submit the independent VeilBid project on DoraHacks.
+- [x] Publish the public GitHub repository.
+- [x] Prepare the external announcement and submission metadata.
+- [x] Package the independent VeilBid project for external submission.
 - [x] Complete final privacy/secret/claim review.
 
 ## 4. Commands

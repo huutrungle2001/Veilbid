@@ -75,13 +75,14 @@ configuration, and canonical addresses.
 
 | Component | Ethereum Sepolia address |
 |---|---|
-| VeilBid Market | [`0x969F93642054130e87AFC8D380eec850617A6048`](https://sepolia.etherscan.io/address/0x969F93642054130e87AFC8D380eec850617A6048) |
+| VeilBid Market | [`0x720ac8Ae5dE78590FF5184E53130460033228afc`](https://sepolia.etherscan.io/address/0x720ac8Ae5dE78590FF5184E53130460033228afc) |
 | Confidential ERC-7984 test token | [`0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1`](https://sepolia.etherscan.io/address/0xE55b2f4630E9b1d48C7Fd8001527BA5dCD9192b1) |
 | Faucet test USDC | [`0xeE9A2B02C8700596b4814923c4086786c63A9D01`](https://sepolia.etherscan.io/address/0xeE9A2B02C8700596b4814923c4086786c63A9D01) |
-| Non-transferable award receipt | [`0xb31206898CdED553011012110E7aAFFe681C127f`](https://sepolia.etherscan.io/address/0xb31206898CdED553011012110E7aAFFe681C127f) |
+| Non-transferable award receipt | [`0x7B51DE3579F61741eDA8602D79AAD3f175451656`](https://sepolia.etherscan.io/address/0x7B51DE3579F61741eDA8602D79AAD3f175451656) |
 | Demo Safe 1.4.1 | [`0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0`](https://sepolia.etherscan.io/address/0xBF39C8C9C196f1a06bB122abea350eC63AB3fbA0) |
-| Safe preparation module | [`0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401`](https://sepolia.etherscan.io/address/0x3786A97Dca2e045DB43D25e5FeE54b2570CFe401) |
-| Per-Safe module factory | [`0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4`](https://sepolia.etherscan.io/address/0x0Fd3E77A93BE3E1b05a17b2860D492f4244414d4) |
+| Safe preparation module | [`0x60a3ed162b13E7Fd8b0139547Aa1B38F41a774C0`](https://sepolia.etherscan.io/address/0x60a3ed162b13E7Fd8b0139547Aa1B38F41a774C0) |
+| Per-Safe module factory | [`0x6C09f72FF67eE0bfAD7D45DFFde5bd06228050BE`](https://sepolia.etherscan.io/address/0x6C09f72FF67eE0bfAD7D45DFFde5bd06228050BE) |
+| Safe unwrap preparation adapter | [`0x779bacA165500e34aF65BF01AF4C2F2a997C9ff9`](https://sepolia.etherscan.io/address/0x779bacA165500e34aF65BF01AF4C2F2a997C9ff9) |
 
 The release has completed a real two-vendor Safe-funded lifecycle on Sepolia.
 The winner was selected through Nox computation and a public winner proof;
@@ -91,7 +92,6 @@ committed output.
 Key public evidence:
 
 - [Canonical two-vendor lifecycle](evidence/sepolia/release-two-vendor.json)
-- [Generic Safe onboarding and tender](evidence/sepolia/generic-safe-onboarding.json)
 - [Release deployment consistency](evidence/sepolia/deployment-consistency.release.json)
 - [Source publication mapping](evidence/sepolia/source-publication.release.json)
 - [Production frontend smoke](evidence/sepolia/production-smoke.json)
@@ -466,6 +466,7 @@ corepack pnpm test
 corepack pnpm lint
 corepack pnpm build
 corepack pnpm bindings:check
+corepack pnpm docs:check
 corepack pnpm secret:scan
 corepack pnpm evidence:validate
 ```
@@ -479,6 +480,7 @@ corepack pnpm evidence:validate
 | `pnpm lint` | Type-check application workspaces and validate browser smoke scripts |
 | `pnpm build` | Compile contracts, check generated bindings, and build all runtime workspaces |
 | `pnpm bindings:check` | Fail if generated ABIs or deployment snapshots drift |
+| `pnpm docs:check` | Fail if canonical addresses, required public docs, relative links, or placeholders drift |
 | `pnpm verify:deployment:release` | Verify canonical receipts, runtime bytecode, wiring, Safe state, and source mapping |
 | `pnpm secret:scan` | Scan tracked source and full Git history for forbidden credential patterns |
 | `pnpm evidence:validate` | Validate committed evidence against public-safe schemas |
@@ -569,7 +571,7 @@ implementation. Standard output is reserved for MCP JSON-RPC.
 ```text
 Veilbid/
 ├── apps/
-│   ├── web/                 # Landing, Docs, Public, Safe Buyer, Private Bids, Activity
+│   ├── web/                 # Landing, Docs, Public, EOA/Safe Buyer, Private Bids, Activity
 │   ├── relay/               # Stateless close/proof/finalize automation
 │   └── console/             # Read-only local CLI and MCP stdio tools
 ├── packages/
@@ -582,10 +584,10 @@ Veilbid/
 │   └── chain-bindings/      # Generated ABI/address snapshots and public index
 ├── tooling/scripts/         # Preflight, secret scan, and evidence validation
 ├── evidence/                # Sanitized local and Sepolia verification output
-├── docs/                    # Product, architecture, contract, security, and submission docs
+├── docs/                    # User, deployment, architecture, contract, security, and verification docs
 ├── AGENTS.md                # Contributor and agent rules
 ├── DESIGNS.md               # Canonical visual and interaction system
-├── PLAN.md                  # Current phase, blockers, and approval log
+├── SECURITY.md              # Vulnerability reporting and supported scope
 └── feedback.md              # Evidence-based sponsor feedback
 ```
 
@@ -624,7 +626,8 @@ rules.
 
 | Topic | Canonical document |
 |---|---|
-| Current phase and remaining work | [PLAN.md](PLAN.md) |
+| Setup, roles, and recovery | [User Guide](docs/user-guide.md) |
+| Web, relay, and contract deployment | [Deployment Guide](docs/deployment.md) |
 | Product scope, roles, and acceptance criteria | [Product Plan](docs/product-plan.md) |
 | Feasibility gates and kill criteria | [Feasibility Plan](docs/feasibility-plan.md) |
 | System design and trust boundaries | [Architecture](docs/architecture.md) |
@@ -633,7 +636,6 @@ rules.
 | Security objectives and residual risks | [Threat Model](docs/threat-model.md) |
 | Implementation milestones | [Build Plan](docs/build-plan.md) |
 | Test matrix and evidence ledger | [Verification](docs/verification.md) |
-| Demo, X post, and DoraHacks preparation | [Demo and Submission](docs/demo-and-submission.md) |
 | UI design and accessibility rules | [DESIGNS.md](DESIGNS.md) |
 
 Contributors and automated agents must read [AGENTS.md](AGENTS.md) before making

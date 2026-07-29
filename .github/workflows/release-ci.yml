@@ -55,6 +55,9 @@ jobs:
       - name: Check generated bindings
         run: pnpm bindings:check
 
+      - name: Check release documentation
+        run: pnpm docs:check
+
       - name: Scan current source and Git history
         run: pnpm secret:scan
 

@@ -20,45 +20,33 @@ boundaries, repeatable verification, and a judge-friendly repository.
 Read these files before making changes:
 
 1. `README.md`
-2. `PLAN.md`
-3. `docs/product-plan.md`
-4. `docs/feasibility-plan.md`
-5. `docs/build-plan.md`
-6. `docs/architecture.md`
-7. `docs/contract-spec.md`
-8. `docs/threat-model.md`
-9. `docs/verification.md`
-10. `docs/repository-layout.md`
-
-For competition or submission decisions, also read:
-
-- `docs/competition-summary.md`
-- `docs/requirements.md`
-- `docs/judging-criteria.md`
-- `docs/important-notes.md`
-- `docs/research-plan.md`
-- `docs/idea-selection.md`
-- `docs/demo-and-submission.md`
+2. `docs/user-guide.md`
+3. `docs/deployment.md`
+4. `docs/product-plan.md`
+5. `docs/feasibility-plan.md`
+6. `docs/build-plan.md`
+7. `docs/architecture.md`
+8. `docs/contract-spec.md`
+9. `docs/threat-model.md`
+10. `docs/verification.md`
+11. `docs/repository-layout.md`
+12. `DESIGNS.md` for user-interface changes.
 
 ## 3. Source priority
 
-`docs/original/` contains captured source inputs. A file being stored there does
-not make it official.
+Use this priority order for release facts:
 
-Use this priority order:
+1. `packages/contracts/deployments/sepolia.release.json`.
+2. Generated release bindings under `packages/chain-bindings/generated/`.
+3. Sanitized verification output under `evidence/`.
+4. Production source and tests.
+5. Canonical product and security documentation.
+6. README summaries.
+7. Agent inference.
 
-1. Official rules or DoraHacks event page.
-2. Official challenge page.
-3. Official FAQ or organizer announcement.
-4. Sponsor technical documentation and packages.
-5. Direct organizer response.
-6. Third-party sources.
-7. User-provided captures or transcripts.
-8. Agent inference.
-
-When a canonical document conflicts with a higher-priority source, stop using
-the conflicting claim, verify the source, update the canonical document, and
-record the resolution in `docs/important-notes.md`.
+When documentation conflicts with the verified release manifest or generated
+bindings, stop using the conflicting claim and synchronize every public-facing
+reference before committing.
 
 ## 4. Repository map
 
@@ -78,8 +66,8 @@ VeilBid uses a compact monorepo layout:
 - `tooling/scripts/`: repository preflight, evidence validation, and secret
   scanning.
 - `evidence/`: sanitized schemas and public local/Sepolia verification output.
-- `docs/`: product, competition, threat model, original sources, and submission
-  documentation.
+- `docs/`: user, deployment, product, architecture, contract, threat-model, and
+  verification documentation.
 
 Feasibility contracts under `packages/contracts/contracts/feasibility/` are
 never production deployment inputs. Production source, tests, and manifests
@@ -124,7 +112,8 @@ remain independently identifiable inside the same pinned toolchain.
   feature unless it supports an approved requirement.
 - Do not change deployed addresses or canonical artifacts without completing the
   deployment and synchronization workflow.
-- Update `PLAN.md` when phase, status, blocker, or next action changes.
+- Update the relevant canonical document when release status, architecture,
+  deployment, security boundaries, or verification evidence changes.
 - After completing and validating a requested change, create one or more small,
   logically scoped Git commits by default. Do not commit only when the user
   explicitly asks to leave the work uncommitted.

@@ -45,11 +45,16 @@ Veilbid/
 │   ├── local/
 │   └── sepolia/
 ├── docs/
-│   └── original/
+│   ├── user-guide.md
+│   ├── deployment.md
+│   ├── architecture.md
+│   ├── contract-spec.md
+│   ├── threat-model.md
+│   └── verification.md
 ├── AGENTS.md
 ├── DESIGNS.md
-├── PLAN.md
 ├── README.md
+├── SECURITY.md
 └── feedback.md
 ```
 
@@ -156,7 +161,7 @@ Rules:
 | MCP implementation | `apps/console/` |
 | Repository verification tools | `tooling/scripts/` |
 | Public verification artifacts | `evidence/` |
-| Product/security/submission truth | `docs/` and root judge files |
+| Product, deployment, security, and verification truth | `docs/` and root judge files |
 
 ## 5. Root orchestration
 

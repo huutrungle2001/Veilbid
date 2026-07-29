@@ -1,9 +1,10 @@
 # Tender Room
 
-VeilBid's browser product. The current slice is a wallet-free public explorer
-plus Buyer, Vendor, Activity, Auditor, and Safe Treasury workspaces. The public
-route rebuilds tender dossiers through the latest confirmed Ethereum Sepolia
-block and labels records that remain inside the 12-block finality window.
+VeilBid's browser product. It includes the wallet-free Public explorer, EOA and
+Safe Buyer flows, Private Bids views for submission/ownership/granted access,
+and Activity settlement recovery. The public route rebuilds tender dossiers
+through the latest confirmed Ethereum Sepolia block and labels records that
+remain inside the 12-block finality window.
 
 It intentionally:
 
@@ -25,6 +26,6 @@ pnpm test:production https://veilbid-three.vercel.app
 ```
 
 `VITE_SEPOLIA_RPC_URL` may override the public read-only RPC. Buyer, Vendor,
-Auditor, Activity, and Safe Treasury writes always require an explicitly
-connected wallet. Tender Room does not determine winners or own canonical
-lifecycle state.
+review, Activity, and Safe writes always require an explicitly connected
+wallet. Tender Room does not determine winners or own canonical lifecycle
+state.
