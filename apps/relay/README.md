@@ -27,13 +27,6 @@ node --env-file-if-exists=.env.local apps/relay/dist/cli.js once
 node --env-file-if-exists=.env.local apps/relay/dist/cli.js poll
 ```
 
-The public repository also includes `.github/workflows/settlement-relay.yml`.
-It runs one bounded `finalizer:once` cycle every five minutes and can be
-started with `workflow_dispatch`. Configure the repository Actions secrets
-`SEPOLIA_RPC_URL` and `FINALIZER_PRIVATE_KEY`; the workflow never stores them
-in the repository or prints them in logs. Its concurrency group prevents
-overlapping cycles.
-
 `dry-run` and `health` require only `SEPOLIA_RPC_URL`. `once` and `poll`
 require a dedicated gas-funded `FINALIZER_PRIVATE_KEY`. Runtime consumers use
 the verified canonical release manifest. The
@@ -49,3 +42,8 @@ publishes health at
 the finalized public index in bounded RPC ranges; it keeps no database or
 confidential checkpoint. A zero winner ID follows the same `finalizeTender`
 call and produces the contract's full-refund outcome.
+
+Railway is the only continuously scheduled runner for the canonical release.
+A maintainer may run `pnpm finalizer:once` manually from another environment
+when recovering an eligible tender; competing callers are handled through
+canonical state rereads and simulation.
